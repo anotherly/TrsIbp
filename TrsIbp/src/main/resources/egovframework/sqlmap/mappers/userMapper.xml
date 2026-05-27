@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.TRSolution.firstPro.user.mapper.UserMapper">
+
+
+	<!-- 전체 또는 특정 사용자 조회 -->
+	<resultMap type="userVO" id="selectUser">
+		<result property="userId"		column=	"USER_ID"		/>
+		<result property="userPw"		column=	"USER_PW"		/>
+		<result property="userName"		column=	"USER_NAME"		/>
+		<result property="regionId"		column=	"REGION_ID"		/>
+		<result property="regionName"	column=	"REGION_NAME"	/>
+		<result property="userPhone"		column=	"USER_TEL"		/>
+		<result property="authCode" 	column=	"AUTH_CODE"		/>
+		<result property="authName" 	column=	"AUTH_NAME"		/>
+		<result property="flagUse" 		column=	"FLAG_USE"		/>
+		<result property="memo"			column=	"MEMO"			/>
+		<result property="inTel"		column=	"IN_TEL"		/>
+		<result property="regDt"		column=	"REG_DT"		/>
+		<result property="stDt"			column=	"ST"			/>
+		<result property="fnDt"			column=	"FN"			/>
+		<result property="cnYn"			column=	"CN_YN"			/>
+	</resultMap>
+	<select id="selectUser" parameterType="string" resultMap="selectUser">
+	   SELECT
+				A.USER_ID
+				,A.USER_PW
+				,A.USER_NAME
+				,A.REGION_ID
+                ,C.AREA_NAME AS REGION_NAME
+                ,B.AUTH_NAME
+				,A.USER_TEL
+				,A.AUTH_CODE
+				,A.FLAG_USE
+				,A.MEMO
+				,A.IN_TEL
+				,TO_CHAR(A.REG_DT,'YYYY-MM-DD') AS REG_DT 
+                ,D.ST
+                ,D.FN
+   				 ,DECODE(D.DF1,'접속중','접속중','미접속') AS CN_YN
+			FROM
+			SYS_USER A
+            
+            LEFT JOIN SYS_AUTH B
+            ON A.AUTH_CODE = B.AUTH_CODE
+            
+            LEFT JOIN CODE_AREACODE C
+            ON A.REGION_ID = C.AREA_CODE
+            
+            LEFT JOIN 
+            (SELECT T1.*
+            ,case when df > 0 then '미접속'
+            else '접속중' end as df1
+            FROM 
+            (SELECT 
+                USER_ID
+                ,TO_CHAR(MAX(ST_TIME), 'YYYY-MM-DD HH24:MI:SS') ST 
+                ,TO_CHAR(MAX(FN_TIME), 'YYYY-MM-DD HH24:MI:SS') FN 
+                ,SIGN(ROUND((
+                TO_DATE(MAX(FN_TIME), 'YYYY-MM-DD HH24:MI:SS')
+                - TO_DATE(MAX(ST_TIME), 'YYYY-MM-DD HH24:MI:SS')
+                )* 24 * 60 *60)) df
+                FROM LOGIN_HISTORY
+                where ST_time >to_char(sysdate-2,'YYYY-MM-DD')
+                GROUP BY USER_ID
+            ) T1) D
+            ON  A.USER_ID = D.USER_ID
+            
+			WHERE 1=1
+			<if test="userId !=null and userId neq ''"> 
+				AND A.USER_ID=#{userId}
+			</if>	
+			<if test="userName !=null and userName neq ''"> 
+				AND A.USER_NAME=#{userName}
+			</if>	
+			<if test="regionId !=null and regionId neq ''"> 
+				AND A.REGION_ID=#{regionId}
+			</if>	
+			<if test="authCode !=null and authCode neq ''"> 
+				<!-- 사용자 목록 조회에서 임시 코드를 부여하여 로그인 화면과 별도 처리 -->
+				<!-- 지역관리자가 관리자 정보를 조회하지 못하도록 -->
+				<choose>
+				    <when test="authCode eq '998'">
+						AND A.AUTH_CODE not in('999')
+				    </when>
+				    <otherwise>
+				        AND A.AUTH_CODE=#{authCode}
+				    </otherwise>
+				</choose>
+			</if>	
+			<if test="searchValue !=null and searchValue neq ''"> 
+				<choose>
+				    <when test="searchType eq 'userId'">
+						AND A.USER_ID LIKE '%'||#{searchValue}||'%'	        
+				    </when>
+				    <otherwise>
+				        AND A.USER_NAME LIKE '%'||#{searchValue}||'%'	
+				    </otherwise>
+				</choose>
+			</if>	
+			<if test="sDate !=null and eDate !=null">
+			    AND A.REG_DT BETWEEN #{sDate} AND #{eDate}
+			</if>	
+			ORDER BY A.REG_DT DESC
+	</select>
+	
+	
+	<!-- 사용자 등록 -->
+	<insert id="insertUser" parameterType="userVO">
+		INSERT INTO SYS_USER(
+			USER_ID
+			,USER_PW
+			,USER_NAME
+			,REGION_ID
+			,USER_TEL
+			,AUTH_CODE
+			,FLAG_USE
+			,MEMO
+			,REG_DT
+		)
+		VALUES (
+			#{userId}
+			,#{userPw}
+			,#{userName}
+			,#{regionId}
+			,#{userPhone}
+			,#{authCode}
+			,'Y'
+			,#{memo}
+			,to_char(sysdate,'YYYY-MM-DD')
+		)
+	</insert>
+	
+	<!-- 사용자 정보 수정-->
+	<update id="updateUser" parameterType="userVO">
+		UPDATE SYS_USER
+		SET
+			<if test="userPw !='' ">
+				USER_PW=#{userPw},
+			</if>
+			 USER_NAME    = #{userName}
+			,REGION_ID    = #{regionId}
+			,AUTH_CODE    = #{authCode}
+			,USER_TEL     = #{userPhone}
+			,MEMO     = #{memo}
+		WHERE USER_ID=#{userId} 
+	</update>
+	
+	<!-- 사용자 삭제 -->
+	<delete id="deleteUser" parameterType="userVO">
+		DELETE FROM SYS_USER 
+		WHERE USER_ID=#{userId} 
+	</delete>
+	
+	
+	<!-- 로그인 이력 저장(로그인 시) -->
+	<insert id="insertLogin" parameterType="userVO">
+		INSERT INTO LOGIN_HISTORY(
+			USER_ID
+			,ST_TIME
+		)
+		VALUES (
+			#{userId}
+			,to_char(sysdate,'YYYY-MM-DD HH24:MI:SS')
+		)
+	</insert>
+	
+	<!-- 로그아웃 시 로그아웃 시간 기록-->
+	<update id="logoutUpdate" parameterType="userVO">
+		UPDATE LOGIN_HISTORY
+		SET FN_TIME = to_char(sysdate,'YYYY-MM-DD HH24:MI:SS')
+		WHERE USER_ID=#{userId}
+		AND ST_TIME = 
+		(
+			select ST_TIME from login_history 
+			where user_id =#{userId} 
+			and ST_time >to_char(sysdate-2,'YYYY-MM-DD')
+			and fn_time IS NULL		
+		)
+	</update>
+	
+	<!-- 서버 비정상 종료로 인한 누적 기록 삭제-->
+	<delete id="errloginDelete" parameterType="userVO">
+		delete from login_history
+		where user_id =#{userId}
+		and fn_time is null
+	</delete>
+	
+	<!-- 사용자 사용이력 조회 -->
+	<resultMap type="userVO" id="loginHistory">
+		<result property="userId"		column=	"USER_ID"		/>
+		<result property="userName"		column=	"USER_NAME"		/>
+		<result property="regionName"	column=	"REGION_NAME"	/>
+		<result property="stDt"			column=	"ST_TIME"			/>
+		<result property="fnDt"			column=	"FN_TIME"			/>
+		<result property="useTime"		column=	"USE_TIME"			/>
+	</resultMap>
+	<select id="loginHistory" parameterType="userVO" resultMap="loginHistory">
+	   SELECT A.*
+		,B.USER_NAME 
+		,C.AREA_NAME REGION_NAME
+		,ROUND(
+		(TO_DATE(FN_TIME, 'YYYY-MM-DD HH24:MI:SS')
+		- TO_DATE(ST_TIME, 'YYYY-MM-DD HH24:MI:SS')
+         )* 24 * 60) USE_TIME
+		FROM LOGIN_HISTORY A 
+		LEFT JOIN 
+		SYS_USER B
+		ON A.USER_ID=B.USER_ID
+		LEFT JOIN 
+		CODE_AREACODE C
+		ON B.REGION_ID=C.AREA_CODE
+		where 1=1
+		<if test="regionId !=null"> 
+			AND B.REGION_ID=#{regionId}
+		</if>	
+		<if test="authCode !=null and authCode neq ''"> 
+			AND B.AUTH_CODE=#{authCode}
+		</if>	
+		<if test="searchType !=null and searchType neq ''"> 
+			<choose>
+			    <when test="searchType eq 'userId'">
+					AND B.USER_ID LIKE '%'||#{searchValue}||'%'	        
+			    </when>
+			    <otherwise>
+			        AND B.USER_NAME LIKE '%'||#{searchValue}||'%'	
+			    </otherwise>
+			</choose>
+		</if>
+		<choose>
+			<when test="sDate !=null and eDate !=null">
+		    	AND A.ST_TIME BETWEEN #{sDate} AND TO_DATE(#{eDate}, 'YYYY-MM-DD')+1
+			</when>
+			<otherwise>
+			    AND A.ST_TIME > to_char(sysdate-1,'YYYY-MM-DD')
+			</otherwise>    
+		</choose>
+		ORDER BY A.ST_TIME DESC
+	</select>
+</mapper>
