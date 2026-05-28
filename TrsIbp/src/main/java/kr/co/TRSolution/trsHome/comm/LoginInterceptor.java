@@ -14,70 +14,94 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import kr.co.TRSolution.trsHome.user.service.UserService;
 import kr.co.TRSolution.trsHome.user.vo.UserVO;
 
-//로그인 로그아웃 처리시 처음과 끝을 관장하며
-//세션, 세션 어트리뷰트 값 생성 및 삭제를 담당
+/**
+ * 로그인/로그아웃 인터셉터
+ *
+ * [동작 흐름]
+ *  1. preHandle  : 로그인/로그아웃 URL 진입 전 기존 세션 제거 + logoutUpdate
+ *  2. postHandle : 로그인 성공(model에 "user"키 존재) 시 세션 저장 + login_history INSERT
+ *
+ * [매핑 URL] dispatcher-servlet.xml에서 /user/loginAction.do, /user/logout.do 에 적용
+ */
 public class LoginInterceptor extends HandlerInterceptorAdapter {
 
-	public static final String LOGIN = "login";
-	public static final Logger logger = LoggerFactory.getLogger(LoginInterceptor.class);
+    public static final String LOGIN = "login";
+    public static final Logger logger = LoggerFactory.getLogger(LoginInterceptor.class);
 
-	@Resource(name = "userService")
-	private UserService userService;
+    @Resource(name = "userService")
+    private UserService userService;
 
-	// 로그인 로그아웃시 본 메소드 진행 전 접속
-	// 세션 값이 존재한다면 삭제 (로그아웃 처리)
-	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
-		logger.debug("▶▶▶▶▶▶▶.preHandle 메소드 진입");
-		HttpSession httpSession = request.getSession();
+    /**
+     * 핸들러 실행 전 - 기존 세션 제거 (로그아웃 처리)
+     */
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
+        logger.debug("▶ LoginInterceptor.preHandle 진입");
+        HttpSession httpSession = request.getSession();
+        logger.debug("▶ sessionId={}, loginAttr={}", httpSession.getId(), httpSession.getAttribute(LOGIN));
 
-		logger.debug("▶▶▶▶▶▶▶.httpSession : " + httpSession);
-		logger.debug("▶▶▶▶▶▶▶.httpSession.getId : " + httpSession.getId());
-		logger.debug("▶▶▶▶▶▶▶.httpSession : " + httpSession.getAttribute(LOGIN));
-		try {
-			// 기존의 로그인 정보 제거
-			if (httpSession.getAttribute(LOGIN) != null) {
-				logger.debug("▶▶▶▶▶▶▶.clear login data before");
-				UserVO logoutVo = new UserVO();
-				String uid = SessionListener.getInstance().getUserID(httpSession);
-				logoutVo.setUserId(uid);
+        try {
+            // 기존 로그인 정보가 있으면 → 로그아웃 처리
+            if (httpSession.getAttribute(LOGIN) != null) {
+                logger.debug("▶ 기존 세션 제거 시작");
+                UserVO logoutVo = new UserVO();
+                String uid = SessionListener.getInstance().getUserID(httpSession);
+                logoutVo.setUserId(uid);
 
-				/* httpSession.removeAttribute(LOGIN); */
-				SessionListener.getInstance().removeSession(httpSession);
-				userService.logoutUpdate(logoutVo);
-			}
-		} catch (Exception e) {
-			logger.debug("에러메시지 : " + e.toString());
-			return false;
-		}
-		return true;
-	}
+                // SessionListener에서 세션 제거
+                SessionListener.getInstance().removeSession(httpSession);
+                // login_history FN_TIME 업데이트
+                userService.logoutUpdate(logoutVo);
+                logger.debug("▶ 기존 세션 제거 완료: userId={}", uid);
+            }
+        } catch (Exception e) {
+            logger.debug("▶ preHandle 에러: {}", e.toString());
+            return false;
+        }
+        return true;
+    }
 
-	@Override
-	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-			ModelAndView modelAndView) throws Exception {
-		logger.debug("▶▶▶▶▶▶▶.postHandle 메소드 진입");
-		logger.debug("▶▶▶▶▶▶▶.httpSession.getId : " + request.getSession().getId());
-		HttpSession httpSession = request.getSession();
-		ModelMap modelMap = modelAndView.getModelMap();
-		// UserController에서 받은 모델 어트리뷰트 값
-		Object userVo = modelMap.get("user");
+    /**
+     * 핸들러 실행 후 - 로그인 성공 시 세션 저장 및 login_history 기록
+     * redirect 응답이면 modelAndView가 null일 수 있으므로 null 체크 필수
+     */
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+            ModelAndView modelAndView) throws Exception {
+        logger.debug("▶ LoginInterceptor.postHandle 진입");
 
-		// 정상적으로 로그인이 된 경우
-		try {
-			if (userVo != null) {
-				logger.debug("▶▶▶▶▶▶▶.new login success");
-				UserVO lvo = (UserVO) userVo;
-				// web으로 어트리뷰트값 전송
-				httpSession.setAttribute(LOGIN, userVo);
-				// String uid = SessionListener.getInstance().getUserID(httpSession);
-				userService.errloginDelete(lvo);
-				userService.insertLogin(lvo);
-			}
-		} catch (Exception e) {
-			logger.debug("에러메시지 : " + e.toString());
-		}
-	}
+        // redirect 시 modelAndView가 null → 처리 스킵
+        if (modelAndView == null) {
+            logger.debug("▶ modelAndView is null (redirect), postHandle 스킵");
+            return;
+        }
 
+        HttpSession httpSession = request.getSession();
+        ModelMap modelMap = modelAndView.getModelMap();
+
+        // LoginController에서 로그인 성공 시 addObject("user", loginUser) 한 값
+        Object userVo = modelMap.get("user");
+
+        try {
+            if (userVo != null) {
+                logger.debug("▶ 로그인 성공 - 세션 저장 시작");
+                UserVO lvo = (UserVO) userVo;
+
+                // 1. 세션에 로그인 정보 저장
+                httpSession.setAttribute(LOGIN, lvo);
+
+                // 2. SessionListener에 세션 등록 (접속자 추적)
+                SessionListener.getInstance().setSession(httpSession, lvo.getUserId());
+
+                // 3. 비정상 종료로 남은 이력 삭제 후 새 로그인 이력 INSERT
+                userService.errloginDelete(lvo);
+                userService.insertLogin(lvo);
+
+                logger.debug("▶ 세션 저장 완료: userId={}, authCode={}", lvo.getUserId(), lvo.getAuthCode());
+            }
+        } catch (Exception e) {
+            logger.debug("▶ postHandle 에러: {}", e.toString());
+        }
+    }
 }

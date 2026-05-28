@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    근태관리 SQL Mapper
+    테이블: ATTEND_HISTORY
+    DB: MariaDB 10.6
+    작성일: 2026-05-28
+-->
+<mapper namespace="kr.co.TRSolution.trsHome.attend.mapper.AttendMapper">
+
+    <!-- ============================================================ -->
+    <!--  ResultMap                                                    -->
+    <!-- ============================================================ -->
+    <resultMap type="attendVO" id="attendResultMap">
+        <result property="seq"          column="SEQ"            />
+        <result property="userId"       column="USER_ID"        />
+        <result property="userName"     column="USER_NAME"      />
+        <result property="workDt"       column="WORK_DT"        />
+        <result property="checkInTime"  column="CHECK_IN_TIME"  />
+        <result property="checkOutTime" column="CHECK_OUT_TIME" />
+        <result property="workLocation" column="WORK_LOCATION"  />
+        <result property="workMemo"     column="WORK_MEMO"      />
+        <result property="workMinutes"  column="WORK_MINUTES"   />
+        <result property="regDt"        column="REG_DT"         />
+        <result property="updDt"        column="UPD_DT"         />
+    </resultMap>
+
+    <!-- ============================================================ -->
+    <!--  오늘 출퇴근 기록 조회                                          -->
+    <!--  - userId + 오늘 날짜 기준                                     -->
+    <!--  - 출근시간, 퇴근시간, 근무지, 근무분 반환                       -->
+    <!-- ============================================================ -->
+    <select id="selectTodayAttend" parameterType="attendVO" resultMap="attendResultMap">
+        SELECT
+            A.SEQ
+            ,A.USER_ID
+            ,A.WORK_DT
+            ,DATE_FORMAT(A.CHECK_IN_TIME,  '%H:%i') AS CHECK_IN_TIME
+            ,DATE_FORMAT(A.CHECK_OUT_TIME, '%H:%i') AS CHECK_OUT_TIME
+            ,A.WORK_LOCATION
+            ,A.WORK_MEMO
+            ,A.REG_DT
+            ,A.UPD_DT
+            /* 근무 분 계산: 퇴근기록 없으면 현재시각과 비교 */
+            ,CASE
+                WHEN A.CHECK_OUT_TIME IS NOT NULL
+                    THEN CAST(TIMESTAMPDIFF(MINUTE, A.CHECK_IN_TIME, A.CHECK_OUT_TIME) AS CHAR)
+                WHEN A.CHECK_IN_TIME IS NOT NULL
+                    THEN CAST(TIMESTAMPDIFF(MINUTE, A.CHECK_IN_TIME, NOW()) AS CHAR)
+                ELSE '0'
+            END AS WORK_MINUTES
+        FROM ATTEND_HISTORY A
+        WHERE A.USER_ID = #{userId}
+          AND A.WORK_DT = CURDATE()
+        LIMIT 1
+    </select>
+
+    <!-- ============================================================ -->
+    <!--  출근 INSERT                                                  -->
+    <!--  - WORK_DT = 오늘, CHECK_IN_TIME = NOW()                     -->
+    <!--  - UNIQUE KEY (USER_ID, WORK_DT) → 하루 1회만 허용            -->
+    <!-- ============================================================ -->
+    <insert id="insertCheckIn" parameterType="attendVO">
+        INSERT INTO ATTEND_HISTORY (
+            USER_ID
+            ,WORK_DT
+            ,CHECK_IN_TIME
+            ,WORK_LOCATION
+            ,WORK_MEMO
+            ,REG_DT
+        ) VALUES (
+            #{userId}
+            ,CURDATE()
+            ,NOW()
+            ,COALESCE(#{workLocation}, 'OFFICE')
+            ,#{workMemo}
+            ,NOW()
+        )
+    </insert>
+
+    <!-- ============================================================ -->
+    <!--  퇴근 UPDATE                                                  -->
+    <!--  - CHECK_OUT_TIME = NOW(), UPD_DT = NOW()                    -->
+    <!--  - 오늘 날짜 기준, FN_TIME이 없는 경우만 업데이트               -->
+    <!-- ============================================================ -->
+    <update id="updateCheckOut" parameterType="attendVO">
+        UPDATE ATTEND_HISTORY
+        SET
+            CHECK_OUT_TIME = NOW()
+            ,UPD_DT        = NOW()
+        WHERE USER_ID  = #{userId}
+          AND WORK_DT  = CURDATE()
+          AND CHECK_OUT_TIME IS NULL
+    </update>
+
+    <!-- ============================================================ -->
+    <!--  근무지 변경 UPDATE                                            -->
+    <!--  - 오늘 날짜 기준으로 근무지 업데이트                           -->
+    <!--  - 출근 전이면 아무 일도 안 일어남 (레코드 없음)                 -->
+    <!-- ============================================================ -->
+    <update id="updateWorkLocation" parameterType="attendVO">
+        UPDATE ATTEND_HISTORY
+        SET
+            WORK_LOCATION = #{workLocation}
+            ,UPD_DT       = NOW()
+        WHERE USER_ID = #{userId}
+          AND WORK_DT  = CURDATE()
+    </update>
+
+</mapper>

@@ -1,4 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%-- 세션 체크: 로그인하지 않으면 로그인 페이지로 이동 --%>
+<%
+    if (session.getAttribute("login") == null) {
+        response.sendRedirect(request.getContextPath() + "/user/login.do");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <!-- saved from url=(0126)file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html# -->
 <html lang="ko">
@@ -78,15 +86,15 @@
                 </div>
             </div>
 
-            <!-- 사용자 간이 프로필 -->
+            <!-- 사용자 간이 프로필 (세션 연동) -->
             <div class="p-4 mx-4 my-3 bg-brand-card/50 rounded-xl border border-brand-border/60 flex items-center gap-3">
                 <div class="relative">
                     <img src="<%=request.getContextPath()%>/protoType/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
                     <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
                 </div>
-                <div>
-                    <h4 class="font-bold text-sm text-gray-100">이도현 과장</h4>
-                    <span class="text-xs text-gray-400">웹 프론트엔드 파트</span>
+                <div class="flex-grow overflow-hidden">
+                    <h4 class="font-bold text-sm text-gray-100 truncate">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</h4>
+                    <span class="text-xs text-gray-400">${not empty sessionScope.login ? sessionScope.login.authName : ''}</span>
                 </div>
             </div>
 
@@ -191,10 +199,17 @@
             </nav>
         </div>
 
-        <!-- 하단 푸터 / 세팅 -->
+        <!-- 하단 푸터 / 세팅 + 로그아웃 -->
         <div class="p-4 border-t border-brand-border flex items-center justify-between text-xs text-gray-500">
             <span>Server: <span class="text-emerald-500 font-bold">Stable</span></span>
-            <button class="hover:text-white"><i class="fa-solid fa-gear text-sm"></i></button>
+            <div class="flex items-center gap-2">
+                <button class="hover:text-white" title="설정"><i class="fa-solid fa-gear text-sm"></i></button>
+                <a href="<%=request.getContextPath()%>/user/logout.do" 
+                   class="hover:text-red-400 transition" title="로그아웃"
+                   onclick="return confirm('로그아웃 하시겠습니까?')">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </a>
+            </div>
         </div>
     </aside>
 
@@ -240,6 +255,19 @@
                     <i class="fa-solid fa-bell text-lg"></i>
                     <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-brand-dark animate-pulse"></span>
                 </div>
+
+                <!-- 로그인 사용자 정보 + 로그아웃 버튼 -->
+                <div class="flex items-center gap-2 pl-4 border-l border-brand-border/60">
+                    <span class="text-xs text-gray-400">
+                        <i class="fa-solid fa-user-circle text-brand-accent mr-1"></i>
+                        <strong class="text-gray-200">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</strong>
+                    </span>
+                    <a href="<%=request.getContextPath()%>/user/logout.do"
+                       class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-500/10"
+                       onclick="return confirm('로그아웃 하시겠습니까?')">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -280,6 +308,12 @@
                         <button id="btn-checkout" onclick="triggerCheckOut()" class="w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2" disabled="">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i> 퇴근하기
                         </button>
+                    </div>
+                    <!-- 출퇴근 시간 표시 (AJAX 응답 후 업데이트) -->
+                    <div class="mt-3 text-center text-xs text-gray-500 space-y-0.5">
+                        <p id="checkin-time-display"></p>
+                        <p id="checkout-time-display"></p>
+                        <p id="work-time-display"></p>
                     </div>
                 </div>
 
@@ -718,8 +752,16 @@
 
 
     <!-- ============================================ -->
-    <!-- JAVASCRIPT: 외부 파일로 분리 (EL 충돌 없음, 백틱 자유 사용 가능) -->
+    <!-- JAVASCRIPT: jQuery + 외부 파일로 분리 (EL 충돌 없음, 백틱 자유 사용 가능) -->
     <!-- ============================================ -->
+    <%-- jQuery (AJAX 사용을 위해 dashboard.js 앞에 로드) --%>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <%-- 컨텍스트 경로: dashboard.js에서 AJAX URL 조합에 사용 --%>
+    <script>
+        var ctxPath = '<%=request.getContextPath()%>';
+    </script>
+
     <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
 
 </body></html>
