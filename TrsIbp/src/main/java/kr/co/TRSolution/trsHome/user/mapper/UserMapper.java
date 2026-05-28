@@ -1,45 +1,42 @@
 package kr.co.TRSolution.trsHome.user.mapper;
+
 import java.util.List;
+import java.util.Map;
+
 import egovframework.rte.psl.dataaccess.mapper.Mapper;
 import kr.co.TRSolution.trsHome.user.vo.UserVO;
 
 /**
- * 사용자 매퍼 클래스
- * @author 솔루션사업팀 정다빈
- * @since 2021.07.23
- * @version 1.0
- * @see
+ * 사용자 매퍼 인터페이스
+ * 테이블: USER_INFO, AUTH_INFO, COMPANY_INFO, DEPT_INFO
  *
- * << 개정이력(Modification Information) >>
- *
- *   수정일            수정자              수정내용
- *  -------    -------- ---------------------------
- *  2021.07.23  정다빈           최초 생성
+ * @author DevSync
+ * @since 2026-05-28
  */
-
 @Mapper("userMapper")
-public interface UserMapper{
-	//전체 회원정보 조회
-	public List<UserVO> selectUser(UserVO userVO) throws Exception;
-	
-	//사용자 등록
-	public void insertUser(UserVO userVO) throws Exception;
-	
-	//사용이력 조회
-	public List<UserVO> loginHistory(UserVO uvo);
+public interface UserMapper {
 
-	//사용자 정보 수정
-	public void updateUser(UserVO uvo);
+    /** 사용자 목록/단건 조회 */
+    public List<UserVO> selectUser(UserVO userVO) throws Exception;
 
-	//사용자 삭제
-	public void deleteUser(UserVO lvo);
-	
-	//로그인 정보 주입(어플리케이션 연동)
-	public void insertLogin(UserVO lvo);
+    /** 로그인용 단건 조회 (비밀번호 포함) */
+    public UserVO selectUserForLogin(UserVO userVO) throws Exception;
 
-	//로그아웃 시 접근 정보 1->0(어플리케이션 연동)
-	public void logoutUpdate(UserVO lvo);
-	
-	//에러 로그인 삭제
-	public void errloginDelete(UserVO lvo);
+    /** 사용자 등록 */
+    public void insertUser(UserVO userVO) throws Exception;
+
+    /** 사용자 정보 수정 */
+    public void updateUser(UserVO userVO);
+
+    /** 사용자 삭제 */
+    public void deleteUser(UserVO userVO);
+
+    /** 부서 목록 조회 (트리구조용) */
+    public List<Map<String, Object>> selectDeptList(UserVO userVO);
+
+    /** 회사 목록 조회 */
+    public List<Map<String, Object>> selectCompanyList(UserVO userVO);
+
+    /** 권한 목록 조회 */
+    public List<Map<String, Object>> selectAuthList();
 }

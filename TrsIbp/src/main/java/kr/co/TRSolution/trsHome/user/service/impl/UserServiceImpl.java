@@ -1,6 +1,7 @@
 package kr.co.TRSolution.trsHome.user.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -12,68 +13,68 @@ import kr.co.TRSolution.trsHome.user.vo.UserVO;
 
 /**
  * 사용자 서비스 구현 클래스
- * @author 솔루션사업팀 정다빈
- * @since 2021.07.23
- * @version 1.0
- * @see
  *
- * << 개정이력(Modification Information) >>
- *
- *   수정일            수정자              수정내용
- *  -------    -------- ---------------------------
- *  2021.07.23  정다빈           최초 생성
+ * @author DevSync
+ * @since 2026-05-28
  */
-
 @Service("userService")
-public class UserServiceImpl implements UserService{
-	
-	@Resource(name="userMapper")
-	private UserMapper userMapper;
-	
-	//전체 회원정보 조회
-	public List<UserVO> selectUserList(UserVO userVO) throws Exception{
-		return userMapper.selectUser(userVO);
-	}
+public class UserServiceImpl implements UserService {
 
-	//사용자 등록
-	public void insertUser(UserVO userVO) throws Exception {
-		userMapper.insertUser(userVO);
-	}
-	
-	//특정 사용자 조회
-	public UserVO selectUser(UserVO userVO) throws Exception {
-		UserVO uvo = (UserVO) userMapper.selectUser(userVO).get(0);
-		return uvo;
-	}
+    @Resource(name = "userMapper")
+    private UserMapper userMapper;
 
-	//사용자 정보 수정
-	public void updateUser(UserVO uvo) {
-		userMapper.updateUser(uvo);
-	}
+    /** 사용자 목록 조회 */
+    @Override
+    public List<UserVO> selectUserList(UserVO userVO) throws Exception {
+        return userMapper.selectUser(userVO);
+    }
 
-	//사용자 삭제
-	public void deleteUser(UserVO uvo) {
-		userMapper.deleteUser(uvo);		
-	}
-	
-	//로그인 정보 주입(어플리케이션 연동)
-	public void insertLogin(UserVO lvo) {
-		userMapper.insertLogin(lvo);
-	}
+    /** 특정 사용자 단건 조회 */
+    @Override
+    public UserVO selectUser(UserVO userVO) throws Exception {
+        List<UserVO> list = userMapper.selectUser(userVO);
+        return (list != null && !list.isEmpty()) ? list.get(0) : null;
+    }
 
-	//로그아웃 시 접근 정보 1->0(어플리케이션 연동)
-	public void logoutUpdate(UserVO lvo) {
-		userMapper.logoutUpdate(lvo);
-	}
+    /** 로그인용 단건 조회 (비밀번호 포함) */
+    @Override
+    public UserVO selectUserForLogin(UserVO userVO) throws Exception {
+        return userMapper.selectUserForLogin(userVO);
+    }
 
-	@Override
-	public void errloginDelete(UserVO lvo) {
-		userMapper.errloginDelete(lvo);
-		
-	}
+    /** 사용자 등록 */
+    @Override
+    public void insertUser(UserVO userVO) throws Exception {
+        userMapper.insertUser(userVO);
+    }
 
-	@Override
-	public List<UserVO> loginHistory(UserVO uvo) {
-		return userMapper.loginHistory(uvo);
-	}
+    /** 사용자 정보 수정 */
+    @Override
+    public void updateUser(UserVO userVO) {
+        userMapper.updateUser(userVO);
+    }
+
+    /** 사용자 삭제 */
+    @Override
+    public void deleteUser(UserVO userVO) {
+        userMapper.deleteUser(userVO);
+    }
+
+    /** 부서 목록 조회 (트리구조용) */
+    @Override
+    public List<Map<String, Object>> selectDeptList(UserVO userVO) {
+        return userMapper.selectDeptList(userVO);
+    }
+
+    /** 회사 목록 조회 */
+    @Override
+    public List<Map<String, Object>> selectCompanyList(UserVO userVO) {
+        return userMapper.selectCompanyList(userVO);
+    }
+
+    /** 권한 목록 조회 */
+    @Override
+    public List<Map<String, Object>> selectAuthList() {
+        return userMapper.selectAuthList();
+    }
 }

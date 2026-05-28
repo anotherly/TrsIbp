@@ -81,10 +81,10 @@ public class LoginController {
         ModelAndView mav = new ModelAndView();
 
         try {
-            // 1. ID로 사용자 조회
+            // 1. ID로 사용자 조회 (비밀번호 포함)
             UserVO findVO = new UserVO();
             findVO.setUserId(userVO.getUserId());
-            UserVO loginUser = userService.selectUser(findVO);
+            UserVO loginUser = userService.selectUserForLogin(findVO);
 
             // 2. 사용자 미존재
             if (loginUser == null) {
