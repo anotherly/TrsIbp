@@ -1,675 +1,1014 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
+<!-- saved from url=(0126)file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html# -->
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>THREE-R SOLUTION | Right Time / Value / Service</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
-</head>
-<body>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSync - IT 개발사 스마트 대시보드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="./protoType/saved_resource"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0b0f19',      /* Deep background space */
+                            card: '#111827',      /* Dark Card */
+                            border: '#1f2937',    /* Card border */
+                            accent: '#3b82f6',    /* Theme Blue */
+                            neonBlue: '#00d2ff',  /* Cool developer cyan */
+                            neonGreen: '#10b981'  /* Success state green */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./DevSync - IT 개발사 스마트 대시보드_files/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./DevSync - IT 개발사 스마트 대시보드_files/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, Noto Sans KR, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.inset-y-0{top:0px;bottom:0px}.-right-1{right:-0.25rem}.-right-10{right:-2.5rem}.-top-1{top:-0.25rem}.-top-10{top:-2.5rem}.bottom-0{bottom:0px}.bottom-1{bottom:0.25rem}.left-0{left:0px}.right-0{right:0px}.right-4{right:1rem}.top-0{top:0px}.top-4{top:1rem}.z-20{z-index:20}.z-30{z-index:30}.z-50{z-index:50}.mx-4{margin-left:1rem;margin-right:1rem}.mx-auto{margin-left:auto;margin-right:auto}.my-3{margin-top:0.75rem;margin-bottom:0.75rem}.mb-1{margin-bottom:0.25rem}.mb-1\.5{margin-bottom:0.375rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mr-1\.5{margin-right:0.375rem}.mr-2{margin-right:0.5rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-1{height:0.25rem}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-16{height:4rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-24{height:6rem}.h-3{height:0.75rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-\[400px\]{height:400px}.h-full{height:100%}.h-screen{height:100vh}.min-h-screen{min-height:100vh}.w-1{width:0.25rem}.w-1\.5{width:0.375rem}.w-10{width:2.5rem}.w-2\.5{width:0.625rem}.w-24{width:6rem}.w-3{width:0.75rem}.w-5{width:1.25rem}.w-64{width:16rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.max-w-md{max-width:28rem}.flex-grow{flex-grow:1}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-not-allowed{cursor:not-allowed}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.grid-cols-7{grid-template-columns:repeat(7, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-y-2{row-gap:0.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.rounded-r-xl{border-top-right-radius:0.75rem;border-bottom-right-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-l-4{border-left-width:4px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-blue-400{--tw-border-opacity:1;border-color:rgb(96 165 250 / var(--tw-border-opacity, 1))}.border-blue-500\/20{border-color:rgb(59 130 246 / 0.2)}.border-brand-accent{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.border-brand-accent\/20{border-color:rgb(59 130 246 / 0.2)}.border-brand-accent\/30{border-color:rgb(59 130 246 / 0.3)}.border-brand-border{--tw-border-opacity:1;border-color:rgb(31 41 55 / var(--tw-border-opacity, 1))}.border-brand-border\/60{border-color:rgb(31 41 55 / 0.6)}.border-brand-border\/80{border-color:rgb(31 41 55 / 0.8)}.border-brand-dark{--tw-border-opacity:1;border-color:rgb(11 15 25 / var(--tw-border-opacity, 1))}.border-cyan-400{--tw-border-opacity:1;border-color:rgb(34 211 238 / var(--tw-border-opacity, 1))}.border-emerald-500{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.border-emerald-500\/20{border-color:rgb(16 185 129 / 0.2)}.border-purple-400{--tw-border-opacity:1;border-color:rgb(192 132 252 / var(--tw-border-opacity, 1))}.border-purple-500\/20{border-color:rgb(168 85 247 / 0.2)}.border-red-500{--tw-border-opacity:1;border-color:rgb(239 68 68 / var(--tw-border-opacity, 1))}.border-red-500\/20{border-color:rgb(239 68 68 / 0.2)}.border-slate-950{--tw-border-opacity:1;border-color:rgb(2 6 23 / var(--tw-border-opacity, 1))}.bg-black\/60{background-color:rgb(0 0 0 / 0.6)}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246 / var(--tw-bg-opacity, 1))}.bg-blue-500\/10{background-color:rgb(59 130 246 / 0.1)}.bg-brand-accent{--tw-bg-opacity:1;background-color:rgb(59 130 246 / var(--tw-bg-opacity, 1))}.bg-brand-accent\/15{background-color:rgb(59 130 246 / 0.15)}.bg-brand-accent\/40{background-color:rgb(59 130 246 / 0.4)}.bg-brand-accent\/5{background-color:rgb(59 130 246 / 0.05)}.bg-brand-card{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.bg-brand-card\/30{background-color:rgb(17 24 39 / 0.3)}.bg-brand-card\/50{background-color:rgb(17 24 39 / 0.5)}.bg-brand-neonBlue{--tw-bg-opacity:1;background-color:rgb(0 210 255 / var(--tw-bg-opacity, 1))}.bg-brand-neonGreen{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-cyan-400{--tw-bg-opacity:1;background-color:rgb(34 211 238 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/10{background-color:rgb(16 185 129 / 0.1)}.bg-purple-500{--tw-bg-opacity:1;background-color:rgb(168 85 247 / var(--tw-bg-opacity, 1))}.bg-purple-500\/10{background-color:rgb(168 85 247 / 0.1)}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-red-500\/10{background-color:rgb(239 68 68 / 0.1)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/40{background-color:rgb(15 23 42 / 0.4)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23 / var(--tw-bg-opacity, 1))}.bg-slate-950\/20{background-color:rgb(2 6 23 / 0.2)}.bg-slate-950\/40{background-color:rgb(2 6 23 / 0.4)}.bg-yellow-500{--tw-bg-opacity:1;background-color:rgb(234 179 8 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-brand-accent{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(59 130 246 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-cyan-500{--tw-gradient-from:#06b6d4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(6 182 212 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-brand-accent{--tw-gradient-to:#3b82f6 var(--tw-gradient-to-position)}.to-cyan-400{--tw-gradient-to:#22d3ee var(--tw-gradient-to-position)}.to-teal-500{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.object-cover{object-fit:cover}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pl-3{padding-left:0.75rem}.pl-8{padding-left:2rem}.pl-9{padding-left:2.25rem}.pr-2{padding-right:0.5rem}.pr-3{padding-right:0.75rem}.pt-3{padding-top:0.75rem}.pt-4{padding-top:1rem}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-5xl{font-size:3rem;line-height:1}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tracking-tighter{letter-spacing:-0.05em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-brand-neonBlue{--tw-text-opacity:1;color:rgb(0 210 255 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-gray-100{--tw-text-opacity:1;color:rgb(243 244 246 / var(--tw-text-opacity, 1))}.text-gray-200{--tw-text-opacity:1;color:rgb(229 231 235 / var(--tw-text-opacity, 1))}.text-gray-300{--tw-text-opacity:1;color:rgb(209 213 219 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-orange-400{--tw-text-opacity:1;color:rgb(251 146 60 / var(--tw-text-opacity, 1))}.text-purple-400{--tw-text-opacity:1;color:rgb(192 132 252 / var(--tw-text-opacity, 1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-80{opacity:0.8}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-brand-accent\/20{--tw-shadow-color:rgb(59 130 246 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-emerald-500\/10{--tw-shadow-color:rgb(16 185 129 / 0.1);--tw-shadow:var(--tw-shadow-colored)}.blur-2xl{--tw-blur:blur(40px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-200{transition-duration:200ms}.duration-300{transition-duration:300ms}.hover\:bg-blue-600:hover{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.hover\:bg-brand-card:hover{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-900:hover{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:brightness-110:hover{--tw-brightness:brightness(1.1);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.focus\:border-brand-accent:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.group:hover .group-hover\:text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}}@media (min-width: 1024px){.lg\:col-span-4{grid-column:span 4 / span 4}.lg\:col-span-5{grid-column:span 5 / span 5}.lg\:col-span-7{grid-column:span 7 / span 7}.lg\:col-span-8{grid-column:span 8 / span 8}.lg\:flex{display:flex}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}}</style></head>
+<body class="min-height-screen flex">
 
-  <!-- ===== HEADER / NAV ===== -->
-  <header id="header" class="header">
-    <nav class="nav container">
-      <!-- 헤더 로고: 풀로고 이미지 (Two-R Solution 텍스트+아이콘) -->
-      <a href="#" class="nav-logo">
-        <img src="images/logo/logo-full_1.png" alt="Three-R Solution 로고" class="logo-full-img" />
-      </a>
-      <ul class="nav-menu" id="nav-menu">
-        <li><a href="#about" class="nav-link">회사소개</a></li>
-        <li><a href="#services" class="nav-link">서비스</a></li>
-        <li><a href="#stats" class="nav-link">실적</a></li>
-        <li><a href="#team" class="nav-link">팀</a></li>
-        <li><a href="#news" class="nav-link">뉴스</a></li>
-        <li><a href="#contact" class="nav-link nav-cta">문의하기</a></li>
-      </ul>
-      <button class="hamburger" id="hamburger" aria-label="메뉴 열기">
-        <span></span><span></span><span></span>
-      </button>
-    </nav>
-  </header>
-
-  <main>
-
-    <!-- ===== HERO ===== -->
-    <section id="hero" class="hero">
-      <div class="hero-bg-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-      </div>
-      <div class="container hero-content">
-        <div class="hero-badge"><i class="fa-solid fa-star"></i> 2026 신규 창설 여성대표기업</div>
-        <h1 class="hero-title">
-          미래를 향한<br />
-          <span class="highlight">혁신</span>의 시작,<br />
-          <span class="highlight">3RSOLUTION</span>
-        </h1>
-        <p class="hero-desc">
-          저희는 기술과 창의성으로 비즈니스의 경계를 넓힙니다.<br />
-          고객의 성공이 곧 우리의 성공입니다.
-        </p>
-        <div class="hero-actions">
-          <a href="#services" class="btn btn-primary">서비스 살펴보기 <i class="fa-solid fa-arrow-right"></i></a>
-          <a href="#contact" class="btn btn-outline">상담 신청</a>
-        </div>
-        <!-- ===== PARTNER SLIDER (hero 하단 통합) ===== -->
-        <div class="partner-section" id="partner">
-          <div class="partner-header">
-            <div class="partner-header-left">
-              <h2 class="partner-title">PARTNER</h2>
-              <p class="partner-desc">
-                쓰리알솔루션은 국내 다양한 업체 및 기관에 최적화된<br />
-                시스템 및 고급 기술 서비스를 제공하였습니다.
-              </p>
+    <!-- 1. LEFT SIDEBAR (사이드바) -->
+    <aside class="w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
+        <div>
+            <!-- 로고 영역 -->
+            <div class="p-6 border-b border-brand-border flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-brand-accent to-cyan-400 p-2 rounded-lg text-white">
+                        <i class="fa-solid fa-code-merge text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-xl text-white tracking-wider">DevSync</span>
+                        <span class="text-xs block text-cyan-400 font-semibold tracking-widest uppercase">IT Groupware</span>
+                    </div>
+                </div>
             </div>
-            <div class="partner-header-right">
-              <a href="#contact" class="btn-reference">
-                REFERENCE <i class="fa-solid fa-chevron-right"></i>
-              </a>
-            </div>
-          </div>
 
-          <!-- 슬라이더 래퍼 -->
-          <div class="partner-slider-wrap">
-            <div class="partner-track" id="partnerTrack">
-
-              <!-- 카드 1: 도로교통공단 -->
-              <div class="partner-card"
-                   data-img=""
-                   data-icon="fa-solid fa-road"
-                   data-color="#1e40af">
-                <div class="partner-card-inner">
-                  <div class="partner-logo-area">
-                    <div class="partner-icon-placeholder" style="background:#dbeafe; color:#1e40af;">
-                      <i class="fa-solid fa-road"></i>
-                    </div>
-                  </div>
-                  <div class="partner-card-body">
-                    <h4>도로교통공단</h4>
-                    <time>2022. 02</time>
-                  </div>
+            <!-- 사용자 간이 프로필 -->
+            <div class="p-4 mx-4 my-3 bg-brand-card/50 rounded-xl border border-brand-border/60 flex items-center gap-3">
+                <div class="relative">
+                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
+                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
                 </div>
-                <div class="partner-card-hover-img">
-                  <div class="partner-hover-placeholder" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);">
-                    <i class="fa-solid fa-road"></i>
-                    <span>도로교통공단</span>
-                  </div>
-                  <div class="partner-hover-info">
-                    <strong>도로교통공단</strong>
-                    <time>2022. 02</time>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 카드 2: 한국교통안전공단 -->
-              <div class="partner-card"
-                   data-icon="fa-solid fa-shield-halved"
-                   data-color="#065f46">
-                <div class="partner-card-inner">
-                  <div class="partner-logo-area">
-                    <div class="partner-icon-placeholder" style="background:#d1fae5; color:#065f46;">
-                      <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                  </div>
-                  <div class="partner-card-body">
-                    <h4>한국교통안전공단</h4>
-                    <time>2024. 06</time>
-                  </div>
-                </div>
-                <div class="partner-card-hover-img">
-                  <div class="partner-hover-placeholder" style="background:linear-gradient(135deg,#064e3b,#059669);">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>한국교통안전공단</span>
-                  </div>
-                  <div class="partner-hover-info">
-                    <strong>한국교통안전공단</strong>
-                    <time>2024. 06</time>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 카드 3: 코레일 -->
-              <div class="partner-card"
-                   data-icon="fa-solid fa-train"
-                   data-color="#7c3aed">
-                <div class="partner-card-inner">
-                  <div class="partner-logo-area">
-                    <div class="partner-icon-placeholder" style="background:#ede9fe; color:#7c3aed;">
-                      <i class="fa-solid fa-train"></i>
-                    </div>
-                  </div>
-                  <div class="partner-card-body">
-                    <h4>코레일</h4>
-                    <time>2025. 05</time>
-                  </div>
-                </div>
-                <div class="partner-card-hover-img">
-                  <div class="partner-hover-placeholder" style="background:linear-gradient(135deg,#4c1d95,#7c3aed);">
-                    <i class="fa-solid fa-train"></i>
-                    <span>코레일</span>
-                  </div>
-                  <div class="partner-hover-info">
-                    <strong>코레일</strong>
-                    <time>2025. 05</time>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 카드 4: 공항철도 -->
-              <div class="partner-card"
-                   data-icon="fa-solid fa-plane-departure"
-                   data-color="#0369a1">
-                <div class="partner-card-inner">
-                  <div class="partner-logo-area">
-                    <div class="partner-icon-placeholder" style="background:#e0f2fe; color:#0369a1;">
-                      <i class="fa-solid fa-plane-departure"></i>
-                    </div>
-                  </div>
-                  <div class="partner-card-body">
-                    <h4>공항철도</h4>
-                    <time>2020. 09</time>
-                  </div>
-                </div>
-                <div class="partner-card-hover-img">
-                  <div class="partner-hover-placeholder" style="background:linear-gradient(135deg,#0c4a6e,#0369a1);">
-                    <i class="fa-solid fa-plane-departure"></i>
-                    <span>공항철도</span>
-                  </div>
-                  <div class="partner-hover-info">
-                    <strong>공항철도</strong>
-                    <time>2020. 09</time>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 카드 5: 인천교통공사 -->
-              <div class="partner-card"
-                   data-icon="fa-solid fa-train-subway"
-                   data-color="#b45309">
-                <div class="partner-card-inner">
-                  <div class="partner-logo-area">
-                    <div class="partner-icon-placeholder" style="background:#fef3c7; color:#b45309;">
-                      <i class="fa-solid fa-train-subway"></i>
-                    </div>
-                  </div>
-                  <div class="partner-card-body">
-                    <h4>인천교통공사</h4>
-                    <time>2024. 11</time>
-                  </div>
-                </div>
-                <div class="partner-card-hover-img">
-                  <div class="partner-hover-placeholder" style="background:linear-gradient(135deg,#78350f,#d97706);">
-                    <i class="fa-solid fa-train-subway"></i>
-                    <span>인천교통공사</span>
-                  </div>
-                  <div class="partner-hover-info">
-                    <strong>인천교통공사</strong>
-                    <time>2024. 11</time>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 카드 6: 인천국제공항 -->
-              <div class="partner-card partner-card-wide"
-                   data-icon="fa-solid fa-tower-control"
-                   data-color="#0f172a">
-                <div class="partner-card-inner">
-                  <div class="partner-logo-area">
-                    <div class="partner-icon-placeholder" style="background:#f1f5f9; color:#334155;">
-                      <i class="fa-solid fa-tower-control"></i>
-                    </div>
-                  </div>
-                  <div class="partner-card-body">
-                    <h4>TO BE NEXT</h4>
-                    <time>2026. 05</time>
-                  </div>
-                </div>
-                <div class="partner-card-hover-img">
-                  <div class="partner-hover-placeholder" style="background:linear-gradient(135deg,#0f172a,#1e293b);">
-                    <i class="fa-solid fa-tower-control"></i>
-                    <span>TO BE NEXT</span>
-                  </div>
-                  <div class="partner-hover-info">
-                    <strong>TO BE NEXT</strong>
-                    <time>2026. 05</time>
-                  </div>
-                </div>
-              </div>
-
-            </div><!-- /partner-track -->
-          </div><!-- /partner-slider-wrap -->
-        </div><!-- /partner-section -->
-      </div>
-      <div class="hero-scroll-indicator">
-        <span></span>
-      </div>
-    </section>
-
-    <!-- ===== ABOUT ===== -->
-    <section id="about" class="about section">
-      <div class="container">
-        <div class="about-grid">
-          <div class="about-visual">
-            <div class="about-img-wrap">
-              <div class="about-img-placeholder">
-                <i class="fa-solid fa-building-columns"></i>
-              </div>
-              <div class="about-badge-float">
-                <i class="fa-solid fa-award"></i>
                 <div>
-                  <strong>6년+</strong>
-                  <small>유지보수 경험</small>
+                    <h4 class="font-bold text-sm text-gray-100">이도현 과장</h4>
+                    <span class="text-xs text-gray-400">웹 프론트엔드 파트</span>
                 </div>
-              </div>
             </div>
-          </div>
-          <div class="about-text">
-            <div class="section-label">회사 소개</div>
-            <h2 class="section-title">비전을 현실로 만드는<br />파트너</h2>
-            <p class="about-desc">
-              쓰리알솔루션은 2026년 설립 이전부터 IT 솔루션 분야에서 다양한 공·사 기업과 함께해왔습니다.
-            </p>
-            <p class="about-desc">
-              우리는 단순히 기술을 제공하는 것이 아니라, 고객의 비즈니스 목표에 맞는 전략적 파트너로서의 역할을 수행합니다.
-            </p>
-            <ul class="about-features">
-              <li><i class="fa-solid fa-check-circle"></i> 글로벌 수준의 기술력과 국내 현장 경험</li>
-              <li><i class="fa-solid fa-check-circle"></i> 고객 중심의 맞춤형 솔루션 제공</li>
-              <li><i class="fa-solid fa-check-circle"></i> 지속 가능한 성장을 위한 장기적 파트너십</li>
-              <li><i class="fa-solid fa-check-circle"></i> 24/365 전문 기술 지원 체계</li>
-            </ul>
-            <a href="#contact" class="btn btn-primary">더 알아보기 <i class="fa-solid fa-arrow-right"></i></a>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ===== STATS ===== -->
-    <section id="stats" class="stats-section">
-      <div class="container">
-        <div class="stats-grid">
-          <div class="stat-card" data-count="5">
-            <div class="stat-icon"><i class="fa-solid fa-handshake"></i></div>
-            <div class="stat-number"><span class="count">0</span>+</div>
-            <div class="stat-label">파트너 기업</div>
-          </div>
-          <div class="stat-card" data-count="1">
-            <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
-            <div class="stat-number"><span class="count">0</span>년+</div>
-            <div class="stat-label">업계 경력</div>
-          </div>
-          <div class="stat-card" data-count="98">
-            <div class="stat-icon"><i class="fa-solid fa-face-smile"></i></div>
-            <div class="stat-number"><span class="count">0</span>%</div>
-            <div class="stat-label">고객 만족도</div>
-          </div>
-          <div class="stat-card" data-count="10">
-            <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-number"><span class="count">0</span>+</div>
-            <div class="stat-label">완료 프로젝트</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== SERVICES ===== -->
-    <section id="services" class="services section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-label">서비스</div>
-          <h2 class="section-title">우리가 제공하는 핵심 서비스</h2>
-          <p class="section-desc">비즈니스 성공을 위한 종합 솔루션을 제공합니다</p>
-        </div>
-        <div class="services-grid">
-          <article class="service-card">
-            <div class="service-icon" style="--icon-color: #4f46e5;">
-              <i class="fa-solid fa-laptop-code"></i>
-            </div>
-            <h3>IT 솔루션 개발</h3>
-            <p>최신 기술 스택을 활용한 웹·앱·시스템 개발로 비즈니스 디지털화를 지원합니다.</p>
-            <a href="#" class="service-link">자세히 보기 <i class="fa-solid fa-arrow-right"></i></a>
-          </article>
-          <article class="service-card featured-card">
-            <div class="service-badge">인기</div>
-            <div class="service-icon" style="--icon-color: #7c3aed;">
-              <i class="fa-solid fa-brain"></i>
-            </div>
-            <h3>AI·데이터 분석</h3>
-            <p>데이터 기반 의사결정을 위한 AI·머신러닝 솔루션 및 비즈니스 인텔리전스를 제공합니다.</p>
-            <a href="#" class="service-link">자세히 보기 <i class="fa-solid fa-arrow-right"></i></a>
-          </article>
-          <article class="service-card">
-            <div class="service-icon" style="--icon-color: #d97706;">
-              <i class="fa-solid fa-headset"></i>
-            </div>
-            <h3>IT 유지보수 지원</h3>
-            <p>24시간 모니터링과 신속한 장애 대응으로 비즈니스 연속성을 보장합니다.</p>
-            <a href="#" class="service-link">자세히 보기 <i class="fa-solid fa-arrow-right"></i></a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== PROCESS ===== -->
-    <section class="process section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-label">진행 과정</div>
-          <h2 class="section-title">함께하는 프로세스</h2>
-        </div>
-        <div class="process-steps">
-          <div class="process-step">
-            <div class="step-num">01</div>
-            <h4>상담 &amp; 분석</h4>
-            <p>고객 니즈와 현황을 정밀 분석하여 최적의 솔루션 방향을 도출합니다.</p>
-          </div>
-          <div class="process-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-          <div class="process-step">
-            <div class="step-num">02</div>
-            <h4>전략 수립</h4>
-            <p>데이터 기반의 맞춤 전략과 실행 로드맵을 설계합니다.</p>
-          </div>
-          <div class="process-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-          <div class="process-step">
-            <div class="step-num">03</div>
-            <h4>개발 &amp; 구현</h4>
-            <p>검증된 기술과 방법론으로 솔루션을 개발하고 구현합니다.</p>
-          </div>
-          <div class="process-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-          <div class="process-step">
-            <div class="step-num">04</div>
-            <h4>운영 &amp; 지원</h4>
-            <p>지속적인 모니터링과 유지보수로 최적의 성과를 유지합니다.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== TEAM ===== -->
-
-    <!-- ===== NEWS ===== -->
-    <section id="news" class="news section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-label">뉴스</div>
-          <h2 class="section-title">최신 소식</h2>
-          <a href="#" class="section-more">전체 보기 <i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-        <div class="news-grid">
-          <article class="news-card featured-news">
-            <div class="news-img-wrap">
-              <div class="news-img-placeholder">
-                <i class="fa-solid fa-newspaper"></i>
-              </div>
-              <span class="news-tag">공지사항</span>
-            </div>
-            <div class="news-body">
-              <time class="news-date">2026. 02.</time>
-              <h3>회사 설립</h3>
-              <p>설명란 향후 기재</p>
-              <a href="#" class="news-more">자세히 보기 <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-          </article>
-          <article class="news-card">
-            <div class="news-img-wrap small">
-              <div class="news-img-placeholder">
-                <i class="fa-solid fa-handshake"></i>
-              </div>
-              <span class="news-tag">파트너십</span>
-            </div>
-            <div class="news-body">
-              <time class="news-date">2026. 04.</time>
-              <h3>파트너십 제목</h3>
-              <p>설명란 향후 기재</p>
-              <a href="#" class="news-more">자세히 보기 <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-          </article>
-          <article class="news-card">
-            <div class="news-img-wrap small">
-              <div class="news-img-placeholder">
-                <i class="fa-solid fa-microchip"></i>
-              </div>
-              <span class="news-tag">기술</span>
-            </div>
-            <div class="news-body">
-              <time class="news-date">2026. 05.</time>
-              <h3>업적제목</h3>
-              <p>부연설명</p>
-              <a href="#" class="news-more">자세히 보기 <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== CONTACT ===== -->
-    <section id="contact" class="contact section">
-      <div class="container">
-        <div class="contact-grid">
-          <div class="contact-info">
-            <div class="section-label">문의하기</div>
-            <h2 class="section-title">함께 시작해 볼까요?</h2>
-            <p>비즈니스 문의, 파트너십 제안, 기술 상담 등 어떤 내용이든 편하게 연락해주세요.</p>
-            <ul class="contact-details">
-              <li>
-                <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <!-- 메인 네비게이션 메뉴 (Interactive accordion) -->
+            <nav class="px-4 space-y-1">
+                <!-- 1. 근무 관리 -->
                 <div>
-                  <strong>주소</strong>
-                  <span>경기도 화성시 동탄대로 677-12, 효성ICT타워 604호</span>
+                    <button onclick="toggleSubmenu(&#39;sub-work&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-clock-rotate-left text-gray-400 group-hover:text-cyan-400 w-5"></i>
+                            <span class="font-medium text-sm">근무 관리</span>
+                        </div>
+                        <i id="arrow-sub-work" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
+                    </button>
+                    <div id="sub-work" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 transition-all duration-300">
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">출퇴근 및 타임카드</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">유연근무 현황</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">외근/파견/상주 신청</a>
+                    </div>
                 </div>
-              </li>
-              <li>
-                <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
-                <div>
-                  <strong>전화</strong>
-                  <span>070-5100-1580</span>
-                </div>
-              </li>
-              <li>
-                <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
-                <div>
-                  <strong>E-MAIL</strong>
-                  <span>3rs_vc1@3rsolution.co.kr</span>
-                </div>
-              </li>
-              <li>
-                <div class="contact-icon"><i class="fa-solid fa-clock"></i></div>
-                <div>
-                  <strong>운영시간</strong>
-                  <span>평일 09:00 – 18:00 (주말·공휴일 휴무)</span>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <form class="contact-form" id="contact-form" novalidate>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="name">이름 <span>*</span></label>
-                <input type="text" id="name" name="name" placeholder="홍길동" required />
-              </div>
-              <div class="form-group">
-                <label for="company">회사명</label>
-                <input type="text" id="company" name="company" placeholder="(주)쓰리알솔루션" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="email">이메일 <span>*</span></label>
-              <input type="email" id="email" name="email" placeholder="example@email.com" required />
-            </div>
-            <div class="form-group">
-              <label for="subject">문의 유형</label>
-              <select id="subject" name="subject">
-                <option value="">선택해주세요</option>
-                <option>IT 솔루션 개발</option>
-                <option>AI·데이터 분석</option>
-                <option>기타</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="message">문의 내용 <span>*</span></label>
-              <textarea id="message" name="message" rows="5" placeholder="문의 내용을 자유롭게 작성해 주세요." required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-full">
-              문의 보내기 <i class="fa-solid fa-paper-plane"></i>
-            </button>
-            <p class="form-note">* 입력하신 정보는 문의 답변 목적으로만 사용됩니다.</p>
-          </form>
-        </div>
-      </div>
-    </section>
 
-    <!-- ===== LOCATION (찾아오시는 길) ===== -->
-    <section id="location" class="location section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-label">찾아오시는 길</div>
-          <h2 class="section-title">오시는 방법</h2>
-          <p class="section-desc">경기도 화성시 동탄에 위치해 있습니다</p>
+                <!-- 2. 휴가 관리 -->
+                <div>
+                    <button onclick="toggleSubmenu(&#39;sub-leave&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-umbrella text-gray-400 group-hover:text-cyan-400 w-5"></i>
+                            <span class="font-medium text-sm">휴가 관리</span>
+                        </div>
+                        <i id="arrow-sub-leave" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
+                    </button>
+                    <div id="sub-leave" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">휴가 신청서 작성</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">잔여 연차 현황</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">대체/보상 휴가 적립</a>
+                    </div>
+                </div>
+
+                <!-- 3. 일정/공유 (Active) -->
+                <div>
+                    <button onclick="toggleSubmenu(&#39;sub-schedule&#39;)" class="w-full flex items-center justify-between p-3 text-white bg-brand-card rounded-lg transition duration-200 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-calendar-check text-cyan-400 w-5"></i>
+                            <span class="font-medium text-sm">일정/공유</span>
+                        </div>
+                        <i id="arrow-sub-schedule" class="fa-solid text-xs transition-transform fa-chevron-down text-gray-500"></i>
+                    </button>
+                    <div id="sub-schedule" class="block pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 hidden">
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40">종합 일정 캘린더</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회의실/자원 예약</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">공용 테스트폰 대여</a>
+                    </div>
+                </div>
+
+                <!-- 4. 프로젝트/사업 -->
+                <div>
+                    <button onclick="toggleSubmenu(&#39;sub-project&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-cubes-stacked text-gray-400 group-hover:text-cyan-400 w-5"></i>
+                            <span class="font-medium text-sm">프로젝트/사업</span>
+                        </div>
+                        <i id="arrow-sub-project" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
+                    </button>
+                    <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">전사 사업 현황판</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">Jira 스프린트 싱크</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입 공수(M/M) 정산</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트 산출물 아카이브</a>
+                    </div>
+                </div>
+
+                <!-- 5. 인프라/총무 -->
+                <div>
+                    <button onclick="toggleSubmenu(&#39;sub-infra&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-laptop-code text-gray-400 group-hover:text-cyan-400 w-5"></i>
+                            <span class="font-medium text-sm">인프라/총무</span>
+                        </div>
+                        <i id="arrow-sub-infra" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                    </button>
+                    <div id="sub-infra" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">장비/기기 할당 대장</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">SW 라이선스 신청</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">비대면 증명서 발급</a>
+                    </div>
+                </div>
+
+                <!-- 6. 비용/회계 -->
+                <div>
+                    <button onclick="toggleSubmenu(&#39;sub-finance&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-file-invoice-dollar text-gray-400 group-hover:text-cyan-400 w-5"></i>
+                            <span class="font-medium text-sm">비용/회계</span>
+                        </div>
+                        <i id="arrow-sub-finance" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                    </button>
+                    <div id="sub-finance" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">지출 경비 청구(OCR)</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">급여 명세서 조회</a>
+                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트별 손익 리포트</a>
+                    </div>
+                </div>
+            </nav>
         </div>
-        <div class="location-grid">
-          <!-- 카카오맵 iframe -->
-          <div id="mapWrap" class="map-wrap">
-            <!-- <iframe
-              src="https://map.kakao.com/link/map/효성ICT타워,37.2003073,127.0765632/location"
-              width="100%"
-              height="100%"
-              style="border:0;"
-              allowfullscreen=""
-              loading="lazy"
-              title="쓰리알솔루션 위치"
-            ></iframe> -->
-          </div>
-          <!-- 오시는 방법 안내 -->
-          <div class="location-info">
-            <div class="location-address-card">
-              <div class="loc-icon-wrap"><i class="fa-solid fa-building"></i></div>
-              <div>
-                <strong>효성 ICT 타워 604호</strong>
-                <p>경기도 화성시 동탄대로 677-12</p>
-              </div>
+
+        <!-- 하단 푸터 / 세팅 -->
+        <div class="p-4 border-t border-brand-border flex items-center justify-between text-xs text-gray-500">
+            <span>Server: <span class="text-emerald-500 font-bold">Stable</span></span>
+            <button class="hover:text-white"><i class="fa-solid fa-gear text-sm"></i></button>
+        </div>
+    </aside>
+
+    <!-- 2. MAIN LAYOUT (메인 대시보드 영역) -->
+    <div class="flex-grow flex flex-col min-h-screen">
+        
+        <!-- TOP NAVIGATION BAR (상단 글로벌 메뉴바) -->
+        <header class="h-16 border-b border-brand-border bg-brand-card/30 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20">
+            <!-- 브레드크럼 -->
+            <div class="flex items-center gap-2 text-sm text-gray-400">
+                <span>IT 개발사 스마트 포털</span>
+                <i class="fa-solid fa-angle-right text-xs"></i>
+                <span class="text-gray-100 font-semibold">대시보드 홈</span>
             </div>
-            <ul class="location-transport">
-              <li class="transport-item">
-                <div class="transport-icon bus">
-                  <i class="fa-solid fa-bus"></i>
-                </div>
-                <div class="transport-info">
-                  <strong>버스 이용 시</strong>
-                  <p>동탄역 환승센터 하차 후 도보 10분</p>
-                  <p>동탄2신도시 방면 간선버스 이용</p>
-                </div>
-              </li>
-              <li class="transport-item">
-                <div class="transport-icon subway">
-                  <i class="fa-solid fa-train-subway"></i>
-                </div>
-                <div class="transport-info">
-                  <strong>지하철 이용 시</strong>
-                  <p>SRT 동탄역 하차 후 버스 또는 택시 이용</p>
-                  <p>동탄역 2번 출구 방면</p>
-                </div>
-              </li>
-              <li class="transport-item">
-                <div class="transport-icon car">
-                  <i class="fa-solid fa-car"></i>
-                </div>
-                <div class="transport-info">
-                  <strong>자가용 이용 시</strong>
-                  <p>동탄IC 진출 후 동탄대로 방면 5분</p>
-                  <p>건물 내 주차장 이용 가능</p>
-                </div>
-              </li>
-            </ul>
-            <a href="https://map.kakao.com/link/search/경기도 화성시 동탄대로 677-12 효성ICT타워"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="btn btn-primary kakao-map-btn">
-              <i class="fa-solid fa-map-location-dot"></i> 카카오맵에서 보기
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
 
-  </main>
+            <!-- 상단 검색창 및 연동 상태 -->
+            <div class="flex items-center gap-6">
+                <!-- 전사 연동 서비스 모니터링 -->
+                <div class="hidden lg:flex items-center gap-3 text-xs bg-slate-900 border border-brand-border px-3 py-1.5 rounded-full">
+                    <span class="flex items-center gap-1.5 text-gray-400">
+                        <i class="fa-brands fa-github text-gray-100"></i> Github: <span class="text-emerald-400 font-semibold">Connected</span>
+                    </span>
+                    <span class="text-gray-700">|</span>
+                    <span class="flex items-center gap-1.5 text-gray-400">
+                        <i class="fa-brands fa-jira text-blue-400"></i> Jira: <span class="text-emerald-400 font-semibold">Sync</span>
+                    </span>
+                    <span class="text-gray-700">|</span>
+                    <span class="flex items-center gap-1.5 text-gray-400">
+                        <i class="fa-brands fa-slack text-orange-400"></i> Slack: <span class="text-emerald-400 font-semibold">Active</span>
+                    </span>
+                </div>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <!-- 푸터 좌측 최상단: 아이콘 로고만 -->
-          <a href="#" class="footer-logo-link">
-            <img src="images/logo/logo-icon.png" alt="3R Solution 아이콘" class="logo-icon-img" />
-            <span class="footer-logo-text">쓰리알솔루션</span>
-          </a>
-          <p>기술과 창의성으로<br />비즈니스의 경계를 넓힙니다.</p>
-          <div class="footer-social">
-            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-            <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-          </div>
-        </div>
-        <div class="footer-links">
-          <div class="footer-col">
-            <h4>서비스</h4>
-            <ul>
-              <li><a href="#">IT 솔루션 개발</a></li>
-              <li><a href="#">AI·데이터 분석</a></li>
-              <li><a href="#">컨설팅</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>회사</h4>
-            <ul>
-              <li><a href="#">회사 소개</a></li>
-              <li><a href="#">팀 소개</a></li>
-              <li><a href="#">채용 정보</a></li>
-              <li><a href="#">뉴스</a></li>
-              <li><a href="#location">찾아오시는 길</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>고객지원</h4>
-            <ul>
-              <li><a href="#">FAQ</a></li>
-              <li><a href="#">기술 지원</a></li>
-              <li><a href="#">이용약관</a></li>
-              <li><a href="#">개인정보처리방침</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2026 Three-R Solution Inc. All rights reserved.</p>
-        <p>사업자등록번호: 854-86-03728 | 대표: 여혜진</p>
-      </div>
+                <!-- 검색창 -->
+                <div class="relative w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs"></i>
+                    </span>
+                    <input type="text" class="w-full bg-slate-900 border border-brand-border text-xs text-gray-100 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-brand-accent transition" placeholder="프로젝트, 마일스톤, 문서 통합 검색">
+                </div>
+
+                <!-- 알림창 (Badge포함) -->
+                <div class="relative cursor-pointer hover:text-white text-gray-400">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-brand-dark animate-pulse"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER (콘텐츠 스크롤 구역) -->
+        <main class="flex-grow p-8 space-y-6 max-w-7xl mx-auto w-full">
+            
+            <!-- ROW 1: QUICK ACTIONS & STATUS (상단 근태/휴가 요약 그리드) -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 위젯 A: 스마트 근태 체크 (출퇴근 타임클락 - INTERACTIVE!) -->
+                <div class="bg-brand-card p-6 rounded-2xl border border-brand-border flex flex-col justify-between shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-24 h-24 bg-brand-accent/5 rounded-full blur-2xl"></div>
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-200 text-base">근무 상태 컨트롤러</h3>
+                            <span id="work-location-badge" class="px-2.5 py-0.5 bg-brand-accent/15 border border-brand-accent/30 text-brand-neonBlue text-xs rounded-full font-bold">본사 근무</span>
+                        </div>
+                        
+                        <!-- 근무지 토글 칩스 -->
+                        <div class="grid grid-cols-4 gap-1.5 mb-4">
+                            <button onclick="setWorkLocation(&#39;본사&#39;)" id="loc-본사" class="py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition">본사</button>
+                            <button onclick="setWorkLocation(&#39;재택&#39;)" id="loc-재택" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">재택</button>
+                            <button onclick="setWorkLocation(&#39;외근&#39;)" id="loc-외근" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">외근</button>
+                            <button onclick="setWorkLocation(&#39;상주&#39;)" id="loc-상주" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">상주</button>
+                        </div>
+
+                        <!-- 실시간 근무 타이머 -->
+                        <div class="text-center py-2">
+                            <span id="timer-display" class="text-3xl font-extrabold text-white tracking-widest font-mono">00 : 00 : 00</span>
+                            <p class="text-xs text-gray-400 mt-1">오늘 총 기록된 근무 시간</p>
+                        </div>
+                    </div>
+
+                    <!-- 출퇴근 작동 버튼 -->
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button id="btn-checkin" onclick="triggerCheckIn()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/10 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i> 출근하기
+                        </button>
+                        <button id="btn-checkout" onclick="triggerCheckOut()" class="w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2" disabled="">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> 퇴근하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 위젯 B: 나의 휴가 요약 -->
+                <div class="bg-brand-card p-6 rounded-2xl border border-brand-border flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-200 text-base">연차 소진 및 잔여</h3>
+                            <button class="text-xs text-cyan-400 font-bold hover:underline">휴가계획 수립 <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div class="flex items-baseline gap-2 justify-center py-4">
+                            <span class="text-5xl font-black text-white font-mono tracking-tighter">11.5</span>
+                            <span class="text-lg text-gray-400">/ 15 일</span>
+                        </div>
+                        <!-- 커스텀 프로그레스바 -->
+                        <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-brand-border">
+                            <div class="bg-gradient-to-r from-cyan-500 to-brand-accent h-full rounded-full" style="width: 76.6%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>사용한 연차: 3.5일</span>
+                            <span>남은 연차: 11.5일</span>
+                        </div>
+                    </div>
+                    <!-- 단축 링크 -->
+                    <button class="w-full mt-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-brand-border text-gray-200 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-signature text-cyan-400"></i> 전자 휴가 결재 기안하기
+                    </button>
+                </div>
+
+                <!-- 위젯 C: 내 Jira 스프린트 / PR 현황 -->
+                <div class="bg-brand-card p-6 rounded-2xl border border-brand-border flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-gray-200 text-base">스프린트 개발 공수 (Jira)</h3>
+                            <span class="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] rounded font-bold uppercase">Sprint 24</span>
+                        </div>
+                        <div class="space-y-3 py-1">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-gray-300 font-medium">#102 쇼핑몰 결제 연동 API</span>
+                                    <span class="text-cyan-400 font-semibold">82%</span>
+                                </div>
+                                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-brand-neonBlue h-full rounded-full" style="width: 82%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-gray-300 font-medium">#105 모바일 결제 화면 UI 고도화</span>
+                                    <span class="text-emerald-400 font-semibold">100% (Done)</span>
+                                </div>
+                                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-emerald-500 h-full rounded-full" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 깃허브 Pull Request 링크 연동 인터페이스 -->
+                    <div class="border-t border-brand-border/60 pt-3 mt-3 flex items-center justify-between text-xs">
+                        <span class="text-gray-400"><i class="fa-brands fa-github text-gray-300 mr-1.5"></i> PR 대기 중인 코드</span>
+                        <a href="#" class="text-brand-neonBlue hover:underline font-semibold flex items-center gap-1">2건 검토하기 <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROW 2: SIGNATURE SCHEDULE WIDGET (시그니처 스마트 일정 위젯 - 2단분리) -->
+            <section class="bg-brand-card rounded-2xl border border-brand-border shadow-xl overflow-hidden">
+                <!-- 위젯 타이틀 및 대형 필터 컨트롤 -->
+                <div class="p-6 border-b border-brand-border bg-slate-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2.5 h-6 bg-brand-accent rounded-full"></div>
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-100">스마트 일정 위젯 (스케줄러)</h2>
+                            <p class="text-xs text-gray-400">출퇴근 근무기록, 프로젝트 마일스톤, 팀원 상태의 지능형 캘린더 통합</p>
+                        </div>
+                    </div>
+
+                    <!-- 퀵 캘린더 탭 (INTERACTIVE!) -->
+                    <div class="flex p-1 bg-slate-900 border border-brand-border rounded-xl">
+                        <button id="tab-all" onclick="filterEvents(&#39;all&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-accent transition">전체 일정</button>
+                        <button id="tab-my" onclick="filterEvents(&#39;my&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">내 일정</button>
+                        <button id="tab-project" onclick="filterEvents(&#39;project&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">프로젝트</button>
+                        <button id="tab-team" onclick="filterEvents(&#39;team&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">팀 휴가/재택</button>
+                    </div>
+                </div>
+
+                <!-- 캘린더 2컬럼 레이아웃 -->
+                <div class="grid grid-cols-1 lg:grid-cols-12">
+                    <!-- 좌측 1/3 컬럼: Mini Calendar -->
+                    <div class="lg:col-span-4 p-6 border-r border-brand-border bg-slate-950/20">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm font-extrabold text-gray-200">2026년 5월</span>
+                            <div class="flex gap-1.5">
+                                <button class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 border border-brand-border text-gray-400 hover:text-white transition"><i class="fa-solid fa-angle-left text-xs"></i></button>
+                                <button class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 border border-brand-border text-gray-400 hover:text-white transition"><i class="fa-solid fa-angle-right text-xs"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- 캘린더 일자 그리드 (INTERACTIVE!) -->
+                        <div class="grid grid-cols-7 gap-y-2 text-center text-xs mb-4">
+                            <!-- 요일 라벨 -->
+                            <span class="text-red-400 font-semibold opacity-80">일</span>
+                            <span class="text-gray-400 font-semibold">월</span>
+                            <span class="text-gray-400 font-semibold">화</span>
+                            <span class="text-gray-400 font-semibold">수</span>
+                            <span class="text-gray-400 font-semibold">목</span>
+                            <span class="text-gray-400 font-semibold">금</span>
+                            <span class="text-gray-400 font-semibold">토</span>
+
+                            <!-- 빈 셀 (이전달) -->
+                            <span class="text-gray-700 py-2">26</span>
+                            <span class="text-gray-700 py-2">27</span>
+                            <span class="text-gray-700 py-2">28</span>
+                            <span class="text-gray-700 py-2">29</span>
+                            <span class="text-gray-700 py-2">30</span>
+                            <span class="text-gray-500 py-2">1</span>
+                            <span class="text-gray-500 py-2">2</span>
+
+                            <!-- 이번달 일자 및 일정 도트(Indicator) 표시 -->
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">3</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">4</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">5</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">6</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">7</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">8</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">9</span>
+
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">10</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">11</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">12</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">13</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">14</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">15</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">16</span>
+
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">17</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">18</span>
+                            <!-- 일정 있는 날(도트) -->
+                            <span onclick="selectCalendarDate(19)" class="text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center">19<span class="w-1 h-1 bg-purple-500 rounded-full absolute bottom-1"></span></span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">20</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">21</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">22</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">23</span>
+
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">24</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">25</span>
+                            <!-- 오늘 날짜 및 활성화(Selected) 처리 -->
+                            <span id="cal-date-26" onclick="selectCalendarDate(26)" class="text-white py-2 bg-brand-accent/40 border border-brand-accent rounded-lg cursor-pointer relative flex flex-col items-center justify-center font-bold">26<span class="w-1 h-1 bg-cyan-400 rounded-full absolute bottom-1"></span></span>
+                            <!-- 다른 일정 있는 날짜들 -->
+                            <span id="cal-date-27" onclick="selectCalendarDate(27)" class="text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center">27<span class="w-1.5 h-1.5 bg-brand-neonGreen rounded-full absolute bottom-1"></span></span>
+                            <span id="cal-date-28" onclick="selectCalendarDate(28)" class="text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center">28<span class="w-1.5 h-1.5 bg-yellow-500 rounded-full absolute bottom-1"></span></span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">29</span>
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">30</span>
+                            
+                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">31</span>
+                            <span class="text-gray-700 py-2">1</span>
+                            <span class="text-gray-700 py-2">2</span>
+                            <span class="text-gray-700 py-2">3</span>
+                            <span class="text-gray-700 py-2">4</span>
+                            <span class="text-gray-700 py-2">5</span>
+                            <span class="text-gray-700 py-2">6</span>
+                        </div>
+
+                        <!-- 캘린더 범례 요약 -->
+                        <div class="border-t border-brand-border/60 pt-4 space-y-2">
+                            <span class="text-xs font-bold text-gray-400 block mb-1">일정 구분별 색상 피드</span>
+                            <div class="grid grid-cols-2 gap-2 text-[10px] text-gray-400 font-semibold">
+                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span>배포 및 핫픽스</span>
+                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-purple-500 rounded-full"></span>클라이언트 미팅</span>
+                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-brand-accent rounded-full"></span>스프린트 회의</span>
+                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-brand-neonGreen rounded-full"></span>대체/팀원휴가</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 우측 2/3 컬럼: Timeline & List View (INTERACTIVE EVENT LIST) -->
+                    <div class="lg:col-span-8 p-6 flex flex-col justify-between h-[400px] overflow-y-auto">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-sm text-gray-300">
+                                    <span id="timeline-date-label">5월 26일 (오늘)</span>의 스케줄 리스트
+                                </h3>
+                                <button onclick="openAddEventModal()" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 border border-brand-border text-cyan-400 hover:text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus"></i> 새 일정 등록
+                                </button>
+                            </div>
+
+                            <!-- 타임라인 카드 세트 (클릭 시 가변적으로 렌더링되도록 구현) -->
+                            <div id="timeline-events-container" class="space-y-3">
+                                <!-- 이벤트 1: 데일리 스크럼 (Meeting) -->
+                                <div class="event-card-item bg-slate-900 border-l-4 border-brand-accent p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="my">
+                                    <div class="flex items-start gap-4">
+                                        <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
+                                            <span class="block text-gray-100 font-bold">10:00</span>
+                                            <span>30m</span>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="px-1.5 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] rounded font-bold">스프린트 미팅</span>
+                                                <span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> 3층 미팅룸 B</span>
+                                            </div>
+                                            <h4 class="font-bold text-sm text-white">Daily Scrum &amp; UI/UX 설계안 중간 검토</h4>
+                                            <p class="text-xs text-gray-400 mt-1">스프린트 24차 진행도 검수 및 피드백 통합 정리</p>
+                                        </div>
+                                    </div>
+                                    <!-- 액션: 원클릭 화상회의 바로가기 -->
+                                    <div class="flex items-center gap-2">
+                                        <a href="https://zoom.us/" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+                                            <i class="fa-solid fa-video"></i> 화상회의
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- 이벤트 2: 배포 일정 (Project) -->
+                                <div class="event-card-item bg-slate-900 border-l-4 border-red-500 p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="project">
+                                    <div class="flex items-start gap-4">
+                                        <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
+                                            <span class="block text-gray-100 font-bold">14:00</span>
+                                            <span>1h</span>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] rounded font-bold">인프라/배포</span>
+                                                <span class="text-[11px] text-gray-500"><i class="fa-brands fa-jira"></i> DEV-402</span>
+                                            </div>
+                                            <h4 class="font-bold text-sm text-white">PG 결제대행 실서버 핫픽스 배포</h4>
+                                            <p class="text-xs text-gray-400 mt-1">모바일 팝업 결제 에러 현상 개선안 마스터 브랜치 배포 예정</p>
+                                        </div>
+                                    </div>
+                                    <!-- 액션: Jira 바로가기 -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-500">배포 담당: 이도현</span>
+                                    </div>
+                                </div>
+
+                                <!-- 이벤트 3: 보상 휴가 현황 (Team/Vacation) -->
+                                <div class="event-card-item bg-slate-900 border-l-4 border-emerald-500 p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="team">
+                                    <div class="flex items-start gap-4">
+                                        <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
+                                            <span class="block text-gray-100 font-bold">All Day</span>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] rounded font-bold">휴가/재택</span>
+                                            </div>
+                                            <h4 class="font-bold text-sm text-white">김민서 Senior Dev - 대체 휴가</h4>
+                                            <p class="text-xs text-gray-400 mt-1">주말 정기 배포 장애 대응 온콜(On-Call) 실적에 따른 보상 적립 연차 사용</p>
+                                        </div>
+                                    </div>
+                                    <!-- 프로필 아바타 -->
+                                    <div>
+                                        <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1494790108377-be9c29b29330" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 타임라인 푸터 -->
+                        <div class="border-t border-brand-border/60 pt-4 flex items-center justify-between text-xs text-gray-500">
+                            <span>* 일정 데이터는 Jira, 사내 전자결재와 실시간 갱신 처리됩니다.</span>
+                            <span class="text-brand-neonBlue cursor-pointer hover:underline">캘린더 크게보기 <i class="fa-solid fa-up-right-from-square text-[10px]"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROW 3: TWO-COLUMN COLLABORATION & INFRA (자원예약, 팀원 협업 상태, 인프라) -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 좌측 7/12: 오늘의 전사 원격/재택/휴가 현황판 (협업 지원용) -->
+                <div class="lg:col-span-7 bg-brand-card p-6 rounded-2xl border border-brand-border flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-users text-cyan-400"></i>
+                                <h3 class="font-bold text-gray-200 text-base">오늘의 부서원 상태 공유</h3>
+                            </div>
+                            <span class="text-xs bg-slate-900 border border-brand-border px-2 py-1 rounded text-gray-400">총 8명 중 3명 외부 근무</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- 팀원 1: 재택 -->
+                            <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
+                                <div class="flex items-center gap-3">
+                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1438761681033-6461ffad8d80" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-blue-400">
+                                    <div>
+                                        <span class="font-bold text-sm text-gray-200">한혜지 대리</span>
+                                        <p class="text-[11px] text-gray-400">웹 디자인 파트</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs rounded-full font-bold"><i class="fa-solid fa-house-laptop"></i> 재택 근무</span>
+                                </div>
+                            </div>
+
+                            <!-- 팀원 2: 상주(파견) -->
+                            <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
+                                <div class="flex items-center gap-3">
+                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1507003211169-0a1dd7228f2d" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-purple-400">
+                                    <div>
+                                        <span class="font-bold text-sm text-gray-200">정재윤 책임</span>
+                                        <p class="text-[11px] text-gray-400">백엔드 아키텍트</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs rounded-full font-bold"><i class="fa-solid fa-network-wired"></i> 고객사 상주</span>
+                                </div>
+                            </div>
+
+                            <!-- 팀원 3: 연차 -->
+                            <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
+                                <div class="flex items-center gap-3">
+                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1494790108377-be9c29b29330" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
+                                    <div>
+                                        <span class="font-bold text-sm text-gray-200">김민서 수석</span>
+                                        <p class="text-[11px] text-gray-400">인프라/보안 파트</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-full font-bold"><i class="fa-solid fa-umbrella"></i> 연차 휴가</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 단축 연락망 -->
+                    <p class="text-[11px] text-gray-500 mt-3">* 해당 상태 정보는 슬랙(Slack)의 상태 마크에 실시간 자동 동기화되어 반영됩니다.</p>
+                </div>
+
+                <!-- 우측 5/12: 사내 대여 자산 및 회의실 실시간 예약 상황 -->
+                <div class="lg:col-span-5 bg-brand-card p-6 rounded-2xl border border-brand-border flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-box text-cyan-400"></i>
+                                <h3 class="font-bold text-gray-200 text-base">공용 테스트 기기 대여</h3>
+                            </div>
+                            <span class="text-xs text-brand-neonBlue font-bold hover:underline cursor-pointer">대여하기</span>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            <!-- 자산 1: 맥북 -->
+                            <div class="flex items-center justify-between text-xs bg-slate-950 p-2.5 rounded-lg border border-brand-border">
+                                <span class="text-gray-300 font-medium"><i class="fa-solid fa-laptop text-gray-500 mr-2"></i>MacBook Pro M3 16" (A-04)</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-800 text-gray-400 font-bold">내 보유 기기</span>
+                            </div>
+                            <!-- 자산 2: 아이폰 -->
+                            <div class="flex items-center justify-between text-xs bg-slate-950 p-2.5 rounded-lg border border-brand-border">
+                                <span class="text-gray-300 font-medium"><i class="fa-solid fa-mobile-screen-button text-gray-500 mr-2"></i>iPhone 15 Pro (T-iOS-02)</span>
+                                <span class="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-bold">대여 중 (H 대리)</span>
+                            </div>
+                            <!-- 자산 3: 갤럭시 -->
+                            <div class="flex items-center justify-between text-xs bg-slate-950 p-2.5 rounded-lg border border-brand-border">
+                                <span class="text-gray-300 font-medium"><i class="fa-solid fa-mobile-screen-button text-gray-500 mr-2"></i>Galaxy S24 Ultra (T-And-09)</span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">대여 가능</span>
+                            </div>
+                        </div>
+
+                        <!-- 회의실 예약 요약 -->
+                        <div class="mt-5 pt-4 border-t border-brand-border/60">
+                            <h4 class="text-xs font-bold text-gray-400 mb-2">오늘 내가 예약한 사내 자원</h4>
+                            <div class="bg-brand-accent/5 border border-brand-accent/20 p-3 rounded-lg text-xs flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-gray-100 block">3층 미팅룸 B (회의실)</span>
+                                    <span class="text-[10px] text-gray-400">사용 예정: 10:00 - 10:30 (데일리 스크럼)</span>
+                                </div>
+                                <button class="text-red-400 hover:underline">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
     </div>
-  </footer>
 
-  <!-- 상단 이동 버튼 -->
-  <button class="scroll-top" id="scroll-top" aria-label="맨 위로">
-    <i class="fa-solid fa-chevron-up"></i>
-  </button>
+    <!-- 3. INTERACTIVE MODAL FOR ADDING EVENT (일정 추가 인터랙션 모달) -->
+    <div id="add-event-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-brand-card border border-brand-border rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="closeAddEventModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-calendar-plus text-cyan-400 mr-1.5"></i> 새 일정 등록하기</h3>
+            
+            <form onsubmit="addNewEvent(event)" class="space-y-4">
+                <!-- 일정 카테고리 분류 -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">일정 종류</label>
+                    <select id="new-event-cat" class="w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-200 focus:outline-none focus:border-brand-accent">
+                        <option value="my">내 업무 일정 (Personal Task)</option>
+                        <option value="project">프로젝트/마일스톤 (Jira 연동)</option>
+                        <option value="team">팀 휴가/재택 등록 (전자결재연동)</option>
+                    </select>
+                </div>
 
-  <!-- Toast 알림 -->
-  <div class="toast" id="toast"></div>
-  
-  <script src="js/main.js"></script>
-  <script src="js/map.js"></script>
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=6d0a337557c2852fc1b183c6f80a2ad0&libraries=services&autoload=false"></script>
-  <script>
-    window.addEventListener('load', function() {
-      kakaoMapInit();
-    });
-  </script>
+                <!-- 일정 타이틀 -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">일정 타이틀</label>
+                    <input type="text" id="new-event-title" required="" class="w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-brand-accent" placeholder="예: [프로젝트] AWS 클라우드 아키텍처 중간 미팅">
+                </div>
 
-</body>
-</html>
+                <!-- 시간 설정 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1.5">시작 시간</label>
+                        <input type="time" id="new-event-time" required="" class="w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1.5">소요 시간</label>
+                        <select id="new-event-duration" class="w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-brand-accent">
+                            <option value="30m">30 분</option>
+                            <option value="1h">1 시간</option>
+                            <option value="2h">2 시간</option>
+                            <option value="All Day">All Day (온종일)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 상세 설명 및 회의실 등 리소스 연동 -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">회의 장소 / 자원 선택</label>
+                    <select id="new-event-loc" class="w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-brand-accent">
+                        <option value="3층 미팅룸 B">3층 대회의실 B</option>
+                        <option value="화상 회의 (Zoom)">원격 화상 회의 (Zoom 연동 생성)</option>
+                        <option value="기타">장소 없음 / 비대면</option>
+                    </select>
+                </div>
+
+                <!-- 설명 기재 -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1.5">일정 상세 설명</label>
+                    <textarea id="new-event-desc" rows="2" class="w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-brand-accent" placeholder="일정의 세부 업무 범위나 어젠다를 입력하세요."></textarea>
+                </div>
+
+                <!-- 승인 버튼 -->
+                <button type="submit" class="w-full py-2.5 bg-brand-accent hover:bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-brand-accent/20 transition">일정 및 리소스 저장하기</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT FOR INTERACTIVE DEMO (인터랙션 구현) -->
+    <!-- ============================================ -->
+    <script>
+        // 1. 사이드바 아코디언 메뉴 토글
+        function toggleSubmenu(id) {
+            const menu = document.getElementById(id);
+            const arrow = document.getElementById('arrow-' + id);
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                arrow.classList.remove('fa-chevron-down');
+                arrow.classList.add('fa-chevron-up');
+                if (arrow.classList.contains('text-gray-500')) {
+                    arrow.classList.remove('text-gray-500');
+                    arrow.classList.add('text-cyan-400');
+                }
+            } else {
+                menu.classList.add('hidden');
+                arrow.classList.remove('fa-chevron-up');
+                arrow.classList.add('fa-chevron-down');
+                arrow.classList.remove('text-cyan-400');
+                arrow.classList.add('text-gray-500');
+            }
+        }
+
+        // 2. 출퇴근 실시간 타이머 및 근무 컨트롤 인터랙션
+        let timerInterval = null;
+        let totalSeconds = 0; // 초 단위 누적 시간
+        let isWorking = false;
+
+        function setWorkLocation(type) {
+            const badge = document.getElementById('work-location-badge');
+            badge.innerText = type + " 근무";
+            
+            // 모든 근무지 칩 스타일 초기화 후 활성화 지정
+            const types = ['본사', '재택', '외근', '상주'];
+            types.forEach(loc => {
+                const button = document.getElementById('loc-' + loc);
+                if (loc === type) {
+                    button.className = "py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition";
+                } else {
+                    button.className = "py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition";
+                }
+            });
+        }
+
+        function triggerCheckIn() {
+            if (isWorking) return;
+            
+            isWorking = true;
+            // 출퇴근 버튼 상태 전환
+            const checkInBtn = document.getElementById('btn-checkin');
+            const checkOutBtn = document.getElementById('btn-checkout');
+            
+            checkInBtn.className = "w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2";
+            checkInBtn.disabled = true;
+            
+            checkOutBtn.className = "w-full py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/10 transition flex items-center justify-center gap-2 cursor-pointer";
+            checkOutBtn.disabled = false;
+
+            // 타이머 작동 시작
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function triggerCheckOut() {
+            if (!isWorking) return;
+            
+            isWorking = false;
+            clearInterval(timerInterval);
+
+            // 출퇴근 버튼 상태 복구
+            const checkInBtn = document.getElementById('btn-checkin');
+            const checkOutBtn = document.getElementById('btn-checkout');
+
+            checkInBtn.className = "w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/10 transition flex items-center justify-center gap-2 cursor-pointer";
+            checkInBtn.disabled = false;
+            
+            checkOutBtn.className = "w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2";
+            checkOutBtn.disabled = true;
+
+            alert("오늘 하루 수고하셨습니다! 퇴근 처리가 완료되어 슬랙 채널 상태가 'Offline'으로 전환되었습니다.");
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const format = (num) => String(num).padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${format(hours)} : ${format(minutes)} : ${format(seconds)}`;
+        }
+
+
+        // 3. 스마트 일정 위젯 - 퀵 필터 탭 클릭 인터랙션
+        function filterEvents(category) {
+            const tabs = ['all', 'my', 'project', 'team'];
+            
+            // 탭 스타일 활성화 처리
+            tabs.forEach(tab => {
+                const btn = document.getElementById('tab-' + tab);
+                if (tab === category) {
+                    btn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-accent transition shadow-md";
+                } else {
+                    btn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition";
+                }
+            });
+
+            // 이벤트 데이터 필터링 가시화
+            const cards = document.querySelectorAll('.event-card-item');
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (category === 'all' || cardCategory === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+
+        // 4. 달력 날짜 변경 및 해당 날짜의 더미 데이터 렌더링
+        const mockEventsByDate = {
+            26: [
+                {
+                    time: "10:00", duration: "30m", cat: "my", catLabel: "스프린트 미팅",
+                    title: "Daily Scrum & UI/UX 설계안 중간 검토", desc: "스프린트 24차 진행도 검수 및 피드백 통합 정리",
+                    loc: "3층 미팅룸 B", action: true, actionType: "zoom"
+                },
+                {
+                    time: "14:00", duration: "1h", cat: "project", catLabel: "인프라/배포",
+                    title: "PG 결제대행 실서버 핫픽스 배포", desc: "모바일 팝업 결제 에러 현상 개선안 마스터 브랜치 배포 예정",
+                    loc: "DEV-402", action: false
+                },
+                {
+                    time: "All Day", duration: "", cat: "team", catLabel: "휴가/재택",
+                    title: "김민서 Senior Dev - 대체 휴가", desc: "주말 정기 배포 장애 대응 온콜(On-Call) 실적에 따른 보상 적립 연차 사용",
+                    loc: "", action: false, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60&h=60"
+                }
+            ],
+            27: [
+                {
+                    time: "13:00", duration: "2h", cat: "project", catLabel: "인프라 작업",
+                    title: "AWS RDS 데이터베이스 마이그레이션", desc: "고객 수 증가에 따른 읽기 전용 복제본 스케일 아웃 및 분산 작업",
+                    loc: "Cloud DB", action: false
+                },
+                {
+                    time: "16:00", duration: "1h", cat: "my", catLabel: "정기 회의",
+                    title: "전사 개발 표준화 테크 세미나", desc: "사내 공통 컴포넌트 라이브러리 v2.0 공유 및 토론회",
+                    loc: "Zoom 온라인 세션", action: true, actionType: "zoom"
+                }
+            ],
+            28: [
+                {
+                    time: "11:00", duration: "1h", cat: "team", catLabel: "클라이언트 미팅",
+                    title: "네이버 비즈니스 커머스 협력 미팅 (대면)", desc: "API 연동 제휴 관련 요구사항 검수 및 일정 협의",
+                    loc: "1층 고객 미팅 센터", action: false
+                }
+            ]
+        };
+
+        function selectCalendarDate(day) {
+            // 날짜 레이블 변경
+            const label = document.getElementById('timeline-date-label');
+            label.innerText = `5월 ${day}일`;
+
+            // 이전 달력 일자 하이라이트 클래스 제거 및 지정
+            const dates = [26, 27, 28];
+            dates.forEach(d => {
+                const cell = document.getElementById('cal-date-' + d);
+                if (d === day) {
+                    cell.className = "text-white py-2 bg-brand-accent/40 border border-brand-accent rounded-lg cursor-pointer relative flex flex-col items-center justify-center font-bold";
+                } else {
+                    cell.className = "text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center";
+                }
+            });
+
+            // 해당 날짜 일정 데이터 새로 그리기 (더미 바인딩)
+            const container = document.getElementById('timeline-events-container');
+            container.innerHTML = ""; // 기존 비우기
+
+            const events = mockEventsByDate[day];
+            if (!events || events.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-xs text-gray-500">
+                        <i class="fa-regular fa-calendar-xmark text-4xl mb-3 block text-gray-600"></i>
+                        해당 날짜에 등록된 일정이 없습니다.
+                    </div>`;
+                return;
+            }
+
+            events.forEach(ev => {
+                let borderCol = "border-brand-accent";
+                let catBadgeCol = "bg-blue-500/10 border-blue-500/20 text-blue-400";
+                
+                if (ev.cat === 'project') {
+                    borderCol = "border-red-500";
+                    catBadgeCol = "bg-red-500/10 border-red-500/20 text-red-400";
+                } else if (ev.cat === 'team') {
+                    borderCol = "border-emerald-500";
+                    catBadgeCol = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+                }
+
+                let actionHtml = "";
+                if (ev.action && ev.actionType === 'zoom') {
+                    actionHtml = `
+                        <a href="https://zoom.us" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-video"></i> 화상회의
+                        </a>`;
+                } else if (ev.avatar) {
+                    actionHtml = `<img src="${ev.avatar}" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">`;
+                }
+
+                const cardHtml = `
+                    <div class="event-card-item bg-slate-900 border-l-4 ${borderCol} p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="${ev.cat}">
+                        <div class="flex items-start gap-4">
+                            <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
+                                <span class="block text-gray-100 font-bold">${ev.time}</span>
+                                <span>${ev.duration}</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="px-1.5 py-0.5 ${catBadgeCol} text-[10px] rounded font-bold">${ev.catLabel}</span>
+                                    ${ev.loc ? `<span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> ${ev.loc}</span>` : ""}
+                                </div>
+                                <h4 class="font-bold text-sm text-white">${ev.title}</h4>
+                                <p class="text-xs text-gray-400 mt-1">${ev.desc}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${actionHtml}
+                        </div>
+                    </div>`;
+                
+                container.innerHTML += cardHtml;
+            });
+        }
+
+
+        // 5. 모달 제어 기능
+        function openAddEventModal() {
+            const modal = document.getElementById('add-event-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeAddEventModal() {
+            const modal = document.getElementById('add-event-modal');
+            modal.classList.add('hidden');
+        }
+
+        function addNewEvent(e) {
+            e.preventDefault();
+            
+            const cat = document.getElementById('new-event-cat').value;
+            const title = document.getElementById('new-event-title').value;
+            const time = document.getElementById('new-event-time').value;
+            const duration = document.getElementById('new-event-duration').value;
+            const loc = document.getElementById('new-event-loc').value;
+            const desc = document.getElementById('new-event-desc').value;
+
+            // 더미 26일 자원에 추가
+            const newEv = {
+                time: time,
+                duration: duration,
+                cat: cat,
+                catLabel: cat === 'my' ? "내 스케줄" : (cat === 'project' ? "프로젝트" : "부서 휴가/공유"),
+                title: title,
+                desc: desc || "회의 상세 안건 공유 예정",
+                loc: loc,
+                action: loc.includes("Zoom") ? true : false,
+                actionType: "zoom"
+            };
+
+            // 만약 선택된 날짜에 매핑하여 추가
+            if (!mockEventsByDate[26]) {
+                mockEventsByDate[26] = [];
+            }
+            mockEventsByDate[26].push(newEv);
+
+            // 타임라인 다시 그리기
+            selectCalendarDate(26);
+            
+            // 모달 초기화 및 닫기
+            document.getElementById('new-event-title').value = "";
+            document.getElementById('new-event-desc').value = "";
+            closeAddEventModal();
+
+            alert("새로운 일정이 안전하게 사내 스케줄러 데이터베이스에 동기화 완료되었습니다.");
+        }
+    </script>
+
+</body></html>
