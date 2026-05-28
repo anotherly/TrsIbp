@@ -1,6 +1,14 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="true"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%-- 세션 체크: 로그인하지 않으면 로그인 페이지로 이동 --%>
+<%
+    if (session.getAttribute("login") == null) {
+        response.sendRedirect(request.getContextPath() + "/user/login.do");
+        return;
+    }
+%>
 <!DOCTYPE html>
-<!-- saved from url=(0126)# -->
+<!-- saved from url=(0126)file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html# -->
 <html lang="ko">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -78,15 +86,15 @@
                 </div>
             </div>
 
-            <!-- 사용자 간이 프로필 -->
+            <!-- 사용자 간이 프로필 (세션 연동) -->
             <div class="p-4 mx-4 my-3 bg-brand-card/50 rounded-xl border border-brand-border/60 flex items-center gap-3">
                 <div class="relative">
                     <img src="<%=request.getContextPath()%>/protoType/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
                     <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
                 </div>
-                <div>
-                    <h4 class="font-bold text-sm text-gray-100">이도현 과장</h4>
-                    <span class="text-xs text-gray-400">웹 프론트엔드 파트</span>
+                <div class="flex-grow overflow-hidden">
+                    <h4 class="font-bold text-sm text-gray-100 truncate">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</h4>
+                    <span class="text-xs text-gray-400">${not empty sessionScope.login ? sessionScope.login.authName : ''}</span>
                 </div>
             </div>
 
@@ -94,7 +102,7 @@
             <nav class="px-4 space-y-1">
                 <!-- 1. 근무 관리 -->
                 <div>
-                    <button onclick="toggleSubmenu(&#39;sub-work&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                    <button onclick="toggleSubmenu('sub-work')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-clock-rotate-left text-gray-400 group-hover:text-cyan-400 w-5"></i>
                             <span class="font-medium text-sm">근무 관리</span>
@@ -110,7 +118,7 @@
 
                 <!-- 2. 휴가 관리 -->
                 <div>
-                    <button onclick="toggleSubmenu(&#39;sub-leave&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                    <button onclick="toggleSubmenu('sub-leave')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-umbrella text-gray-400 group-hover:text-cyan-400 w-5"></i>
                             <span class="font-medium text-sm">휴가 관리</span>
@@ -126,7 +134,7 @@
 
                 <!-- 3. 일정/공유 (Active) -->
                 <div>
-                    <button onclick="toggleSubmenu(&#39;sub-schedule&#39;)" class="w-full flex items-center justify-between p-3 text-white bg-brand-card rounded-lg transition duration-200 group">
+                    <button onclick="toggleSubmenu('sub-schedule')" class="w-full flex items-center justify-between p-3 text-white bg-brand-card rounded-lg transition duration-200 group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-calendar-check text-cyan-400 w-5"></i>
                             <span class="font-medium text-sm">일정/공유</span>
@@ -142,7 +150,7 @@
 
                 <!-- 4. 프로젝트/사업 -->
                 <div>
-                    <button onclick="toggleSubmenu(&#39;sub-project&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                    <button onclick="toggleSubmenu('sub-project')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-cubes-stacked text-gray-400 group-hover:text-cyan-400 w-5"></i>
                             <span class="font-medium text-sm">프로젝트/사업</span>
@@ -159,7 +167,7 @@
 
                 <!-- 5. 인프라/총무 -->
                 <div>
-                    <button onclick="toggleSubmenu(&#39;sub-infra&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                    <button onclick="toggleSubmenu('sub-infra')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-laptop-code text-gray-400 group-hover:text-cyan-400 w-5"></i>
                             <span class="font-medium text-sm">인프라/총무</span>
@@ -175,7 +183,7 @@
 
                 <!-- 6. 비용/회계 -->
                 <div>
-                    <button onclick="toggleSubmenu(&#39;sub-finance&#39;)" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
+                    <button onclick="toggleSubmenu('sub-finance')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-file-invoice-dollar text-gray-400 group-hover:text-cyan-400 w-5"></i>
                             <span class="font-medium text-sm">비용/회계</span>
@@ -191,10 +199,17 @@
             </nav>
         </div>
 
-        <!-- 하단 푸터 / 세팅 -->
+        <!-- 하단 푸터 / 세팅 + 로그아웃 -->
         <div class="p-4 border-t border-brand-border flex items-center justify-between text-xs text-gray-500">
             <span>Server: <span class="text-emerald-500 font-bold">Stable</span></span>
-            <button class="hover:text-white"><i class="fa-solid fa-gear text-sm"></i></button>
+            <div class="flex items-center gap-2">
+                <button class="hover:text-white" title="설정"><i class="fa-solid fa-gear text-sm"></i></button>
+                <a href="<%=request.getContextPath()%>/user/logout.do" 
+                   class="hover:text-red-400 transition" title="로그아웃"
+                   onclick="return confirm('로그아웃 하시겠습니까?')">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </a>
+            </div>
         </div>
     </aside>
 
@@ -240,6 +255,19 @@
                     <i class="fa-solid fa-bell text-lg"></i>
                     <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-brand-dark animate-pulse"></span>
                 </div>
+
+                <!-- 로그인 사용자 정보 + 로그아웃 버튼 -->
+                <div class="flex items-center gap-2 pl-4 border-l border-brand-border/60">
+                    <span class="text-xs text-gray-400">
+                        <i class="fa-solid fa-user-circle text-brand-accent mr-1"></i>
+                        <strong class="text-gray-200">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</strong>
+                    </span>
+                    <a href="<%=request.getContextPath()%>/user/logout.do"
+                       class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-500/10"
+                       onclick="return confirm('로그아웃 하시겠습니까?')">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -259,10 +287,10 @@
                         
                         <!-- 근무지 토글 칩스 -->
                         <div class="grid grid-cols-4 gap-1.5 mb-4">
-                            <button onclick="setWorkLocation(&#39;본사&#39;)" id="loc-본사" class="py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition">본사</button>
-                            <button onclick="setWorkLocation(&#39;재택&#39;)" id="loc-재택" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">재택</button>
-                            <button onclick="setWorkLocation(&#39;외근&#39;)" id="loc-외근" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">외근</button>
-                            <button onclick="setWorkLocation(&#39;상주&#39;)" id="loc-상주" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">상주</button>
+                            <button onclick="setWorkLocation('본사')" id="loc-본사" class="py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition">본사</button>
+                            <button onclick="setWorkLocation('재택')" id="loc-재택" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">재택</button>
+                            <button onclick="setWorkLocation('외근')" id="loc-외근" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">외근</button>
+                            <button onclick="setWorkLocation('상주')" id="loc-상주" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">상주</button>
                         </div>
 
                         <!-- 실시간 근무 타이머 -->
@@ -280,6 +308,12 @@
                         <button id="btn-checkout" onclick="triggerCheckOut()" class="w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2" disabled="">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i> 퇴근하기
                         </button>
+                    </div>
+                    <!-- 출퇴근 시간 표시 (AJAX 응답 후 업데이트) -->
+                    <div class="mt-3 text-center text-xs text-gray-500 space-y-0.5">
+                        <p id="checkin-time-display"></p>
+                        <p id="checkout-time-display"></p>
+                        <p id="work-time-display"></p>
                     </div>
                 </div>
 
@@ -359,10 +393,10 @@
 
                     <!-- 퀵 캘린더 탭 (INTERACTIVE!) -->
                     <div class="flex p-1 bg-slate-900 border border-brand-border rounded-xl">
-                        <button id="tab-all" onclick="filterEvents(&#39;all&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-accent transition">전체 일정</button>
-                        <button id="tab-my" onclick="filterEvents(&#39;my&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">내 일정</button>
-                        <button id="tab-project" onclick="filterEvents(&#39;project&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">프로젝트</button>
-                        <button id="tab-team" onclick="filterEvents(&#39;team&#39;)" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">팀 휴가/재택</button>
+                        <button id="tab-all" onclick="filterEvents('all')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-accent transition">전체 일정</button>
+                        <button id="tab-my" onclick="filterEvents('my')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">내 일정</button>
+                        <button id="tab-project" onclick="filterEvents('project')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">프로젝트</button>
+                        <button id="tab-team" onclick="filterEvents('team')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">팀 휴가/재택</button>
                     </div>
                 </div>
 
@@ -718,291 +752,16 @@
 
 
     <!-- ============================================ -->
-    <!-- JAVASCRIPT FOR INTERACTIVE DEMO (인터랙션 구현) -->
+    <!-- JAVASCRIPT: jQuery + 외부 파일로 분리 (EL 충돌 없음, 백틱 자유 사용 가능) -->
     <!-- ============================================ -->
+    <%-- jQuery (AJAX 사용을 위해 dashboard.js 앞에 로드) --%>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <%-- 컨텍스트 경로: dashboard.js에서 AJAX URL 조합에 사용 --%>
     <script>
-        // 1. 사이드바 아코디언 메뉴 토글
-        function toggleSubmenu(id) {
-            const menu = document.getElementById(id);
-            const arrow = document.getElementById('arrow-' + id);
-            
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                arrow.classList.remove('fa-chevron-down');
-                arrow.classList.add('fa-chevron-up');
-                if (arrow.classList.contains('text-gray-500')) {
-                    arrow.classList.remove('text-gray-500');
-                    arrow.classList.add('text-cyan-400');
-                }
-            } else {
-                menu.classList.add('hidden');
-                arrow.classList.remove('fa-chevron-up');
-                arrow.classList.add('fa-chevron-down');
-                arrow.classList.remove('text-cyan-400');
-                arrow.classList.add('text-gray-500');
-            }
-        }
-
-        // 2. 출퇴근 실시간 타이머 및 근무 컨트롤 인터랙션
-        let timerInterval = null;
-        let totalSeconds = 0; // 초 단위 누적 시간
-        let isWorking = false;
-
-        function setWorkLocation(type) {
-            const badge = document.getElementById('work-location-badge');
-            badge.innerText = type + " 근무";
-            
-            // 모든 근무지 칩 스타일 초기화 후 활성화 지정
-            const types = ['본사', '재택', '외근', '상주'];
-            types.forEach(loc => {
-                const button = document.getElementById('loc-' + loc);
-                if (loc === type) {
-                    button.className = "py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition";
-                } else {
-                    button.className = "py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition";
-                }
-            });
-        }
-
-        function triggerCheckIn() {
-            if (isWorking) return;
-            
-            isWorking = true;
-            // 출퇴근 버튼 상태 전환
-            const checkInBtn = document.getElementById('btn-checkin');
-            const checkOutBtn = document.getElementById('btn-checkout');
-            
-            checkInBtn.className = "w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2";
-            checkInBtn.disabled = true;
-            
-            checkOutBtn.className = "w-full py-2.5 bg-gradient-to-r from-red-500 to-orange-500 hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/10 transition flex items-center justify-center gap-2 cursor-pointer";
-            checkOutBtn.disabled = false;
-
-            // 타이머 작동 시작
-            timerInterval = setInterval(() => {
-                totalSeconds++;
-                updateTimerDisplay();
-            }, 1000);
-        }
-
-        function triggerCheckOut() {
-            if (!isWorking) return;
-            
-            isWorking = false;
-            clearInterval(timerInterval);
-
-            // 출퇴근 버튼 상태 복구
-            const checkInBtn = document.getElementById('btn-checkin');
-            const checkOutBtn = document.getElementById('btn-checkout');
-
-            checkInBtn.className = "w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/10 transition flex items-center justify-center gap-2 cursor-pointer";
-            checkInBtn.disabled = false;
-            
-            checkOutBtn.className = "w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2";
-            checkOutBtn.disabled = true;
-
-            alert("오늘 하루 수고하셨습니다! 퇴근 처리가 완료되어 슬랙 채널 상태가 'Offline'으로 전환되었습니다.");
-        }
-
-        function updateTimerDisplay() {
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-
-            const format = (num) => String(num).padStart(2, '0');
-            document.getElementById('timer-display').innerText = format(hours) + ' : ' + format(minutes) + ' : ' + format(seconds);
-        }
-
-
-        // 3. 스마트 일정 위젯 - 퀵 필터 탭 클릭 인터랙션
-        function filterEvents(category) {
-            const tabs = ['all', 'my', 'project', 'team'];
-            
-            // 탭 스타일 활성화 처리
-            tabs.forEach(tab => {
-                const btn = document.getElementById('tab-' + tab);
-                if (tab === category) {
-                    btn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-accent transition shadow-md";
-                } else {
-                    btn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition";
-                }
-            });
-
-            // 이벤트 데이터 필터링 가시화
-            const cards = document.querySelectorAll('.event-card-item');
-            cards.forEach(card => {
-                const cardCategory = card.getAttribute('data-category');
-                if (category === 'all' || cardCategory === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-
-        // 4. 달력 날짜 변경 및 해당 날짜의 더미 데이터 렌더링
-        const mockEventsByDate = {
-            26: [
-                {
-                    time: "10:00", duration: "30m", cat: "my", catLabel: "스프린트 미팅",
-                    title: "Daily Scrum & UI/UX 설계안 중간 검토", desc: "스프린트 24차 진행도 검수 및 피드백 통합 정리",
-                    loc: "3층 미팅룸 B", action: true, actionType: "zoom"
-                },
-                {
-                    time: "14:00", duration: "1h", cat: "project", catLabel: "인프라/배포",
-                    title: "PG 결제대행 실서버 핫픽스 배포", desc: "모바일 팝업 결제 에러 현상 개선안 마스터 브랜치 배포 예정",
-                    loc: "DEV-402", action: false
-                },
-                {
-                    time: "All Day", duration: "", cat: "team", catLabel: "휴가/재택",
-                    title: "김민서 Senior Dev - 대체 휴가", desc: "주말 정기 배포 장애 대응 온콜(On-Call) 실적에 따른 보상 적립 연차 사용",
-                    loc: "", action: false, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60&h=60"
-                }
-            ],
-            27: [
-                {
-                    time: "13:00", duration: "2h", cat: "project", catLabel: "인프라 작업",
-                    title: "AWS RDS 데이터베이스 마이그레이션", desc: "고객 수 증가에 따른 읽기 전용 복제본 스케일 아웃 및 분산 작업",
-                    loc: "Cloud DB", action: false
-                },
-                {
-                    time: "16:00", duration: "1h", cat: "my", catLabel: "정기 회의",
-                    title: "전사 개발 표준화 테크 세미나", desc: "사내 공통 컴포넌트 라이브러리 v2.0 공유 및 토론회",
-                    loc: "Zoom 온라인 세션", action: true, actionType: "zoom"
-                }
-            ],
-            28: [
-                {
-                    time: "11:00", duration: "1h", cat: "team", catLabel: "클라이언트 미팅",
-                    title: "네이버 비즈니스 커머스 협력 미팅 (대면)", desc: "API 연동 제휴 관련 요구사항 검수 및 일정 협의",
-                    loc: "1층 고객 미팅 센터", action: false
-                }
-            ]
-        };
-
-        function selectCalendarDate(day) {
-            // 날짜 레이블 변경
-            const label = document.getElementById('timeline-date-label');
-            label.innerText = '5월 ' + day + '일';
-
-            // 이전 달력 일자 하이라이트 클래스 제거 및 지정
-            const dates = [26, 27, 28];
-            dates.forEach(d => {
-                const cell = document.getElementById('cal-date-' + d);
-                if (d === day) {
-                    cell.className = "text-white py-2 bg-brand-accent/40 border border-brand-accent rounded-lg cursor-pointer relative flex flex-col items-center justify-center font-bold";
-                } else {
-                    cell.className = "text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center";
-                }
-            });
-
-            // 해당 날짜 일정 데이터 새로 그리기 (더미 바인딩)
-            const container = document.getElementById('timeline-events-container');
-            container.innerHTML = ""; // 기존 비우기
-
-            const events = mockEventsByDate[day];
-            if (!events || events.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 text-xs text-gray-500"><i class="fa-regular fa-calendar-xmark text-4xl mb-3 block text-gray-600"></i>해당 날짜에 등록된 일정이 없습니다.</div>';
-                return;
-            }
-
-            events.forEach(ev => {
-                let borderCol = "border-brand-accent";
-                let catBadgeCol = "bg-blue-500/10 border-blue-500/20 text-blue-400";
-                
-                if (ev.cat === 'project') {
-                    borderCol = "border-red-500";
-                    catBadgeCol = "bg-red-500/10 border-red-500/20 text-red-400";
-                } else if (ev.cat === 'team') {
-                    borderCol = "border-emerald-500";
-                    catBadgeCol = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
-                }
-
-                var actionHtml = "";
-                if (ev.action && ev.actionType === 'zoom') {
-                    actionHtml = '<a href="https://zoom.us" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition"><i class="fa-solid fa-video"></i> 화상회의</a>';
-                } else if (ev.avatar) {
-                    actionHtml = '<img src="' + ev.avatar + '" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">';
-                }
-
-                var locHtml = ev.loc ? '<span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> ' + ev.loc + '</span>' : '';
-
-                var cardHtml = '<div class="event-card-item bg-slate-900 border-l-4 ' + borderCol + ' p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="' + ev.cat + '">'
-                    + '<div class="flex items-start gap-4">'
-                    + '<div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">'
-                    + '<span class="block text-gray-100 font-bold">' + ev.time + '</span>'
-                    + '<span>' + ev.duration + '</span>'
-                    + '</div>'
-                    + '<div>'
-                    + '<div class="flex items-center gap-2 mb-1">'
-                    + '<span class="px-1.5 py-0.5 ' + catBadgeCol + ' text-[10px] rounded font-bold">' + ev.catLabel + '</span>'
-                    + locHtml
-                    + '</div>'
-                    + '<h4 class="font-bold text-sm text-white">' + ev.title + '</h4>'
-                    + '<p class="text-xs text-gray-400 mt-1">' + ev.desc + '</p>'
-                    + '</div>'
-                    + '</div>'
-                    + '<div class="flex items-center gap-2">'
-                    + actionHtml
-                    + '</div>'
-                    + '</div>';
-
-                container.innerHTML += cardHtml;
-            });
-        }
-
-
-        // 5. 모달 제어 기능
-        function openAddEventModal() {
-            const modal = document.getElementById('add-event-modal');
-            modal.classList.remove('hidden');
-        }
-
-        function closeAddEventModal() {
-            const modal = document.getElementById('add-event-modal');
-            modal.classList.add('hidden');
-        }
-
-        function addNewEvent(e) {
-            e.preventDefault();
-            
-            const cat = document.getElementById('new-event-cat').value;
-            const title = document.getElementById('new-event-title').value;
-            const time = document.getElementById('new-event-time').value;
-            const duration = document.getElementById('new-event-duration').value;
-            const loc = document.getElementById('new-event-loc').value;
-            const desc = document.getElementById('new-event-desc').value;
-
-            // 더미 26일 자원에 추가
-            const newEv = {
-                time: time,
-                duration: duration,
-                cat: cat,
-                catLabel: cat === 'my' ? "내 스케줄" : (cat === 'project' ? "프로젝트" : "부서 휴가/공유"),
-                title: title,
-                desc: desc || "회의 상세 안건 공유 예정",
-                loc: loc,
-                action: loc.includes("Zoom") ? true : false,
-                actionType: "zoom"
-            };
-
-            // 만약 선택된 날짜에 매핑하여 추가
-            if (!mockEventsByDate[26]) {
-                mockEventsByDate[26] = [];
-            }
-            mockEventsByDate[26].push(newEv);
-
-            // 타임라인 다시 그리기
-            selectCalendarDate(26);
-            
-            // 모달 초기화 및 닫기
-            document.getElementById('new-event-title').value = "";
-            document.getElementById('new-event-desc').value = "";
-            closeAddEventModal();
-
-            alert("새로운 일정이 안전하게 사내 스케줄러 데이터베이스에 동기화 완료되었습니다.");
-        }
+        var ctxPath = '<%=request.getContextPath()%>';
     </script>
+
+    <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
 
 </body></html>

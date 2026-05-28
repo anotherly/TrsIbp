@@ -1,0 +1,22 @@
+# Build output
+target/
+
+# Java class files
+*.class
+
+# Eclipse 설정파일
+.settings/
+.classpath
+.project
+*.prefs
+
+# IDE
+.idea/
+*.iml
+
+# Log files
+*.log
+
+# OS
+Thumbs.db
+.DS_Store

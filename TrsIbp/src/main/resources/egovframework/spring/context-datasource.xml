@@ -13,9 +13,9 @@
  	<!-- MariaDB (개발서버) --> 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="org.mariadb.jdbc.Driver"/>
-        <property name="url" value="jdbc:mariadb://192.168.117.25:11000/airhub?allowMultiQueries=true" />
-        <property name="username" value="root"/>
-        <property name="password" value="root"/>
+        <property name="url" value="jdbc:mariadb://localhost:12000/trs_ibp?allowMultiQueries=true" />
+        <property name="username" value="trs_user"/>
+        <property name="password" value="trs_12!@"/>
     </bean>     
      
     <!-- hsql (테스트용 메모리 DB)

@@ -2,16 +2,17 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-    <!-- jdb : 쿼리에 맞는 vo 설정 -->
-	<typeAliases>
-		<!-- 사용자 -->		
-		<typeAlias alias="userVO" type="kr.co.TRSolution.trsHome.user.vo.UserVO" />
-	</typeAliases>
-	
-	<!-- jdb : 사용하려는 *mapper.xml 등록 -->
-	<!-- jdb ※중요 ! : 여기서 매퍼위치 설정하거나 context mapper 에서 위치설정 해줘야함 그동안 이중설정했던건 
-	context-mapper.xml 에서 꼬였기 때문 ㅡㅡ -->
-	<!-- <mappers>
-	    <mapper resource="egovframework/sqlmap/mapper/mapMapper.xml" />
-   </mappers> -->
+    <!-- VO 타입 별칭 설정 (mapper.xml의 parameterType/resultType에서 짧게 사용) -->
+    <typeAliases>
+        <!-- 사용자 -->
+        <typeAlias alias="userVO"   type="kr.co.TRSolution.trsHome.user.vo.UserVO"   />
+        <!-- 근태관리 -->
+        <typeAlias alias="attendVO" type="kr.co.TRSolution.trsHome.attend.vo.AttendVO" />
+    </typeAliases>
+
+    <!--
+        mapper.xml 위치는 context-mapper.xml의 mapperLocations에서 일괄 등록
+        classpath:/egovframework/sqlmap/mappers/*.xml
+        → userMapper.xml, attendMapper.xml 등 자동 포함
+    -->
 </configuration>
