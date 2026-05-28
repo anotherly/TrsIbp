@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="true"%>
 <!DOCTYPE html>
 <!-- saved from url=(0126)file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html# -->
 <html lang="ko">
@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevSync - IT 개발사 스마트 대시보드</title>
     <!-- Tailwind CSS CDN -->
-    <script src="./protoType/saved_resource"></script>
+    <script src="<%=request.getContextPath()%>/protoType/saved_resource"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -33,8 +33,8 @@
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-    <link href="./DevSync - IT 개발사 스마트 대시보드_files/css2" rel="stylesheet">
-    <link rel="stylesheet" href="./DevSync - IT 개발사 스마트 대시보드_files/all.min.css">
+    <link href="<%=request.getContextPath()%>/protoType/css2" rel="stylesheet">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/protoType/all.min.css">
     
     <style>
         body {
@@ -81,7 +81,7 @@
             <!-- 사용자 간이 프로필 -->
             <div class="p-4 mx-4 my-3 bg-brand-card/50 rounded-xl border border-brand-border/60 flex items-center gap-3">
                 <div class="relative">
-                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
+                    <img src="<%=request.getContextPath()%>/protoType/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
                     <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
                 </div>
                 <div>
@@ -531,7 +531,7 @@
                                     </div>
                                     <!-- 프로필 아바타 -->
                                     <div>
-                                        <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1494790108377-be9c29b29330" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">
+                                        <img src="<%=request.getContextPath()%>/protoType/photo-1494790108377-be9c29b29330" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">
                                     </div>
                                 </div>
                             </div>
@@ -563,7 +563,7 @@
                             <!-- 팀원 1: 재택 -->
                             <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
                                 <div class="flex items-center gap-3">
-                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1438761681033-6461ffad8d80" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-blue-400">
+                                    <img src="<%=request.getContextPath()%>/protoType/photo-1438761681033-6461ffad8d80" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-blue-400">
                                     <div>
                                         <span class="font-bold text-sm text-gray-200">한혜지 대리</span>
                                         <p class="text-[11px] text-gray-400">웹 디자인 파트</p>
@@ -577,7 +577,7 @@
                             <!-- 팀원 2: 상주(파견) -->
                             <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
                                 <div class="flex items-center gap-3">
-                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1507003211169-0a1dd7228f2d" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-purple-400">
+                                    <img src="<%=request.getContextPath()%>/protoType/photo-1507003211169-0a1dd7228f2d" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-purple-400">
                                     <div>
                                         <span class="font-bold text-sm text-gray-200">정재윤 책임</span>
                                         <p class="text-[11px] text-gray-400">백엔드 아키텍트</p>
@@ -591,7 +591,7 @@
                             <!-- 팀원 3: 연차 -->
                             <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
                                 <div class="flex items-center gap-3">
-                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1494790108377-be9c29b29330" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
+                                    <img src="<%=request.getContextPath()%>/protoType/photo-1494790108377-be9c29b29330" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
                                     <div>
                                         <span class="font-bold text-sm text-gray-200">김민서 수석</span>
                                         <p class="text-[11px] text-gray-400">인프라/보안 파트</p>
@@ -810,7 +810,7 @@
             const seconds = totalSeconds % 60;
 
             const format = (num) => String(num).padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${format(hours)} : ${format(minutes)} : ${format(seconds)}`;
+            document.getElementById('timer-display').innerText = format(hours) + ' : ' + format(minutes) + ' : ' + format(seconds);
         }
 
 
@@ -884,7 +884,7 @@
         function selectCalendarDate(day) {
             // 날짜 레이블 변경
             const label = document.getElementById('timeline-date-label');
-            label.innerText = `5월 ${day}일`;
+            label.innerText = '5월 ' + day + '일';
 
             // 이전 달력 일자 하이라이트 클래스 제거 및 지정
             const dates = [26, 27, 28];
@@ -903,11 +903,7 @@
 
             const events = mockEventsByDate[day];
             if (!events || events.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-xs text-gray-500">
-                        <i class="fa-regular fa-calendar-xmark text-4xl mb-3 block text-gray-600"></i>
-                        해당 날짜에 등록된 일정이 없습니다.
-                    </div>`;
+                container.innerHTML = '<div class="text-center py-12 text-xs text-gray-500"><i class="fa-regular fa-calendar-xmark text-4xl mb-3 block text-gray-600"></i>해당 날짜에 등록된 일정이 없습니다.</div>';
                 return;
             }
 
@@ -923,37 +919,35 @@
                     catBadgeCol = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
                 }
 
-                let actionHtml = "";
+                var actionHtml = "";
                 if (ev.action && ev.actionType === 'zoom') {
-                    actionHtml = `
-                        <a href="https://zoom.us" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-video"></i> 화상회의
-                        </a>`;
+                    actionHtml = '<a href="https://zoom.us" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition"><i class="fa-solid fa-video"></i> 화상회의</a>';
                 } else if (ev.avatar) {
-                    actionHtml = `<img src="${ev.avatar}" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">`;
+                    actionHtml = '<img src="' + ev.avatar + '" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">';
                 }
 
-                const cardHtml = `
-                    <div class="event-card-item bg-slate-900 border-l-4 ${borderCol} p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="${ev.cat}">
-                        <div class="flex items-start gap-4">
-                            <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
-                                <span class="block text-gray-100 font-bold">${ev.time}</span>
-                                <span>${ev.duration}</span>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="px-1.5 py-0.5 ${catBadgeCol} text-[10px] rounded font-bold">${ev.catLabel}</span>
-                                    ${ev.loc ? `<span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> ${ev.loc}</span>` : ""}
-                                </div>
-                                <h4 class="font-bold text-sm text-white">${ev.title}</h4>
-                                <p class="text-xs text-gray-400 mt-1">${ev.desc}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            ${actionHtml}
-                        </div>
-                    </div>`;
-                
+                var locHtml = ev.loc ? '<span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> ' + ev.loc + '</span>' : '';
+
+                var cardHtml = '<div class="event-card-item bg-slate-900 border-l-4 ' + borderCol + ' p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="' + ev.cat + '">'
+                    + '<div class="flex items-start gap-4">'
+                    + '<div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">'
+                    + '<span class="block text-gray-100 font-bold">' + ev.time + '</span>'
+                    + '<span>' + ev.duration + '</span>'
+                    + '</div>'
+                    + '<div>'
+                    + '<div class="flex items-center gap-2 mb-1">'
+                    + '<span class="px-1.5 py-0.5 ' + catBadgeCol + ' text-[10px] rounded font-bold">' + ev.catLabel + '</span>'
+                    + locHtml
+                    + '</div>'
+                    + '<h4 class="font-bold text-sm text-white">' + ev.title + '</h4>'
+                    + '<p class="text-xs text-gray-400 mt-1">' + ev.desc + '</p>'
+                    + '</div>'
+                    + '</div>'
+                    + '<div class="flex items-center gap-2">'
+                    + actionHtml
+                    + '</div>'
+                    + '</div>';
+
                 container.innerHTML += cardHtml;
             });
         }
