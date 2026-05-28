@@ -68,7 +68,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 //			// 현재 세션에 대해 로그인한 사용자 정보를 가져옴
 //			UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
 //			AuthVo avo = new AuthVo();
-//			avo.setAuthCode(reqLoginVo.getAuthCode());
+//			avo.setAuthId(reqLoginVo.getAuthId());
 //			//25년 보안취약점 조치
 //			//예외 케이스 명기
 //			

@@ -99,10 +99,9 @@ public class UserController {
 			if(userVO.getSearchValue()!=null) {
 				uvo=userVO;
 			}
-			if(!(nlVo.getAuthCode().equals("999"))) {//999 관리자 권한
-				uvo.setRegionId(nlVo.getRegionId());
+			if(!(nlVo.getAuthId().equals("999"))) {//999 관리자 권한
 				//관리자 권한이 아닐경우 관리자는 목록조회 안되도록
-				uvo.setAuthCode("998");
+				uvo.setAuthId("998");
 			}
 			userList = userService.selectUserList(uvo);
 			mav.setViewName("/user/userList");
@@ -287,10 +286,6 @@ public class UserController {
 			if(userVO.getSearchValue()!=null) {
 				uvo=userVO;
 			}
-			if(!(nlVo.getAuthCode().equals("999"))) {//999 관리자 권한
-				uvo.setRegionId(nlVo.getRegionId());
-			}
-			userList = userService.loginHistory(uvo);
 			mav.setViewName("/user/loginHistoryList");
 			mav.addObject("userList", userList);
 		} catch (Exception e) {
@@ -314,10 +309,6 @@ public class UserController {
 			if(userVO.getSearchValue()!=null) {
 				uvo=userVO;
 			}
-			if(!(nlVo.getAuthCode().equals("999"))) {//999 관리자 권한
-				uvo.setRegionId(nlVo.getRegionId());
-			}
-			userList = userService.loginHistory(uvo);
 			mav.setViewName("/user/useHistoryList");
 			mav.addObject("userList", userList);
 		} catch (Exception e) {

@@ -37,9 +37,6 @@ public class UserVO {
     /** 연락처 */
     private String userTel;
 
-    /** 내선번호 */
-    private String inTel;
-
     /** 사용여부 (Y/N) */
     private String flagUse;
 
@@ -108,9 +105,6 @@ public class UserVO {
 
     public String getUserTel() { return userTel; }
     public void setUserTel(String userTel) { this.userTel = userTel; }
-
-    public String getInTel() { return inTel; }
-    public void setInTel(String inTel) { this.inTel = inTel; }
 
     public String getFlagUse() { return flagUse; }
     public void setFlagUse(String flagUse) { this.flagUse = flagUse; }
