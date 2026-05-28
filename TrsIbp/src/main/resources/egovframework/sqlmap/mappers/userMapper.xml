@@ -23,7 +23,21 @@
 		<result property="fnDt"			column=	"FN"			/>
 		<result property="cnYn"			column=	"CN_YN"			/>
 	</resultMap>
-	<select id="selectUser" parameterType="string" resultMap="selectUser">
+
+	<!--
+		[Oracle → MariaDB 변환 내역]
+		1. TO_CHAR(날짜, 'YYYY-MM-DD')           → DATE_FORMAT(날짜, '%Y-%m-%d')
+		2. TO_DATE(문자열, 'YYYY-MM-DD HH24:MI:SS') → STR_TO_DATE(문자열, '%Y-%m-%d %H:%i:%s')
+		3. DECODE(컬럼, 값1, 결과1, 기본값)       → CASE WHEN 컬럼=값1 THEN 결과1 ELSE 기본값 END
+		4. sysdate                                 → NOW()
+		5. sysdate-2                               → DATE_SUB(NOW(), INTERVAL 2 DAY)
+		6. sysdate-1                               → DATE_SUB(NOW(), INTERVAL 1 DAY)
+		7. SIGN(ROUND(...))                        → SIGN(ROUND(...)) 동일 (MariaDB 지원)
+		8. '||' 문자열 연결                          → CONCAT() 함수
+		9. TO_DATE(날짜)+1                          → DATE_ADD(날짜, INTERVAL 1 DAY)
+	-->
+
+	<select id="selectUser" parameterType="userVO" resultMap="selectUser">
 	   SELECT
 				A.USER_ID
 				,A.USER_PW
@@ -36,10 +50,10 @@
 				,A.FLAG_USE
 				,A.MEMO
 				,A.IN_TEL
-				,TO_CHAR(A.REG_DT,'YYYY-MM-DD') AS REG_DT 
+				,DATE_FORMAT(A.REG_DT, '%Y-%m-%d') AS REG_DT
                 ,D.ST
                 ,D.FN
-   				 ,DECODE(D.DF1,'접속중','접속중','미접속') AS CN_YN
+   				,CASE WHEN D.DF1 = '접속중' THEN '접속중' ELSE '미접속' END AS CN_YN
 			FROM
 			SYS_USER A
             
@@ -51,19 +65,21 @@
             
             LEFT JOIN 
             (SELECT T1.*
-            ,case when df > 0 then '미접속'
-            else '접속중' end as df1
+            ,CASE WHEN df > 0 THEN '미접속'
+            ELSE '접속중' END AS df1
             FROM 
             (SELECT 
                 USER_ID
-                ,TO_CHAR(MAX(ST_TIME), 'YYYY-MM-DD HH24:MI:SS') ST 
-                ,TO_CHAR(MAX(FN_TIME), 'YYYY-MM-DD HH24:MI:SS') FN 
-                ,SIGN(ROUND((
-                TO_DATE(MAX(FN_TIME), 'YYYY-MM-DD HH24:MI:SS')
-                - TO_DATE(MAX(ST_TIME), 'YYYY-MM-DD HH24:MI:SS')
-                )* 24 * 60 *60)) df
+                ,DATE_FORMAT(MAX(ST_TIME), '%Y-%m-%d %H:%i:%s') AS ST
+                ,DATE_FORMAT(MAX(FN_TIME), '%Y-%m-%d %H:%i:%s') AS FN
+                ,SIGN(ROUND(
+                	TIMESTAMPDIFF(SECOND,
+                		MAX(ST_TIME),
+                		MAX(FN_TIME)
+                	)
+                )) AS df
                 FROM LOGIN_HISTORY
-                where ST_time >to_char(sysdate-2,'YYYY-MM-DD')
+                WHERE ST_TIME > DATE_SUB(NOW(), INTERVAL 2 DAY)
                 GROUP BY USER_ID
             ) T1) D
             ON  A.USER_ID = D.USER_ID
@@ -83,7 +99,7 @@
 				<!-- 지역관리자가 관리자 정보를 조회하지 못하도록 -->
 				<choose>
 				    <when test="authCode eq '998'">
-						AND A.AUTH_CODE not in('999')
+						AND A.AUTH_CODE NOT IN ('999')
 				    </when>
 				    <otherwise>
 				        AND A.AUTH_CODE=#{authCode}
@@ -93,10 +109,10 @@
 			<if test="searchValue !=null and searchValue neq ''"> 
 				<choose>
 				    <when test="searchType eq 'userId'">
-						AND A.USER_ID LIKE '%'||#{searchValue}||'%'	        
+						AND A.USER_ID LIKE CONCAT('%', #{searchValue}, '%')
 				    </when>
 				    <otherwise>
-				        AND A.USER_NAME LIKE '%'||#{searchValue}||'%'	
+				        AND A.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
 				    </otherwise>
 				</choose>
 			</if>	
@@ -129,7 +145,7 @@
 			,#{authCode}
 			,'Y'
 			,#{memo}
-			,to_char(sysdate,'YYYY-MM-DD')
+			,DATE_FORMAT(NOW(), '%Y-%m-%d')
 		)
 	</insert>
 	
@@ -163,29 +179,31 @@
 		)
 		VALUES (
 			#{userId}
-			,to_char(sysdate,'YYYY-MM-DD HH24:MI:SS')
+			,DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
 		)
 	</insert>
 	
 	<!-- 로그아웃 시 로그아웃 시간 기록-->
 	<update id="logoutUpdate" parameterType="userVO">
 		UPDATE LOGIN_HISTORY
-		SET FN_TIME = to_char(sysdate,'YYYY-MM-DD HH24:MI:SS')
+		SET FN_TIME = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
 		WHERE USER_ID=#{userId}
 		AND ST_TIME = 
 		(
-			select ST_TIME from login_history 
-			where user_id =#{userId} 
-			and ST_time >to_char(sysdate-2,'YYYY-MM-DD')
-			and fn_time IS NULL		
+			SELECT ST_TIME FROM LOGIN_HISTORY 
+			WHERE USER_ID = #{userId}
+			AND ST_TIME > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 2 DAY), '%Y-%m-%d')
+			AND FN_TIME IS NULL
+			ORDER BY ST_TIME DESC
+			LIMIT 1
 		)
 	</update>
 	
 	<!-- 서버 비정상 종료로 인한 누적 기록 삭제-->
 	<delete id="errloginDelete" parameterType="userVO">
-		delete from login_history
-		where user_id =#{userId}
-		and fn_time is null
+		DELETE FROM LOGIN_HISTORY
+		WHERE USER_ID = #{userId}
+		AND FN_TIME IS NULL
 	</delete>
 	
 	<!-- 사용자 사용이력 조회 -->
@@ -200,11 +218,10 @@
 	<select id="loginHistory" parameterType="userVO" resultMap="loginHistory">
 	   SELECT A.*
 		,B.USER_NAME 
-		,C.AREA_NAME REGION_NAME
+		,C.AREA_NAME AS REGION_NAME
 		,ROUND(
-		(TO_DATE(FN_TIME, 'YYYY-MM-DD HH24:MI:SS')
-		- TO_DATE(ST_TIME, 'YYYY-MM-DD HH24:MI:SS')
-         )* 24 * 60) USE_TIME
+			TIMESTAMPDIFF(SECOND, A.ST_TIME, A.FN_TIME) / 60
+		) AS USE_TIME
 		FROM LOGIN_HISTORY A 
 		LEFT JOIN 
 		SYS_USER B
@@ -212,7 +229,7 @@
 		LEFT JOIN 
 		CODE_AREACODE C
 		ON B.REGION_ID=C.AREA_CODE
-		where 1=1
+		WHERE 1=1
 		<if test="regionId !=null"> 
 			AND B.REGION_ID=#{regionId}
 		</if>	
@@ -222,19 +239,19 @@
 		<if test="searchType !=null and searchType neq ''"> 
 			<choose>
 			    <when test="searchType eq 'userId'">
-					AND B.USER_ID LIKE '%'||#{searchValue}||'%'	        
+					AND B.USER_ID LIKE CONCAT('%', #{searchValue}, '%')
 			    </when>
 			    <otherwise>
-			        AND B.USER_NAME LIKE '%'||#{searchValue}||'%'	
+			        AND B.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
 			    </otherwise>
 			</choose>
 		</if>
 		<choose>
 			<when test="sDate !=null and eDate !=null">
-		    	AND A.ST_TIME BETWEEN #{sDate} AND TO_DATE(#{eDate}, 'YYYY-MM-DD')+1
+		    	AND A.ST_TIME BETWEEN #{sDate} AND DATE_ADD(STR_TO_DATE(#{eDate}, '%Y-%m-%d'), INTERVAL 1 DAY)
 			</when>
 			<otherwise>
-			    AND A.ST_TIME > to_char(sysdate-1,'YYYY-MM-DD')
+			    AND A.ST_TIME > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 DAY), '%Y-%m-%d')
 			</otherwise>    
 		</choose>
 		ORDER BY A.ST_TIME DESC

@@ -1,6 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="true"%>
 <!DOCTYPE html>
-<!-- saved from url=(0126)file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html# -->
+<!-- saved from url=(0126)# -->
 <html lang="ko">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevSync - IT 개발사 스마트 대시보드</title>
     <!-- Tailwind CSS CDN -->
-    <script src="./protoType/saved_resource"></script>
+    <script src="<%=request.getContextPath()%>/protoType/saved_resource"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -33,8 +33,8 @@
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-    <link href="./DevSync - IT 개발사 스마트 대시보드_files/css2" rel="stylesheet">
-    <link rel="stylesheet" href="./DevSync - IT 개발사 스마트 대시보드_files/all.min.css">
+    <link href="<%=request.getContextPath()%>/protoType/css2" rel="stylesheet">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/protoType/all.min.css">
     
     <style>
         body {
@@ -81,7 +81,7 @@
             <!-- 사용자 간이 프로필 -->
             <div class="p-4 mx-4 my-3 bg-brand-card/50 rounded-xl border border-brand-border/60 flex items-center gap-3">
                 <div class="relative">
-                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
+                    <img src="<%=request.getContextPath()%>/protoType/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
                     <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
                 </div>
                 <div>
@@ -102,9 +102,9 @@
                         <i id="arrow-sub-work" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
                     </button>
                     <div id="sub-work" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 transition-all duration-300">
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">출퇴근 및 타임카드</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">유연근무 현황</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">외근/파견/상주 신청</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">출퇴근 및 타임카드</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">유연근무 현황</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">외근/파견/상주 신청</a>
                     </div>
                 </div>
 
@@ -118,9 +118,9 @@
                         <i id="arrow-sub-leave" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
                     </button>
                     <div id="sub-leave" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">휴가 신청서 작성</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">잔여 연차 현황</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">대체/보상 휴가 적립</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">휴가 신청서 작성</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">잔여 연차 현황</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">대체/보상 휴가 적립</a>
                     </div>
                 </div>
 
@@ -134,9 +134,9 @@
                         <i id="arrow-sub-schedule" class="fa-solid text-xs transition-transform fa-chevron-down text-gray-500"></i>
                     </button>
                     <div id="sub-schedule" class="block pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 hidden">
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40">종합 일정 캘린더</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회의실/자원 예약</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">공용 테스트폰 대여</a>
+                        <a href="#" class="block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40">종합 일정 캘린더</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회의실/자원 예약</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">공용 테스트폰 대여</a>
                     </div>
                 </div>
 
@@ -150,10 +150,10 @@
                         <i id="arrow-sub-project" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
                     </button>
                     <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">전사 사업 현황판</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">Jira 스프린트 싱크</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입 공수(M/M) 정산</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트 산출물 아카이브</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">전사 사업 현황판</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">Jira 스프린트 싱크</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입 공수(M/M) 정산</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트 산출물 아카이브</a>
                     </div>
                 </div>
 
@@ -167,9 +167,9 @@
                         <i id="arrow-sub-infra" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
                     </button>
                     <div id="sub-infra" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">장비/기기 할당 대장</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">SW 라이선스 신청</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">비대면 증명서 발급</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">장비/기기 할당 대장</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">SW 라이선스 신청</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">비대면 증명서 발급</a>
                     </div>
                 </div>
 
@@ -183,9 +183,9 @@
                         <i id="arrow-sub-finance" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
                     </button>
                     <div id="sub-finance" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">지출 경비 청구(OCR)</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">급여 명세서 조회</a>
-                        <a href="file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트별 손익 리포트</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">지출 경비 청구(OCR)</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">급여 명세서 조회</a>
+                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트별 손익 리포트</a>
                     </div>
                 </div>
             </nav>
@@ -531,7 +531,7 @@
                                     </div>
                                     <!-- 프로필 아바타 -->
                                     <div>
-                                        <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1494790108377-be9c29b29330" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">
+                                        <img src="<%=request.getContextPath()%>/protoType/photo-1494790108377-be9c29b29330" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">
                                     </div>
                                 </div>
                             </div>
@@ -563,7 +563,7 @@
                             <!-- 팀원 1: 재택 -->
                             <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
                                 <div class="flex items-center gap-3">
-                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1438761681033-6461ffad8d80" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-blue-400">
+                                    <img src="<%=request.getContextPath()%>/protoType/photo-1438761681033-6461ffad8d80" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-blue-400">
                                     <div>
                                         <span class="font-bold text-sm text-gray-200">한혜지 대리</span>
                                         <p class="text-[11px] text-gray-400">웹 디자인 파트</p>
@@ -577,7 +577,7 @@
                             <!-- 팀원 2: 상주(파견) -->
                             <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
                                 <div class="flex items-center gap-3">
-                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1507003211169-0a1dd7228f2d" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-purple-400">
+                                    <img src="<%=request.getContextPath()%>/protoType/photo-1507003211169-0a1dd7228f2d" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-purple-400">
                                     <div>
                                         <span class="font-bold text-sm text-gray-200">정재윤 책임</span>
                                         <p class="text-[11px] text-gray-400">백엔드 아키텍트</p>
@@ -591,7 +591,7 @@
                             <!-- 팀원 3: 연차 -->
                             <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
                                 <div class="flex items-center gap-3">
-                                    <img src="./DevSync - IT 개발사 스마트 대시보드_files/photo-1494790108377-be9c29b29330" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
+                                    <img src="<%=request.getContextPath()%>/protoType/photo-1494790108377-be9c29b29330" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
                                     <div>
                                         <span class="font-bold text-sm text-gray-200">김민서 수석</span>
                                         <p class="text-[11px] text-gray-400">인프라/보안 파트</p>
@@ -810,7 +810,7 @@
             const seconds = totalSeconds % 60;
 
             const format = (num) => String(num).padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${format(hours)} : ${format(minutes)} : ${format(seconds)}`;
+            document.getElementById('timer-display').innerText = format(hours) + ' : ' + format(minutes) + ' : ' + format(seconds);
         }
 
 
@@ -884,7 +884,7 @@
         function selectCalendarDate(day) {
             // 날짜 레이블 변경
             const label = document.getElementById('timeline-date-label');
-            label.innerText = `5월 ${day}일`;
+            label.innerText = '5월 ' + day + '일';
 
             // 이전 달력 일자 하이라이트 클래스 제거 및 지정
             const dates = [26, 27, 28];
@@ -903,11 +903,7 @@
 
             const events = mockEventsByDate[day];
             if (!events || events.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-xs text-gray-500">
-                        <i class="fa-regular fa-calendar-xmark text-4xl mb-3 block text-gray-600"></i>
-                        해당 날짜에 등록된 일정이 없습니다.
-                    </div>`;
+                container.innerHTML = '<div class="text-center py-12 text-xs text-gray-500"><i class="fa-regular fa-calendar-xmark text-4xl mb-3 block text-gray-600"></i>해당 날짜에 등록된 일정이 없습니다.</div>';
                 return;
             }
 
@@ -923,37 +919,35 @@
                     catBadgeCol = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
                 }
 
-                let actionHtml = "";
+                var actionHtml = "";
                 if (ev.action && ev.actionType === 'zoom') {
-                    actionHtml = `
-                        <a href="https://zoom.us" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-video"></i> 화상회의
-                        </a>`;
+                    actionHtml = '<a href="https://zoom.us" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition"><i class="fa-solid fa-video"></i> 화상회의</a>';
                 } else if (ev.avatar) {
-                    actionHtml = `<img src="${ev.avatar}" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">`;
+                    actionHtml = '<img src="' + ev.avatar + '" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">';
                 }
 
-                const cardHtml = `
-                    <div class="event-card-item bg-slate-900 border-l-4 ${borderCol} p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="${ev.cat}">
-                        <div class="flex items-start gap-4">
-                            <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
-                                <span class="block text-gray-100 font-bold">${ev.time}</span>
-                                <span>${ev.duration}</span>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="px-1.5 py-0.5 ${catBadgeCol} text-[10px] rounded font-bold">${ev.catLabel}</span>
-                                    ${ev.loc ? `<span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> ${ev.loc}</span>` : ""}
-                                </div>
-                                <h4 class="font-bold text-sm text-white">${ev.title}</h4>
-                                <p class="text-xs text-gray-400 mt-1">${ev.desc}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            ${actionHtml}
-                        </div>
-                    </div>`;
-                
+                var locHtml = ev.loc ? '<span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> ' + ev.loc + '</span>' : '';
+
+                var cardHtml = '<div class="event-card-item bg-slate-900 border-l-4 ' + borderCol + ' p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="' + ev.cat + '">'
+                    + '<div class="flex items-start gap-4">'
+                    + '<div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">'
+                    + '<span class="block text-gray-100 font-bold">' + ev.time + '</span>'
+                    + '<span>' + ev.duration + '</span>'
+                    + '</div>'
+                    + '<div>'
+                    + '<div class="flex items-center gap-2 mb-1">'
+                    + '<span class="px-1.5 py-0.5 ' + catBadgeCol + ' text-[10px] rounded font-bold">' + ev.catLabel + '</span>'
+                    + locHtml
+                    + '</div>'
+                    + '<h4 class="font-bold text-sm text-white">' + ev.title + '</h4>'
+                    + '<p class="text-xs text-gray-400 mt-1">' + ev.desc + '</p>'
+                    + '</div>'
+                    + '</div>'
+                    + '<div class="flex items-center gap-2">'
+                    + actionHtml
+                    + '</div>'
+                    + '</div>';
+
                 container.innerHTML += cardHtml;
             });
         }
