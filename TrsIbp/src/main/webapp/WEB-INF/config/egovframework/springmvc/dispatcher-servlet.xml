@@ -15,13 +15,14 @@
                 http://www.springframework.org/schema/task/spring-task-4.0.xsd ">
 
     <context:annotation-config/>
-
+    <!-- 이거없으면 컨트롤러에서 리퀘스트 매핑 안탐 -->
+	<mvc:annotation-driven/>
     <!-- 컴포넌트 스캔 (Controller / Service / Repository 자동 등록) -->
-    <context:component-scan base-package="kr.co.TRSolution">
-        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
-        <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
-    </context:component-scan>
+	<context:component-scan base-package="kr.co.TRSolution">
+	    <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	    <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+	    <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
 
     <!-- ============================================================ -->
     <!--  인터셉터 설정                                                  -->
@@ -106,7 +107,6 @@
     <!-- ============================================================ -->
     <!--  스케줄러 (새벽 3시 비정상 접속 정리)                           -->
     <!-- ============================================================ -->
-    <context:component-scan base-package="kr.co.TRSolution"/>
     <task:scheduler id="myScheduler" pool-size="10"/>
     <task:scheduled-tasks scheduler="myScheduler">
         <task:scheduled ref="ClientChkScheduler" method="clientAutoChk" cron="0 0 3 * * *"/>
