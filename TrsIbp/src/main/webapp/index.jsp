@@ -8,7 +8,6 @@
     }
 %>
 <!DOCTYPE html>
-<!-- saved from url=(0126)file:///C:/Users/User/Documents/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1%20%EB%B0%9B%EC%9D%80%20%ED%8C%8C%EC%9D%BC/it_mockup.html# -->
 <html lang="ko">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -42,7 +41,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
     <link href="<%=request.getContextPath()%>/protoType/css2" rel="stylesheet">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/protoType/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         body {
@@ -302,9 +301,6 @@
 
                     <!-- 출퇴근 작동 버튼 -->
                     <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button id="btn-checkin" onclick="triggerCheckIn()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/10 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-arrow-right-to-bracket"></i> 출근하기
-                        </button>
                         <button id="btn-checkout" onclick="triggerCheckOut()" class="w-full py-2.5 bg-slate-800 text-gray-500 border border-brand-border rounded-xl text-sm font-bold cursor-not-allowed transition flex items-center justify-center gap-2" disabled="">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i> 퇴근하기
                         </button>

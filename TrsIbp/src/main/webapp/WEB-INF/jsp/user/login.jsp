@@ -33,7 +33,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
 <link href="<%=request.getContextPath()%>/protoType/css2" rel="stylesheet">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/protoType/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
     body {
         font-family: 'Inter', 'Noto Sans KR', sans-serif;
@@ -156,6 +157,9 @@
                 <button type="submit" class="login-btn w-full py-3 rounded-lg text-white font-semibold text-sm tracking-wide">
                     <i class="fa-solid fa-right-to-bracket mr-2"></i> 로그인
                 </button>
+                <button class="login-btn w-full py-3 rounded-lg text-white font-semibold text-sm tracking-wide">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i> 시작하기
+                </button>
 
             </form>
 
@@ -175,7 +179,7 @@
             <p class="text-xs text-gray-500 mb-1">
                 <i class="fa-solid fa-flask text-yellow-500 mr-1"></i> 개발 테스트 계정
             </p>
-            <p class="text-xs text-gray-600 font-mono">ID: admin &nbsp;/&nbsp; PW: admin1234</p>
+            <p class="text-xs text-gray-600 font-mono">ID: admin1 &nbsp;/&nbsp; PW: 1</p>
         </div>
     </div>
 

@@ -9,7 +9,7 @@
     DB: MariaDB 10.6
     작성일: 2026-05-28
 -->
-<mapper namespace="kr.co.TRSolution.trsHome.attend.mapper.AttendMapper">
+<mapper namespace="kr.co.TRSolution.trsIbp.attend.mapper.AttendMapper">
 
     <!-- ============================================================ -->
     <!--  ResultMap                                                    -->

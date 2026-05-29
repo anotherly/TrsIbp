@@ -29,7 +29,7 @@
 	<!-- 3) XSS/태그 필터 -->
 	<filter>
 		<filter-name>HTMLTagFilter</filter-name>
-		<filter-class>kr.co.TRSolution.trsHome.comm.filter.HTMLTagFilter</filter-class>
+		<filter-class>kr.co.TRSolution.trsIbp.comm.filter.HTMLTagFilter</filter-class>
 	</filter>
 
 	<!-- mapping 순서도 동일하게 -->
@@ -77,8 +77,15 @@
 			<param-value>/WEB-INF/config/egovframework/springmvc/dispatcher-servlet.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
+		
+		<multipart-config>
+			<max-file-size>52428800</max-file-size>       
+			<max-request-size>104857600</max-request-size>   
+			<file-size-threshold>0</file-size-threshold>   
+		</multipart-config>
+		
 	</servlet>
-
+	
 	<servlet-mapping>
 		<servlet-name>action</servlet-name>
 		<url-pattern>*.do</url-pattern>

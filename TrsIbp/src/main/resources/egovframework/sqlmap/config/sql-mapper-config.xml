@@ -5,9 +5,11 @@
     <!-- VO 타입 별칭 설정 (mapper.xml의 parameterType/resultType에서 짧게 사용) -->
     <typeAliases>
         <!-- 사용자 -->
-        <typeAlias alias="userVO"   type="kr.co.TRSolution.trsHome.user.vo.UserVO"   />
+        <typeAlias alias="userVO"   type="kr.co.TRSolution.trsIbp.user.vo.UserVO"/>
+        <!-- 회사 -->
+        <typeAlias alias="companyVO"   type="kr.co.TRSolution.trsIbp.company.vo.CompanyVO"/>
         <!-- 근태관리 -->
-        <typeAlias alias="attendVO" type="kr.co.TRSolution.trsHome.attend.vo.AttendVO" />
+        <typeAlias alias="attendVO" type="kr.co.TRSolution.trsIbp.attend.vo.AttendVO" />
     </typeAliases>
 
     <!--

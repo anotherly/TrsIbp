@@ -9,7 +9,7 @@
     DB: MySQL/MariaDB
     작성일: 2026-05-28
 -->
-<mapper namespace="kr.co.TRSolution.trsHome.user.mapper.UserMapper">
+<mapper namespace="kr.co.TRSolution.trsIbp.user.mapper.UserMapper">
 
     <!-- ============================================================ -->
     <!--  ResultMap                                                    -->
@@ -27,7 +27,6 @@
         <result property="authId"          column="AUTH_ID"         />
         <result property="authName"        column="AUTH_NAME"       />
         <result property="userTel"         column="USER_TEL"        />
-        <result property="inTel"           column="IN_TEL"          />
         <result property="flagUse"         column="FLAG_USE"        />
         <result property="memo"            column="MEMO"            />
         <result property="regDt"           column="REG_DT"          />

@@ -32,13 +32,13 @@
          - /user/loginAction.do : 로그인 처리 (preHandle: 기존세션제거, postHandle: 세션저장+이력기록)
          - /user/logout.do      : 로그아웃 처리 (preHandle: 세션제거)
     -->
-    <bean id="loginInterceptor" class="kr.co.TRSolution.trsHome.comm.LoginInterceptor"/>
+    <bean id="loginInterceptor" class="kr.co.TRSolution.trsIbp.comm.LoginInterceptor"/>
 
     <!-- 2. 세션 체크 인터셉터 (미로그인 시 login.do로 리다이렉트)
          - 대부분의 .do, .ajax URL에 적용
          - 로그인/로그아웃/정적 리소스 URL은 제외
     -->
-    <bean id="sessionCheckInterceptor" class="kr.co.TRSolution.trsHome.comm.SessionCheckInterceptor"/>
+    <bean id="sessionCheckInterceptor" class="kr.co.TRSolution.trsIbp.comm.SessionCheckInterceptor"/>
 
     <mvc:interceptors>
         <!-- 로케일 변경 인터셉터 (eGov 표준) -->
@@ -64,6 +64,7 @@
             <mvc:exclude-mapping path="/user/login.do"/>
             <mvc:exclude-mapping path="/user/loginAction.do"/>
             <mvc:exclude-mapping path="/user/logout.do"/>
+            <mvc:exclude-mapping path="/company/request/*.*"/>
             <mvc:exclude-mapping path="/cmmn/**"/>
             <ref bean="sessionCheckInterceptor"/>
         </mvc:interceptor>
@@ -111,7 +112,7 @@
     <task:scheduled-tasks scheduler="myScheduler">
         <task:scheduled ref="ClientChkScheduler" method="clientAutoChk" cron="0 0 3 * * *"/>
     </task:scheduled-tasks>
-    <bean id="ClientChkScheduler" class="kr.co.TRSolution.trsHome.comm.ClientChkScheduler"/>
+    <bean id="ClientChkScheduler" class="kr.co.TRSolution.trsIbp.comm.ClientChkScheduler"/>
 
     <!-- ============================================================ -->
     <!--  JSON 뷰 (Ajax 응답용)                                         -->

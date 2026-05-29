@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.TRSolution.trsIbp.company.mapper.CompanyMapper">
+
+    <resultMap type="companyVO" id="companyResultMap">
+        <result property="companyId"          column="COMPANY_ID"          />
+        <result property="companyName"        column="COMPANY_NAME"        />
+        <result property="companyTel"         column="COMPANY_TEL"         />
+        <result property="companyAddr"        column="COMPANY_ADDR"        />
+        <result property="flagUse"            column="FLAG_USE"            />
+        <result property="regDt"              column="REG_DT"              />
+        
+        <result property="allowedIp"          column="ALLOWED_IP"          />
+        <result property="ipDesc"             column="IP_DESC"             />
+        <result property="searchKeyword"      column="SEARCH_KEYWORD"      />
+        
+        <result property="reqSeq"             column="REQ_SEQ"             />
+        <result property="companyNameReq"     column="COMPANY_NAME_REQ"    />
+        <result property="bizNo"              column="BIZ_NO"              />
+        <result property="contactName"        column="CONTACT_NAME"        /> 
+        <result property="representativeName" column="REPRESENTATIVE_NAME" />
+        <result property="contactTel"         column="CONTACT_TEL"         />
+        <result property="contactEmail"       column="CONTACT_EMAIL"       />
+        <result property="reqStatus"          column="REQ_STATUS"          />
+        <result property="rejectReason"       column="REJECT_REASON"       />
+        
+        <result property="orgFileName"        column="ORG_FILE_NAME"       />
+        <result property="encFileName"        column="ENC_FILE_NAME"       />
+        <result property="filePath"           column="FILE_PATH"           />
+        <result property="docSeq"             column="DOC_SEQ"             />
+    </resultMap>
+
+    <insert id="insertCompanyRequest" parameterType="companyVO">
+        INSERT INTO company_request (
+             COMPANY_NAME
+            ,BIZ_NO
+            ,CONTACT_NAME          ,REPRESENTATIVE_NAME
+            ,CONTACT_TEL
+            ,CONTACT_EMAIL
+            ,ORG_FILE_NAME
+            ,ENC_FILE_NAME
+            ,FILE_PATH
+            ,REQ_STATUS
+            ,REG_DATE
+        ) VALUES (
+             #{companyName}
+            ,#{bizNo}
+            ,#{contactName}        ,#{representativeName}
+            ,#{contactTel}
+            ,#{contactEmail}
+            ,#{orgFileName}
+            ,#{encFileName}
+            ,#{filePath}
+            ,'WAIT'
+            ,NOW()
+        )
+    </insert>
+
+    <select id="selectCompanyRequestDetail" parameterType="int" resultMap="companyResultMap">
+        SELECT
+             REQ_SEQ
+            ,COMPANY_NAME
+            ,BIZ_NO
+            ,CONTACT_NAME          ,REPRESENTATIVE_NAME
+            ,CONTACT_TEL
+            ,CONTACT_EMAIL
+            ,ORG_FILE_NAME
+            ,ENC_FILE_NAME
+            ,FILE_PATH
+            ,REQ_STATUS
+            ,REJECT_REASON
+        FROM company_request
+        WHERE REQ_SEQ = #{reqSeq}
+    </select>
+
+    <update id="updateRequestStatus" parameterType="companyVO">
+        UPDATE company_request
+        SET 
+             REQ_STATUS = #{reqStatus}
+            <if test="rejectReason != null and rejectReason != ''">
+            ,REJECT_REASON = #{rejectReason}
+            </if>
+        WHERE REQ_SEQ = #{reqSeq}
+    </update>
+
+    <insert id="insertApprovedCompany" parameterType="companyVO">
+        INSERT INTO company_info (
+             COMPANY_ID
+            ,COMPANY_NAME
+            ,COMPANY_TEL          ,COMPANY_ADDR
+            ,FLAG_USE
+            ,REG_DT
+        ) VALUES (
+             #{companyId}
+            ,#{companyName}
+            ,#{contactTel}        ,NULL
+            ,'Y'
+            ,NOW()
+        )
+    </insert>
+
+    <insert id="insertCompanyDocAuto" parameterType="companyVO">
+        <selectKey keyProperty="docSeq" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO company_doc_manage (
+             COMPANY_ID
+            ,DOC_TYPE
+            ,DOC_NAME
+            ,MANAGER_ID
+            ,EXPIRY_DATE
+            ,ALARM_YN
+            ,REG_USER_ID
+            ,REG_DATE
+        ) VALUES (
+             #{companyId}
+            ,'BIZ'
+            ,CONCAT(#{companyName}, '_사업자등록증')
+            ,'ADMIN'
+            ,NULL
+            ,'N'
+            ,'ADMIN'
+            ,NOW()
+        )
+    </insert>
+
+    <insert id="insertCompDocFileAuto" parameterType="companyVO">
+        INSERT INTO comp_doc_file (
+             DOC_SEQ
+            ,ORG_FILE_NAME
+            ,ENC_FILE_NAME
+            ,FILE_PATH
+            ,FILE_SIZE
+            ,FILE_EXT
+            ,REG_DATE
+        ) VALUES (
+             #{docSeq}
+            ,#{orgFileName}
+            ,#{encFileName}
+            ,#{filePath}
+            ,0
+            ,'PDF'
+            ,NOW()
+        )
+    </insert>
+
+</mapper>
