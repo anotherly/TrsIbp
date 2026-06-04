@@ -6,6 +6,8 @@
     <typeAliases>
         <!-- 사용자 -->
         <typeAlias alias="userVO"   type="kr.co.TRSolution.trsIbp.user.vo.UserVO"/>
+        <!-- 부서 -->
+        <typeAlias alias="deptVO"   type="kr.co.TRSolution.trsIbp.dept.vo.DeptVO"/>
         <!-- 회사 -->
         <typeAlias alias="companyVO"   type="kr.co.TRSolution.trsIbp.company.vo.CompanyVO"/>
         <!-- 근태관리 -->

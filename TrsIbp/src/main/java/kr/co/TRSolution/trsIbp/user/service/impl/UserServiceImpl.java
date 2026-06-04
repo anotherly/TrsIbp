@@ -60,12 +60,6 @@ public class UserServiceImpl implements UserService {
         userMapper.deleteUser(userVO);
     }
 
-    /** 부서 목록 조회 (트리구조용) */
-    @Override
-    public List<Map<String, Object>> selectDeptList(UserVO userVO) {
-        return userMapper.selectDeptList(userVO);
-    }
-
     /** 회사 목록 조회 */
     @Override
     public List<Map<String, Object>> selectCompanyList(UserVO userVO) {

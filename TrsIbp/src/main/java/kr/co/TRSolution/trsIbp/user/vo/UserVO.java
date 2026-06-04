@@ -1,5 +1,7 @@
 package kr.co.TRSolution.trsIbp.user.vo;
 
+import kr.co.TRSolution.trsIbp.dept.vo.DeptVO;
+
 /**
  * 사용자 VO (Value Object)
  * 테이블: USER_INFO, AUTH_INFO, COMPANY_INFO, DEPT_INFO JOIN
@@ -7,8 +9,10 @@ package kr.co.TRSolution.trsIbp.user.vo;
  * @author DevSync
  * @since 2026-05-28
  */
-public class UserVO {
+public class UserVO extends DeptVO {
 
+	private static final long serialVersionUID = 1L;
+	
     // ============================================================
     // USER_INFO 컬럼
     // ============================================================

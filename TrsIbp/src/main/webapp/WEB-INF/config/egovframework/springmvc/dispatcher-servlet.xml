@@ -30,7 +30,7 @@
 
     <!-- 1. 로그인/로그아웃 처리 인터셉터 (LoginInterceptor)
          - /user/loginAction.do : 로그인 처리 (preHandle: 기존세션제거, postHandle: 세션저장+이력기록)
-         - /user/logout.do      : 로그아웃 처리 (preHandle: 세션제거)
+         - /login/logout.do      : 로그아웃 처리 (preHandle: 세션제거)
     -->
     <bean id="loginInterceptor" class="kr.co.TRSolution.trsIbp.comm.LoginInterceptor"/>
 
@@ -51,8 +51,8 @@
 
         <!-- 로그인/로그아웃 인터셉터 -->
         <mvc:interceptor>
-            <mvc:mapping path="/user/loginAction.do"/>
-            <mvc:mapping path="/user/logout.do"/>
+            <mvc:mapping path="/login/loginAction.do"/>
+            <mvc:mapping path="/login/logout.do"/>
             <ref bean="loginInterceptor"/>
         </mvc:interceptor>
 
@@ -61,10 +61,11 @@
             <mvc:mapping path="/**/*.do"/>
             <mvc:mapping path="/**/*.ajax"/>
             <!-- 로그인 화면, 로그인 처리, 로그아웃은 세션 체크 제외 -->
-            <mvc:exclude-mapping path="/user/login.do"/>
+            <!-- <mvc:exclude-mapping path="/login/login.do"/>
             <mvc:exclude-mapping path="/user/loginAction.do"/>
-            <mvc:exclude-mapping path="/user/logout.do"/>
-            <mvc:exclude-mapping path="/company/request/*.*"/>
+            <mvc:exclude-mapping path="/login/logout.do"/> -->
+            <mvc:exclude-mapping path="/login/**/*.do"/>
+            <mvc:exclude-mapping path="/login/**/*.ajax"/>
             <mvc:exclude-mapping path="/cmmn/**"/>
             <ref bean="sessionCheckInterceptor"/>
         </mvc:interceptor>

@@ -21,7 +21,7 @@ import kr.co.TRSolution.trsIbp.attend.vo.AttendVO;
  * 1. preHandle  : 로그인/로그아웃 URL 진입 전 기존 세션 제거
  * 2. postHandle : 로그인 성공 시 세션 저장 및 당일 최초 로그인일 경우 자동 출근 등록
  *
- * [매핑 URL] dispatcher-servlet.xml에서 /user/loginAction.do, /user/logout.do 에 적용
+ * [매핑 URL] dispatcher-servlet.xml에서 /user/loginAction.do, /login/logout.do 에 적용
  * [패키지 명 명세] trsHome -> trsIbp 구조 변경 반영 완료
  */
 public class LoginInterceptor extends HandlerInterceptorAdapter {

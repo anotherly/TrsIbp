@@ -120,7 +120,7 @@
             </div>
             </c:if>
 
-            <form id="loginForm" action="<%=request.getContextPath()%>/user/loginAction.do" method="post">
+            <form id="loginForm" action="<%=request.getContextPath()%>/login/loginAction.do" method="post">
 
                 <!-- 아이디 -->
                 <div class="mb-4">
@@ -131,9 +131,9 @@
                         class="login-input w-full bg-slate-900 border border-brand-border rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 transition"
                         placeholder="아이디를 입력하세요"
                         value="${not empty param.userId ? param.userId : ''}"
-                        autocomplete="username"
                         required>
                 </div>
+				<!-- autocomplete="username" -->
 
                 <!-- 비밀번호 -->
                 <div class="mb-6">
@@ -154,12 +154,19 @@
                 </div>
 
                 <!-- 로그인 버튼 -->
-                <button type="submit" class="login-btn w-full py-3 rounded-lg text-white font-semibold text-sm tracking-wide">
-                    <i class="fa-solid fa-right-to-bracket mr-2"></i> 로그인
-                </button>
-                <button class="login-btn w-full py-3 rounded-lg text-white font-semibold text-sm tracking-wide">
-                    <i class="fa-solid fa-right-to-bracket mr-2"></i> 시작하기
-                </button>
+				<div class="mt-4">
+				    <button type="submit" class="w-full py-3 bg-brand-accent hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-brand-accent/30 transition duration-200 text-sm">
+				        <i class="fa-solid fa-right-to-bracket mr-2"></i>로그인
+				    </button>
+				</div>
+				
+				<div class="mt-6 pt-5 border-t border-brand-border/60 text-center">
+				    <p class="text-xs text-gray-400 mb-3">DevSync 시스템을 처음 이용하시나요?</p>
+				    <a href="${pageContext.request.contextPath}/login/request/gateway.do" 
+				       class="inline-block w-full py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-brand-accent/50 text-brand-neonBlue hover:text-white rounded-xl text-xs font-bold transition duration-200 shadow-md">
+				        <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-brand-neonBlue"></i>DevSync 시작하기 (가입/신청)
+				    </a>
+				</div>
 
             </form>
 

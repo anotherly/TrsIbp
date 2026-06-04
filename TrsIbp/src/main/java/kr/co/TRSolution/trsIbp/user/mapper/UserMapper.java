@@ -31,9 +31,6 @@ public interface UserMapper {
     /** 사용자 삭제 */
     public void deleteUser(UserVO userVO);
 
-    /** 부서 목록 조회 (트리구조용) */
-    public List<Map<String, Object>> selectDeptList(UserVO userVO);
-
     /** 회사 목록 조회 */
     public List<Map<String, Object>> selectCompanyList(UserVO userVO);
 

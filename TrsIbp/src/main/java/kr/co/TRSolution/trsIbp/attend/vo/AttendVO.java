@@ -1,5 +1,7 @@
 package kr.co.TRSolution.trsIbp.attend.vo;
 
+import kr.co.TRSolution.trsIbp.comm.BaseVO;
+
 /**
  * 근태 데이터 VO (Value Object)
  *
@@ -8,7 +10,7 @@ package kr.co.TRSolution.trsIbp.attend.vo;
  * @author DevSync
  * @since 2026-05-28
  */
-public class AttendVO {
+public class AttendVO extends BaseVO {
 
     /** 이력번호 (PK, AUTO_INCREMENT) */
     private Long seq;

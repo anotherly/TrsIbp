@@ -29,7 +29,7 @@ function loadTodayAttendStatus() {
         success : function(data) {
             // 세션 만료 시 로그인 페이지로 리다이렉트
             if (data.result === 'NO_SESSION') {
-                window.location.href = ctxPath + '/user/login.do';
+                window.location.href = ctxPath + '/login/login.do';
                 return;
             }
 

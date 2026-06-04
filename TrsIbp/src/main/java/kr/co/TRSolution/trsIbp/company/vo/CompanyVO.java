@@ -5,7 +5,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class CompanyVO implements Serializable {
+import kr.co.TRSolution.trsIbp.comm.BaseVO;
+
+public class CompanyVO extends BaseVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

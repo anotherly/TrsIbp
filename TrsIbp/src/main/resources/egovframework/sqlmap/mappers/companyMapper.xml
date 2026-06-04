@@ -31,11 +31,36 @@
         <result property="docSeq"             column="DOC_SEQ"             />
     </resultMap>
 
+  <!-- SELECT: 전체 목록 -->
+	<select id="selectCompanyList" parameterType="companyVO" resultMap="companyResultMap">
+        SELECT 
+             COMPANY_ID
+            ,COMPANY_NAME
+            ,COMPANY_TEL
+            ,COMPANY_ADDR
+            ,FLAG_USE
+            ,REG_DT
+        FROM company_info 
+        WHERE 1=1
+          AND FLAG_USE = 'Y' <if test="companyId != null and companyId != ''">
+          AND COMPANY_ID = #{companyId}
+        </if>
+        
+        <if test="searchValue != null and searchValue != ''">
+          AND (
+               COMPANY_ID   LIKE CONCAT('%', #{searchValue}, '%')
+            OR COMPANY_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          )
+        </if>
+        ORDER BY REG_DT DESC 
+    </select>	
+    
     <insert id="insertCompanyRequest" parameterType="companyVO">
         INSERT INTO company_request (
              COMPANY_NAME
             ,BIZ_NO
-            ,CONTACT_NAME          ,REPRESENTATIVE_NAME
+            ,CONTACT_NAME          
+            ,REPRESENTATIVE_NAME
             ,CONTACT_TEL
             ,CONTACT_EMAIL
             ,ORG_FILE_NAME
@@ -46,7 +71,8 @@
         ) VALUES (
              #{companyName}
             ,#{bizNo}
-            ,#{contactName}        ,#{representativeName}
+            ,#{contactName}        
+            ,#{representativeName}
             ,#{contactTel}
             ,#{contactEmail}
             ,#{orgFileName}
@@ -62,7 +88,8 @@
              REQ_SEQ
             ,COMPANY_NAME
             ,BIZ_NO
-            ,CONTACT_NAME          ,REPRESENTATIVE_NAME
+            ,CONTACT_NAME          
+            ,REPRESENTATIVE_NAME
             ,CONTACT_TEL
             ,CONTACT_EMAIL
             ,ORG_FILE_NAME

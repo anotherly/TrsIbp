@@ -3,7 +3,7 @@
 <%-- 세션 체크: 로그인하지 않으면 로그인 페이지로 이동 --%>
 <%
     if (session.getAttribute("login") == null) {
-        response.sendRedirect(request.getContextPath() + "/user/login.do");
+        response.sendRedirect(request.getContextPath() + "/login/login.do");
         return;
     }
 %>
@@ -203,7 +203,7 @@
             <span>Server: <span class="text-emerald-500 font-bold">Stable</span></span>
             <div class="flex items-center gap-2">
                 <button class="hover:text-white" title="설정"><i class="fa-solid fa-gear text-sm"></i></button>
-                <a href="<%=request.getContextPath()%>/user/logout.do" 
+                <a href="<%=request.getContextPath()%>/login/logout.do" 
                    class="hover:text-red-400 transition" title="로그아웃"
                    onclick="return confirm('로그아웃 하시겠습니까?')">
                     <i class="fa-solid fa-right-from-bracket text-sm"></i>
@@ -261,7 +261,7 @@
                         <i class="fa-solid fa-user-circle text-brand-accent mr-1"></i>
                         <strong class="text-gray-200">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</strong>
                     </span>
-                    <a href="<%=request.getContextPath()%>/user/logout.do"
+                    <a href="<%=request.getContextPath()%>/login/logout.do"
                        class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-500/10"
                        onclick="return confirm('로그아웃 하시겠습니까?')">
                         <i class="fa-solid fa-right-from-bracket"></i>

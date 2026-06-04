@@ -114,7 +114,6 @@
             ,POSITION
             ,AUTH_ID
             ,USER_TEL
-            ,IN_TEL
             ,FLAG_USE
             ,MEMO
             ,REG_DT
@@ -127,7 +126,6 @@
             ,#{position}
             ,#{authId}
             ,#{userTel}
-            ,#{inTel}
             ,'Y'
             ,#{memo}
             ,NOW()
@@ -146,7 +144,6 @@
             ,POSITION   = #{position}
             ,AUTH_ID    = #{authId}
             ,USER_TEL   = #{userTel}
-            ,IN_TEL     = #{inTel}
             ,FLAG_USE   = #{flagUse}
             ,MEMO       = #{memo}
             <if test="userPw != null and userPw != ''">,USER_PW = #{userPw}</if>
@@ -161,24 +158,6 @@
         WHERE USER_ID = #{userId}
     </delete>
 
-    <!-- ============================================================ -->
-    <!--  부서 목록 조회 (트리구조용 - 전체)                             -->
-    <!-- ============================================================ -->
-    <select id="selectDeptList" parameterType="userVO" resultType="java.util.LinkedHashMap">
-        SELECT
-             D.DEPT_ID
-            ,D.DEPT_NAME
-            ,D.PARENT_DEPT_ID
-            ,D.COMPANY_ID
-            ,D.SORT_ORDER
-            ,D.FLAG_USE
-            ,PD.DEPT_NAME AS PARENT_DEPT_NAME
-        FROM DEPT_INFO D
-        LEFT JOIN DEPT_INFO PD ON D.PARENT_DEPT_ID = PD.DEPT_ID
-        WHERE D.FLAG_USE = 'Y'
-        <if test="companyId != null and companyId != ''">AND D.COMPANY_ID = #{companyId}</if>
-        ORDER BY D.SORT_ORDER ASC, D.DEPT_ID ASC
-    </select>
 
     <!-- ============================================================ -->
     <!--  회사 목록 조회                                                -->

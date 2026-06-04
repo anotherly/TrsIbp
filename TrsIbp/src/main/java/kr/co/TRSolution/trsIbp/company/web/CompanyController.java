@@ -40,8 +40,8 @@ public class CompanyController {
 		return url;
 	}
     
-    // [기존 가입 전 회사검색 및 즉시등록 API 보존 영역]
-    @RequestMapping(value = "/company/searchCompany.ajax", method = RequestMethod.POST)
+    // 회사 통합검색
+    @RequestMapping(value = {"/login/searchCompany.ajax","/company/searchCompany.ajax"}, method = RequestMethod.POST)
     @ResponseBody
     public ModelAndView searchCompany(@ModelAttribute CompanyVO companyVO) {
         ModelAndView mav = new ModelAndView("jsonView");
@@ -80,7 +80,7 @@ public class CompanyController {
     /**
      * 외부 대표자용: 화면에서 작성된 폼 데이터(텍스트 데이터 + Multipart 파일) 수신 비동기 API
      */
-    @RequestMapping(value = "/company/request/requestInsert.ajax", method = RequestMethod.POST)
+    @RequestMapping(value = "/login/request/requestInsert.ajax", method = RequestMethod.POST)
     @ResponseBody
     public ModelAndView requestInsert(@ModelAttribute CompanyVO companyVO) {
         ModelAndView mav = new ModelAndView("jsonView");
@@ -122,7 +122,7 @@ public class CompanyController {
         } catch (Exception e) {
             logger.error("▶ admin approveCompany 마스터 이관 장애: {}", e.toString());
             mav.addObject("result", "ERROR");
-            mav.addObject("msg", "데이터 정합성 오류가 발생하여 안전하게 롤백 처리되었습니다.");
+            mav.addObject("msg", "데이터 오류가 발생하여 안전하게 실행취소 되었습니다.");
         }
         return mav;
     }
