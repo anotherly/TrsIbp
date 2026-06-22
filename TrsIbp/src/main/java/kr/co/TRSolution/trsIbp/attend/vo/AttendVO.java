@@ -5,7 +5,7 @@ import kr.co.TRSolution.trsIbp.comm.BaseVO;
 /**
  * 근태 데이터 VO (Value Object)
  *
- * ATTEND_HISTORY 테이블과 매핑
+ * WORK_HSTRY 테이블과 매핑
  *
  * @author DevSync
  * @since 2026-05-28
@@ -13,91 +13,91 @@ import kr.co.TRSolution.trsIbp.comm.BaseVO;
 public class AttendVO extends BaseVO {
 
     /** 이력번호 (PK, AUTO_INCREMENT) */
-    private Long seq;
+    private Long workHstrySn;
 
     /** 사용자 ID */
     private String userId;
 
     /** 사용자명 (JOIN 조회용) */
-    private String userName;
+    private String userNm;
 
     /** 근무일자 (YYYY-MM-DD) */
-    private String workDt;
+    private String workYmd;
 
     /** 출근시간 (YYYY-MM-DD HH:mm:ss) */
-    private String checkInTime;
+    private String gtwkDt;
 
     /** 퇴근시간 (YYYY-MM-DD HH:mm:ss) */
-    private String checkOutTime;
+    private String lvwkDt;
 
     /** 근무지 (OFFICE/HOME/OUTSIDE) */
-    private String workLocation;
+    private String powkNm;
 
     /** 비고 */
-    private String workMemo;
+    private String workRmrkCn;
 
     /** 등록일시 */
     private String regDt;
 
     /** 수정일시 */
-    private String updDt;
+    private String mdfcnDt;
 
     /** 근무시간 (분 단위, 조회용 계산값) */
     private String workMinutes;
 
     /** 오늘 출근 여부 (Y/N, 조회용) */
-    private String todayCheckIn;
+    private String todayGtwk;
 
     /** 오늘 퇴근 여부 (Y/N, 조회용) */
-    private String todayCheckOut;
+    private String todayLvwk;
 
     // ============================================================
     // Getter / Setter
     // ============================================================
 
-    public Long getSeq() { return seq; }
-    public void setSeq(Long seq) { this.seq = seq; }
+    public Long getWorkHstrySn() { return workHstrySn; }
+    public void setWorkHstrySn(Long workHstrySn) { this.workHstrySn = workHstrySn; }
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    public String getUserNm() { return userNm; }
+    public void setUserNm(String userNm) { this.userNm = userNm; }
 
-    public String getWorkDt() { return workDt; }
-    public void setWorkDt(String workDt) { this.workDt = workDt; }
+    public String getWorkYmd() { return workYmd; }
+    public void setWorkYmd(String workYmd) { this.workYmd = workYmd; }
 
-    public String getCheckInTime() { return checkInTime; }
-    public void setCheckInTime(String checkInTime) { this.checkInTime = checkInTime; }
+    public String getGtwkDt() { return gtwkDt; }
+    public void setGtwkDt(String gtwkDt) { this.gtwkDt = gtwkDt; }
 
-    public String getCheckOutTime() { return checkOutTime; }
-    public void setCheckOutTime(String checkOutTime) { this.checkOutTime = checkOutTime; }
+    public String getLvwkDt() { return lvwkDt; }
+    public void setLvwkDt(String lvwkDt) { this.lvwkDt = lvwkDt; }
 
-    public String getWorkLocation() { return workLocation; }
-    public void setWorkLocation(String workLocation) { this.workLocation = workLocation; }
+    public String getPowkNm() { return powkNm; }
+    public void setPowkNm(String powkNm) { this.powkNm = powkNm; }
 
-    public String getWorkMemo() { return workMemo; }
-    public void setWorkMemo(String workMemo) { this.workMemo = workMemo; }
+    public String getWorkRmrkCn() { return workRmrkCn; }
+    public void setWorkRmrkCn(String workRmrkCn) { this.workRmrkCn = workRmrkCn; }
 
     public String getRegDt() { return regDt; }
     public void setRegDt(String regDt) { this.regDt = regDt; }
 
-    public String getUpdDt() { return updDt; }
-    public void setUpdDt(String updDt) { this.updDt = updDt; }
+    public String getMdfcnDt() { return mdfcnDt; }
+    public void setMdfcnDt(String mdfcnDt) { this.mdfcnDt = mdfcnDt; }
 
     public String getWorkMinutes() { return workMinutes; }
     public void setWorkMinutes(String workMinutes) { this.workMinutes = workMinutes; }
 
-    public String getTodayCheckIn() { return todayCheckIn; }
-    public void setTodayCheckIn(String todayCheckIn) { this.todayCheckIn = todayCheckIn; }
+    public String getTodayGtwk() { return todayGtwk; }
+    public void setTodayGtwk(String todayGtwk) { this.todayGtwk = todayGtwk; }
 
-    public String getTodayCheckOut() { return todayCheckOut; }
-    public void setTodayCheckOut(String todayCheckOut) { this.todayCheckOut = todayCheckOut; }
+    public String getTodayLvwk() { return todayLvwk; }
+    public void setTodayLvwk(String todayLvwk) { this.todayLvwk = todayLvwk; }
 
     @Override
     public String toString() {
-        return "AttendVO [seq=" + seq + ", userId=" + userId + ", workDt=" + workDt
-                + ", checkInTime=" + checkInTime + ", checkOutTime=" + checkOutTime
-                + ", workLocation=" + workLocation + "]";
+        return "AttendVO [workHstrySn=" + workHstrySn + ", userId=" + userId + ", workYmd=" + workYmd
+                + ", gtwkDt=" + gtwkDt + ", lvwkDt=" + lvwkDt
+                + ", powkNm=" + powkNm + "]";
     }
 }

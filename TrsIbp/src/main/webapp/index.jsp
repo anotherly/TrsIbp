@@ -92,8 +92,8 @@
                     <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
                 </div>
                 <div class="flex-grow overflow-hidden">
-                    <h4 class="font-bold text-sm text-gray-100 truncate">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</h4>
-                    <span class="text-xs text-gray-400">${not empty sessionScope.login ? sessionScope.login.authName : ''}</span>
+                    <h4 class="font-bold text-sm text-gray-100 truncate">${not empty sessionScope.login ? sessionScope.login.userNm : '게스트'}</h4>
+                    <span class="text-xs text-gray-400">${not empty sessionScope.login ? sessionScope.login.authrtNm : ''}</span>
                 </div>
             </div>
 
@@ -157,7 +157,7 @@
                         <i id="arrow-sub-project" class="fa-solid text-xs transition-transform fa-chevron-up text-cyan-400"></i>
                     </button>
                     <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                        <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">전사 사업 현황판</a>
+                        <a href="<%=request.getContextPath()%>/biz/bizList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">전사 사업 현황판</a>
                         <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">Jira 스프린트 싱크</a>
                         <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입 공수(M/M) 정산</a>
                         <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트 산출물 아카이브</a>
@@ -259,7 +259,7 @@
                 <div class="flex items-center gap-2 pl-4 border-l border-brand-border/60">
                     <span class="text-xs text-gray-400">
                         <i class="fa-solid fa-user-circle text-brand-accent mr-1"></i>
-                        <strong class="text-gray-200">${not empty sessionScope.login ? sessionScope.login.userName : '게스트'}</strong>
+                        <strong class="text-gray-200">${not empty sessionScope.login ? sessionScope.login.userNm : '게스트'}</strong>
                     </span>
                     <a href="<%=request.getContextPath()%>/login/logout.do"
                        class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-500/10"

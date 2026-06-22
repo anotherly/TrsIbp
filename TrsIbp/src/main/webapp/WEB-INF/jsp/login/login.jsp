@@ -137,11 +137,11 @@
 
                 <!-- 비밀번호 -->
                 <div class="mb-6">
-                    <label for="userPw" class="block text-sm font-medium text-gray-400 mb-2">
+                    <label for="userEnpswd" class="block text-sm font-medium text-gray-400 mb-2">
                         <i class="fa-solid fa-lock mr-1.5 text-brand-accent"></i> 비밀번호
                     </label>
                     <div class="relative">
-                        <input type="password" id="userPw" name="userPw"
+                        <input type="password" id="userEnpswd" name="userEnpswd"
                             class="login-input w-full bg-slate-900 border border-brand-border rounded-lg px-4 py-3 pr-11 text-white text-sm placeholder-gray-600 transition"
                             placeholder="비밀번호를 입력하세요"
                             autocomplete="current-password"
@@ -193,7 +193,7 @@
 <script>
 // 비밀번호 표시/숨기기 토글
 function togglePw() {
-    var pwInput = document.getElementById('userPw');
+    var pwInput = document.getElementById('userEnpswd');
     var eyeIcon = document.getElementById('pwEyeIcon');
     if (pwInput.type === 'password') {
         pwInput.type = 'text';
@@ -217,7 +217,7 @@ window.onload = function() {
     if (userIdField && userIdField.value === '') {
         userIdField.focus();
     } else {
-        document.getElementById('userPw').focus();
+        document.getElementById('userEnpswd').focus();
     }
 };
 </script>

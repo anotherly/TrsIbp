@@ -4,94 +4,149 @@
 <mapper namespace="kr.co.TRSolution.trsIbp.dept.mapper.DeptMapper">
 
     <!-- ============================================================ -->
-    <!--  부서 목록 조회 (트리구조용 - 전체)                             -->
+    <!--  DeptVO ResultMap                                             -->
     <!-- ============================================================ -->
-    <select id="selectDeptList" parameterType="deptVO" resultType="java.util.LinkedHashMap">
+    <resultMap id="deptResultMap" type="deptVO">
+        <!-- DeptVO 직접 필드 -->
+        <id     property="deptId"      column="DEPT_ID"/>
+        <result property="deptNm"      column="DEPT_NM"/>
+        <result property="upDeptId"    column="UP_DEPT_ID"/>
+        <result property="sortDeptSeq" column="SORT_SEQ"/>
+        <result property="upDeptNm"    column="UP_DEPT_NM"/>
+
+        <!-- CompanyVO 상속 필드 -->
+        <result property="coId"        column="CO_ID"/>
+
+        <!-- CompanyVO 또는 BaseVO에 존재하는 경우 매핑됨 -->
+        <result property="useYn"       column="USE_YN"/>
+        <result property="regDt"       column="REG_DT"/>
+    </resultMap>
+
+
+    <!-- ============================================================ -->
+    <!--  부서 목록 조회                                               -->
+    <!-- ============================================================ -->
+    <select id="selectDeptList" parameterType="userVO" resultMap="deptResultMap">
         SELECT
              D.DEPT_ID
-            ,D.DEPT_NAME
-            ,D.PARENT_DEPT_ID
-            ,D.COMPANY_ID
-            ,D.SORT_ORDER
-            ,D.FLAG_USE
-            ,PD.DEPT_NAME AS PARENT_DEPT_NAME
-        FROM DEPT_INFO D
-        LEFT JOIN DEPT_INFO PD ON D.PARENT_DEPT_ID = PD.DEPT_ID
-        WHERE D.FLAG_USE = 'Y'
-        <if test="companyId != null and companyId != ''">AND D.COMPANY_ID = #{companyId}</if>
-        ORDER BY D.SORT_ORDER ASC, D.DEPT_ID ASC
+            ,D.DEPT_NM
+            ,D.UP_DEPT_ID
+            ,D.CO_ID
+            ,D.SORT_SEQ
+            ,D.USE_YN
+            ,D.REG_DT
+            ,PD.DEPT_NM AS UP_DEPT_NM
+        FROM dept_info D
+        LEFT JOIN dept_info PD
+               ON D.UP_DEPT_ID = PD.DEPT_ID
+        WHERE D.USE_YN = 'Y'
+        <if test="coId != null and coId != ''">
+            AND D.CO_ID = #{coId}
+        </if>
+        ORDER BY D.SORT_SEQ ASC, D.DEPT_ID ASC
     </select>
-    
+
+
+    <!-- ============================================================ -->
+    <!--  부서 등록                                                    -->
+    <!-- ============================================================ -->
     <insert id="insertDept" parameterType="deptVO">
         INSERT INTO dept_info (
              DEPT_ID
-            ,COMPANY_ID
-            ,DEPT_NAME
-            ,PARENT_DEPT_ID
-            ,SORT_ORDER
-            ,FLAG_USE
+            ,CO_ID
+            ,DEPT_NM
+            ,UP_DEPT_ID
+            ,SORT_SEQ
+            ,USE_YN
             ,REG_DT
         ) VALUES (
              #{deptId}
-            ,#{companyId}
-            ,#{deptName}
-            ,<if test="parentDeptId != null and parentDeptId != ''">#{parentDeptId}</if>
-             <if test="parentDeptId == null || parentDeptId == ''">NULL</if>
-            ,#{sortOrder}
+            ,#{coId}
+            ,#{deptNm}
+            ,<choose>
+                <when test="upDeptId != null and upDeptId != ''">
+                    #{upDeptId}
+                </when>
+                <otherwise>
+                    NULL
+                </otherwise>
+             </choose>
+            ,#{sortDeptSeq}
             ,'Y'
             ,NOW()
         )
     </insert>
 
+
+    <!-- ============================================================ -->
+    <!--  부서 트리 조회                                               -->
+    <!--  jsTree 같은 화면용이면 Map 유지 가능                         -->
+    <!-- ============================================================ -->
     <select id="selectDeptTreeList" parameterType="deptVO" resultType="java.util.LinkedHashMap">
         SELECT
-             D.DEPT_ID          AS id
-            ,D.DEPT_NAME        AS text
-            ,IFNULL(D.PARENT_DEPT_ID, '#') AS parent ,D.COMPANY_ID       AS companyId
-            ,D.SORT_ORDER       AS sortOrder
-            ,D.FLAG_USE         AS flagUse
+             D.DEPT_ID AS id
+            ,D.DEPT_NM AS text
+            ,IFNULL(D.UP_DEPT_ID, '#') AS parent
+            ,D.CO_ID AS coId
+            ,D.SORT_SEQ AS sortDeptSeq
+            ,D.USE_YN AS useYn
         FROM dept_info D
-        WHERE D.COMPANY_ID = #{companyId}
-          AND D.FLAG_USE = 'Y'
-        ORDER BY D.PARENT_DEPT_ID ASC, D.SORT_ORDER ASC
+        WHERE D.CO_ID = #{coId}
+          AND D.USE_YN = 'Y'
+        ORDER BY D.UP_DEPT_ID ASC, D.SORT_SEQ ASC
     </select>
 
-    <select id="selectDeptDetail" parameterType="deptVO" resultType="deptVO">
+
+    <!-- ============================================================ -->
+    <!--  부서 상세 조회                                               -->
+    <!-- ============================================================ -->
+    <select id="selectDeptDetail" parameterType="deptVO" resultMap="deptResultMap">
         SELECT
-             D.DEPT_ID          AS deptId
-            ,D.COMPANY_ID       AS companyId
-            ,D.DEPT_NAME        AS deptName
-            ,D.PARENT_DEPT_ID   AS parentDeptId
-            ,D.SORT_ORDER       AS sortOrder
-            ,D.FLAG_USE         AS flagUse
-            ,D.REG_DT           AS regDt
-            ,PD.DEPT_NAME       AS parentDeptName FROM dept_info D
-        LEFT JOIN dept_info PD ON D.PARENT_DEPT_ID = PD.DEPT_ID
+             D.DEPT_ID
+            ,D.CO_ID
+            ,D.DEPT_NM
+            ,D.UP_DEPT_ID
+            ,D.SORT_SEQ
+            ,D.USE_YN
+            ,D.REG_DT
+            ,PD.DEPT_NM AS UP_DEPT_NM
+        FROM dept_info D
+        LEFT JOIN dept_info PD
+               ON D.UP_DEPT_ID = PD.DEPT_ID
         WHERE D.DEPT_ID = #{deptId}
-          AND D.COMPANY_ID = #{companyId}
+          AND D.CO_ID = #{coId}
     </select>
 
+
+    <!-- ============================================================ -->
+    <!--  부서 수정                                                    -->
+    <!-- ============================================================ -->
     <update id="updateDept" parameterType="deptVO">
         UPDATE dept_info
         SET
-             DEPT_NAME = #{deptName}
-            ,SORT_ORDER = #{sortOrder}
-            <if test="parentDeptId != null and parentDeptId != ''">
-            ,PARENT_DEPT_ID = #{parentDeptId}
-            </if>
-            <if test="parentDeptId == null || parentDeptId == ''">
-            ,PARENT_DEPT_ID = NULL
-            </if>
+             DEPT_NM = #{deptNm}
+            ,SORT_SEQ = #{sortDeptSeq}
+            <choose>
+                <when test="upDeptId != null and upDeptId != ''">
+                    ,UP_DEPT_ID = #{upDeptId}
+                </when>
+                <otherwise>
+                    ,UP_DEPT_ID = NULL
+                </otherwise>
+            </choose>
         WHERE DEPT_ID = #{deptId}
-          AND COMPANY_ID = #{companyId}
+          AND CO_ID = #{coId}
     </update>
 
+
+    <!-- ============================================================ -->
+    <!--  부서 삭제                                                    -->
+    <!-- ============================================================ -->
     <update id="deleteDept" parameterType="deptVO">
         UPDATE dept_info
-        SET 
-            FLAG_USE = 'N'
+        SET USE_YN = 'N'
         WHERE DEPT_ID = #{deptId}
-          AND COMPANY_ID = #{companyId}
+          AND CO_ID = #{coId}
     </update>
 
 </mapper>

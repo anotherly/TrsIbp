@@ -30,5 +30,5 @@ public interface AttendMapper {
     /**
      * 근무지 업데이트
      */
-    void updateWorkLocation(AttendVO attendVO);
+    void updatePowkNm(AttendVO attendVO);
 }

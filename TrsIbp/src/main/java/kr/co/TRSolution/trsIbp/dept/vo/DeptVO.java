@@ -13,12 +13,12 @@ public class DeptVO extends CompanyVO {
     // [trsIbp.sql] DEPT_INFO 테이블 물리 컬럼 매핑
     // ===================================================
     private String deptId;          // 부서 ID (PK)
-    private String deptName;        // 부서명
-    private String parentDeptId;    // 상위 부서 ID (Self-Join용)
-    private int deptSortOrder;          // 정렬 순서
+    private String deptNm;        // 부서명
+    private String upDeptId;    // 상위 부서 ID (Self-Join용)
+    private int sortDeptSeq;          // 정렬 순서
     
     // [화면 확장 필드] 조인을 통해 받아올 상위 부서명
-    private String parentDeptName;
+    private String upDeptNm;
 
     // ===================================================
     // Getter & Setter
@@ -26,20 +26,20 @@ public class DeptVO extends CompanyVO {
     public String getDeptId() { return deptId; }
     public void setDeptId(String deptId) { this.deptId = deptId; }
 
-    public String getDeptName() { return deptName; }
-    public void setDeptName(String deptName) { this.deptName = deptName; }
+    public String getDeptNm() { return deptNm; }
+    public void setDeptNm(String deptNm) { this.deptNm = deptNm; }
 
-    public String getParentDeptId() { return parentDeptId; }
-    public void setParentDeptId(String parentDeptId) { this.parentDeptId = parentDeptId; }
+    public String getUpDeptId() { return upDeptId; }
+    public void setUpDeptId(String upDeptId) { this.upDeptId = upDeptId; }
 
-    public int getDeptSortOrder() { return deptSortOrder; }
-    public void setDeptSortOrder(int deSortOrder) { this.deptSortOrder = deptSortOrder; }
+    public int getSortDeptSeq() { return sortDeptSeq; }
+    public void setSortDeptSeq(int sortDeptSeq) { this.sortDeptSeq = sortDeptSeq; }
 
-    public String getParentDeptName() { return parentDeptName; }
-    public void setParentDeptName(String parentDeptName) { this.parentDeptName = parentDeptName; }
+    public String getUpDeptNm() { return upDeptNm; }
+    public void setUpDeptNm(String upDeptNm) { this.upDeptNm = upDeptNm; }
 
     @Override
     public String toString() {
-        return "DeptVO [deptId=" + deptId + ", deptName=" + deptName + ", parentDeptId=" + parentDeptId + ", companyId=" + getCompanyId() + "]";
+        return "DeptVO [deptId=" + deptId + ", deptNm=" + deptNm + ", upDeptId=" + upDeptId + ", coId=" + getCoId() + "]";
     }
 }

@@ -74,13 +74,13 @@
                 
                 <div id="selectedCompanyCard" class="hidden p-3 bg-brand-accent/5 border border-brand-accent/30 rounded-lg flex items-center justify-between">
                     <div>
-                        <span id="selectedCompanyName" class="text-xs font-bold text-white block"></span>
-                        <span id="selectedCompanyIdDisplay" class="text-[10px] text-gray-500 block font-mono"></span>
+                        <span id="selectedCoNm" class="text-xs font-bold text-white block"></span>
+                        <span id="selectedCoIdDisplay" class="text-[10px] text-gray-500 block font-mono"></span>
                     </div>
                     <span class="text-[10px] bg-brand-accent/20 text-brand-neonBlue px-2 py-0.5 rounded font-bold">선택완료</span>
                 </div>
 
-                <input type="hidden" id="companyId" name="companyId" required>
+                <input type="hidden" id="coId" name="coId" required>
             </div>
 
             <div class="space-y-4">
@@ -91,12 +91,12 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">비밀번호 *</label>
-                    <input type="password" name="userPw" id="userPw" data-valid="password" required class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="비밀번호(영문,특수,숫자 조합 8~15자)">
+                    <input type="password" name="userEnpswd" id="userEnpswd" data-valid="password" required class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="비밀번호(영문,특수,숫자 조합 8~15자)">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">성명 (이름) *</label>
-                    <input type="text" name="userName" id="userName" maxlength="20" required class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="홍길동">
+                    <input type="text" name="userNm" id="userNm" maxlength="20" required class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="홍길동">
                 </div>
 
                 <div>
@@ -108,12 +108,12 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">직급 / 직책</label>
-                    <input type="text" name="position" id="position" maxlength="15" class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="예: 대리 / 팀원">
+                    <input type="text" name="jbpsNm" id="jbpsNm" maxlength="15" class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="예: 대리 / 팀원">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">연락처 번호</label>
-                    <input type="tel" name="userTel" id="userTel" data-valid="phone" maxlength="11" class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="01012345678">
+                    <input type="tel" name="userTelno" id="userTelno" data-valid="phone" maxlength="11" class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="01012345678">
                 </div>
             </div>
 
@@ -144,8 +144,8 @@
                     if(data.result === 'OK' && data.list && data.list.length > 0) {
                         $.each(data.list, function(idx, item) {
                             var btn = $('<button type="button" class="w-full text-left text-xs text-gray-300 p-2 hover:bg-brand-accent/20 rounded transition block"></button>');
-                            btn.text(item.companyName + ' (코드: ' + item.companyId + ')');
-                            btn.attr('onclick', 'selectCompany("' + item.companyId + '", "' + item.companyName + '")');
+                            btn.text(item.coNm + ' (코드: ' + item.coId + ')');
+                            btn.attr('onclick', 'selectCompany("' + item.coId + '", "' + item.coNm + '")');
                             container.append(btn);
                         });
                     } else {
@@ -157,9 +157,9 @@
         }
 
         function selectCompany(id, name) {
-            $('#companyId').val(id);
-            $('#selectedCompanyName').text(name);
-            $('#selectedCompanyIdDisplay').text('ID: ' + id);
+            $('#coId').val(id);
+            $('#selectedCoNm').text(name);
+            $('#selectedCoIdDisplay').text('ID: ' + id);
             
             $('#companyListContainer').addClass('hidden');
             $('#selectedCompanyCard').removeClass('hidden');
@@ -167,18 +167,18 @@
             loadDepartmentList(id);
         }
 
-        function loadDepartmentList(companyId) {
+        function loadDepartmentList(coId) {
             $.ajax({
                 url: ctxPath + '/login/selectDeptList.ajax',
                 type: 'POST',
-                data: { companyId: companyId },
+                data: { coId: coId },
                 dataType: 'json',
                 success: function(data) {
                     var select = $('#deptId');
                     select.empty();
                     if(data.list && data.list.length > 0) {
                         $.each(data.list, function(idx, item) {
-                            select.append('<option value="' + item.deptId + '">' + item.deptName + '</option>');
+                            select.append('<option value="' + item.deptId + '">' + item.deptNm + '</option>');
                         });
                     } else {
                         select.append('<option value="">등록된 사내 부서가 없습니다 (관리자 문의)</option>');

@@ -27,10 +27,10 @@ public class FileDownloadView extends AbstractView {
      * @param model 모델
      * @return 파일크기
      */
-    private int getFileSize(Map<String, Object> model) {
-        Object fileSize = model.get("fileSize");
+    private int getFileSz(Map<String, Object> model) {
+        Object fileSz = model.get("fileSz");
         
-        return Integer.valueOf(fileSize.toString()).intValue();
+        return Integer.valueOf(fileSz.toString()).intValue();
     }
     
     /**
@@ -56,10 +56,10 @@ public class FileDownloadView extends AbstractView {
     //  * @param model 모델
     //  * @return 파일경로
     //  */
-    // private String getFilePath(Map<String, Object> model) {
-    //     String filePath = (String) model.get("filePath");
+    // private String getFilePathNm(Map<String, Object> model) {
+    //     String filePathNm = (String) model.get("filePathNm");
     //     
-    //     return filePath.replaceAll("\\\\", "/");
+    //     return filePathNm.replaceAll("\\\\", "/");
     // }
     
     /**
@@ -84,13 +84,13 @@ public class FileDownloadView extends AbstractView {
         //     setContentType("application/octet-stream");
         //     
         //     response.setContentType(getContentType());
-        //     response.setContentLength(getFileSize(model));
+        //     response.setContentLength(getFileSz(model));
         //     response.setHeader("Content-Transfer-Encoding", "binary");
-        //     response.setHeader("Content-Disposition", "attachment;fileName=\"" + getFileName(model) + "\";");
+        //     response.setHeader("Content-DisjbpsNm", "attachment;fileName=\"" + getFileName(model) + "\";");
         //     
         //     OutputStream out = response.getOutputStream();
         //     
-        //     fis = new FileInputStream(getFilePath(model));
+        //     fis = new FileInputStream(getFilePathNm(model));
         //     
         //     FileCopyUtils.copy(fis, out);
         // }
@@ -120,9 +120,9 @@ public class FileDownloadView extends AbstractView {
         setContentType("application/octet-stream");
         
         response.setContentType(getContentType());
-        response.setContentLength(getFileSize(model));
+        response.setContentLength(getFileSz(model));
         response.setHeader("Content-Transfer-Encoding", "binary");
-        response.setHeader("Content-Disposition", "attachment;fileName=\"" + getFileName(model) + "\";");
+        response.setHeader("Content-DisjbpsNm", "attachment;fileName=\"" + getFileName(model) + "\";");
         
         FileCopyUtils.copy(getFileContents(model), response.getOutputStream());
     }

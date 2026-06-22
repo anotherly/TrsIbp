@@ -61,9 +61,9 @@ public class CompanyController {
     public ModelAndView registerCompany(@ModelAttribute CompanyVO companyVO, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("jsonView");
         try {
-            String generatedCompanyId = companyService.insertCompany(companyVO);
+            String generatedCoId = companyService.insertCompany(companyVO);
             mav.addObject("result", "OK");
-            mav.addObject("companyId", generatedCompanyId);
+            mav.addObject("coId", generatedCoId);
             mav.addObject("msg", "회사 등록이 성공적으로 완료되었습니다.");
         } catch (Exception e) {
             logger.error("▶ 회사 등록 에러: {}", e.toString());
@@ -85,7 +85,7 @@ public class CompanyController {
     public ModelAndView requestInsert(@ModelAttribute CompanyVO companyVO) {
         ModelAndView mav = new ModelAndView("jsonView");
         try {
-            logger.debug("▶ [통합 컨트롤러] 외부 기업 도입 신청서 유입 - 회사명: {}", companyVO.getCompanyName());
+            logger.debug("▶ [통합 컨트롤러] 외부 기업 도입 신청서 유입 - 회사명: {}", companyVO.getCoNm());
             companyService.insertCompanyRequest(companyVO);
             mav.addObject("result", "OK");
         } catch (Exception e) {
@@ -101,22 +101,22 @@ public class CompanyController {
      */
     @RequestMapping(value = "/admin/approveCompany.ajax", method = RequestMethod.POST)
     @ResponseBody
-    public ModelAndView approveCompany(@RequestParam("reqSeq") int reqSeq, HttpServletRequest request) {
+    public ModelAndView approveCompany(@RequestParam("aplySn") int aplySn, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("jsonView");
         try {
             // 최소한의 세션 권한 필터 가로채기 검증
             UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
-            if (loginUser == null || !"ADMIN".equals(loginUser.getAuthId())) {
+            if (loginUser == null || !"ADMIN".equals(loginUser.getAuthrtId())) {
                 mav.addObject("result", "FAIL");
                 mav.addObject("msg", "최고 관리자(ADMIN) 권한이 필요한 비즈니스 통로입니다.");
                 return mav;
             }
 
             // 트랜잭션 가동 및 자동 채번된 정식 회사 고유 ID 반환 처리
-            String issuedCompanyId = companyService.approveCompanyRequest(reqSeq);
+            String issuedCoId = companyService.approveCompanyRequest(aplySn);
             
             mav.addObject("result", "OK");
-            mav.addObject("companyId", issuedCompanyId);
+            mav.addObject("coId", issuedCoId);
             mav.addObject("msg", "성공적으로 승인 처리되었으며, 기업 정식 인프라 생성이 종료되었습니다.");
             
         } catch (Exception e) {

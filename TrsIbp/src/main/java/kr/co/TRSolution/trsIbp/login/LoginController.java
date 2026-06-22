@@ -104,14 +104,14 @@ public class LoginController {
 			}
 
 			// 3. 사용 정지 계정 확인
-			if (!"Y".equals(loginUser.getFlagUse())) {
+			if (!"Y".equals(loginUser.getUseYn())) {
 				logger.debug("▶ 사용 정지 계정: {}", userVO.getUserId());
 				mav.addObject("errorMsg", "사용이 정지된 계정입니다. 관리자에게 문의하세요.");
 				return mav;
 			}
 
 			// 4. BCrypt 비밀번호 검증
-			boolean pwMatch = BCrypt.checkpw(userVO.getUserPw(), loginUser.getUserPw());
+			boolean pwMatch = BCrypt.checkpw(userVO.getUserEnpswd(), loginUser.getUserEnpswd());
 			if (!pwMatch) {
 				logger.debug("▶ 비밀번호 불일치: {}", userVO.getUserId());
 				mav.addObject("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -180,14 +180,14 @@ public class LoginController {
 	public ModelAndView insertUserJoin(@ModelAttribute UserVO userVO) {
 		ModelAndView mav = new ModelAndView("jsonView");
 		try {
-			// trsIbp.sql의 USER_INFO 테이블 제약조건에 따라 권한(AUTH_ID)의 디폴트값 강제 주입
-			userVO.setAuthId("USER"); // 일반 직원 권한으로 고정 배치
-			userVO.setFlagUse("Y"); // 즉시 활성화 상태 부여
+			// trsIbp.sql의 USER_INFO 테이블 제약조건에 따라 권한(AUTHRT_ID)의 디폴트값 강제 주입
+			userVO.setAuthrtId("USER"); // 일반 직원 권한으로 고정 배치
+			userVO.setUseYn("Y"); // 즉시 활성화 상태 부여
 
 			// 패스워드 보안 가이드 반영: 화면에서 들어온 평문 PW를 BCrypt로 안전하게 해싱 암호화 가공
-			String hashedPw = org.mindrot.jbcrypt.BCrypt.hashpw(userVO.getUserPw(),
+			String hashedPw = org.mindrot.jbcrypt.BCrypt.hashpw(userVO.getUserEnpswd(),
 					org.mindrot.jbcrypt.BCrypt.gensalt());
-			userVO.setUserPw(hashedPw);
+			userVO.setUserEnpswd(hashedPw);
 
 			// 데이터 적재 실행 (INSERT INTO user_info)
 			userService.insertUser(userVO);

@@ -31,10 +31,10 @@ public class DeptController {
 	public ModelAndView selectDeptList(@ModelAttribute UserVO userVO) {
 		ModelAndView mav = new ModelAndView("jsonView");
 		try {
-			logger.debug("▶ [부서 트리 엔진 가동] 요청 회사 ID: {}", userVO.getCompanyId());
+			logger.debug("▶ [부서 트리 엔진 가동] 요청 회사 ID: {}", userVO.getCoId());
 
 			// List<UserVO> 대신 List<Map<String, Object>> 형태로 서비스 레이어 호출 교체
-			List<Map<String, Object>> deptTreeList = deptService.selectDeptList(userVO);
+			List<DeptVO> deptTreeList = deptService.selectDeptList(userVO);
 
 			// Ajax 응답용 데이터 바인딩
 			mav.addObject("list", deptTreeList);
@@ -53,7 +53,7 @@ public class DeptController {
     public ModelAndView insertDept(@ModelAttribute DeptVO deptVO) {
         ModelAndView mav = new ModelAndView("jsonView");
         try {
-            logger.debug("▶ [부서 등록 요청] 부서명: {}, 상위부서ID: {}", deptVO.getDeptName(), deptVO.getParentDeptId());
+            logger.debug("▶ [부서 등록 요청] 부서명: {}, 상위부서ID: {}", deptVO.getDeptNm(), deptVO.getUpDeptId());
             deptService.insertDept(deptVO);
             mav.addObject("result", "OK");
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class DeptController {
     public ModelAndView updateDept(@ModelAttribute DeptVO deptVO) {
         ModelAndView mav = new ModelAndView("jsonView");
         try {
-            logger.debug("▶ [부서 수정 요청] 부서ID: {}, 변경부서명: {}", deptVO.getDeptId(), deptVO.getDeptName());
+            logger.debug("▶ [부서 수정 요청] 부서ID: {}, 변경부서명: {}", deptVO.getDeptId(), deptVO.getDeptNm());
             deptService.updateDept(deptVO);
             mav.addObject("result", "OK");
         } catch (Exception e) {
@@ -120,7 +120,7 @@ public class DeptController {
     }
 
     /**
-     * [D] 부서 정보 삭제 (실무적 안전장치: FLAG_USE = 'N' 처리)
+     * [D] 부서 정보 삭제 (실무적 안전장치: USE_YN = 'N' 처리)
      */
     @RequestMapping(value = "/dept/deleteDept.ajax", method = RequestMethod.POST)
     @ResponseBody

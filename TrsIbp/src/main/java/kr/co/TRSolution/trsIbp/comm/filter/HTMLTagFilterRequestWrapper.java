@@ -11,8 +11,8 @@ public class HTMLTagFilterRequestWrapper extends HttpServletRequestWrapper {
     // 기존 허용 태그(유지)
     static private String[] whiteListTag = { "<p>", "</p>", "<br />" };
 
-    // MEMO에서만 허용할 “토큰” (태그 전체 허용이 아님)
-    private static final String[] memoAllowedTokens = { "<긴급>", "<재난>" };
+    // MEMO_CN에서만 허용할 “토큰” (태그 전체 허용이 아님)
+    private static final String[] memoCnAllowedTokens = { "<긴급>", "<재난>" };
 
     private final HttpServletRequest originalRequest;
 
@@ -76,17 +76,17 @@ public class HTMLTagFilterRequestWrapper extends HttpServletRequestWrapper {
     private String sanitizeParam(String paramName, String value) {
         if (value == null) return null;
 
-        // MEMO 예외: 제보 등록/임시저장 URI에서만 "<긴급>", "<재난>" 토큰만 허용
-        if (isReceiptMemoAllowed(paramName)) {
-            return escapeExceptTokens(value, memoAllowedTokens);
+        // MEMO_CN 예외: 제보 등록/임시저장 URI에서만 "<긴급>", "<재난>" 토큰만 허용
+        if (isReceiptMemoCnAllowed(paramName)) {
+            return escapeExceptTokens(value, memoCnAllowedTokens);
         }
 
         // 기본: 기존 화이트리스트 태그(p, br)만 허용 + 나머지는 전부 escape
         return getSafeParamData(value);
     }
 
-    private boolean isReceiptMemoAllowed(String paramName) {
-        if (!"MEMO".equalsIgnoreCase(paramName)) return false;
+    private boolean isReceiptMemoCnAllowed(String paramName) {
+        if (!"MEMO_CN".equalsIgnoreCase(paramName)) return false;
 
         String uri = originalRequest.getRequestURI();
         String ctx = originalRequest.getContextPath();
@@ -94,7 +94,7 @@ public class HTMLTagFilterRequestWrapper extends HttpServletRequestWrapper {
             uri = uri.substring(ctx.length());
         }
 
-        // 사용자님 요구사항: “제보 등록의 MEMO”만 허용
+        // 사용자님 요구사항: “제보 등록의 MEMO_CN”만 허용
         // 실제 등록/임시저장 URI만 지정 (필요시 여기에 추가)
         return ("/receipt/insertReceipt.do".equals(uri) || "/receipt/tempSave.do".equals(uri));
     }

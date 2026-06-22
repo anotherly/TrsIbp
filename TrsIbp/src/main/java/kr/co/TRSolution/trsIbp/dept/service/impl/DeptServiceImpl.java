@@ -15,10 +15,9 @@ public class DeptServiceImpl implements DeptService {
     @Resource(name = "deptMapper")
     private DeptMapper deptMapper;
 
-    /** 부서 목록 조회 (트리구조용) */
     @Override
-    public List<Map<String, Object>> selectDeptList(DeptVO deptVO) {
-        return deptMapper.selectDeptList(deptVO);
+    public List<DeptVO> selectDeptList(UserVO userVO) {
+        return deptMapper.selectDeptList(userVO);
     }
     
     @Override
@@ -26,6 +25,7 @@ public class DeptServiceImpl implements DeptService {
         deptMapper.insertDept(deptVO);
     }
 
+    /** 부서 목록 조회 (트리구조용) */
     @Override
     public List<Map<String, Object>> selectDeptTreeList(DeptVO deptVO) throws Exception {
         // 부서 목록을 LinkedHashMap으로 순서 보장하여 호출

@@ -5,7 +5,7 @@
 
 <!--
     근태관리 SQL Mapper
-    테이블: ATTEND_HISTORY
+    테이블: WORK_HSTRY
     DB: MariaDB 10.6
     작성일: 2026-05-28
 -->
@@ -15,17 +15,17 @@
     <!--  ResultMap                                                    -->
     <!-- ============================================================ -->
     <resultMap type="attendVO" id="attendResultMap">
-        <result property="seq"          column="SEQ"            />
+        <result property="workHstrySn" column="WORK_HSTRY_SN"            />
         <result property="userId"       column="USER_ID"        />
-        <result property="userName"     column="USER_NAME"      />
-        <result property="workDt"       column="WORK_DT"        />
-        <result property="checkInTime"  column="CHECK_IN_TIME"  />
-        <result property="checkOutTime" column="CHECK_OUT_TIME" />
-        <result property="workLocation" column="WORK_LOCATION"  />
-        <result property="workMemo"     column="WORK_MEMO"      />
+        <result property="userNm"     column="USER_NM"      />
+        <result property="workYmd"       column="WORK_YMD"        />
+        <result property="gtwkDt"  column="GTWK_DT"  />
+        <result property="lvwkDt" column="LVWK_DT" />
+        <result property="powkNm" column="POWK_NM"  />
+        <result property="workRmrkCn"     column="WORK_RMRK_CN"      />
         <result property="workMinutes"  column="WORK_MINUTES"   />
         <result property="regDt"        column="REG_DT"         />
-        <result property="updDt"        column="UPD_DT"         />
+        <result property="mdfcnDt"        column="MDFCN_DT"         />
     </resultMap>
 
     <!-- ============================================================ -->
@@ -35,65 +35,65 @@
     <!-- ============================================================ -->
     <select id="selectTodayAttend" parameterType="attendVO" resultMap="attendResultMap">
         SELECT
-            A.SEQ
+            A.WORK_HSTRY_SN
             ,A.USER_ID
-            ,A.WORK_DT
-            ,DATE_FORMAT(A.CHECK_IN_TIME,  '%H:%i') AS CHECK_IN_TIME
-            ,DATE_FORMAT(A.CHECK_OUT_TIME, '%H:%i') AS CHECK_OUT_TIME
-            ,A.WORK_LOCATION
-            ,A.WORK_MEMO
+            ,A.WORK_YMD
+            ,DATE_FORMAT(A.GTWK_DT,  '%H:%i') AS GTWK_DT
+            ,DATE_FORMAT(A.LVWK_DT, '%H:%i') AS LVWK_DT
+            ,A.POWK_NM
+            ,A.WORK_RMRK_CN
             ,A.REG_DT
-            ,A.UPD_DT
+            ,A.MDFCN_DT
             /* 근무 분 계산: 퇴근기록 없으면 현재시각과 비교 */
             ,CASE
-                WHEN A.CHECK_OUT_TIME IS NOT NULL
-                    THEN CAST(TIMESTAMPDIFF(MINUTE, A.CHECK_IN_TIME, A.CHECK_OUT_TIME) AS CHAR)
-                WHEN A.CHECK_IN_TIME IS NOT NULL
-                    THEN CAST(TIMESTAMPDIFF(MINUTE, A.CHECK_IN_TIME, NOW()) AS CHAR)
+                WHEN A.LVWK_DT IS NOT NULL
+                    THEN CAST(TIMESTAMPDIFF(MINUTE, A.GTWK_DT, A.LVWK_DT) AS CHAR)
+                WHEN A.GTWK_DT IS NOT NULL
+                    THEN CAST(TIMESTAMPDIFF(MINUTE, A.GTWK_DT, NOW()) AS CHAR)
                 ELSE '0'
             END AS WORK_MINUTES
-        FROM ATTEND_HISTORY A
+        FROM WORK_HSTRY A
         WHERE A.USER_ID = #{userId}
-          AND A.WORK_DT = CURDATE()
+          AND A.WORK_YMD = CURDATE()
         LIMIT 1
     </select>
 
     <!-- ============================================================ -->
     <!--  출근 INSERT                                                  -->
-    <!--  - WORK_DT = 오늘, CHECK_IN_TIME = NOW()                     -->
-    <!--  - UNIQUE KEY (USER_ID, WORK_DT) → 하루 1회만 허용            -->
+    <!--  - WORK_YMD = 오늘, GTWK_DT = NOW()                     -->
+    <!--  - UNIQUE KEY (USER_ID, WORK_YMD) → 하루 1회만 허용            -->
     <!-- ============================================================ -->
     <insert id="insertCheckIn" parameterType="attendVO">
-        INSERT INTO ATTEND_HISTORY (
+        INSERT INTO WORK_HSTRY (
             USER_ID
-            ,WORK_DT
-            ,CHECK_IN_TIME
-            ,WORK_LOCATION
-            ,WORK_MEMO
+            ,WORK_YMD
+            ,GTWK_DT
+            ,POWK_NM
+            ,WORK_RMRK_CN
             ,REG_DT
         ) VALUES (
             #{userId}
             ,CURDATE()
             ,NOW()
-            ,COALESCE(#{workLocation}, 'OFFICE')
-            ,#{workMemo}
+            ,COALESCE(#{powkNm}, 'OFFICE')
+            ,#{workRmrkCn}
             ,NOW()
         )
     </insert>
 
     <!-- ============================================================ -->
     <!--  퇴근 UPDATE                                                  -->
-    <!--  - CHECK_OUT_TIME = NOW(), UPD_DT = NOW()                    -->
+    <!--  - LVWK_DT = NOW(), MDFCN_DT = NOW()                    -->
     <!--  - 오늘 날짜 기준, FN_TIME이 없는 경우만 업데이트               -->
     <!-- ============================================================ -->
     <update id="updateCheckOut" parameterType="attendVO">
-        UPDATE ATTEND_HISTORY
+        UPDATE WORK_HSTRY
         SET
-            CHECK_OUT_TIME = NOW()
-            ,UPD_DT        = NOW()
+            LVWK_DT = NOW()
+            ,MDFCN_DT        = NOW()
         WHERE USER_ID  = #{userId}
-          AND WORK_DT  = CURDATE()
-          AND CHECK_OUT_TIME IS NULL
+          AND WORK_YMD  = CURDATE()
+          AND LVWK_DT IS NULL
     </update>
 
     <!-- ============================================================ -->
@@ -101,13 +101,13 @@
     <!--  - 오늘 날짜 기준으로 근무지 업데이트                           -->
     <!--  - 출근 전이면 아무 일도 안 일어남 (레코드 없음)                 -->
     <!-- ============================================================ -->
-    <update id="updateWorkLocation" parameterType="attendVO">
-        UPDATE ATTEND_HISTORY
+    <update id="updatePowkNm" parameterType="attendVO">
+        UPDATE WORK_HSTRY
         SET
-            WORK_LOCATION = #{workLocation}
-            ,UPD_DT       = NOW()
+            POWK_NM = #{powkNm}
+            ,MDFCN_DT       = NOW()
         WHERE USER_ID = #{userId}
-          AND WORK_DT  = CURDATE()
+          AND WORK_YMD  = CURDATE()
     </update>
 
 </mapper>

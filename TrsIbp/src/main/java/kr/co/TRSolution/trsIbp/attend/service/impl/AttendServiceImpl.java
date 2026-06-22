@@ -36,7 +36,7 @@ public class AttendServiceImpl implements AttendService {
     }
 
     @Override
-    public void updateWorkLocation(AttendVO attendVO) {
-        attendMapper.updateWorkLocation(attendVO);
+    public void updatePowkNm(AttendVO attendVO) {
+        attendMapper.updatePowkNm(attendVO);
     }
 }

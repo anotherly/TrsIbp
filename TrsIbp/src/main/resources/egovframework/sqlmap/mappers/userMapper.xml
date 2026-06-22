@@ -5,7 +5,7 @@
 
 <!--
     사용자 SQL Mapper
-    테이블: USER_INFO, AUTH_INFO, COMPANY_INFO, DEPT_INFO
+    테이블: USER_INFO, AUTHRT_INFO, CO_INFO, DEPT_INFO
     DB: MySQL/MariaDB
     작성일: 2026-05-28
 -->
@@ -16,62 +16,62 @@
     <!-- ============================================================ -->
     <resultMap type="userVO" id="userResultMap">
         <result property="userId"          column="USER_ID"         />
-        <result property="userPw"          column="USER_PW"         />
-        <result property="userName"        column="USER_NAME"       />
-        <result property="companyId"       column="COMPANY_ID"      />
-        <result property="companyName"     column="COMPANY_NAME"    />
+        <result property="userEnpswd"          column="USER_ENPSWD"         />
+        <result property="userNm"        column="USER_NM"       />
+        <result property="coId"       column="CO_ID"      />
+        <result property="coNm"     column="CO_NM"    />
         <result property="deptId"          column="DEPT_ID"         />
-        <result property="deptName"        column="DEPT_NAME"       />
-        <result property="parentDeptName"  column="PARENT_DEPT_NAME"/>
-        <result property="position"        column="POSITION"        />
-        <result property="authId"          column="AUTH_ID"         />
-        <result property="authName"        column="AUTH_NAME"       />
-        <result property="userTel"         column="USER_TEL"        />
-        <result property="flagUse"         column="FLAG_USE"        />
-        <result property="memo"            column="MEMO"            />
+        <result property="deptNm"        column="DEPT_NM"       />
+        <result property="upDeptNm"  column="PARENT_DEPT_NM"/>
+        <result property="jbpsNm"        column="JBPS_NM"        />
+        <result property="authrtId"          column="AUTHRT_ID"         />
+        <result property="authrtNm"        column="AUTHRT_NM"       />
+        <result property="userTelno"         column="USER_TELNO"        />
+        <result property="useYn"         column="USE_YN"        />
+        <result property="memoCn"            column="MEMO_CN"            />
         <result property="regDt"           column="REG_DT"          />
     </resultMap>
 
     <!-- ============================================================ -->
     <!--  사용자 목록/단건 조회                                          -->
-    <!--  USER_INFO + AUTH_INFO + COMPANY_INFO + DEPT_INFO JOIN        -->
+    <!--  USER_INFO + AUTHRT_INFO + CO_INFO + DEPT_INFO JOIN        -->
     <!-- ============================================================ -->
     <select id="selectUser" parameterType="userVO" resultMap="userResultMap">
         SELECT
              U.USER_ID
-            ,U.USER_NAME
-            ,U.COMPANY_ID
-            ,C.COMPANY_NAME
+            ,U.USER_NM
+            ,U.CO_ID
+            ,C.CO_NM
             ,U.DEPT_ID
-            ,D.DEPT_NAME
-            ,PD.DEPT_NAME    AS PARENT_DEPT_NAME
-            ,U.POSITION
-            ,U.AUTH_ID
-            ,A.AUTH_NAME
-            ,U.USER_TEL
-            ,U.IN_TEL
-            ,U.FLAG_USE
-            ,U.MEMO
+            ,D.DEPT_NM
+            ,PD.DEPT_NM    AS PARENT_DEPT_NM
+            ,U.JBPS_NM
+            ,U.AUTHRT_ID
+            ,A.AUTHRT_NM
+            ,U.USER_TELNO
+            ,U.EXT_NO
+            ,U.USE_YN
+            ,U.MEMO_CN
             ,DATE_FORMAT(U.REG_DT, '%Y-%m-%d') AS REG_DT
         FROM USER_INFO U
-        LEFT JOIN AUTH_INFO    A  ON U.AUTH_ID    = A.AUTH_ID
-        LEFT JOIN COMPANY_INFO C  ON U.COMPANY_ID = C.COMPANY_ID
+        LEFT JOIN AUTHRT_INFO    A  ON U.AUTHRT_ID    = A.AUTHRT_ID
+        LEFT JOIN CO_INFO C  ON U.CO_ID = C.CO_ID
         LEFT JOIN DEPT_INFO    D  ON U.DEPT_ID    = D.DEPT_ID
-        LEFT JOIN DEPT_INFO    PD ON D.PARENT_DEPT_ID = PD.DEPT_ID
+        LEFT JOIN DEPT_INFO    PD ON D.UP_DEPT_ID = PD.DEPT_ID
         WHERE 1=1
         <if test="userId    != null and userId    != ''">AND U.USER_ID    = #{userId}</if>
-        <if test="userName  != null and userName  != ''">AND U.USER_NAME  LIKE CONCAT('%', #{userName}, '%')</if>
-        <if test="companyId != null and companyId != ''">AND U.COMPANY_ID = #{companyId}</if>
+        <if test="userNm  != null and userNm  != ''">AND U.USER_NM  LIKE CONCAT('%', #{userNm}, '%')</if>
+        <if test="coId != null and coId != ''">AND U.CO_ID = #{coId}</if>
         <if test="deptId    != null and deptId    != ''">AND U.DEPT_ID    = #{deptId}</if>
-        <if test="authId    != null and authId    != ''">AND U.AUTH_ID    = #{authId}</if>
-        <if test="flagUse   != null and flagUse   != ''">AND U.FLAG_USE   = #{flagUse}</if>
+        <if test="authrtId    != null and authrtId    != ''">AND U.AUTHRT_ID    = #{authrtId}</if>
+        <if test="useYn   != null and useYn   != ''">AND U.USE_YN   = #{useYn}</if>
         <if test="searchValue != null and searchValue != ''">
             <choose>
                 <when test="searchType == 'userId'">
                     AND U.USER_ID LIKE CONCAT('%', #{searchValue}, '%')
                 </when>
                 <otherwise>
-                    AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+                    AND U.USER_NM LIKE CONCAT('%', #{searchValue}, '%')
                 </otherwise>
             </choose>
         </if>
@@ -87,18 +87,18 @@
     <select id="selectUserForLogin" parameterType="userVO" resultMap="userResultMap">
         SELECT
              U.USER_ID
-            ,U.USER_PW
-            ,U.USER_NAME
-            ,U.COMPANY_ID
+            ,U.USER_ENPSWD
+            ,U.USER_NM
+            ,U.CO_ID
             ,U.DEPT_ID
-            ,U.POSITION
-            ,U.AUTH_ID
-            ,A.AUTH_NAME
-            ,U.FLAG_USE
+            ,U.JBPS_NM
+            ,U.AUTHRT_ID
+            ,A.AUTHRT_NM
+            ,U.USE_YN
         FROM USER_INFO U
-        LEFT JOIN AUTH_INFO A ON U.AUTH_ID = A.AUTH_ID
+        LEFT JOIN AUTHRT_INFO A ON U.AUTHRT_ID = A.AUTHRT_ID
         WHERE U.USER_ID  = #{userId}
-          AND U.FLAG_USE = 'Y'
+          AND U.USE_YN = 'Y'
     </select>
 
     <!-- ============================================================ -->
@@ -107,27 +107,27 @@
     <insert id="insertUser" parameterType="userVO">
         INSERT INTO USER_INFO (
              USER_ID
-            ,USER_PW
-            ,USER_NAME
-            ,COMPANY_ID
+            ,USER_ENPSWD
+            ,USER_NM
+            ,CO_ID
             ,DEPT_ID
-            ,POSITION
-            ,AUTH_ID
-            ,USER_TEL
-            ,FLAG_USE
-            ,MEMO
+            ,JBPS_NM
+            ,AUTHRT_ID
+            ,USER_TELNO
+            ,USE_YN
+            ,MEMO_CN
             ,REG_DT
         ) VALUES (
              #{userId}
-            ,#{userPw}
-            ,#{userName}
-            ,#{companyId}
+            ,#{userEnpswd}
+            ,#{userNm}
+            ,#{coId}
             ,#{deptId}
-            ,#{position}
-            ,#{authId}
-            ,#{userTel}
+            ,#{jbpsNm}
+            ,#{authrtId}
+            ,#{userTelno}
             ,'Y'
-            ,#{memo}
+            ,#{memoCn}
             ,NOW()
         )
     </insert>
@@ -138,15 +138,15 @@
     <update id="updateUser" parameterType="userVO">
         UPDATE USER_INFO
         SET
-             USER_NAME  = #{userName}
-            ,COMPANY_ID = #{companyId}
+             USER_NM  = #{userNm}
+            ,CO_ID = #{coId}
             ,DEPT_ID    = #{deptId}
-            ,POSITION   = #{position}
-            ,AUTH_ID    = #{authId}
-            ,USER_TEL   = #{userTel}
-            ,FLAG_USE   = #{flagUse}
-            ,MEMO       = #{memo}
-            <if test="userPw != null and userPw != ''">,USER_PW = #{userPw}</if>
+            ,JBPS_NM   = #{jbpsNm}
+            ,AUTHRT_ID    = #{authrtId}
+            ,USER_TELNO   = #{userTelno}
+            ,USE_YN   = #{useYn}
+            ,MEMO_CN       = #{memoCn}
+            <if test="userEnpswd != null and userEnpswd != ''">,USER_ENPSWD = #{userEnpswd}</if>
         WHERE USER_ID = #{userId}
     </update>
 
@@ -164,13 +164,13 @@
     <!-- ============================================================ -->
     <select id="selectCompanyList" parameterType="userVO" resultType="java.util.LinkedHashMap">
         SELECT
-             COMPANY_ID
-            ,COMPANY_NAME
-            ,COMPANY_TEL
-            ,FLAG_USE
-        FROM COMPANY_INFO
-        WHERE FLAG_USE = 'Y'
-        ORDER BY COMPANY_NAME ASC
+             CO_ID
+            ,CO_NM
+            ,CO_TELNO
+            ,USE_YN
+        FROM CO_INFO
+        WHERE USE_YN = 'Y'
+        ORDER BY CO_NM ASC
     </select>
 
     <!-- ============================================================ -->
@@ -178,11 +178,11 @@
     <!-- ============================================================ -->
     <select id="selectAuthList" resultType="java.util.LinkedHashMap">
         SELECT
-             AUTH_ID
-            ,AUTH_NAME
-            ,AUTH_DESC
-        FROM AUTH_INFO
-        ORDER BY SORT_ORDER ASC
+             AUTHRT_ID
+            ,AUTHRT_NM
+            ,AUTHRT_EXPLN
+        FROM AUTHRT_INFO
+        ORDER BY SORT_SEQ ASC
     </select>
 
 </mapper>

@@ -22,12 +22,12 @@
             
             <div>
                 <label class="block text-xs font-bold text-gray-400 mb-1.5">회사명 <span class="text-red-500">*</span></label>
-                <input type="text" name="companyName" maxlength="15" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="예: (주)쓰리알솔루션">
+                <input type="text" name="coNm" maxlength="15" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="예: (주)쓰리알솔루션">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-400 mb-1.5">사업자등록번호 <span class="text-red-500">*</span></label>
-                <input type="text" name="bizNo" maxlength="12" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="하이픈(-)을 제외하고 입력">
+                <input type="text" name="brno" maxlength="12" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="하이픈(-)을 제외하고 입력">
             </div>
 
             <div>
@@ -36,29 +36,29 @@
                     <input type="text" id="zipCode" name="zipCode" readonly required class="w-1/3 bg-slate-950 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-400 focus:outline-none" placeholder="우편번호">
                     <button type="button" onclick="openKakaoPostcode()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-[#1f2937] text-xs font-bold rounded-lg text-gray-200 transition">주소 검색</button>
                 </div>
-                <input type="text" id="companyAddr" name="companyAddr" readonly required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none mb-2" placeholder="기본 주소 (주소 검색 시 자동완성)">
+                <input type="text" id="coAddr" name="coAddr" readonly required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none mb-2" placeholder="기본 주소 (주소 검색 시 자동완성)">
                 <input type="text" id="addrDetail" name="addrDetail" maxlength="100" class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="상세 주소를 입력하세요">
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">신청자명 <span class="text-red-500">*</span></label>
-                    <input type="text" name="contactName" maxlength="15" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="홍길동">
+                    <input type="text" name="aplcntNm" maxlength="15" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="홍길동">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">대표성함 <span class="text-red-500">*</span></label>
-                    <input type="text" name="representativeName" maxlength="15" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="대표자성명">
+                    <input type="text" name="rprsvNm" maxlength="15" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="대표자성명">
                 </div>
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-400 mb-1.5">신청자 연락처 <span class="text-red-500">*</span></label>
-                <input type="tel" name="contactTel" data-valid="phone" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="지역번호 또는 휴대폰 번호 (하이픈 제외)">
+                <input type="tel" name="picTelno" data-valid="phone" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="지역번호 또는 휴대폰 번호 (하이픈 제외)">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-400 mb-1.5">담당자 이메일 <span class="text-red-500">*</span></label>
-                <input type="email" name="contactEmail" maxlength="50" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="name@company.com">
+                <input type="email" name="picEmlAddr" maxlength="50" required class="w-full bg-slate-900 border border-[#1f2937] text-sm rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-blue-500 transition" placeholder="name@company.com">
             </div>
 
             <div>
@@ -93,7 +93,7 @@
                     }
 
                     $('#zipCode').val(data.zonecode);
-                    $('#companyAddr').val(fullAddr);
+                    $('#coAddr').val(fullAddr);
                     $('#addrDetail').focus(); 
                 }
             }).open();

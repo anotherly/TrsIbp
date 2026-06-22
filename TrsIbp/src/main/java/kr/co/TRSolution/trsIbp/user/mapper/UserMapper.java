@@ -8,7 +8,7 @@ import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 
 /**
  * 사용자 매퍼 인터페이스
- * 테이블: USER_INFO, AUTH_INFO, COMPANY_INFO, DEPT_INFO
+ * 테이블: USER_INFO, AUTHRT_INFO, CO_INFO, DEPT_INFO
  *
  * @author DevSync
  * @since 2026-05-28

@@ -11,7 +11,7 @@ public interface CompanyMapper {
     void insertCompanyIp(CompanyVO vo) throws Exception;
     CompanyVO selectCompany(CompanyVO vo) throws Exception;
 	void insertCompanyRequest(CompanyVO vo);
-	CompanyVO selectCompanyRequestDetail(int reqSeq);
+	CompanyVO selectCompanyRequestDetail(int aplySn);
 	void insertApprovedCompany(CompanyVO requestData);
 	void insertCompanyDocAuto(CompanyVO requestData);
 	void insertCompDocFileAuto(CompanyVO requestData);

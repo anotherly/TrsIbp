@@ -4,7 +4,7 @@ import kr.co.TRSolution.trsIbp.dept.vo.DeptVO;
 
 /**
  * 사용자 VO (Value Object)
- * 테이블: USER_INFO, AUTH_INFO, COMPANY_INFO, DEPT_INFO JOIN
+ * 테이블: USER_INFO, AUTHRT_INFO, CO_INFO, DEPT_INFO JOIN
  *
  * @author DevSync
  * @since 2026-05-28
@@ -21,31 +21,31 @@ public class UserVO extends DeptVO {
     private String userId;
 
     /** 비밀번호 (BCrypt 해시) */
-    private String userPw;
+    private String userEnpswd;
 
     /** 사용자명 */
-    private String userName;
+    private String userNm;
 
-    /** 소속회사ID (COMPANY_INFO.COMPANY_ID FK) */
-    private String companyId;
+    /** 소속회사ID (CO_INFO.CO_ID FK) */
+    private String coId;
 
     /** 소속부서ID (DEPT_INFO.DEPT_ID FK) */
     private String deptId;
 
     /** 직급/직책 (대표/본부장/팀장/팀원 등 자유입력) */
-    private String position;
+    private String jbpsNm;
 
-    /** 권한ID (AUTH_INFO.AUTH_ID FK) */
-    private String authId;
+    /** 권한ID (AUTHRT_INFO.AUTHRT_ID FK) */
+    private String authrtId;
 
     /** 연락처 */
-    private String userTel;
+    private String userTelno;
 
     /** 사용여부 (Y/N) */
-    private String flagUse;
+    private String useYn;
 
     /** 메모 */
-    private String memo;
+    private String memoCn;
 
     /** 가입일시 */
     private String regDt;
@@ -54,23 +54,23 @@ public class UserVO extends DeptVO {
     // JOIN 조회용 컬럼
     // ============================================================
 
-    /** 회사명 (COMPANY_INFO.COMPANY_NAME) */
-    private String companyName;
+    /** 회사명 (CO_INFO.CO_NM) */
+    private String coNm;
 
-    /** 부서명 (DEPT_INFO.DEPT_NAME) */
-    private String deptName;
+    /** 부서명 (DEPT_INFO.DEPT_NM) */
+    private String deptNm;
 
-    /** 상위부서명 (DEPT_INFO.PARENT_DEPT_ID JOIN) */
-    private String parentDeptName;
+    /** 상위부서명 (DEPT_INFO.UP_DEPT_ID JOIN) */
+    private String upDeptNm;
 
-    /** 권한명 (AUTH_INFO.AUTH_NAME) */
-    private String authName;
+    /** 권한명 (AUTHRT_INFO.AUTHRT_NM) */
+    private String authrtNm;
 
     // ============================================================
     // 검색 조건용
     // ============================================================
 
-    /** 검색 타입 (userId / userName 등) */
+    /** 검색 타입 (userId / userNm 등) */
     private String searchType;
 
     /** 검색 값 */
@@ -89,47 +89,47 @@ public class UserVO extends DeptVO {
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 
-    public String getUserPw() { return userPw; }
-    public void setUserPw(String userPw) { this.userPw = userPw; }
+    public String getUserEnpswd() { return userEnpswd; }
+    public void setUserEnpswd(String userEnpswd) { this.userEnpswd = userEnpswd; }
 
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    public String getUserNm() { return userNm; }
+    public void setUserNm(String userNm) { this.userNm = userNm; }
 
-    public String getCompanyId() { return companyId; }
-    public void setCompanyId(String companyId) { this.companyId = companyId; }
+    public String getCoId() { return coId; }
+    public void setCoId(String coId) { this.coId = coId; }
 
     public String getDeptId() { return deptId; }
     public void setDeptId(String deptId) { this.deptId = deptId; }
 
-    public String getPosition() { return position; }
-    public void setPosition(String position) { this.position = position; }
+    public String getJbpsNm() { return jbpsNm; }
+    public void setJbpsNm(String jbpsNm) { this.jbpsNm = jbpsNm; }
 
-    public String getAuthId() { return authId; }
-    public void setAuthId(String authId) { this.authId = authId; }
+    public String getAuthrtId() { return authrtId; }
+    public void setAuthrtId(String authrtId) { this.authrtId = authrtId; }
 
-    public String getUserTel() { return userTel; }
-    public void setUserTel(String userTel) { this.userTel = userTel; }
+    public String getUserTelno() { return userTelno; }
+    public void setUserTelno(String userTelno) { this.userTelno = userTelno; }
 
-    public String getFlagUse() { return flagUse; }
-    public void setFlagUse(String flagUse) { this.flagUse = flagUse; }
+    public String getUseYn() { return useYn; }
+    public void setUseYn(String useYn) { this.useYn = useYn; }
 
-    public String getMemo() { return memo; }
-    public void setMemo(String memo) { this.memo = memo; }
+    public String getMemoCn() { return memoCn; }
+    public void setMemoCn(String memoCn) { this.memoCn = memoCn; }
 
     public String getRegDt() { return regDt; }
     public void setRegDt(String regDt) { this.regDt = regDt; }
 
-    public String getCompanyName() { return companyName; }
-    public void setCompanyName(String companyName) { this.companyName = companyName; }
+    public String getCoNm() { return coNm; }
+    public void setCoNm(String coNm) { this.coNm = coNm; }
 
-    public String getDeptName() { return deptName; }
-    public void setDeptName(String deptName) { this.deptName = deptName; }
+    public String getDeptNm() { return deptNm; }
+    public void setDeptNm(String deptNm) { this.deptNm = deptNm; }
 
-    public String getParentDeptName() { return parentDeptName; }
-    public void setParentDeptName(String parentDeptName) { this.parentDeptName = parentDeptName; }
+    public String getUpDeptNm() { return upDeptNm; }
+    public void setUpDeptNm(String upDeptNm) { this.upDeptNm = upDeptNm; }
 
-    public String getAuthName() { return authName; }
-    public void setAuthName(String authName) { this.authName = authName; }
+    public String getAuthrtNm() { return authrtNm; }
+    public void setAuthrtNm(String authrtNm) { this.authrtNm = authrtNm; }
 
     public String getSearchType() { return searchType; }
     public void setSearchType(String searchType) { this.searchType = searchType; }
@@ -145,9 +145,9 @@ public class UserVO extends DeptVO {
 
     @Override
     public String toString() {
-        return "UserVO [userId=" + userId + ", userName=" + userName
-                + ", companyId=" + companyId + ", deptId=" + deptId
-                + ", position=" + position + ", authId=" + authId
-                + ", flagUse=" + flagUse + "]";
+        return "UserVO [userId=" + userId + ", userNm=" + userNm
+                + ", coId=" + coId + ", deptId=" + deptId
+                + ", jbpsNm=" + jbpsNm + ", authrtId=" + authrtId
+                + ", useYn=" + useYn + "]";
     }
 }

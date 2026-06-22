@@ -12,6 +12,8 @@
         <typeAlias alias="companyVO"   type="kr.co.TRSolution.trsIbp.company.vo.CompanyVO"/>
         <!-- 근태관리 -->
         <typeAlias alias="attendVO" type="kr.co.TRSolution.trsIbp.attend.vo.AttendVO" />
+        <!-- 사업관리 -->
+        <typeAlias alias="bizVO" type="kr.co.TRSolution.trsIbp.biz.vo.BizVO" />
     </typeAliases>
 
     <!--

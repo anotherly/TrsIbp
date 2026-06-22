@@ -20,8 +20,8 @@ public interface CompanyService {
     void insertCompanyRequest(CompanyVO vo) throws Exception;
 
     // 2. 시스템 관리자 판단에 따른 반려 마감 처리
-    void rejectCompanyRequest(int reqSeq, String rejectReason) throws Exception;
+    void rejectCompanyRequest(int aplySn, String rjctRsn) throws Exception;
 
     // 3. [핵심] 최고 관리자 승인 - 3개 테이블 마스터 일괄 연쇄 이관 트랜잭션 보장
-    String approveCompanyRequest(int reqSeq) throws Exception;
+    String approveCompanyRequest(int aplySn) throws Exception;
 }

@@ -126,7 +126,7 @@ public class ExportView extends AbstractView {
 			OutputStream out = response.getOutputStream();
 			response.setContentType(super.getContentType());
 		    response.setHeader("Content-Transfer-Encoding", "binary");
-		    response.setHeader("Content-Disposition","attachment;fileName=\""+filename+"\";");
+		    response.setHeader("Content-DisjbpsNm","attachment;fileName=\""+filename+"\";");
 			wb.write(out);
 		}
 		catch(Exception ioe){
@@ -242,7 +242,7 @@ public class ExportView extends AbstractView {
 			OutputStream out = response.getOutputStream();
 			response.setContentType(super.getContentType());
 		    response.setHeader("Content-Transfer-Encoding", "binary");
-		    response.setHeader("Content-Disposition","attachment;fileName=\""+filename+"\";");
+		    response.setHeader("Content-DisjbpsNm","attachment;fileName=\""+filename+"\";");
 			wb.write(out);
 		}
 		catch(Exception ioe){

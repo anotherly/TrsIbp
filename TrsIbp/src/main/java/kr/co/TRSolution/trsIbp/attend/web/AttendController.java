@@ -23,7 +23,7 @@ import kr.co.TRSolution.trsIbp.user.vo.UserVO;
  *  POST /attend/checkIn.ajax   - 출근 처리
  *  POST /attend/checkOut.ajax  - 퇴근 처리
  *  GET  /attend/todayStatus.ajax - 오늘 출퇴근 현황 조회 (대시보드 로드 시)
- *  POST /attend/workLocation.ajax - 근무지 변경
+ *  POST /attend/powkNm.ajax - 근무지 변경
  *
  * 모든 API는 JSON 응답 (jsonView)
  * 세션에서 userId를 꺼내 처리하므로 프론트에서 userId 파라미터 불필요
@@ -41,7 +41,7 @@ public class AttendController {
 
     /**
      * 오늘 출퇴근 현황 조회 (대시보드 로드 시 호출)
-     * Response: { checkInTime, checkOutTime, workLocation, workMinutes }
+     * Response: { gtwkDt, lvwkDt, powkNm, workMinutes }
      */
     @RequestMapping(value = "/attend/todayStatus.ajax", method = RequestMethod.GET)
     @ResponseBody
@@ -61,15 +61,15 @@ public class AttendController {
 
             if (todayAttend != null) {
                 mav.addObject("result", "OK");
-                mav.addObject("checkInTime",  todayAttend.getCheckInTime());
-                mav.addObject("checkOutTime", todayAttend.getCheckOutTime());
-                mav.addObject("workLocation", todayAttend.getWorkLocation());
+                mav.addObject("gtwkDt",  todayAttend.getGtwkDt());
+                mav.addObject("lvwkDt", todayAttend.getLvwkDt());
+                mav.addObject("powkNm", todayAttend.getPowkNm());
                 mav.addObject("workMinutes",  todayAttend.getWorkMinutes());
             } else {
                 mav.addObject("result", "NO_RECORD");
-                mav.addObject("checkInTime",  "");
-                mav.addObject("checkOutTime", "");
-                mav.addObject("workLocation", "OFFICE");
+                mav.addObject("gtwkDt",  "");
+                mav.addObject("lvwkDt", "");
+                mav.addObject("powkNm", "OFFICE");
                 mav.addObject("workMinutes",  "0");
             }
         } catch (Exception e) {
@@ -82,8 +82,8 @@ public class AttendController {
 
     /**
      * 출근 처리
-     * Request: workLocation (OFFICE/HOME/OUTSIDE)
-     * Response: { result, checkInTime }
+     * Request: powkNm (OFFICE/HOME/OUTSIDE)
+     * Response: { result, gtwkDt }
      */
     @RequestMapping(value = "/attend/checkIn.ajax", method = RequestMethod.POST)
     @ResponseBody
@@ -103,15 +103,15 @@ public class AttendController {
 
             // 이미 출근 기록이 있는지 확인
             AttendVO existing = attendService.selectTodayAttend(attendVO);
-            if (existing != null && existing.getCheckInTime() != null && !existing.getCheckInTime().isEmpty()) {
+            if (existing != null && existing.getGtwkDt() != null && !existing.getGtwkDt().isEmpty()) {
                 mav.addObject("result", "ALREADY_CHECKED_IN");
-                mav.addObject("checkInTime", existing.getCheckInTime());
+                mav.addObject("gtwkDt", existing.getGtwkDt());
                 return mav;
             }
 
             // 근무지 기본값
-            if (attendVO.getWorkLocation() == null || attendVO.getWorkLocation().isEmpty()) {
-                attendVO.setWorkLocation("OFFICE");
+            if (attendVO.getPowkNm() == null || attendVO.getPowkNm().isEmpty()) {
+                attendVO.setPowkNm("OFFICE");
             }
 
             attendService.checkIn(attendVO);
@@ -119,8 +119,8 @@ public class AttendController {
             // 저장 후 다시 조회
             AttendVO saved = attendService.selectTodayAttend(attendVO);
             mav.addObject("result", "OK");
-            mav.addObject("checkInTime", saved != null ? saved.getCheckInTime() : "");
-            logger.debug("▶ 출근 처리 완료: userId={}, location={}", loginUser.getUserId(), attendVO.getWorkLocation());
+            mav.addObject("gtwkDt", saved != null ? saved.getGtwkDt() : "");
+            logger.debug("▶ 출근 처리 완료: userId={}, location={}", loginUser.getUserId(), attendVO.getPowkNm());
 
         } catch (Exception e) {
             logger.error("▶ checkIn 오류: {}", e.toString());
@@ -132,7 +132,7 @@ public class AttendController {
 
     /**
      * 퇴근 처리
-     * Response: { result, checkOutTime, workMinutes }
+     * Response: { result, lvwkDt, workMinutes }
      */
     @RequestMapping(value = "/attend/checkOut.ajax", method = RequestMethod.POST)
     @ResponseBody
@@ -150,13 +150,13 @@ public class AttendController {
 
             // 출근 기록 확인
             AttendVO existing = attendService.selectTodayAttend(param);
-            if (existing == null || existing.getCheckInTime() == null || existing.getCheckInTime().isEmpty()) {
+            if (existing == null || existing.getGtwkDt() == null || existing.getGtwkDt().isEmpty()) {
                 mav.addObject("result", "NO_CHECK_IN");
                 return mav;
             }
-            if (existing.getCheckOutTime() != null && !existing.getCheckOutTime().isEmpty()) {
+            if (existing.getLvwkDt() != null && !existing.getLvwkDt().isEmpty()) {
                 mav.addObject("result", "ALREADY_CHECKED_OUT");
-                mav.addObject("checkOutTime", existing.getCheckOutTime());
+                mav.addObject("lvwkDt", existing.getLvwkDt());
                 mav.addObject("workMinutes",  existing.getWorkMinutes());
                 return mav;
             }
@@ -166,7 +166,7 @@ public class AttendController {
             // 저장 후 다시 조회
             AttendVO saved = attendService.selectTodayAttend(param);
             mav.addObject("result",       "OK");
-            mav.addObject("checkOutTime", saved != null ? saved.getCheckOutTime() : "");
+            mav.addObject("lvwkDt", saved != null ? saved.getLvwkDt() : "");
             mav.addObject("workMinutes",  saved != null ? saved.getWorkMinutes()  : "0");
             logger.debug("▶ 퇴근 처리 완료: userId={}", loginUser.getUserId());
 
@@ -180,12 +180,12 @@ public class AttendController {
 
     /**
      * 근무지 변경 (출근 전/후 모두 허용)
-     * Request: workLocation (OFFICE/HOME/OUTSIDE)
-     * Response: { result, workLocation }
+     * Request: powkNm (OFFICE/HOME/OUTSIDE)
+     * Response: { result, powkNm }
      */
-    @RequestMapping(value = "/attend/workLocation.ajax", method = RequestMethod.POST)
+    @RequestMapping(value = "/attend/powkNm.ajax", method = RequestMethod.POST)
     @ResponseBody
-    public ModelAndView updateWorkLocation(
+    public ModelAndView updatePowkNm(
             @ModelAttribute AttendVO attendVO,
             HttpServletRequest request) {
 
@@ -197,13 +197,13 @@ public class AttendController {
                 return mav;
             }
             attendVO.setUserId(loginUser.getUserId());
-            attendService.updateWorkLocation(attendVO);
+            attendService.updatePowkNm(attendVO);
             mav.addObject("result", "OK");
-            mav.addObject("workLocation", attendVO.getWorkLocation());
-            logger.debug("▶ 근무지 변경: userId={}, location={}", loginUser.getUserId(), attendVO.getWorkLocation());
+            mav.addObject("powkNm", attendVO.getPowkNm());
+            logger.debug("▶ 근무지 변경: userId={}, location={}", loginUser.getUserId(), attendVO.getPowkNm());
 
         } catch (Exception e) {
-            logger.error("▶ updateWorkLocation 오류: {}", e.toString());
+            logger.error("▶ updatePowkNm 오류: {}", e.toString());
             mav.addObject("result", "ERROR");
         }
         return mav;

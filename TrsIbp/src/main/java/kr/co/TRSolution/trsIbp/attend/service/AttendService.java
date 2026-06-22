@@ -20,5 +20,5 @@ public interface AttendService {
     void checkOut(AttendVO attendVO);
 
     /** 근무지 변경 */
-    void updateWorkLocation(AttendVO attendVO);
+    void updatePowkNm(AttendVO attendVO);
 }

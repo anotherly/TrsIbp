@@ -17,77 +17,173 @@ let currentWorkLoc = 'OFFICE';    // 기본 근무지 코드 (OFFICE/HOME/OUTSID
 // JSP ContextPath 주입 확인 (미정의 시 기본값 빈 문자열 처리)
 var ctxPath = (typeof ctxPath !== 'undefined') ? ctxPath : '';
 
-
 /* ============================================================
-   1. 당일 근태 현황 초기 조회 (AJAX GET)
-   ============================================================ */
+1. 당일 근태 현황 초기 조회 (AJAX GET)
+- AttendController 응답값 기준:
+  result, gtwkDt, lvwkDt, powkNm, workMinutes
+============================================================ */
 function loadTodayAttendStatus() {
-    $.ajax({
-        url     : ctxPath + '/attend/todayStatus.ajax',
-        type    : 'GET',
-        dataType: 'json',
-        success : function(data) {
-            // 세션 만료 시 로그인 페이지로 리다이렉트
-            if (data.result === 'NO_SESSION') {
-                window.location.href = ctxPath + '/login/login.do';
-                return;
-            }
+ $.ajax({
+     url     : ctxPath + '/attend/todayStatus.ajax',
+     type    : 'GET',
+     dataType: 'json',
+     success : function(data) {
 
-            // 당일 자동 출근 기록이 존재하는 경우
-            if (data.result === 'OK') {
-                isWorking = true;
+         if (data.result === 'NO_SESSION') {
+             window.location.href = ctxPath + '/login/login.do';
+             return;
+         }
 
-                if (data.checkInTime && data.checkInTime !== '') {
-                    // 출근 인증 시각 표시
-                    $('#checkin-time-display').text('출근 인증 : ' + data.checkInTime);
-                    
-                    // 초기 버튼 활성화 상태 세팅 (출근 잠금, 퇴근/외근 활성화)
-                    $('#btn-checkout').prop('disabled', false)
-                        .removeClass('bg-slate-800 text-gray-500 border-brand-border cursor-not-allowed')
-                        .addClass('bg-gradient-to-r from-red-500 to-orange-500 hover:brightness-110 text-white shadow-lg shadow-red-500/10 cursor-pointer');
-                    
-                    $('#btn-outside').prop('disabled', false)
-                        .removeClass('bg-slate-800 text-gray-500 border-brand-border cursor-not-allowed')
-                        .addClass('bg-slate-900 text-gray-200 border-brand-border hover:text-white transition cursor-pointer');
+         if (data.result === 'ERROR') {
+             console.warn('▶ [DevSync] todayStatus 서버 오류:', data.msg);
+             stopTimer();
+             isWorking = false;
+             return;
+         }
 
-                    // 퇴근 마감까지 완료된 경우
-                    if (data.checkOutTime && data.checkOutTime !== '') {
-                        isWorking    = false;
-                        isCheckedOut = true;
-                        stopTimer();
-                        updateCheckOutUI(data.checkOutTime, data.workMinutes);
-                    } else {
-                        // 근무 중인 경우: 서버 출근 시각 기준으로 실시간 타이머 오차 보정 연산
-                        try {
-                            const parsedCheckIn = new Date(data.checkInTime.replace(/-/g, '/'));
-                            const now = new Date();
-                            const elapsedSec = Math.floor((now.getTime() - parsedCheckIn.getTime()) / 1000);
-                            
-                            if (elapsedSec > 0) {
-                                startTimer(elapsedSec);
-                            } else {
-                                startTimer(0);
-                            }
-                        } catch (e) {
-                            // 날짜 객체 파싱 예외 발생 시 백엔드 계산값(분) 백업 적용
-                            const elapsedSec = (parseInt(data.workMinutes) || 0) * 60;
-                            startTimer(elapsedSec);
-                        }
-                    }
-                }
+         if (data.result === 'NO_RECORD') {
+             isWorking    = false;
+             isCheckedOut = false;
+             totalSeconds = 0;
+             stopTimer();
+             updateTimerDisplay();
 
-                // 근무지 코드에 따른 UI 상태 동기화
-                if (data.workLocation) {
-                    setWorkLocationUI(data.workLocation);
-                }
-            }
-        },
-        error: function() {
-            console.warn('▶ [DevSync] 당일 근태 데이터 로드 실패 (통신 오류)');
-        }
-    });
+             $('#checkin-time-display').text('출근 인증 : -');
+             $('#checkout-time-display').text('');
+             setWorkLocationUI(data.powkNm || 'OFFICE');
+             return;
+         }
+
+         if (data.result !== 'OK') {
+             console.warn('▶ [DevSync] 알 수 없는 근태 응답:', data);
+             return;
+         }
+
+         /*
+          * 컨트롤러 응답명 기준으로 변수 정리
+          * - gtwkDt : 출근일시
+          * - lvwkDt : 퇴근일시
+          * - powkNm : 근무지명 또는 근무지코드
+          * - workMinutes : 근무분
+          */
+         const gtwkDt      = data.gtwkDt || '';
+         const lvwkDt      = data.lvwkDt || '';
+         const powkNm      = data.powkNm || 'OFFICE';
+         const workMinutes = parseInt(data.workMinutes || '0', 10);
+
+         if (!gtwkDt) {
+             isWorking    = false;
+             isCheckedOut = false;
+             totalSeconds = 0;
+             stopTimer();
+             updateTimerDisplay();
+
+             $('#checkin-time-display').text('출근 인증 : -');
+             $('#checkout-time-display').text('');
+             setWorkLocationUI(powkNm);
+             return;
+         }
+
+         /*
+          * 출근 기록 있음
+          */
+         isWorking = true;
+
+         $('#checkin-time-display').text('출근 인증 : ' + formatDateTimeToHm(gtwkDt));
+
+         $('#btn-checkout').prop('disabled', false)
+             .removeClass('bg-slate-800 text-gray-500 border-brand-border cursor-not-allowed')
+             .addClass('bg-gradient-to-r from-red-500 to-orange-500 hover:brightness-110 text-white shadow-lg shadow-red-500/10 cursor-pointer');
+
+         $('#btn-outside').prop('disabled', false)
+             .removeClass('bg-slate-800 text-gray-500 border-brand-border cursor-not-allowed')
+             .addClass('bg-slate-900 text-gray-200 border-brand-border hover:text-white transition cursor-pointer');
+
+         /*
+          * 퇴근 완료 상태
+          */
+         if (lvwkDt) {
+             isWorking    = false;
+             isCheckedOut = true;
+
+             stopTimer();
+             updateCheckOutUI(lvwkDt, workMinutes);
+             setWorkLocationUI(powkNm);
+             return;
+         }
+
+         /*
+          * 근무 중 상태
+          * 현재 DB/컨트롤러 구조에서는 workMinutes가 내려오므로
+          * 우선 workMinutes * 60초를 초기값으로 사용.
+          *
+          * 단, gtwkDt가 정상적인 datetime 문자열이면 출근시각 기준 보정도 가능.
+          */
+         isCheckedOut = false;
+
+         let initSeconds = 0;
+
+         if (!isNaN(workMinutes) && workMinutes > 0) {
+             initSeconds = workMinutes * 60;
+         } else {
+             initSeconds = calcElapsedSecondsFromDateTime(gtwkDt);
+         }
+
+         if (initSeconds < 0 || isNaN(initSeconds)) {
+             initSeconds = 0;
+         }
+
+         startTimer(initSeconds);
+         setWorkLocationUI(powkNm);
+     },
+     error: function(xhr) {
+         console.warn('▶ [DevSync] 당일 근태 데이터 로드 실패 (통신 오류)', xhr);
+     }
+ });
 }
 
+
+/**
+* yyyy-MM-dd HH:mm:ss 또는 yyyy-MM-ddTHH:mm:ss 형태를 HH:mm으로 표시
+*/
+function formatDateTimeToHm(dateTimeStr) {
+ if (!dateTimeStr) {
+     return '-';
+ }
+
+ /*
+  * 예:
+  * 2026-06-04 10:01:30 -> 10:01
+  * 2026-06-04T10:01:30 -> 10:01
+  */
+ if (dateTimeStr.length >= 16) {
+     return dateTimeStr.substring(11, 16);
+ }
+
+ return dateTimeStr;
+}
+
+
+/**
+* 출근일시 문자열 기준으로 현재까지 지난 초 계산
+*/
+function calcElapsedSecondsFromDateTime(dateTimeStr) {
+ if (!dateTimeStr) {
+     return 0;
+ }
+
+ try {
+     const normalized = dateTimeStr.replace(/-/g, '/').replace('T', ' ');
+     const start = new Date(normalized);
+     const now = new Date();
+
+     const elapsedSec = Math.floor((now.getTime() - start.getTime()) / 1000);
+     return elapsedSec > 0 ? elapsedSec : 0;
+ } catch (e) {
+     console.warn('▶ [DevSync] 출근일시 파싱 실패:', dateTimeStr, e);
+     return 0;
+ }
+}
 
 /* ============================================================
    2. 외근 / 출장 비동기 전환 처리 (AJAX POST)

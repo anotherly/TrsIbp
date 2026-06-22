@@ -92,8 +92,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                     // 당일 최초 로그인인 경우에만 출근 마스터 레코드 Insert
                     AttendVO checkInVO = new AttendVO();
                     checkInVO.setUserId(lvo.getUserId());
-                    checkInVO.setWorkLocation("OFFICE"); // 최초 로그인 시 기본 본사 근무 설정
-                    checkInVO.setWorkMemo("로그인 시 시스템 자동 출근 처리");
+                    checkInVO.setPowkNm("OFFICE"); // 최초 로그인 시 기본 본사 근무 설정
+                    checkInVO.setWorkRmrkCn("로그인 시 시스템 자동 출근 처리");
                     
                     attendService.checkIn(checkInVO);
                     logger.debug("▶ [자동출근] 당일 최초 로그인 식별 -> 자동 출근 등록 완료 (userId: {})", lvo.getUserId());

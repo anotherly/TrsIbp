@@ -99,9 +99,9 @@ public class UserController {
 			if(userVO.getSearchValue()!=null) {
 				uvo=userVO;
 			}
-			if(!(nlVo.getAuthId().equals("999"))) {//999 관리자 권한
+			if(!(nlVo.getAuthrtId().equals("999"))) {//999 관리자 권한
 				//관리자 권한이 아닐경우 관리자는 목록조회 안되도록
-				uvo.setAuthId("998");
+				uvo.setAuthrtId("998");
 			}
 			userList = userService.selectUserList(uvo);
 			mav.setViewName("/user/userList");
@@ -149,8 +149,8 @@ public class UserController {
 			String authUrl = request.getRequestURI().substring(request.getContextPath().length()).split(".do")[0];
 			//패스워드 암호화 처리
 			logger.debug("변환전 uservo: "+userVO.toString());
-			String hashedPw = BCrypt.hashpw(userVO.getUserPw(), BCrypt.gensalt());
-			userVO.setUserPw(hashedPw);
+			String hashedPw = BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt());
+			userVO.setUserEnpswd(hashedPw);
 			logger.debug("변환후 uservo: "+userVO.toString());
 			userService.insertUser(userVO);
 			cnt=1;
@@ -208,9 +208,9 @@ public class UserController {
 		
 		url = request.getRequestURI().substring(request.getContextPath().length()).split(".do")[0];
 		//비밀번호 암호화
-		if(!(userVO.getUserPw().equals(""))&&!(userVO.getUserPw()==null)) {
-			String hashedPw = BCrypt.hashpw(userVO.getUserPw(), BCrypt.gensalt());
-			userVO.setUserPw(hashedPw);
+		if(userVO.getUserEnpswd() != null && !"".equals(userVO.getUserEnpswd())) {
+			String hashedPw = BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt());
+			userVO.setUserEnpswd(hashedPw);
 		}
 		
 		ModelAndView mav = new ModelAndView("jsonView");

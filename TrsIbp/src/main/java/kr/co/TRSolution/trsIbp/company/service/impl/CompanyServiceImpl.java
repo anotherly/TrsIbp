@@ -34,13 +34,13 @@ public class CompanyServiceImpl extends EgovAbstractServiceImpl implements Compa
 
     @Override
     public String insertCompany(CompanyVO companyVO) throws Exception {
-        String companyId = "COMP_" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        companyVO.setCompanyId(companyId);
+        String coId = "COMP_" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        companyVO.setCoId(coId);
         companyMapper.insertCompany(companyVO);
-        if(companyVO.getAllowedIp() != null && !companyVO.getAllowedIp().isEmpty()) {
+        if(companyVO.getPrmIpAddr() != null && !companyVO.getPrmIpAddr().isEmpty()) {
             companyMapper.insertCompanyIp(companyVO);
         }
-        return companyId;
+        return coId;
     }
 
     @Override
@@ -76,10 +76,10 @@ public class CompanyServiceImpl extends EgovAbstractServiceImpl implements Compa
             // 디스크에 물리적 실제 파일 저장 실행
             file.transferTo(new File(savePath + encName));
             
-            // 데이터베이스(company_request)에 적재할 파일 경로 및 암호화 명세 VO에 세팅
-            vo.setOrgFileName(orgName);
-            vo.setEncFileName(encName);
-            vo.setFilePath(savePath);
+            // 데이터베이스(co_aply_info)에 적재할 파일 경로 및 암호화 명세 VO에 세팅
+            vo.setOrgnlFileNm(orgName);
+            vo.setEncptFileNm(encName);
+            vo.setFilePathNm(savePath);
             
             logger.debug("▶ [도입신청 파일 암호화 완료] 원본명: {}, 암호화 저장명: {}", orgName, encName);
         }
@@ -92,14 +92,14 @@ public class CompanyServiceImpl extends EgovAbstractServiceImpl implements Compa
      * 관리자 전용: 사유 기입형 서류 미비 반려 처리 
      */
     @Override
-    public void rejectCompanyRequest(int reqSeq, String rejectReason) throws Exception {
+    public void rejectCompanyRequest(int aplySn, String rjctRsn) throws Exception {
         CompanyVO vo = new CompanyVO();
-        vo.setReqSeq(reqSeq);
-        vo.setReqStatus("REJECT");
-        vo.setRejectReason(rejectReason);
+        vo.setAplySn(aplySn);
+        vo.setPrcsSttsCd("REJECT");
+        vo.setRjctRsn(rjctRsn);
         
         companyMapper.updateRequestStatus(vo);
-        logger.debug("▶ [도입신청 반려 가감] 신청번호: {}, 사유: {}", reqSeq, rejectReason);
+        logger.debug("▶ [도입신청 반려 가감] 신청번호: {}, 사유: {}", aplySn, rjctRsn);
     }
 
     /**
@@ -108,37 +108,37 @@ public class CompanyServiceImpl extends EgovAbstractServiceImpl implements Compa
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String approveCompanyRequest(int reqSeq) throws Exception {
+    public String approveCompanyRequest(int aplySn) throws Exception {
         
-        // 1. 임시 테이블(company_request) 신청 기록 단건 획득
-        CompanyVO requestData = companyMapper.selectCompanyRequestDetail(reqSeq);
+        // 1. 임시 테이블(co_aply_info) 신청 기록 단건 획득
+        CompanyVO requestData = companyMapper.selectCompanyRequestDetail(aplySn);
         if (requestData == null) {
             throw new IllegalArgumentException("올바르지 않은 도입 신청 내역 일련번호입니다.");
         }
         
         // 2. 회사 정식 영문 규격 코드 채번 가공 주입 (COMP_ + 난수6자)
-        String newCompanyId = "COMP_" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        requestData.setCompanyId(newCompanyId);
+        String newCoId = "COMP_" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        requestData.setCoId(newCoId);
         
-        // 3. [이관 단계 1] company_info 테이블 정식 안착 (HeidiSQL 정본 기준)
+        // 3. [이관 단계 1] co_info 테이블 정식 안착 (HeidiSQL 정본 기준)
         companyMapper.insertApprovedCompany(requestData);
         
-        // 4. [이관 단계 2] company_doc_manage 테이블 자동 이관 인서트
-        // xml 내부 <selectKey> 에 의해 구동 후 requestData 객체의 docSeq 프로퍼티에 자동 바인딩됩니다.
+        // 4. [이관 단계 2] co_data_mng 테이블 자동 이관 인서트
+        // xml 내부 <selectKey> 에 의해 구동 후 requestData 객체의 dataSn 프로퍼티에 자동 바인딩됩니다.
         companyMapper.insertCompanyDocAuto(requestData);
         
-        // 5. [이관 단계 3] comp_doc_file 자식 테이블에 물리 증빙 링크 최종 적재
-        if (requestData.getEncFileName() != null && !requestData.getEncFileName().isEmpty()) {
+        // 5. [이관 단계 3] co_data_file 자식 테이블에 물리 증빙 링크 최종 적재
+        if (requestData.getEncptFileNm() != null && !requestData.getEncptFileNm().isEmpty()) {
             companyMapper.insertCompDocFileAuto(requestData);
         }
         
         // 6. 원본 도입 신청서 상태를 최종 승인('APPR') 완료로 갱신
         CompanyVO statusVO = new CompanyVO();
-        statusVO.setReqSeq(reqSeq);
-        statusVO.setReqStatus("APPR");
+        statusVO.setAplySn(aplySn);
+        statusVO.setPrcsSttsCd("APPR");
         companyMapper.updateRequestStatus(statusVO);
         
-        logger.debug("▶ [통합 서비스 이관 마감] 정식 개설 회사 ID: {}", newCompanyId);
-        return newCompanyId;
+        logger.debug("▶ [통합 서비스 이관 마감] 정식 개설 회사 ID: {}", newCoId);
+        return newCoId;
     }
 }

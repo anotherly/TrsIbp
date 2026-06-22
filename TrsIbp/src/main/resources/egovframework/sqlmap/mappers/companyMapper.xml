@@ -4,80 +4,80 @@
 <mapper namespace="kr.co.TRSolution.trsIbp.company.mapper.CompanyMapper">
 
     <resultMap type="companyVO" id="companyResultMap">
-        <result property="companyId"          column="COMPANY_ID"          />
-        <result property="companyName"        column="COMPANY_NAME"        />
-        <result property="companyTel"         column="COMPANY_TEL"         />
-        <result property="companyAddr"        column="COMPANY_ADDR"        />
-        <result property="flagUse"            column="FLAG_USE"            />
+        <result property="coId"          column="CO_ID"          />
+        <result property="coNm"        column="CO_NM"        />
+        <result property="coTelno"         column="CO_TELNO"         />
+        <result property="coAddr"        column="CO_ADDR"        />
+        <result property="useYn"            column="USE_YN"            />
         <result property="regDt"              column="REG_DT"              />
         
-        <result property="allowedIp"          column="ALLOWED_IP"          />
-        <result property="ipDesc"             column="IP_DESC"             />
+        <result property="prmIpAddr"          column="PRM_IP_ADDR"          />
+        <result property="ipExpln"             column="IP_EXPLN"             />
         <result property="searchKeyword"      column="SEARCH_KEYWORD"      />
         
-        <result property="reqSeq"             column="REQ_SEQ"             />
-        <result property="companyNameReq"     column="COMPANY_NAME_REQ"    />
-        <result property="bizNo"              column="BIZ_NO"              />
-        <result property="contactName"        column="CONTACT_NAME"        /> 
-        <result property="representativeName" column="REPRESENTATIVE_NAME" />
-        <result property="contactTel"         column="CONTACT_TEL"         />
-        <result property="contactEmail"       column="CONTACT_EMAIL"       />
-        <result property="reqStatus"          column="REQ_STATUS"          />
-        <result property="rejectReason"       column="REJECT_REASON"       />
+        <result property="aplySn"             column="APLY_SN"             />
+        <result property="coNmReq"     column="CO_NM_REQ"    />
+        <result property="brno"              column="BRNO"              />
+        <result property="aplcntNm"        column="APLCNT_NM"        /> 
+        <result property="rprsvNm" column="RPRSV_NM" />
+        <result property="picTelno"         column="PIC_TELNO"         />
+        <result property="picEmlAddr"       column="PIC_EML_ADDR"       />
+        <result property="prcsSttsCd"          column="PRCS_STTS_CD"          />
+        <result property="rjctRsn"       column="RJCT_RSN"       />
         
-        <result property="orgFileName"        column="ORG_FILE_NAME"       />
-        <result property="encFileName"        column="ENC_FILE_NAME"       />
-        <result property="filePath"           column="FILE_PATH"           />
-        <result property="docSeq"             column="DOC_SEQ"             />
+        <result property="orgnlFileNm"        column="ORGNL_FILE_NM"       />
+        <result property="encptFileNm"        column="ENCPT_FILE_NM"       />
+        <result property="filePathNm"           column="FILE_PATH_NM"           />
+        <result property="dataSn"             column="DATA_SN"             />
     </resultMap>
 
   <!-- SELECT: 전체 목록 -->
 	<select id="selectCompanyList" parameterType="companyVO" resultMap="companyResultMap">
         SELECT 
-             COMPANY_ID
-            ,COMPANY_NAME
-            ,COMPANY_TEL
-            ,COMPANY_ADDR
-            ,FLAG_USE
+             CO_ID
+            ,CO_NM
+            ,CO_TELNO
+            ,CO_ADDR
+            ,USE_YN
             ,REG_DT
-        FROM company_info 
+        FROM co_info 
         WHERE 1=1
-          AND FLAG_USE = 'Y' <if test="companyId != null and companyId != ''">
-          AND COMPANY_ID = #{companyId}
+          AND USE_YN = 'Y' <if test="coId != null and coId != ''">
+          AND CO_ID = #{coId}
         </if>
         
         <if test="searchValue != null and searchValue != ''">
           AND (
-               COMPANY_ID   LIKE CONCAT('%', #{searchValue}, '%')
-            OR COMPANY_NAME LIKE CONCAT('%', #{searchValue}, '%')
+               CO_ID   LIKE CONCAT('%', #{searchValue}, '%')
+            OR CO_NM LIKE CONCAT('%', #{searchValue}, '%')
           )
         </if>
         ORDER BY REG_DT DESC 
     </select>	
     
     <insert id="insertCompanyRequest" parameterType="companyVO">
-        INSERT INTO company_request (
-             COMPANY_NAME
-            ,BIZ_NO
-            ,CONTACT_NAME          
-            ,REPRESENTATIVE_NAME
-            ,CONTACT_TEL
-            ,CONTACT_EMAIL
-            ,ORG_FILE_NAME
-            ,ENC_FILE_NAME
-            ,FILE_PATH
-            ,REQ_STATUS
-            ,REG_DATE
+        INSERT INTO co_aply_info (
+             CO_NM
+            ,BRNO
+            ,APLCNT_NM          
+            ,RPRSV_NM
+            ,PIC_TELNO
+            ,PIC_EML_ADDR
+            ,ORGNL_FILE_NM
+            ,ENCPT_FILE_NM
+            ,FILE_PATH_NM
+            ,PRCS_STTS_CD
+            ,REG_DT
         ) VALUES (
-             #{companyName}
-            ,#{bizNo}
-            ,#{contactName}        
-            ,#{representativeName}
-            ,#{contactTel}
-            ,#{contactEmail}
-            ,#{orgFileName}
-            ,#{encFileName}
-            ,#{filePath}
+             #{coNm}
+            ,#{brno}
+            ,#{aplcntNm}        
+            ,#{rprsvNm}
+            ,#{picTelno}
+            ,#{picEmlAddr}
+            ,#{orgnlFileNm}
+            ,#{encptFileNm}
+            ,#{filePathNm}
             ,'WAIT'
             ,NOW()
         )
@@ -85,65 +85,65 @@
 
     <select id="selectCompanyRequestDetail" parameterType="int" resultMap="companyResultMap">
         SELECT
-             REQ_SEQ
-            ,COMPANY_NAME
-            ,BIZ_NO
-            ,CONTACT_NAME          
-            ,REPRESENTATIVE_NAME
-            ,CONTACT_TEL
-            ,CONTACT_EMAIL
-            ,ORG_FILE_NAME
-            ,ENC_FILE_NAME
-            ,FILE_PATH
-            ,REQ_STATUS
-            ,REJECT_REASON
-        FROM company_request
-        WHERE REQ_SEQ = #{reqSeq}
+             APLY_SN
+            ,CO_NM
+            ,BRNO
+            ,APLCNT_NM          
+            ,RPRSV_NM
+            ,PIC_TELNO
+            ,PIC_EML_ADDR
+            ,ORGNL_FILE_NM
+            ,ENCPT_FILE_NM
+            ,FILE_PATH_NM
+            ,PRCS_STTS_CD
+            ,RJCT_RSN
+        FROM co_aply_info
+        WHERE APLY_SN = #{aplySn}
     </select>
 
     <update id="updateRequestStatus" parameterType="companyVO">
-        UPDATE company_request
+        UPDATE co_aply_info
         SET 
-             REQ_STATUS = #{reqStatus}
-            <if test="rejectReason != null and rejectReason != ''">
-            ,REJECT_REASON = #{rejectReason}
+             PRCS_STTS_CD = #{prcsSttsCd}
+            <if test="rjctRsn != null and rjctRsn != ''">
+            ,RJCT_RSN = #{rjctRsn}
             </if>
-        WHERE REQ_SEQ = #{reqSeq}
+        WHERE APLY_SN = #{aplySn}
     </update>
 
     <insert id="insertApprovedCompany" parameterType="companyVO">
-        INSERT INTO company_info (
-             COMPANY_ID
-            ,COMPANY_NAME
-            ,COMPANY_TEL          ,COMPANY_ADDR
-            ,FLAG_USE
+        INSERT INTO co_info (
+             CO_ID
+            ,CO_NM
+            ,CO_TELNO          ,CO_ADDR
+            ,USE_YN
             ,REG_DT
         ) VALUES (
-             #{companyId}
-            ,#{companyName}
-            ,#{contactTel}        ,NULL
+             #{coId}
+            ,#{coNm}
+            ,#{picTelno}        ,NULL
             ,'Y'
             ,NOW()
         )
     </insert>
 
     <insert id="insertCompanyDocAuto" parameterType="companyVO">
-        <selectKey keyProperty="docSeq" resultType="int" order="AFTER">
+        <selectKey keyProperty="dataSn" resultType="int" order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
-        INSERT INTO company_doc_manage (
-             COMPANY_ID
-            ,DOC_TYPE
-            ,DOC_NAME
-            ,MANAGER_ID
-            ,EXPIRY_DATE
-            ,ALARM_YN
-            ,REG_USER_ID
-            ,REG_DATE
+        INSERT INTO co_data_mng (
+             CO_ID
+            ,DATA_SE_CD
+            ,DATA_NM
+            ,MNG_PIC_ID
+            ,EXPRY_YMD
+            ,ALRM_SNDNG_YN
+            ,RGTR_ID
+            ,REG_DT
         ) VALUES (
-             #{companyId}
+             #{coId}
             ,'BIZ'
-            ,CONCAT(#{companyName}, '_사업자등록증')
+            ,CONCAT(#{coNm}, '_사업자등록증')
             ,'ADMIN'
             ,NULL
             ,'N'
@@ -153,23 +153,74 @@
     </insert>
 
     <insert id="insertCompDocFileAuto" parameterType="companyVO">
-        INSERT INTO comp_doc_file (
-             DOC_SEQ
-            ,ORG_FILE_NAME
-            ,ENC_FILE_NAME
-            ,FILE_PATH
-            ,FILE_SIZE
-            ,FILE_EXT
-            ,REG_DATE
+        INSERT INTO co_data_file (
+             DATA_SN
+            ,ORGNL_FILE_NM
+            ,ENCPT_FILE_NM
+            ,FILE_PATH_NM
+            ,FILE_SZ
+            ,FILE_EXTN_NM
+            ,REG_DT
         ) VALUES (
-             #{docSeq}
-            ,#{orgFileName}
-            ,#{encFileName}
-            ,#{filePath}
+             #{dataSn}
+            ,#{orgnlFileNm}
+            ,#{encptFileNm}
+            ,#{filePathNm}
             ,0
             ,'PDF'
             ,NOW()
         )
     </insert>
+
+
+    <insert id="insertCompany" parameterType="companyVO">
+        INSERT INTO co_info (
+             CO_ID
+            ,CO_NM
+            ,CO_TELNO
+            ,CO_ADDR
+            ,USE_YN
+            ,REG_DT
+        ) VALUES (
+             #{coId}
+            ,#{coNm}
+            ,#{coTelno}
+            ,#{coAddr}
+            ,'Y'
+            ,NOW()
+        )
+    </insert>
+
+    <insert id="insertCompanyIp" parameterType="companyVO">
+        INSERT INTO co_ip_info (
+             CO_ID
+            ,PRM_IP_ADDR
+            ,IP_EXPLN
+            ,REG_DT
+        ) VALUES (
+             #{coId}
+            ,#{prmIpAddr}
+            ,#{ipExpln}
+            ,NOW()
+        )
+    </insert>
+
+    <select id="selectCompany" parameterType="companyVO" resultMap="companyResultMap">
+        SELECT
+             C.CO_ID
+            ,C.CO_NM
+            ,C.CO_TELNO
+            ,C.CO_ADDR
+            ,C.USE_YN
+            ,C.REG_DT
+            ,I.PRM_IP_ADDR
+            ,I.IP_EXPLN
+        FROM co_info C
+        LEFT JOIN co_ip_info I
+            ON C.CO_ID = I.CO_ID
+        WHERE C.CO_ID = #{coId}
+          AND C.USE_YN = 'Y'
+        LIMIT 1
+    </select>
 
 </mapper>
