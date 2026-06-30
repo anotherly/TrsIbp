@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.TRSolution.trsIbp.biz.mapper.BizMapper">
+
+    <resultMap id="bizResultMap" type="bizVO">
+        <id     property="bizId"            column="BIZ_ID"/>
+        <result property="coId"             column="CO_ID"/>
+        <result property="bizCd"            column="BIZ_CD"/>
+        <result property="bizNm"            column="BIZ_NM"/>
+        <result property="instSeCd"         column="INST_SE_CD"/>
+        <result property="bizKndCd"         column="BIZ_KND_CD"/>
+        <result property="bizSeCd"          column="BIZ_SE_CD"/>
+        <result property="ordplNm"          column="ORDPL_NM"/>
+        <result property="ctrtYmd"          column="CTRT_YMD"/>
+        <result property="otstYmd"          column="OTST_YMD"/>
+        <result property="bizBgngYmd"       column="BIZ_BGNG_YMD"/>
+        <result property="bizEndYmd"        column="BIZ_END_YMD"/>
+        <result property="ctrtAmt"          column="CTRT_AMT"/>
+        <result property="giveMthdCn"       column="GIVE_MTHD_CN"/>
+        <result property="giveDdtYmd"       column="GIVE_DDT_YMD"/>
+        <result property="dfrpGrnteBgngYmd" column="DFRP_GRNTE_BGNG_YMD"/>
+        <result property="dfrpGrnteEndYmd"  column="DFRP_GRNTE_END_YMD"/>
+        <result property="rmrkCn"           column="RMRK_CN"/>
+        <result property="bizSttsCd"        column="BIZ_STTS_CD"/>
+        <result property="regDt"            column="REG_DT"/>
+        <result property="bizSttsNm"        column="BIZ_STTS_NM"/>
+        <result property="instSeNm"         column="INST_SE_NM"/>
+        <result property="bizKndNm"         column="BIZ_KND_NM"/>
+        <result property="bizSeNm"          column="BIZ_SE_NM"/>
+        <result property="bizSchdlSn"       column="TASK_SN"/>
+        <result property="schdlNm"          column="TASK_NM"/>
+        <result property="schdlSeCd"        column="STP_CD"/>
+        <result property="picId"            column="PIC_ID"/>
+    </resultMap>
+
+    <sql id="bizCodeNameColumns">
+             ,IFNULL(STTS_CD.CD_NM, B.BIZ_STTS_CD) AS BIZ_STTS_NM
+            ,IFNULL(INST_CD.CD_NM, B.INST_SE_CD) AS INST_SE_NM
+            ,IFNULL(KND_CD.CD_NM, B.BIZ_KND_CD) AS BIZ_KND_NM
+            ,IFNULL(SE_CD.CD_NM, B.BIZ_SE_CD) AS BIZ_SE_NM
+    </sql>
+
+    <sql id="bizCodeJoins">
+        LEFT JOIN cmn_cd STTS_CD
+            ON STTS_CD.CD_GROUP_ID = 'BIZ_STTS_CD'
+           AND STTS_CD.CD = B.BIZ_STTS_CD
+           AND STTS_CD.USE_YN = 'Y'
+        LEFT JOIN cmn_cd INST_CD
+            ON INST_CD.CD_GROUP_ID = 'INST_SE_CD'
+           AND INST_CD.CD = B.INST_SE_CD
+           AND INST_CD.USE_YN = 'Y'
+        LEFT JOIN cmn_cd KND_CD
+            ON KND_CD.CD_GROUP_ID = 'BIZ_KND_CD'
+           AND KND_CD.CD = B.BIZ_KND_CD
+           AND KND_CD.USE_YN = 'Y'
+        LEFT JOIN cmn_cd SE_CD
+            ON SE_CD.CD_GROUP_ID = 'BIZ_SE_CD'
+           AND SE_CD.CD = B.BIZ_SE_CD
+           AND SE_CD.USE_YN = 'Y'
+    </sql>
+
+    <sql id="bizSearchWhere">
+        WHERE 1 = 1
+        <if test="coId != null and coId != ''">
+            AND B.CO_ID = #{coId}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND (
+                B.BIZ_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+                OR B.BIZ_CD LIKE CONCAT('%', #{searchKeyword}, '%')
+                OR B.ORDPL_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+            )
+        </if>
+        <if test="searchBizSttsCd != null and searchBizSttsCd != ''">
+            AND B.BIZ_STTS_CD = #{searchBizSttsCd}
+        </if>
+        <if test="searchInstSeCd != null and searchInstSeCd != ''">
+            AND B.INST_SE_CD = #{searchInstSeCd}
+        </if>
+        <if test="searchBizKndCd != null and searchBizKndCd != ''">
+            AND B.BIZ_KND_CD = #{searchBizKndCd}
+        </if>
+        <if test="searchBizSeCd != null and searchBizSeCd != ''">
+            AND B.BIZ_SE_CD = #{searchBizSeCd}
+        </if>
+        <if test="startYmd != null and startYmd != ''">
+            AND B.OTST_YMD <![CDATA[>=]]> #{startYmd}
+        </if>
+        <if test="endYmd != null and endYmd != ''">
+            AND B.BIZ_END_YMD <![CDATA[<=]]> #{endYmd}
+        </if>
+    </sql>
+
+    <select id="selectBizList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT
+             B.BIZ_ID
+            ,B.CO_ID
+            ,B.BIZ_CD
+            ,B.BIZ_NM
+            ,B.INST_SE_CD
+            ,B.BIZ_KND_CD
+            ,B.BIZ_SE_CD
+            ,B.ORDPL_NM
+            ,DATE_FORMAT(B.CTRT_YMD, '%Y-%m-%d') AS CTRT_YMD
+            ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
+            ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS BIZ_BGNG_YMD
+            ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
+            ,B.CTRT_AMT
+            ,B.GIVE_MTHD_CN
+            ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
+            ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
+            ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
+            ,B.RMRK_CN
+            ,B.BIZ_STTS_CD
+            ,DATE_FORMAT(B.REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+            <include refid="bizCodeNameColumns"/>
+        FROM biz_info B
+        <include refid="bizCodeJoins"/>
+        <include refid="bizSearchWhere"/>
+        ORDER BY B.REG_DT DESC, B.BIZ_ID DESC
+        <if test="recordCountPerPage != null and recordCountPerPage != 0">
+            LIMIT #{firstIndex}, #{recordCountPerPage}
+        </if>
+    </select>
+
+    <select id="selectBizListCnt" parameterType="bizVO" resultType="int">
+        SELECT COUNT(1)
+        FROM biz_info B
+        <include refid="bizSearchWhere"/>
+    </select>
+
+    <select id="selectBizDetail" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT
+             B.BIZ_ID
+            ,B.CO_ID
+            ,B.BIZ_CD
+            ,B.BIZ_NM
+            ,B.INST_SE_CD
+            ,B.BIZ_KND_CD
+            ,B.BIZ_SE_CD
+            ,B.ORDPL_NM
+            ,DATE_FORMAT(B.CTRT_YMD, '%Y-%m-%d') AS CTRT_YMD
+            ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
+            ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS BIZ_BGNG_YMD
+            ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
+            ,B.CTRT_AMT
+            ,B.GIVE_MTHD_CN
+            ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
+            ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
+            ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
+            ,B.RMRK_CN
+            ,B.BIZ_STTS_CD
+            ,DATE_FORMAT(B.REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+            <include refid="bizCodeNameColumns"/>
+        FROM biz_info B
+        <include refid="bizCodeJoins"/>
+        WHERE B.BIZ_ID = #{bizId}
+    </select>
+
+    <insert id="insertBiz" parameterType="bizVO">
+        INSERT INTO biz_info (
+             BIZ_ID, CO_ID, BIZ_CD, BIZ_NM, INST_SE_CD, BIZ_KND_CD, BIZ_SE_CD, ORDPL_NM
+            ,CTRT_YMD, OTST_YMD, BIZ_END_YMD, CTRT_AMT, GIVE_MTHD_CN, GIVE_DDT_YMD
+            ,DFRP_GRNTE_BGNG_YMD, DFRP_GRNTE_END_YMD, RMRK_CN, BIZ_STTS_CD, REG_DT
+        ) VALUES (
+             #{bizId}, #{coId}, #{bizCd}, #{bizNm}, #{instSeCd}, #{bizKndCd}, #{bizSeCd}, #{ordplNm}
+            ,NULLIF(#{ctrtYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{bizEndYmd}, ''), #{ctrtAmt}, #{giveMthdCn}, NULLIF(#{giveDdtYmd}, '')
+            ,NULLIF(#{dfrpGrnteBgngYmd}, ''), NULLIF(#{dfrpGrnteEndYmd}, ''), #{rmrkCn}
+            ,COALESCE(NULLIF(#{bizSttsCd}, ''), (
+                SELECT C.CD
+                FROM cmn_cd C
+                WHERE C.CD_GROUP_ID = 'BIZ_STTS_CD'
+                  AND C.USE_YN = 'Y'
+                  AND C.DFLT_YN = 'Y'
+                ORDER BY C.SORT_SEQ ASC, C.CD ASC
+                LIMIT 1
+            )), NOW()
+        )
+    </insert>
+
+    <update id="updateBiz" parameterType="bizVO">
+        UPDATE biz_info
+        SET
+             BIZ_CD = #{bizCd}
+            ,BIZ_NM = #{bizNm}
+            ,INST_SE_CD = #{instSeCd}
+            ,BIZ_KND_CD = #{bizKndCd}
+            ,BIZ_SE_CD = #{bizSeCd}
+            ,ORDPL_NM = #{ordplNm}
+            ,CTRT_YMD = NULLIF(#{ctrtYmd}, '')
+            ,OTST_YMD = NULLIF(#{otstYmd}, '')
+            ,BIZ_END_YMD = NULLIF(#{bizEndYmd}, '')
+            ,CTRT_AMT = #{ctrtAmt}
+            ,GIVE_MTHD_CN = #{giveMthdCn}
+            ,GIVE_DDT_YMD = NULLIF(#{giveDdtYmd}, '')
+            ,DFRP_GRNTE_BGNG_YMD = NULLIF(#{dfrpGrnteBgngYmd}, '')
+            ,DFRP_GRNTE_END_YMD = NULLIF(#{dfrpGrnteEndYmd}, '')
+            ,RMRK_CN = #{rmrkCn}
+            ,BIZ_STTS_CD = #{bizSttsCd}
+        WHERE BIZ_ID = #{bizId}
+    </update>
+
+    <delete id="deleteBiz" parameterType="bizVO">
+        DELETE FROM biz_info
+        WHERE BIZ_ID = #{bizId}
+    </delete>
+
+    <select id="selectBizSchdlList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT
+             T.TASK_SN
+            ,T.BIZ_ID
+            ,T.STP_CD
+            ,T.TASK_NM
+            ,T.PIC_ID
+            ,T.OUTPUT_FILE_NM
+            ,T.OUTPUT_FILE_NM AS RMRK_CN
+            ,T.OUTPUT_FILE_PATH_NM
+            ,DATE_FORMAT(T.REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+        FROM biz_stp_task T
+        WHERE T.BIZ_ID = #{bizId}
+        ORDER BY T.TASK_SN ASC
+    </select>
+
+    <select id="selectBizProfitSummary" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT
+             B.BIZ_ID
+            ,B.CO_ID
+            ,B.BIZ_CD
+            ,B.BIZ_NM
+            ,B.INST_SE_CD
+            ,B.BIZ_KND_CD
+            ,B.BIZ_SE_CD
+            ,B.ORDPL_NM
+            ,DATE_FORMAT(B.CTRT_YMD, '%Y-%m-%d') AS CTRT_YMD
+            ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
+            ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS BIZ_BGNG_YMD
+            ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
+            ,B.CTRT_AMT
+            ,B.GIVE_MTHD_CN
+            ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
+            ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
+            ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
+            ,B.RMRK_CN
+            ,B.BIZ_STTS_CD
+            <include refid="bizCodeNameColumns"/>
+        FROM biz_info B
+        <include refid="bizCodeJoins"/>
+        WHERE B.BIZ_ID = #{bizId}
+    </select>
+
+    <select id="selectCustList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT NULL AS BIZ_ID WHERE 1 = 0
+    </select>
+    <select id="selectCustDetail" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT NULL AS BIZ_ID WHERE 1 = 0
+    </select>
+    <insert id="insertCust" parameterType="bizVO">SELECT 0</insert>
+    <update id="updateCust" parameterType="bizVO">SELECT 0</update>
+    <update id="deleteCust" parameterType="bizVO">SELECT 0</update>
+
+    <select id="selectBizCustRelList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT NULL AS BIZ_ID WHERE 1 = 0
+    </select>
+    <insert id="insertBizCustRel" parameterType="bizVO">SELECT 0</insert>
+    <update id="updateBizCustRel" parameterType="bizVO">SELECT 0</update>
+    <update id="deleteBizCustRel" parameterType="bizVO">SELECT 0</update>
+
+    <select id="selectBizMnpwList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT NULL AS BIZ_ID WHERE 1 = 0
+    </select>
+    <insert id="insertBizMnpw" parameterType="bizVO">SELECT 0</insert>
+    <update id="updateBizMnpw" parameterType="bizVO">SELECT 0</update>
+    <update id="deleteBizMnpw" parameterType="bizVO">SELECT 0</update>
+
+    <select id="selectBizCstList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT NULL AS BIZ_ID WHERE 1 = 0
+    </select>
+    <insert id="insertBizCst" parameterType="bizVO">SELECT 0</insert>
+    <update id="updateBizCst" parameterType="bizVO">SELECT 0</update>
+    <update id="deleteBizCst" parameterType="bizVO">SELECT 0</update>
+
+    <insert id="insertBizSchdl" parameterType="bizVO">SELECT 0</insert>
+    <update id="updateBizSchdl" parameterType="bizVO">SELECT 0</update>
+    <update id="deleteBizSchdl" parameterType="bizVO">SELECT 0</update>
+
+</mapper>

@@ -30,7 +30,7 @@ public class AttendVO extends BaseVO {
     /** 퇴근시간 (YYYY-MM-DD HH:mm:ss) */
     private String lvwkDt;
 
-    /** 근무지 (OFFICE/HOME/OUTSIDE) */
+    /** 근무장소구분코드. 기존 화면 호환을 위해 필드명은 powkNm 유지 */
     private String powkNm;
 
     /** 비고 */

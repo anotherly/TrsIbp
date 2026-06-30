@@ -30,7 +30,7 @@
 
 html { scroll-behavior: smooth; scroll-padding-top: var(--header-h); }
 
-body {
+body:not(.ds-body) {
   font-family: 'Noto Sans KR', 'Inter', sans-serif;
   color: var(--text-primary);
   background: var(--bg-white);

@@ -18,6 +18,11 @@ public interface AttendMapper {
     AttendVO selectTodayAttend(AttendVO attendVO);
 
     /**
+     * 공통코드 기준 기본 근무장소구분코드를 조회한다.
+     */
+    String selectDefaultPowkSeCd();
+
+    /**
      * 출근 기록 INSERT
      */
     void insertCheckIn(AttendVO attendVO);

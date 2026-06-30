@@ -26,6 +26,11 @@ public class AttendServiceImpl implements AttendService {
     }
 
     @Override
+    public String selectDefaultPowkSeCd() {
+        return attendMapper.selectDefaultPowkSeCd();
+    }
+
+    @Override
     public void checkIn(AttendVO attendVO) {
         attendMapper.insertCheckIn(attendVO);
     }

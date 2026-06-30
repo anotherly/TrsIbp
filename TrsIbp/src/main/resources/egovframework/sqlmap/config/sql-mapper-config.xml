@@ -14,6 +14,8 @@
         <typeAlias alias="attendVO" type="kr.co.TRSolution.trsIbp.attend.vo.AttendVO" />
         <!-- 사업관리 -->
         <typeAlias alias="bizVO" type="kr.co.TRSolution.trsIbp.biz.vo.BizVO" />
+        <!-- 공통코드 -->
+        <typeAlias alias="commCdVO" type="kr.co.TRSolution.trsIbp.comm.vo.CommCdVO" />
     </typeAliases>
 
     <!--

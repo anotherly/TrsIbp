@@ -69,7 +69,7 @@ public class AttendController {
                 mav.addObject("result", "NO_RECORD");
                 mav.addObject("gtwkDt",  "");
                 mav.addObject("lvwkDt", "");
-                mav.addObject("powkNm", "OFFICE");
+                mav.addObject("powkNm", attendService.selectDefaultPowkSeCd());
                 mav.addObject("workMinutes",  "0");
             }
         } catch (Exception e) {
@@ -82,7 +82,7 @@ public class AttendController {
 
     /**
      * 출근 처리
-     * Request: powkNm (OFFICE/HOME/OUTSIDE)
+     * Request: powkNm (POWK_SE_CD 공통코드)
      * Response: { result, gtwkDt }
      */
     @RequestMapping(value = "/attend/checkIn.ajax", method = RequestMethod.POST)
@@ -109,9 +109,9 @@ public class AttendController {
                 return mav;
             }
 
-            // 근무지 기본값
+            // 근무장소구분 기본값
             if (attendVO.getPowkNm() == null || attendVO.getPowkNm().isEmpty()) {
-                attendVO.setPowkNm("OFFICE");
+                attendVO.setPowkNm(attendService.selectDefaultPowkSeCd());
             }
 
             attendService.checkIn(attendVO);
@@ -180,7 +180,7 @@ public class AttendController {
 
     /**
      * 근무지 변경 (출근 전/후 모두 허용)
-     * Request: powkNm (OFFICE/HOME/OUTSIDE)
+     * Request: powkNm (POWK_SE_CD 공통코드)
      * Response: { result, powkNm }
      */
     @RequestMapping(value = "/attend/powkNm.ajax", method = RequestMethod.POST)

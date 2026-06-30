@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 전사 공통 Base VO
  * - 검색, 기간검색, 페이징, 목록 정렬 등 화면 공통 파라미터 전용
- * - 업무 테이블의 정렬순서(SORT_SEQ)는 하위 VO에서 의미가 드러나는 별도 필드명으로 선언
+ * - 업무 테이블의 정렬순서(SORT_SEQ)는 공통 sortSeq 필드로 사용
  */
 public class BaseVO implements Serializable {
 
@@ -67,6 +67,9 @@ public class BaseVO implements Serializable {
 
     /** 동적 정렬 방향: ASC / DESC */
     private String sortOrder = "DESC";
+
+    /** 업무 데이터 정렬순서 */
+    private Integer sortSeq;
 
     // ===================================================
     // Getter & Setter
@@ -213,22 +216,12 @@ public class BaseVO implements Serializable {
         }
     }
 
-    /**
-     * 기존 코드 호환용.
-     * 신규 코드에서는 sortSeq 대신 sortOrder를 사용하십시오.
-     */
-    @Deprecated
-    public String getSortSeq() {
-        return sortOrder;
+    public Integer getSortSeq() {
+        return sortSeq;
     }
 
-    /**
-     * 기존 코드 호환용.
-     * 신규 코드에서는 sortSeq 대신 sortOrder를 사용하십시오.
-     */
-    @Deprecated
-    public void setSortSeq(String sortSeq) {
-        setSortOrder(sortSeq);
+    public void setSortSeq(Integer sortSeq) {
+        this.sortSeq = sortSeq;
     }
 
     @Override
@@ -242,6 +235,7 @@ public class BaseVO implements Serializable {
                 + ", pageRowCnt=" + pageRowCnt
                 + ", sortColumn=" + sortColumn
                 + ", sortOrder=" + sortOrder
+                + ", sortSeq=" + sortSeq
                 + "]";
     }
 }

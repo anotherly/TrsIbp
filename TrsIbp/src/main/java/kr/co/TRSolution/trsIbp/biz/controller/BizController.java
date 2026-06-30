@@ -1,13 +1,19 @@
 
 package kr.co.TRSolution.trsIbp.biz.controller;
 
+import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -19,17 +25,29 @@ import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 @Controller
 public class BizController {
 
+    public static final Logger logger = LoggerFactory.getLogger(BizController.class);
+    private static final SecureRandom BIZ_ID_RANDOM = new SecureRandom();
+    private static final char[] BIZ_ID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+
     @Resource(name = "bizService")
     private BizService bizService;
 
-    @RequestMapping(value = "/biz/bizList.do")
-    public String bizList() throws Exception {
-        return "/biz/bizList";
-    }
-
-    @RequestMapping(value = "/biz/bizDetail.do")
-    public String bizDetail() throws Exception {
-        return "/biz/bizDetail";
+    /**
+     * /biz 하위 .do 요청을 같은 경로의 JSP로 연결한다.
+     * @param httpSession 현재 사용자 세션
+     * @param request 요청 URI 확인용 HttpServletRequest
+     * @param model 화면 전달 모델
+     * @return ViewResolver prefix/suffix가 적용될 JSP 경로
+     * @throws Exception 공통 화면 매핑 중 예외 발생 시 전달
+     */
+    @RequestMapping("/biz/**/*.do")
+    public String urlMapping(HttpSession httpSession, HttpServletRequest request, Model model) throws Exception {
+        logger.debug("▶▶▶▶▶▶▶.사업관리 최초 컨트롤러");
+        String url = request.getRequestURI()
+                .substring(request.getContextPath().length())
+                .replaceFirst("\\.do$", "");
+        logger.debug("▶▶▶▶▶▶▶.보내려는 url : {}", url);
+        return url;
     }
 
     @RequestMapping(value = "/biz/bizList.ajax")
@@ -72,13 +90,15 @@ public class BizController {
         }
 
         int cnt;
-        if (bizVO.getBizSn() == null || bizVO.getBizSn() == 0) {
+        if (bizVO.getBizId() == null || bizVO.getBizId().trim().isEmpty()) {
+            bizVO.setBizId(createBizId());
             cnt = bizService.insertBiz(bizVO);
         } else {
             cnt = bizService.updateBiz(bizVO);
         }
 
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
+        mav.addObject("bizId", bizVO.getBizId());
         mav.addObject("bizSn", bizVO.getBizSn());
 
         return mav;
@@ -364,5 +384,19 @@ public class BizController {
         }
 
         return null;
+    }
+
+    /**
+     * 화면에 노출하지 않는 사업 PK를 생성한다.
+     * @param 없음
+     * @return B + yyyyMMddHHmmss + 영문/숫자 랜덤 5자리로 구성된 20자리 사업ID
+     */
+    private String createBizId() {
+        StringBuilder builder = new StringBuilder("B");
+        builder.append(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+        for (int i = 0; i < 5; i++) {
+            builder.append(BIZ_ID_CHARS[BIZ_ID_RANDOM.nextInt(BIZ_ID_CHARS.length)]);
+        }
+        return builder.toString();
     }
 }

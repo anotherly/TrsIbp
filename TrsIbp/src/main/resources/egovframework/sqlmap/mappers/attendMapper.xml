@@ -21,7 +21,7 @@
         <result property="workYmd"       column="WORK_YMD"        />
         <result property="gtwkDt"  column="GTWK_DT"  />
         <result property="lvwkDt" column="LVWK_DT" />
-        <result property="powkNm" column="POWK_NM"  />
+        <result property="powkNm" column="POWK_SE_CD"  />
         <result property="workRmrkCn"     column="WORK_RMRK_CN"      />
         <result property="workMinutes"  column="WORK_MINUTES"   />
         <result property="regDt"        column="REG_DT"         />
@@ -40,7 +40,8 @@
             ,A.WORK_YMD
             ,DATE_FORMAT(A.GTWK_DT,  '%H:%i') AS GTWK_DT
             ,DATE_FORMAT(A.LVWK_DT, '%H:%i') AS LVWK_DT
-            ,A.POWK_NM
+            ,A.POWK_SE_CD
+            ,IFNULL(POWK_CD.CD_NM, A.POWK_SE_CD) AS POWK_SE_NM
             ,A.WORK_RMRK_CN
             ,A.REG_DT
             ,A.MDFCN_DT
@@ -53,8 +54,22 @@
                 ELSE '0'
             END AS WORK_MINUTES
         FROM WORK_HSTRY A
+        LEFT JOIN cmn_cd POWK_CD
+            ON POWK_CD.CD_GROUP_ID = 'POWK_SE_CD'
+           AND POWK_CD.CD = A.POWK_SE_CD
+           AND POWK_CD.USE_YN = 'Y'
         WHERE A.USER_ID = #{userId}
           AND A.WORK_YMD = CURDATE()
+        LIMIT 1
+    </select>
+
+    <select id="selectDefaultPowkSeCd" resultType="string">
+        SELECT C.CD
+        FROM cmn_cd C
+        WHERE C.CD_GROUP_ID = 'POWK_SE_CD'
+          AND C.USE_YN = 'Y'
+          AND C.DFLT_YN = 'Y'
+        ORDER BY C.SORT_SEQ ASC, C.CD ASC
         LIMIT 1
     </select>
 
@@ -68,14 +83,22 @@
             USER_ID
             ,WORK_YMD
             ,GTWK_DT
-            ,POWK_NM
+            ,POWK_SE_CD
             ,WORK_RMRK_CN
             ,REG_DT
         ) VALUES (
             #{userId}
             ,CURDATE()
             ,NOW()
-            ,COALESCE(#{powkNm}, 'OFFICE')
+            ,COALESCE(NULLIF(#{powkNm}, ''), (
+                SELECT C.CD
+                FROM cmn_cd C
+                WHERE C.CD_GROUP_ID = 'POWK_SE_CD'
+                  AND C.USE_YN = 'Y'
+                  AND C.DFLT_YN = 'Y'
+                ORDER BY C.SORT_SEQ ASC, C.CD ASC
+                LIMIT 1
+            ))
             ,#{workRmrkCn}
             ,NOW()
         )
@@ -104,7 +127,7 @@
     <update id="updatePowkNm" parameterType="attendVO">
         UPDATE WORK_HSTRY
         SET
-            POWK_NM = #{powkNm}
+            POWK_SE_CD = #{powkNm}
             ,MDFCN_DT       = NOW()
         WHERE USER_ID = #{userId}
           AND WORK_YMD  = CURDATE()

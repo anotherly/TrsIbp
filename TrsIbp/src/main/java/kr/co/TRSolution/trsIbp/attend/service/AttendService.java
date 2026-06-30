@@ -13,6 +13,9 @@ public interface AttendService {
     /** 오늘 출근 기록 조회 */
     AttendVO selectTodayAttend(AttendVO attendVO);
 
+    /** 기본 근무장소구분코드 조회 */
+    String selectDefaultPowkSeCd();
+
     /** 출근 처리 */
     void checkIn(AttendVO attendVO);
 

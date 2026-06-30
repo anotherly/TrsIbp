@@ -82,6 +82,39 @@
     font-size: 14px;
 }
 
+.ds-actions,
+.ds-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ds-mb-20 {
+    margin-bottom: 20px;
+}
+
+.ds-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.ds-section-title {
+    margin: 0;
+    color: #fff;
+    font-size: 21px;
+    font-weight: 900;
+}
+
+.ds-section-desc {
+    margin: 4px 0 0;
+    color: var(--ds-text-sub);
+    font-size: 13px;
+}
+
 /* 카드 */
 .ds-card {
     background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(11, 15, 25, 0.96));
@@ -155,6 +188,21 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
+}
+
+.ds-search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.ds-search-actions {
+    min-width: 0;
+}
+
+.ds-col-span-2 {
+    grid-column: span 2;
 }
 
 .ds-field label,
@@ -375,6 +423,67 @@
     font-size: 14px;
 }
 
+.ds-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.ds-table-wrap .dataTables_wrapper {
+    min-width: 1180px;
+}
+
+.ds-code {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 9px;
+    border-radius: 8px;
+    background: rgba(59, 130, 246, 0.12);
+    color: #bfdbfe;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.ds-link {
+    color: #fff;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.ds-link:hover {
+    color: var(--ds-neon-blue);
+}
+
+.ds-mini-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid var(--ds-border);
+    background: rgba(255, 255, 255, 0.04);
+    color: #dbeafe;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.ds-mini-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ds-mini-btn-danger {
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+}
+
+.ds-mini-btn-danger:hover {
+    background: rgba(239, 68, 68, 0.14);
+}
+
 /* DataTables 다크 테마 */
 .dataTables_wrapper .dataTables_info,
 .dataTables_wrapper .dataTables_length,
@@ -412,6 +521,10 @@
     .ds-form-grid {
         grid-template-columns: 1fr;
     }
+
+    .ds-search-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 768px) {
@@ -430,5 +543,13 @@
 
     .ds-summary-grid {
         grid-template-columns: 1fr;
+    }
+
+    .ds-search-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ds-col-span-2 {
+        grid-column: span 1;
     }
 }

@@ -21,18 +21,32 @@ public class BizVO extends BaseVO {
     private String searchBizPrgrsStepCd;
     private String searchBizSttsCd;
     private String searchCustSeCd;
+    private String searchInstSeCd;
+    private String searchBizKndCd;
+    private String searchBizSeCd;
     private String startYmd;
     private String endYmd;
 
     /* biz_info */
+    private String bizId;
     private Long bizSn;
     private String coId;
+    private String bizCd;
     private String bizNm;
     private String dtlBizNm;
+    private String instSeCd;
+    private String bizKndCd;
+    private String bizSeCd;
+    private String ordplNm;
     private String ctrtYmd;
+    private String otstYmd;
     private String bizBgngYmd;
     private String bizEndYmd;
     private BigDecimal ctrtAmt;
+    private String giveMthdCn;
+    private String giveDdtYmd;
+    private String dfrpGrnteBgngYmd;
+    private String dfrpGrnteEndYmd;
     private String vatInclYn;
     private String bizPrgrsStepCd;
     private String bizSttsCd;
@@ -91,6 +105,9 @@ public class BizVO extends BaseVO {
     /* 화면 표시용 */
     private String bizPrgrsStepNm;
     private String bizSttsNm;
+    private String instSeNm;
+    private String bizKndNm;
+    private String bizSeNm;
     private String custSeNm;
     private String relSeNm;
     private String inputSeNm;
@@ -112,26 +129,54 @@ public class BizVO extends BaseVO {
     public void setSearchBizSttsCd(String searchBizSttsCd) { this.searchBizSttsCd = searchBizSttsCd; }
     public String getSearchCustSeCd() { return searchCustSeCd; }
     public void setSearchCustSeCd(String searchCustSeCd) { this.searchCustSeCd = searchCustSeCd; }
+    public String getSearchInstSeCd() { return searchInstSeCd; }
+    public void setSearchInstSeCd(String searchInstSeCd) { this.searchInstSeCd = searchInstSeCd; }
+    public String getSearchBizKndCd() { return searchBizKndCd; }
+    public void setSearchBizKndCd(String searchBizKndCd) { this.searchBizKndCd = searchBizKndCd; }
+    public String getSearchBizSeCd() { return searchBizSeCd; }
+    public void setSearchBizSeCd(String searchBizSeCd) { this.searchBizSeCd = searchBizSeCd; }
     public String getStartYmd() { return startYmd; }
     public void setStartYmd(String startYmd) { this.startYmd = startYmd; }
     public String getEndYmd() { return endYmd; }
     public void setEndYmd(String endYmd) { this.endYmd = endYmd; }
+    public String getBizId() { return bizId; }
+    public void setBizId(String bizId) { this.bizId = bizId; }
     public Long getBizSn() { return bizSn; }
     public void setBizSn(Long bizSn) { this.bizSn = bizSn; }
     public String getCoId() { return coId; }
     public void setCoId(String coId) { this.coId = coId; }
+    public String getBizCd() { return bizCd; }
+    public void setBizCd(String bizCd) { this.bizCd = bizCd; }
     public String getBizNm() { return bizNm; }
     public void setBizNm(String bizNm) { this.bizNm = bizNm; }
     public String getDtlBizNm() { return dtlBizNm; }
     public void setDtlBizNm(String dtlBizNm) { this.dtlBizNm = dtlBizNm; }
+    public String getInstSeCd() { return instSeCd; }
+    public void setInstSeCd(String instSeCd) { this.instSeCd = instSeCd; }
+    public String getBizKndCd() { return bizKndCd; }
+    public void setBizKndCd(String bizKndCd) { this.bizKndCd = bizKndCd; }
+    public String getBizSeCd() { return bizSeCd; }
+    public void setBizSeCd(String bizSeCd) { this.bizSeCd = bizSeCd; }
+    public String getOrdplNm() { return ordplNm; }
+    public void setOrdplNm(String ordplNm) { this.ordplNm = ordplNm; }
     public String getCtrtYmd() { return ctrtYmd; }
     public void setCtrtYmd(String ctrtYmd) { this.ctrtYmd = ctrtYmd; }
+    public String getOtstYmd() { return otstYmd; }
+    public void setOtstYmd(String otstYmd) { this.otstYmd = otstYmd; }
     public String getBizBgngYmd() { return bizBgngYmd; }
     public void setBizBgngYmd(String bizBgngYmd) { this.bizBgngYmd = bizBgngYmd; }
     public String getBizEndYmd() { return bizEndYmd; }
     public void setBizEndYmd(String bizEndYmd) { this.bizEndYmd = bizEndYmd; }
     public BigDecimal getCtrtAmt() { return ctrtAmt; }
     public void setCtrtAmt(BigDecimal ctrtAmt) { this.ctrtAmt = ctrtAmt; }
+    public String getGiveMthdCn() { return giveMthdCn; }
+    public void setGiveMthdCn(String giveMthdCn) { this.giveMthdCn = giveMthdCn; }
+    public String getGiveDdtYmd() { return giveDdtYmd; }
+    public void setGiveDdtYmd(String giveDdtYmd) { this.giveDdtYmd = giveDdtYmd; }
+    public String getDfrpGrnteBgngYmd() { return dfrpGrnteBgngYmd; }
+    public void setDfrpGrnteBgngYmd(String dfrpGrnteBgngYmd) { this.dfrpGrnteBgngYmd = dfrpGrnteBgngYmd; }
+    public String getDfrpGrnteEndYmd() { return dfrpGrnteEndYmd; }
+    public void setDfrpGrnteEndYmd(String dfrpGrnteEndYmd) { this.dfrpGrnteEndYmd = dfrpGrnteEndYmd; }
     public String getVatInclYn() { return vatInclYn; }
     public void setVatInclYn(String vatInclYn) { this.vatInclYn = vatInclYn; }
     public String getBizPrgrsStepCd() { return bizPrgrsStepCd; }
@@ -230,6 +275,12 @@ public class BizVO extends BaseVO {
     public void setBizPrgrsStepNm(String bizPrgrsStepNm) { this.bizPrgrsStepNm = bizPrgrsStepNm; }
     public String getBizSttsNm() { return bizSttsNm; }
     public void setBizSttsNm(String bizSttsNm) { this.bizSttsNm = bizSttsNm; }
+    public String getInstSeNm() { return instSeNm; }
+    public void setInstSeNm(String instSeNm) { this.instSeNm = instSeNm; }
+    public String getBizKndNm() { return bizKndNm; }
+    public void setBizKndNm(String bizKndNm) { this.bizKndNm = bizKndNm; }
+    public String getBizSeNm() { return bizSeNm; }
+    public void setBizSeNm(String bizSeNm) { this.bizSeNm = bizSeNm; }
     public String getCustSeNm() { return custSeNm; }
     public void setCustSeNm(String custSeNm) { this.custSeNm = custSeNm; }
     public String getRelSeNm() { return relSeNm; }
