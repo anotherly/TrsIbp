@@ -61,7 +61,7 @@
             </div>
 
             <form id="bizSearchForm" onsubmit="loadBizList(); return false;">
-                <div class="ds-search-grid">
+                <div class="ds-search-grid" style="grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(120px, 0.8fr)) repeat(2, minmax(145px, 0.9fr)) minmax(90px, auto) minmax(100px, auto); gap: 14px; align-items: end;">
                     <div class="ds-field">
                         <label for="searchKeyword">통합검색</label>
                         <input type="text" id="searchKeyword" name="searchKeyword" class="ds-input" placeholder="사업코드, 사업명, 발주처">
@@ -91,12 +91,12 @@
                         </select>
                     </div>
                     <div class="ds-field">
-                        <label for="startYmd">착수일</label>
-                        <input type="date" id="startYmd" name="startYmd" class="ds-input">
+                        <label for="sDate">착수일</label>
+                        <input type="date" id="sDate" name="sDate" class="ds-input">
                     </div>
                     <div class="ds-field">
-                        <label for="endYmd">종료일</label>
-                        <input type="date" id="endYmd" name="endYmd" class="ds-input">
+                        <label for="eDate">종료일</label>
+                        <input type="date" id="eDate" name="eDate" class="ds-input">
                     </div>
                     <div class="ds-search-actions">
                         <button type="submit" class="ds-btn ds-btn-primary ds-btn-full">검색</button>

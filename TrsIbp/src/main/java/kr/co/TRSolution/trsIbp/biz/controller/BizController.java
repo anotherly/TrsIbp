@@ -99,7 +99,6 @@ public class BizController {
 
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
         mav.addObject("bizId", bizVO.getBizId());
-        mav.addObject("bizSn", bizVO.getBizSn());
 
         return mav;
     }
@@ -131,6 +130,13 @@ public class BizController {
         return mav;
     }
 
+    /**
+     * 고객사 기본정보를 등록하거나 수정한다.
+     * @param bizVO 고객사 일련번호, 고객사명, 고객구분, 사업자등록번호, 대표자명, 연락처, 주소 값을 담은 VO
+     * @param request 로그인 사용자 회사ID/등록자/수정자 확인용 HttpServletRequest
+     * @return jsonView: result, custSn
+     * @throws Exception 고객사 저장 중 예외 발생 시 전달
+     */
     @RequestMapping(value = "/biz/custSave.ajax")
     public ModelAndView saveCust(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
@@ -139,6 +145,7 @@ public class BizController {
         if (loginVO != null) {
             bizVO.setRgtrId(loginVO.getUserId());
             bizVO.setMdfrId(loginVO.getUserId());
+            bizVO.setCoId(loginVO.getCoId());
         }
 
         int cnt;

@@ -553,3 +553,62 @@
         grid-column: span 1;
     }
 }
+
+/* =========================================================
+   Biz Management module helpers
+   ========================================================= */
+.ds-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+.ds-form-stack { display: flex; flex-direction: column; gap: 12px; }
+.ds-inline-form {
+    display: grid;
+    grid-template-columns: 150px 1fr 150px 150px 1fr auto auto;
+    gap: 10px;
+    align-items: end;
+}
+.ds-mt-12 { margin-top: 12px; }
+.ds-mt-20 { margin-top: 20px; }
+.biz-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+.biz-chain-item {
+    border: 1px solid var(--ds-border);
+    background: rgba(15, 23, 42, 0.78);
+    border-radius: 14px;
+    padding: 10px 14px;
+    min-width: 130px;
+    position: relative;
+}
+.biz-chain-item:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ds-text-muted);
+}
+.biz-chain-item span {
+    display: block;
+    font-size: 11px;
+    color: var(--ds-neon-blue);
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.biz-chain-item strong {
+    display: block;
+    font-size: 13px;
+    color: #fff;
+}
+@media (max-width: 1280px) {
+    .ds-grid-2 { grid-template-columns: 1fr; }
+    .ds-inline-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+    .ds-inline-form { grid-template-columns: 1fr; }
+}

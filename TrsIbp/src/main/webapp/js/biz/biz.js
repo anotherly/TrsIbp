@@ -1,12 +1,12 @@
 /**
  * 사업관리 JavaScript
- * - 첨부 DB 스키마 기준 테이블: biz_info, biz_stp_task
+ * - 첨부 DB 스키마 기준 테이블: biz_info, cust_info, biz_cust_rel, biz_mnpw, biz_cst, biz_schdl
  * - 기존 Controller 메소드명과 URL은 유지한다.
  */
 
 var bizTable = null;
 var bizCodeMap = {};
-var bizCodeGroupIds = ['BIZ_STTS_CD', 'INST_SE_CD', 'BIZ_KND_CD', 'BIZ_SE_CD'];
+var bizCodeGroupIds = ['BIZ_STTS_CD', 'INST_SE_CD', 'BIZ_KND_CD', 'BIZ_SE_CD', 'CUST_SE_CD', 'REL_SE_CD', 'INPUT_SE_CD', 'CST_SE_CD', 'SCHDL_SE_CD'];
 
 /**
  * 빈 값이면 대체값을 반환한다.
@@ -82,6 +82,11 @@ function loadBizCodeOptions(callback) {
                 populateCodeSelect('frmInstSeCd', 'INST_SE_CD', '선택');
                 populateCodeSelect('frmBizKndCd', 'BIZ_KND_CD', '선택');
                 populateCodeSelect('frmBizSeCd', 'BIZ_SE_CD', '선택');
+                populateCodeSelect('frmCustSeCd', 'CUST_SE_CD', '선택');
+                populateCodeSelect('frmRelSeCd', 'REL_SE_CD', '선택');
+                populateCodeSelect('frmInputSeCd', 'INPUT_SE_CD', '선택');
+                populateCodeSelect('frmCstSeCd', 'CST_SE_CD', '선택');
+                populateCodeSelect('frmSchdlSeCd', 'SCHDL_SE_CD', '선택');
             }
             if (typeof callback === 'function') {
                 callback();
@@ -148,6 +153,27 @@ function getCodeNm(cdGroupId, code) {
         }
     }
     return code || '-';
+}
+
+/**
+ * 테이블 행 객체를 onclick 속성에 넣기 위한 문자열로 인코딩한다.
+ * @param {Object} row 인코딩할 행 데이터
+ * @returns {string} URI 인코딩된 JSON 문자열
+ */
+function encodeRowData(row) {
+    return encodeURIComponent(JSON.stringify(row || {}));
+}
+
+/**
+ * onclick 속성에서 전달받은 행 문자열을 객체로 복원한다.
+ * @param {string} encodedRow URI 인코딩된 JSON 문자열
+ * @returns {Object} 복원된 행 데이터
+ */
+function decodeRowData(encodedRow) {
+    if (!encodedRow) {
+        return {};
+    }
+    return JSON.parse(decodeURIComponent(encodedRow));
 }
 
 /**
@@ -229,8 +255,8 @@ function loadBizList() {
             searchInstSeCd: $('#searchInstSeCd').val(),
             searchBizKndCd: $('#searchBizKndCd').val(),
             searchBizSeCd: $('#searchBizSeCd').val(),
-            startYmd: $('#startYmd').val(),
-            endYmd: $('#endYmd').val()
+            sDate: $('#sDate').val(),
+            eDate: $('#eDate').val()
         },
         success: function(res) {
             if (res.result !== 'OK') {
@@ -334,8 +360,8 @@ function resetBizSearch() {
     $('#searchInstSeCd').val('');
     $('#searchBizKndCd').val('');
     $('#searchBizSeCd').val('');
-    $('#startYmd').val('');
-    $('#endYmd').val('');
+    $('#sDate').val('');
+    $('#eDate').val('');
     loadBizList();
 }
 
@@ -426,7 +452,7 @@ function initBizDetailPage() {
     }
     loadBizCodeOptions(function() {
         loadBizDetail();
-        loadBizTaskList();
+        loadBizManageAll();
     });
 }
 
@@ -442,6 +468,102 @@ function initBizUpdatePage() {
     loadBizCodeOptions(function() {
         loadBizDetail();
     });
+}
+
+/**
+ * 계약/회계/투입인력/프로세스 관리 개별 화면을 초기화한다.
+ * @param {string} manageType contract/account/mnpw/schdl 중 현재 관리 화면 구분
+ * @returns 없음
+ */
+function initBizManagePage(manageType) {
+    loadBizCodeOptions(function() {
+        loadManageBizOptions(function() {
+            var firstBizId = $('#manageBizId option:eq(1)').val();
+            if (firstBizId) {
+                $('#manageBizId').val(firstBizId);
+                changeManagedBiz(manageType);
+            } else {
+                renderEmptyManageArea(manageType);
+            }
+        });
+    });
+}
+
+/**
+ * 관리 화면 상단 사업 선택 select를 구성한다.
+ * @param {Function} callback 사업 option 생성 후 실행할 콜백
+ * @returns 없음
+ */
+function loadManageBizOptions(callback) {
+    $.ajax({
+        url: ctxPath + '/biz/bizList.ajax',
+        type: 'GET',
+        dataType: 'json',
+        data: { recordCountPerPage: 0 },
+        success: function(res) {
+            var html = '<option value="">사업을 선택하십시오.</option>';
+            $.each(res.list || [], function(_, row) {
+                html += '<option value="' + escapeHtml(row.bizId) + '">' + escapeHtml(row.bizCd) + ' - ' + escapeHtml(row.bizNm) + '</option>';
+            });
+            $('#manageBizId').html(html);
+            if (typeof callback === 'function') {
+                callback();
+            }
+        },
+        error: function() {
+            alert('사업 목록 조회 중 오류가 발생했습니다.');
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    });
+}
+
+/**
+ * 관리 화면의 사업 선택 변경 시 해당 업무 목록을 다시 조회한다.
+ * @param {string} manageType contract/account/mnpw/schdl 중 현재 관리 화면 구분
+ * @returns 없음
+ */
+function changeManagedBiz(manageType) {
+    currentBizId = $('#manageBizId').val();
+    if (!currentBizId) {
+        renderEmptyManageArea(manageType);
+        return;
+    }
+
+    if (manageType === 'contract') {
+        resetCustRelForm();
+        loadBizCustRelList();
+    } else if (manageType === 'account') {
+        resetCstForm();
+        loadBizCstList();
+        loadBizProfitSummary();
+    } else if (manageType === 'mnpw') {
+        resetMnpwForm();
+        loadBizMnpwList();
+    } else if (manageType === 'schdl') {
+        resetSchdlForm();
+        loadBizSchdlList();
+    }
+}
+
+/**
+ * 사업 미선택 또는 사업 없음 상태의 빈 목록 문구를 표시한다.
+ * @param {string} manageType contract/account/mnpw/schdl 중 현재 관리 화면 구분
+ * @returns 없음
+ */
+function renderEmptyManageArea(manageType) {
+    if (manageType === 'contract') {
+        $('#bizCustRelBody').html('<tr><td colspan="8" class="ds-empty">사업을 선택하십시오.</td></tr>');
+    } else if (manageType === 'account') {
+        $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">사업을 선택하십시오.</td></tr>');
+        $('#profitCtrtAmt,#profitDirectCst,#profitLaborCst,#profitAmt').text('0');
+        $('#profitRate').text('0%');
+    } else if (manageType === 'mnpw') {
+        $('#bizMnpwBody').html('<tr><td colspan="9" class="ds-empty">사업을 선택하십시오.</td></tr>');
+    } else if (manageType === 'schdl') {
+        $('#bizSchdlBody').html('<tr><td colspan="7" class="ds-empty">사업을 선택하십시오.</td></tr>');
+    }
 }
 
 /**
@@ -572,46 +694,686 @@ function deleteBiz() {
 }
 
 /**
- * 현재 사업ID에 연결된 단계 업무 목록을 조회한다.
+ * 사업 상세 하위 관리 영역 전체 데이터를 조회한다.
  * @param 없음
  * @returns 없음
  */
-function loadBizTaskList() {
+function loadBizManageAll() {
+    loadBizCustRelList();
+    loadBizCstList();
+    loadBizMnpwList();
+    loadBizSchdlList();
+    loadBizProfitSummary();
+}
+
+/**
+ * 사업 손익 요약을 조회해 회계 요약 영역에 표시한다.
+ * @param 없음
+ * @returns 없음
+ */
+function loadBizProfitSummary() {
+    $.ajax({
+        url: ctxPath + '/biz/profitSummary.ajax',
+        type: 'GET',
+        dataType: 'json',
+        data: { bizId: currentBizId },
+        success: function(res) {
+            var summary = res.summary || {};
+            $('#profitCtrtAmt').text(formatAmt(summary.ctrtAmt || 0));
+            $('#profitDirectCst').text(formatAmt(summary.directCstSum || 0));
+            $('#profitLaborCst').text(formatAmt(summary.laborCstSum || 0));
+            $('#profitAmt').text(formatAmt(summary.profitAmt || 0));
+            $('#profitRate').text(nvl(summary.profitRate, 0) + '%');
+        }
+    });
+}
+
+/**
+ * 고객사와 사업 계약관계 입력폼을 초기화한다.
+ * @param 없음
+ * @returns 없음
+ */
+function resetCustRelForm() {
+    $('#frmCustSn').val('');
+    $('#frmBizCustRelSn').val('');
+    $('#frmCustCoNm').val('');
+    $('#frmCustSeCd').val(getDefaultCode('CUST_SE_CD'));
+    $('#frmBrno').val('');
+    $('#frmRprsvNm').val('');
+    $('#frmTelno').val('');
+    $('#frmAddr').val('');
+    $('#frmRelSeCd').val(getDefaultCode('REL_SE_CD'));
+    $('#frmRelLvl').val('');
+    $('#frmRelSortSeq').val('');
+    $('#frmDirectCtrtYn').val('N');
+    $('#frmOurCoYn').val('N');
+}
+
+/**
+ * 사업 계약관계 목록을 조회한다.
+ * @param 없음
+ * @returns 없음
+ */
+function loadBizCustRelList() {
+    $.ajax({
+        url: ctxPath + '/biz/custRelList.ajax',
+        type: 'GET',
+        dataType: 'json',
+        data: { bizId: currentBizId },
+        success: function(res) {
+            renderBizCustRelList(res.list || []);
+        },
+        error: function() {
+            $('#bizCustRelBody').html('<tr><td colspan="8" class="ds-empty">계약 관계 조회 중 오류가 발생했습니다.</td></tr>');
+        }
+    });
+}
+
+/**
+ * 사업 계약관계 목록을 테이블에 렌더링한다.
+ * @param {Array} list 사업 고객관계 목록
+ * @returns 없음
+ */
+function renderBizCustRelList(list) {
+    var html = '';
+    if (list.length === 0) {
+        $('#bizCustRelBody').html('<tr><td colspan="8" class="ds-empty">등록된 계약 관계가 없습니다.</td></tr>');
+        return;
+    }
+    $.each(list, function(index, row) {
+        html += '<tr>';
+        html += '<td>' + (index + 1) + '</td>';
+        html += '<td>' + escapeHtml(row.custCoNm) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.custSeNm, getCodeNm('CUST_SE_CD', row.custSeCd))) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.relSeNm, getCodeNm('REL_SE_CD', row.relSeCd))) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.relLvl, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.directCtrtYn, 'N')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.ourCoYn, 'N')) + '</td>';
+        html += '<td><div class="ds-row-actions">'
+            + '<button type="button" class="ds-mini-btn" onclick="bindCustRelFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
+            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCustRel(\'' + escapeJs(row.bizCustRelSn) + '\');">삭제</button>'
+            + '</div></td>';
+        html += '</tr>';
+    });
+    $('#bizCustRelBody').html(html);
+}
+
+/**
+ * 선택한 계약관계 행 데이터를 입력폼에 채운다.
+ * @param {Object} row 선택한 계약관계 데이터
+ * @returns 없음
+ */
+function bindCustRelFormFromRow(row) {
+    $('#frmCustSn').val(nvl(row.custSn, ''));
+    $('#frmBizCustRelSn').val(nvl(row.bizCustRelSn, ''));
+    $('#frmCustCoNm').val(nvl(row.custCoNm, ''));
+    $('#frmCustSeCd').val(nvl(row.custSeCd, ''));
+    $('#frmBrno').val(nvl(row.brno, ''));
+    $('#frmRprsvNm').val(nvl(row.rprsvNm, ''));
+    $('#frmTelno').val(nvl(row.telno, ''));
+    $('#frmAddr').val(nvl(row.addr, ''));
+    $('#frmRelSeCd').val(nvl(row.relSeCd, ''));
+    $('#frmRelLvl').val(nvl(row.relLvl, ''));
+    $('#frmRelSortSeq').val(nvl(row.relSortSeq, ''));
+    $('#frmDirectCtrtYn').val(nvl(row.directCtrtYn, 'N'));
+    $('#frmOurCoYn').val(nvl(row.ourCoYn, 'N'));
+}
+
+/**
+ * 인코딩된 계약관계 행 데이터를 복원해 입력폼에 채운다.
+ * @param {string} encodedRow URI 인코딩된 계약관계 JSON 문자열
+ * @returns 없음
+ */
+function bindCustRelFormFromEncoded(encodedRow) {
+    bindCustRelFormFromRow(decodeRowData(encodedRow));
+}
+
+/**
+ * 고객사 저장 후 사업 계약관계를 저장한다.
+ * @param 없음
+ * @returns 없음
+ */
+function saveCustAndRel() {
+    if (!$('#frmCustCoNm').val()) {
+        alert('고객사명을 입력하십시오.');
+        $('#frmCustCoNm').focus();
+        return;
+    }
+    if (!$('#frmRelSeCd').val()) {
+        alert('계약관계를 선택하십시오.');
+        $('#frmRelSeCd').focus();
+        return;
+    }
+
+    $.ajax({
+        url: ctxPath + '/biz/custSave.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            custSn: $('#frmCustSn').val(),
+            custCoNm: $('#frmCustCoNm').val(),
+            custSeCd: $('#frmCustSeCd').val(),
+            brno: $('#frmBrno').val(),
+            rprsvNm: $('#frmRprsvNm').val(),
+            telno: $('#frmTelno').val(),
+            addr: $('#frmAddr').val()
+        },
+        success: function(res) {
+            if (res.result !== 'OK') {
+                alert('고객사 저장에 실패했습니다.');
+                return;
+            }
+            saveBizCustRelAfterCust(res.custSn || $('#frmCustSn').val());
+        },
+        error: function() {
+            alert('고객사 저장 중 오류가 발생했습니다.');
+        }
+    });
+}
+
+/**
+ * 고객사 저장 결과의 고객일련번호로 사업 계약관계를 저장한다.
+ * @param {string|number} custSn 고객일련번호
+ * @returns 없음
+ */
+function saveBizCustRelAfterCust(custSn) {
+    $.ajax({
+        url: ctxPath + '/biz/custRelSave.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            bizCustRelSn: $('#frmBizCustRelSn').val(),
+            bizId: currentBizId,
+            custSn: custSn,
+            relSeCd: $('#frmRelSeCd').val(),
+            relLvl: $('#frmRelLvl').val(),
+            relSortSeq: $('#frmRelSortSeq').val(),
+            directCtrtYn: $('#frmDirectCtrtYn').val(),
+            ourCoYn: $('#frmOurCoYn').val()
+        },
+        success: function(res) {
+            if (res.result === 'OK') {
+                alert('저장되었습니다.');
+                resetCustRelForm();
+                loadBizCustRelList();
+            } else {
+                alert('계약 관계 저장에 실패했습니다.');
+            }
+        },
+        error: function() {
+            alert('계약 관계 저장 중 오류가 발생했습니다.');
+        }
+    });
+}
+
+/**
+ * 선택한 사업 계약관계를 삭제한다.
+ * @param {string|number} bizCustRelSn 사업고객관계일련번호
+ * @returns 없음
+ */
+function deleteBizCustRel(bizCustRelSn) {
+    if (!confirm('선택한 계약 관계를 삭제하시겠습니까?')) {
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/custRelDelete.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { bizId: currentBizId, bizCustRelSn: bizCustRelSn },
+        success: function(res) {
+            if (res.result === 'OK') {
+                loadBizCustRelList();
+            } else {
+                alert('삭제에 실패했습니다.');
+            }
+        }
+    });
+}
+
+/**
+ * 직접비 입력폼을 초기화한다.
+ * @param 없음
+ * @returns 없음
+ */
+function resetCstForm() {
+    $('#frmBizCstSn').val('');
+    $('#frmCstSeCd').val(getDefaultCode('CST_SE_CD'));
+    $('#frmCstNm').val('');
+    $('#frmOcrnCst').val('');
+    $('#frmOcrnYmd').val('');
+}
+
+/**
+ * 사업 직접비 목록을 조회한다.
+ * @param 없음
+ * @returns 없음
+ */
+function loadBizCstList() {
+    $.ajax({
+        url: ctxPath + '/biz/cstList.ajax',
+        type: 'GET',
+        dataType: 'json',
+        data: { bizId: currentBizId },
+        success: function(res) {
+            renderBizCstList(res.list || []);
+        },
+        error: function() {
+            $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">비용 조회 중 오류가 발생했습니다.</td></tr>');
+        }
+    });
+}
+
+/**
+ * 직접비 목록을 테이블에 렌더링한다.
+ * @param {Array} list 직접비 목록
+ * @returns 없음
+ */
+function renderBizCstList(list) {
+    var html = '';
+    if (list.length === 0) {
+        $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">등록된 직접비가 없습니다.</td></tr>');
+        return;
+    }
+    $.each(list, function(index, row) {
+        html += '<tr>';
+        html += '<td>' + (index + 1) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.cstSeNm, getCodeNm('CST_SE_CD', row.cstSeCd))) + '</td>';
+        html += '<td>' + escapeHtml(row.cstNm) + '</td>';
+        html += '<td>' + formatAmt(row.ocrnCst) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.ocrnYmd, '-')) + '</td>';
+        html += '<td><div class="ds-row-actions">'
+            + '<button type="button" class="ds-mini-btn" onclick="bindCstFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
+            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCst(\'' + escapeJs(row.bizCstSn) + '\');">삭제</button>'
+            + '</div></td>';
+        html += '</tr>';
+    });
+    $('#bizCstBody').html(html);
+}
+
+/**
+ * 선택한 직접비 행 데이터를 입력폼에 채운다.
+ * @param {Object} row 직접비 데이터
+ * @returns 없음
+ */
+function bindCstFormFromRow(row) {
+    $('#frmBizCstSn').val(nvl(row.bizCstSn, ''));
+    $('#frmCstSeCd').val(nvl(row.cstSeCd, ''));
+    $('#frmCstNm').val(nvl(row.cstNm, ''));
+    $('#frmOcrnCst').val(nvl(row.ocrnCst, ''));
+    $('#frmOcrnYmd').val(nvl(row.ocrnYmd, ''));
+}
+
+/**
+ * 인코딩된 직접비 행 데이터를 복원해 입력폼에 채운다.
+ * @param {string} encodedRow URI 인코딩된 직접비 JSON 문자열
+ * @returns 없음
+ */
+function bindCstFormFromEncoded(encodedRow) {
+    bindCstFormFromRow(decodeRowData(encodedRow));
+}
+
+/**
+ * 직접비를 등록 또는 수정한다.
+ * @param 없음
+ * @returns 없음
+ */
+function saveBizCst() {
+    if (!$('#frmCstSeCd').val() || !$('#frmCstNm').val()) {
+        alert('비용구분과 비용명을 입력하십시오.');
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/cstSave.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            bizId: currentBizId,
+            bizCstSn: $('#frmBizCstSn').val(),
+            cstSeCd: $('#frmCstSeCd').val(),
+            cstNm: $('#frmCstNm').val(),
+            ocrnCst: $('#frmOcrnCst').val(),
+            ocrnYmd: $('#frmOcrnYmd').val()
+        },
+        success: function(res) {
+            if (res.result === 'OK') {
+                resetCstForm();
+                loadBizCstList();
+                loadBizProfitSummary();
+            } else {
+                alert('비용 저장에 실패했습니다.');
+            }
+        }
+    });
+}
+
+/**
+ * 선택한 직접비를 삭제한다.
+ * @param {string|number} bizCstSn 사업비용일련번호
+ * @returns 없음
+ */
+function deleteBizCst(bizCstSn) {
+    if (!confirm('선택한 비용을 삭제하시겠습니까?')) {
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/cstDelete.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { bizId: currentBizId, bizCstSn: bizCstSn },
+        success: function(res) {
+            if (res.result === 'OK') {
+                loadBizCstList();
+                loadBizProfitSummary();
+            } else {
+                alert('삭제에 실패했습니다.');
+            }
+        }
+    });
+}
+
+/**
+ * 투입인력 입력폼을 초기화한다.
+ * @param 없음
+ * @returns 없음
+ */
+function resetMnpwForm() {
+    $('#frmBizMnpwSn').val('');
+    $('#frmUserId').val('');
+    $('#frmInputMnpwNm').val('');
+    $('#frmInputSeCd').val(getDefaultCode('INPUT_SE_CD'));
+    $('#frmRoleNm').val('');
+    $('#frmJbpsNm').val('');
+    $('#frmInputBgngYmd').val('');
+    $('#frmInputEndYmd').val('');
+    $('#frmInputMcnt').val('');
+    $('#frmUntprc').val('');
+}
+
+/**
+ * 사업 투입인력 목록을 조회한다.
+ * @param 없음
+ * @returns 없음
+ */
+function loadBizMnpwList() {
+    $.ajax({
+        url: ctxPath + '/biz/mnpwList.ajax',
+        type: 'GET',
+        dataType: 'json',
+        data: { bizId: currentBizId },
+        success: function(res) {
+            renderBizMnpwList(res.list || []);
+        },
+        error: function() {
+            $('#bizMnpwBody').html('<tr><td colspan="9" class="ds-empty">투입인력 조회 중 오류가 발생했습니다.</td></tr>');
+        }
+    });
+}
+
+/**
+ * 투입인력 목록을 테이블에 렌더링한다.
+ * @param {Array} list 투입인력 목록
+ * @returns 없음
+ */
+function renderBizMnpwList(list) {
+    var html = '';
+    if (list.length === 0) {
+        $('#bizMnpwBody').html('<tr><td colspan="9" class="ds-empty">등록된 투입인력이 없습니다.</td></tr>');
+        return;
+    }
+    $.each(list, function(index, row) {
+        var labor = Number(row.inputMcnt || 0) * Number(row.untprc || 0);
+        html += '<tr>';
+        html += '<td>' + (index + 1) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.inputMnpwNm || row.userNm, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.inputSeNm, getCodeNm('INPUT_SE_CD', row.inputSeCd))) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.roleNm, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.inputBgngYmd, '-')) + ' ~ ' + escapeHtml(nvl(row.inputEndYmd, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.inputMcnt, '0')) + '</td>';
+        html += '<td>' + formatAmt(row.untprc) + '</td>';
+        html += '<td>' + formatAmt(labor) + '</td>';
+        html += '<td><div class="ds-row-actions">'
+            + '<button type="button" class="ds-mini-btn" onclick="bindMnpwFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
+            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizMnpw(\'' + escapeJs(row.bizMnpwSn) + '\');">삭제</button>'
+            + '</div></td>';
+        html += '</tr>';
+    });
+    $('#bizMnpwBody').html(html);
+}
+
+/**
+ * 선택한 투입인력 행 데이터를 입력폼에 채운다.
+ * @param {Object} row 투입인력 데이터
+ * @returns 없음
+ */
+function bindMnpwFormFromRow(row) {
+    $('#frmBizMnpwSn').val(nvl(row.bizMnpwSn, ''));
+    $('#frmUserId').val(nvl(row.userId, ''));
+    $('#frmInputMnpwNm').val(nvl(row.inputMnpwNm || row.userNm, ''));
+    $('#frmInputSeCd').val(nvl(row.inputSeCd, ''));
+    $('#frmRoleNm').val(nvl(row.roleNm, ''));
+    $('#frmJbpsNm').val(nvl(row.jbpsNm, ''));
+    $('#frmInputBgngYmd').val(nvl(row.inputBgngYmd, ''));
+    $('#frmInputEndYmd').val(nvl(row.inputEndYmd, ''));
+    $('#frmInputMcnt').val(nvl(row.inputMcnt, ''));
+    $('#frmUntprc').val(nvl(row.untprc, ''));
+}
+
+/**
+ * 인코딩된 투입인력 행 데이터를 복원해 입력폼에 채운다.
+ * @param {string} encodedRow URI 인코딩된 투입인력 JSON 문자열
+ * @returns 없음
+ */
+function bindMnpwFormFromEncoded(encodedRow) {
+    bindMnpwFormFromRow(decodeRowData(encodedRow));
+}
+
+/**
+ * 투입인력을 등록 또는 수정한다.
+ * @param 없음
+ * @returns 없음
+ */
+function saveBizMnpw() {
+    if (!$('#frmInputMnpwNm').val()) {
+        alert('투입인력명을 입력하십시오.');
+        $('#frmInputMnpwNm').focus();
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/mnpwSave.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            bizId: currentBizId,
+            bizMnpwSn: $('#frmBizMnpwSn').val(),
+            userId: $('#frmUserId').val(),
+            inputMnpwNm: $('#frmInputMnpwNm').val(),
+            inputSeCd: $('#frmInputSeCd').val(),
+            roleNm: $('#frmRoleNm').val(),
+            jbpsNm: $('#frmJbpsNm').val(),
+            inputBgngYmd: $('#frmInputBgngYmd').val(),
+            inputEndYmd: $('#frmInputEndYmd').val(),
+            inputMcnt: $('#frmInputMcnt').val(),
+            untprc: $('#frmUntprc').val()
+        },
+        success: function(res) {
+            if (res.result === 'OK') {
+                resetMnpwForm();
+                loadBizMnpwList();
+                loadBizProfitSummary();
+            } else {
+                alert('투입인력 저장에 실패했습니다.');
+            }
+        }
+    });
+}
+
+/**
+ * 선택한 투입인력을 삭제한다.
+ * @param {string|number} bizMnpwSn 사업투입인력일련번호
+ * @returns 없음
+ */
+function deleteBizMnpw(bizMnpwSn) {
+    if (!confirm('선택한 투입인력을 삭제하시겠습니까?')) {
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/mnpwDelete.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { bizId: currentBizId, bizMnpwSn: bizMnpwSn },
+        success: function(res) {
+            if (res.result === 'OK') {
+                loadBizMnpwList();
+                loadBizProfitSummary();
+            } else {
+                alert('삭제에 실패했습니다.');
+            }
+        }
+    });
+}
+
+/**
+ * 사업 일정 입력폼을 초기화한다.
+ * @param 없음
+ * @returns 없음
+ */
+function resetSchdlForm() {
+    $('#frmBizSchdlSn').val('');
+    $('#frmSchdlSeCd').val(getDefaultCode('SCHDL_SE_CD'));
+    $('#frmSchdlNm').val('');
+    $('#frmSchdlCn').val('');
+    $('#frmSchdlBgngYmd').val('');
+    $('#frmSchdlEndYmd').val('');
+    $('#frmPicId').val('');
+}
+
+/**
+ * 사업 프로세스 일정 목록을 조회한다.
+ * @param 없음
+ * @returns 없음
+ */
+function loadBizSchdlList() {
     $.ajax({
         url: ctxPath + '/biz/schdlList.ajax',
         type: 'GET',
         dataType: 'json',
         data: { bizId: currentBizId },
         success: function(res) {
-            renderBizTaskList(res.list || []);
+            renderBizSchdlList(res.list || []);
         },
         error: function() {
-            $('#bizTaskBody').html('<tr><td colspan="5" class="ds-empty">단계 업무 조회 중 오류가 발생했습니다.</td></tr>');
+            $('#bizSchdlBody').html('<tr><td colspan="7" class="ds-empty">일정 조회 중 오류가 발생했습니다.</td></tr>');
         }
     });
 }
 
 /**
- * 단계 업무 목록을 테이블에 렌더링한다.
- * @param {Array} list 단계 업무 배열
+ * 사업 프로세스 일정 목록을 테이블에 렌더링한다.
+ * @param {Array} list 사업 일정 목록
  * @returns 없음
  */
-function renderBizTaskList(list) {
+function renderBizSchdlList(list) {
     var html = '';
-
     if (list.length === 0) {
-        html = '<tr><td colspan="5" class="ds-empty">등록된 단계 업무가 없습니다.</td></tr>';
-    } else {
-        $.each(list, function(index, row) {
-            html += '<tr>';
-            html += '<td>' + (index + 1) + '</td>';
-            html += '<td>' + escapeHtml(row.schdlSeCd) + '</td>';
-            html += '<td>' + escapeHtml(row.schdlNm) + '</td>';
-            html += '<td>' + escapeHtml(row.picId) + '</td>';
-            html += '<td>' + escapeHtml(row.rmrkCn) + '</td>';
-            html += '</tr>';
-        });
+        $('#bizSchdlBody').html('<tr><td colspan="7" class="ds-empty">등록된 일정이 없습니다.</td></tr>');
+        return;
     }
+    $.each(list, function(index, row) {
+        html += '<tr>';
+        html += '<td>' + (index + 1) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.schdlSeNm, getCodeNm('SCHDL_SE_CD', row.schdlSeCd))) + '</td>';
+        html += '<td>' + escapeHtml(row.schdlNm) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.schdlBgngYmd, '-')) + ' ~ ' + escapeHtml(nvl(row.schdlEndYmd, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.picNm || row.picId, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.schdlCn, '-')) + '</td>';
+        html += '<td><div class="ds-row-actions">'
+            + '<button type="button" class="ds-mini-btn" onclick="bindSchdlFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
+            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizSchdl(\'' + escapeJs(row.bizSchdlSn) + '\');">삭제</button>'
+            + '</div></td>';
+        html += '</tr>';
+    });
+    $('#bizSchdlBody').html(html);
+}
 
-    $('#bizTaskBody').html(html);
+/**
+ * 선택한 일정 행 데이터를 입력폼에 채운다.
+ * @param {Object} row 사업 일정 데이터
+ * @returns 없음
+ */
+function bindSchdlFormFromRow(row) {
+    $('#frmBizSchdlSn').val(nvl(row.bizSchdlSn, ''));
+    $('#frmSchdlSeCd').val(nvl(row.schdlSeCd, ''));
+    $('#frmSchdlNm').val(nvl(row.schdlNm, ''));
+    $('#frmSchdlCn').val(nvl(row.schdlCn, ''));
+    $('#frmSchdlBgngYmd').val(nvl(row.schdlBgngYmd, ''));
+    $('#frmSchdlEndYmd').val(nvl(row.schdlEndYmd, ''));
+    $('#frmPicId').val(nvl(row.picId, ''));
+}
+
+/**
+ * 인코딩된 일정 행 데이터를 복원해 입력폼에 채운다.
+ * @param {string} encodedRow URI 인코딩된 일정 JSON 문자열
+ * @returns 없음
+ */
+function bindSchdlFormFromEncoded(encodedRow) {
+    bindSchdlFormFromRow(decodeRowData(encodedRow));
+}
+
+/**
+ * 사업 프로세스 일정을 등록 또는 수정한다.
+ * @param 없음
+ * @returns 없음
+ */
+function saveBizSchdl() {
+    if (!$('#frmSchdlSeCd').val() || !$('#frmSchdlNm').val()) {
+        alert('일정구분과 일정명을 입력하십시오.');
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/schdlSave.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            bizId: currentBizId,
+            bizSchdlSn: $('#frmBizSchdlSn').val(),
+            schdlSeCd: $('#frmSchdlSeCd').val(),
+            schdlNm: $('#frmSchdlNm').val(),
+            schdlCn: $('#frmSchdlCn').val(),
+            schdlBgngYmd: $('#frmSchdlBgngYmd').val(),
+            schdlEndYmd: $('#frmSchdlEndYmd').val(),
+            picId: $('#frmPicId').val()
+        },
+        success: function(res) {
+            if (res.result === 'OK') {
+                resetSchdlForm();
+                loadBizSchdlList();
+            } else {
+                alert('일정 저장에 실패했습니다.');
+            }
+        }
+    });
+}
+
+/**
+ * 선택한 사업 프로세스 일정을 삭제한다.
+ * @param {string|number} bizSchdlSn 사업일정일련번호
+ * @returns 없음
+ */
+function deleteBizSchdl(bizSchdlSn) {
+    if (!confirm('선택한 일정을 삭제하시겠습니까?')) {
+        return;
+    }
+    $.ajax({
+        url: ctxPath + '/biz/schdlDelete.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { bizId: currentBizId, bizSchdlSn: bizSchdlSn },
+        success: function(res) {
+            if (res.result === 'OK') {
+                loadBizSchdlList();
+            } else {
+                alert('삭제에 실패했습니다.');
+            }
+        }
+    });
 }

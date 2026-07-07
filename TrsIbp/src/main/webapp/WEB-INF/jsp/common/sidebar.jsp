@@ -68,9 +68,12 @@
                     <i id="arrow-sub-project" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
                 </button>
                 <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="<%=request.getContextPath()%>/biz/bizList.do" class="block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40">전사 사업 현황판</a>
+                    <a href="<%=request.getContextPath()%>/biz/bizList.do" class="block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40">사업 목록</a>
+                    <a href="<%=request.getContextPath()%>/biz/contractList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">계약 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/accountList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회계 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/mnpwList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입인력 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/schdlList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로세스(일정) 관리</a>
                     <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">Jira 스프린트 싱크</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입 공수(M/M) 정산</a>
                     <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트 산출물 아카이브</a>
                 </div>
             </div>

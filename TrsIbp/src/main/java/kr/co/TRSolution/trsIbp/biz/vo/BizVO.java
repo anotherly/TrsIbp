@@ -24,12 +24,9 @@ public class BizVO extends BaseVO {
     private String searchInstSeCd;
     private String searchBizKndCd;
     private String searchBizSeCd;
-    private String startYmd;
-    private String endYmd;
 
     /* biz_info */
     private String bizId;
-    private Long bizSn;
     private String coId;
     private String bizCd;
     private String bizNm;
@@ -135,14 +132,8 @@ public class BizVO extends BaseVO {
     public void setSearchBizKndCd(String searchBizKndCd) { this.searchBizKndCd = searchBizKndCd; }
     public String getSearchBizSeCd() { return searchBizSeCd; }
     public void setSearchBizSeCd(String searchBizSeCd) { this.searchBizSeCd = searchBizSeCd; }
-    public String getStartYmd() { return startYmd; }
-    public void setStartYmd(String startYmd) { this.startYmd = startYmd; }
-    public String getEndYmd() { return endYmd; }
-    public void setEndYmd(String endYmd) { this.endYmd = endYmd; }
     public String getBizId() { return bizId; }
     public void setBizId(String bizId) { this.bizId = bizId; }
-    public Long getBizSn() { return bizSn; }
-    public void setBizSn(Long bizSn) { this.bizSn = bizSn; }
     public String getCoId() { return coId; }
     public void setCoId(String coId) { this.coId = coId; }
     public String getBizCd() { return bizCd; }
