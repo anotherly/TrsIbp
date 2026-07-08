@@ -436,8 +436,11 @@ function deleteBizById(bizId) {
  */
 function initBizInsertPage() {
     loadBizCodeOptions(function() {
+        $('#frmBizCd').val('저장 시 자동 생성').prop('readonly', true);
         $('#frmBizSttsCd').val(getDefaultCode('BIZ_STTS_CD'));
         $('#frmInstSeCd').val(getDefaultCode('INST_SE_CD'));
+        bindBizStatusReadyEvent();
+        toggleReadyContractFields();
     });
 }
 
@@ -451,8 +454,8 @@ function initBizDetailPage() {
         return;
     }
     loadBizCodeOptions(function() {
+        bindBizStatusReadyEvent();
         loadBizDetail();
-        loadBizManageAll();
     });
 }
 
@@ -466,6 +469,7 @@ function initBizUpdatePage() {
         return;
     }
     loadBizCodeOptions(function() {
+        bindBizStatusReadyEvent();
         loadBizDetail();
     });
 }
@@ -612,7 +616,13 @@ function loadBizDetail() {
  */
 function bindBizForm(data) {
     $('#frmBizId').val(nvl(data.bizId, ''));
-    $('#frmBizCd').val(nvl(data.bizCd, ''));
+
+    if (bizPageMode === 'detail') {
+        bindBizDetailText(data);
+        return;
+    }
+
+    $('#frmBizCd').val(nvl(data.bizCd, '저장 시 자동 생성')).prop('readonly', true);
     $('#frmBizNm').val(nvl(data.bizNm, ''));
     $('#frmInstSeCd').val(nvl(data.instSeCd, ''));
     $('#frmOrdplNm').val(nvl(data.ordplNm, ''));
@@ -622,12 +632,95 @@ function bindBizForm(data) {
     $('#frmOtstYmd').val(nvl(data.otstYmd || data.bizBgngYmd, ''));
     $('#frmBizEndYmd').val(nvl(data.bizEndYmd, ''));
     $('#frmCtrtAmt').val(nvl(data.ctrtAmt, ''));
-    $('#frmGiveMthdCn').val(nvl(data.giveMthdCn, ''));
+    splitGiveMthdCn(nvl(data.giveMthdCn, ''));
     $('#frmGiveDdtYmd').val(nvl(data.giveDdtYmd, ''));
     $('#frmDfrpGrnteBgngYmd').val(nvl(data.dfrpGrnteBgngYmd, ''));
     $('#frmDfrpGrnteEndYmd').val(nvl(data.dfrpGrnteEndYmd, ''));
     $('#frmRmrkCn').val(nvl(data.rmrkCn, ''));
     $('#frmBizSttsCd').val(nvl(data.bizSttsCd, getDefaultCode('BIZ_STTS_CD')));
+    toggleReadyContractFields();
+}
+
+/**
+ * 사업 상세 화면 전용 표시 태그에 조회 값을 출력한다.
+ * @param {Object} data 사업 상세 데이터
+ * @returns 없음
+ */
+function bindBizDetailText(data) {
+    $('#dispBizCd').text(nvl(data.bizCd, '-'));
+    $('#dispBizNm').text(nvl(data.bizNm, '-'));
+    $('#dispInstSeNm').text(nvl(data.instSeNm, getCodeNm('INST_SE_CD', data.instSeCd)));
+    $('#dispBizKndNm').text(nvl(data.bizKndNm, getCodeNm('BIZ_KND_CD', data.bizKndCd)));
+    $('#dispBizSttsNm').text(nvl(data.bizSttsNm, getCodeNm('BIZ_STTS_CD', data.bizSttsCd)));
+    $('#dispBizSeNm').text(nvl(data.bizSeNm, getCodeNm('BIZ_SE_CD', data.bizSeCd)));
+    $('#dispOrdplNm').text(nvl(data.ordplNm, '-'));
+    $('#dispCtrtYmd').text(nvl(data.ctrtYmd, '-'));
+    $('#dispOtstYmd').text(nvl(data.otstYmd || data.bizBgngYmd, '-'));
+    $('#dispBizEndYmd').text(nvl(data.bizEndYmd, '-'));
+    $('#dispCtrtAmt').text(data.ctrtAmt === null || data.ctrtAmt === undefined || data.ctrtAmt === '' ? '-' : formatAmt(data.ctrtAmt));
+    $('#dispGiveMthdCn').text(nvl(data.giveMthdCn, '-'));
+    $('#dispGiveDdtYmd').text(nvl(data.giveDdtYmd, '-'));
+    $('#dispDfrpGrnteBgngYmd').text(nvl(data.dfrpGrnteBgngYmd, '-'));
+    $('#dispDfrpGrnteEndYmd').text(nvl(data.dfrpGrnteEndYmd, '-'));
+    $('#dispRmrkCn').text(nvl(data.rmrkCn, '-'));
+}
+
+/**
+ * 사업상태 변경 이벤트를 연결한다.
+ * @param 없음
+ * @returns 없음
+ */
+function bindBizStatusReadyEvent() {
+    $('#frmBizSttsCd').off('change.bizReady').on('change.bizReady', function() {
+        toggleReadyContractFields();
+    });
+}
+
+/**
+ * 사업상태가 준비이면 계약 관련 입력항목을 비활성화하고 값을 비운다.
+ * @param 없음
+ * @returns 없음
+ */
+function toggleReadyContractFields() {
+    var isReady = $('#frmBizSttsCd').val() === 'READY';
+    $('.ready-disable-field').prop('disabled', isReady);
+    if (isReady) {
+        $('.ready-disable-field').val('');
+    }
+}
+
+/**
+ * 지급방법 저장 문자열을 지급방법/지급내용 입력값으로 분리한다.
+ * @param {string} value GIVE_MTHD_CN 저장값
+ * @returns 없음
+ */
+function splitGiveMthdCn(value) {
+    var giveText = nvl(value, '');
+    var parts = giveText.split(':');
+    if (parts.length > 1 && ['선금', '중도금', '잔금'].indexOf(parts[0].trim()) >= 0) {
+        $('#frmGiveMthdSe').val(parts[0].trim());
+        $('#frmGiveMthdDtl').val(parts.slice(1).join(':').trim());
+    } else if (['선금', '중도금', '잔금'].indexOf(giveText.trim()) >= 0) {
+        $('#frmGiveMthdSe').val(giveText.trim());
+        $('#frmGiveMthdDtl').val('');
+    } else {
+        $('#frmGiveMthdSe').val('');
+        $('#frmGiveMthdDtl').val(giveText);
+    }
+}
+
+/**
+ * 지급방법/지급내용 입력값을 기존 GIVE_MTHD_CN 컬럼 저장 문자열로 조합한다.
+ * @param 없음
+ * @returns {string} 조합된 지급방법 내용
+ */
+function buildGiveMthdCn() {
+    var se = $('#frmGiveMthdSe').val();
+    var dtl = $('#frmGiveMthdDtl').val();
+    if (!se && !dtl) {
+        return '';
+    }
+    return se ? (dtl ? se + ': ' + dtl : se) : dtl;
 }
 
 /**
@@ -636,16 +729,34 @@ function bindBizForm(data) {
  * @returns 없음
  */
 function saveBiz() {
-    if (!$('#frmBizCd').val()) {
-        alert('사업코드를 입력하십시오.');
-        $('#frmBizCd').focus();
-        return;
-    }
+    var isNew = !$('#frmBizId').val();
     if (!$('#frmBizNm').val()) {
         alert('사업명을 입력하십시오.');
         $('#frmBizNm').focus();
         return;
     }
+    if (!$('#frmBizSttsCd').val()) {
+        alert('사업상태를 선택하십시오.');
+        $('#frmBizSttsCd').focus();
+        return;
+    }
+    if (!$('#frmInstSeCd').val()) {
+        alert('민간/공공을 선택하십시오.');
+        $('#frmInstSeCd').focus();
+        return;
+    }
+    if (!$('#frmBizKndCd').val()) {
+        alert('사업종류를 선택하십시오.');
+        $('#frmBizKndCd').focus();
+        return;
+    }
+    if (!$('#frmBizSeCd').val()) {
+        alert('사업성격을 선택하십시오.');
+        $('#frmBizSeCd').focus();
+        return;
+    }
+
+    var isReady = $('#frmBizSttsCd').val() === 'READY';
 
     $.ajax({
         url: ctxPath + '/biz/bizSave.ajax',
@@ -653,20 +764,20 @@ function saveBiz() {
         dataType: 'json',
         data: {
             bizId: $('#frmBizId').val(),
-            bizCd: $('#frmBizCd').val(),
+            bizCd: isNew ? '' : $('#frmBizCd').val(),
             bizNm: $('#frmBizNm').val(),
             instSeCd: $('#frmInstSeCd').val(),
             ordplNm: $('#frmOrdplNm').val(),
             bizKndCd: $('#frmBizKndCd').val(),
             bizSeCd: $('#frmBizSeCd').val(),
-            ctrtYmd: $('#frmCtrtYmd').val(),
-            otstYmd: $('#frmOtstYmd').val(),
-            bizEndYmd: $('#frmBizEndYmd').val(),
-            ctrtAmt: $('#frmCtrtAmt').val(),
-            giveMthdCn: $('#frmGiveMthdCn').val(),
-            giveDdtYmd: $('#frmGiveDdtYmd').val(),
-            dfrpGrnteBgngYmd: $('#frmDfrpGrnteBgngYmd').val(),
-            dfrpGrnteEndYmd: $('#frmDfrpGrnteEndYmd').val(),
+            ctrtYmd: isReady ? '' : $('#frmCtrtYmd').val(),
+            otstYmd: isReady ? '' : $('#frmOtstYmd').val(),
+            bizEndYmd: isReady ? '' : $('#frmBizEndYmd').val(),
+            ctrtAmt: isReady ? '' : $('#frmCtrtAmt').val(),
+            giveMthdCn: isReady ? '' : buildGiveMthdCn(),
+            giveDdtYmd: isReady ? '' : $('#frmGiveDdtYmd').val(),
+            dfrpGrnteBgngYmd: isReady ? '' : $('#frmDfrpGrnteBgngYmd').val(),
+            dfrpGrnteEndYmd: isReady ? '' : $('#frmDfrpGrnteEndYmd').val(),
             rmrkCn: $('#frmRmrkCn').val(),
             bizSttsCd: $('#frmBizSttsCd').val()
         },

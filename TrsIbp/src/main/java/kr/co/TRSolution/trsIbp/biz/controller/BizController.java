@@ -89,9 +89,12 @@ public class BizController {
             bizVO.setCoId(loginVO.getCoId());
         }
 
+        clearContractFieldsWhenReady(bizVO);
+
         int cnt;
         if (bizVO.getBizId() == null || bizVO.getBizId().trim().isEmpty()) {
             bizVO.setBizId(createBizId());
+            bizVO.setBizCd(createNextBizCd(loginVO));
             cnt = bizService.insertBiz(bizVO);
         } else {
             cnt = bizService.updateBiz(bizVO);
@@ -398,6 +401,64 @@ public class BizController {
      * @param 없음
      * @return B + yyyyMMddHHmmss + 영문/숫자 랜덤 5자리로 구성된 20자리 사업ID
      */
+    /**
+     * 사업상태가 준비(READY)인 경우 계약 관련 입력값을 서버에서 강제로 비운다.
+     * @param bizVO 저장 대상 사업 VO
+     * @returns 없음
+     */
+    private void clearContractFieldsWhenReady(BizVO bizVO) {
+        if (!"READY".equals(bizVO.getBizSttsCd())) {
+            return;
+        }
+        bizVO.setCtrtYmd(null);
+        bizVO.setOtstYmd(null);
+        bizVO.setBizBgngYmd(null);
+        bizVO.setBizEndYmd(null);
+        bizVO.setCtrtAmt(null);
+        bizVO.setGiveMthdCn(null);
+        bizVO.setGiveDdtYmd(null);
+        bizVO.setDfrpGrnteBgngYmd(null);
+        bizVO.setDfrpGrnteEndYmd(null);
+    }
+
+    /**
+     * 로그인 사용자의 회사코드와 현재 연도를 기준으로 사업코드를 생성한다.
+     * @param loginVO 로그인 사용자 정보
+     * @return 회사코드-연도-일련번호 형식 사업코드
+     * @throws Exception 다음 일련번호 조회 중 예외 발생 시 전달
+     */
+    private String createNextBizCd(UserVO loginVO) throws Exception {
+        String coCode = resolveCompanyCode(loginVO);
+        String yy = new SimpleDateFormat("yy").format(new Date());
+        BizVO seqVO = new BizVO();
+        seqVO.setBizCdPrefix(coCode + "-" + yy + "-");
+        int nextSeq = bizService.selectNextBizCdSeq(seqVO);
+        return seqVO.getBizCdPrefix() + String.format("%04d", nextSeq);
+    }
+
+    /**
+     * 회사정보에 별도 회사코드 컬럼이 없어 기존 회사ID/회사명 기준으로 코드값을 결정한다.
+     * @param loginVO 로그인 사용자 정보
+     * @return 사업코드 Prefix에 사용할 회사코드
+     */
+    private String resolveCompanyCode(UserVO loginVO) {
+        if (loginVO == null) {
+            return "CO";
+        }
+        if ("COMP001".equalsIgnoreCase(loginVO.getCoId()) || "쓰리알솔루션".equals(loginVO.getCoNm())) {
+            return "TR";
+        }
+        String coId = loginVO.getCoId();
+        if (coId == null || coId.trim().isEmpty()) {
+            return "CO";
+        }
+        String compact = coId.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+        if (compact.length() >= 2) {
+            return compact.substring(0, 2);
+        }
+        return String.format("%-2s", compact).replace(' ', 'X');
+    }
+
     private String createBizId() {
         StringBuilder builder = new StringBuilder("B");
         builder.append(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));

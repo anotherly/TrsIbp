@@ -186,8 +186,7 @@
     <update id="updateBiz" parameterType="bizVO">
         UPDATE biz_info
         SET
-             BIZ_CD = #{bizCd}
-            ,BIZ_NM = #{bizNm}
+             BIZ_NM = #{bizNm}
             ,INST_SE_CD = #{instSeCd}
             ,BIZ_KND_CD = #{bizKndCd}
             ,BIZ_SE_CD = #{bizSeCd}
@@ -210,6 +209,12 @@
         DELETE FROM biz_info
         WHERE BIZ_ID = #{bizId}
     </delete>
+
+    <select id="selectNextBizCdSeq" parameterType="bizVO" resultType="int">
+        SELECT IFNULL(MAX(CAST(SUBSTRING(BIZ_CD, LENGTH(#{bizCdPrefix}) + 1) AS UNSIGNED)), 0) + 1
+        FROM biz_info
+        WHERE BIZ_CD LIKE CONCAT(#{bizCdPrefix}, '%')
+    </select>
 
     <select id="selectCustList" parameterType="bizVO" resultMap="bizResultMap">
         SELECT

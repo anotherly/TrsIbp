@@ -24,6 +24,7 @@ public class BizVO extends BaseVO {
     private String searchInstSeCd;
     private String searchBizKndCd;
     private String searchBizSeCd;
+    private String bizCdPrefix;
 
     /* biz_info */
     private String bizId;
@@ -132,6 +133,8 @@ public class BizVO extends BaseVO {
     public void setSearchBizKndCd(String searchBizKndCd) { this.searchBizKndCd = searchBizKndCd; }
     public String getSearchBizSeCd() { return searchBizSeCd; }
     public void setSearchBizSeCd(String searchBizSeCd) { this.searchBizSeCd = searchBizSeCd; }
+    public String getBizCdPrefix() { return bizCdPrefix; }
+    public void setBizCdPrefix(String bizCdPrefix) { this.bizCdPrefix = bizCdPrefix; }
     public String getBizId() { return bizId; }
     public void setBizId(String bizId) { this.bizId = bizId; }
     public String getCoId() { return coId; }
