@@ -73,8 +73,6 @@
                     <a href="<%=request.getContextPath()%>/biz/accountList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회계 관리</a>
                     <a href="<%=request.getContextPath()%>/biz/mnpwList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입인력 관리</a>
                     <a href="<%=request.getContextPath()%>/biz/schdlList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로세스(일정) 관리</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">Jira 스프린트 싱크</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트 산출물 아카이브</a>
                 </div>
             </div>
 

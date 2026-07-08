@@ -41,6 +41,7 @@ public class BizVO extends BaseVO {
     private String bizBgngYmd;
     private String bizEndYmd;
     private BigDecimal ctrtAmt;
+    private String giveMthdCd;
     private String giveMthdCn;
     private String giveDdtYmd;
     private String dfrpGrnteBgngYmd;
@@ -106,6 +107,7 @@ public class BizVO extends BaseVO {
     private String instSeNm;
     private String bizKndNm;
     private String bizSeNm;
+    private String giveMthdNm;
     private String custSeNm;
     private String relSeNm;
     private String inputSeNm;
@@ -163,6 +165,8 @@ public class BizVO extends BaseVO {
     public void setBizEndYmd(String bizEndYmd) { this.bizEndYmd = bizEndYmd; }
     public BigDecimal getCtrtAmt() { return ctrtAmt; }
     public void setCtrtAmt(BigDecimal ctrtAmt) { this.ctrtAmt = ctrtAmt; }
+    public String getGiveMthdCd() { return giveMthdCd; }
+    public void setGiveMthdCd(String giveMthdCd) { this.giveMthdCd = giveMthdCd; }
     public String getGiveMthdCn() { return giveMthdCn; }
     public void setGiveMthdCn(String giveMthdCn) { this.giveMthdCn = giveMthdCn; }
     public String getGiveDdtYmd() { return giveDdtYmd; }
@@ -275,6 +279,8 @@ public class BizVO extends BaseVO {
     public void setBizKndNm(String bizKndNm) { this.bizKndNm = bizKndNm; }
     public String getBizSeNm() { return bizSeNm; }
     public void setBizSeNm(String bizSeNm) { this.bizSeNm = bizSeNm; }
+    public String getGiveMthdNm() { return giveMthdNm; }
+    public void setGiveMthdNm(String giveMthdNm) { this.giveMthdNm = giveMthdNm; }
     public String getCustSeNm() { return custSeNm; }
     public void setCustSeNm(String custSeNm) { this.custSeNm = custSeNm; }
     public String getRelSeNm() { return relSeNm; }

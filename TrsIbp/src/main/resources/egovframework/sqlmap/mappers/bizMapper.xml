@@ -20,6 +20,7 @@
         <result property="bizBgngYmd"       column="BIZ_BGNG_YMD"/>
         <result property="bizEndYmd"        column="BIZ_END_YMD"/>
         <result property="ctrtAmt"          column="CTRT_AMT"/>
+        <result property="giveMthdCd"       column="GIVE_MTHD_CD"/>
         <result property="giveMthdCn"       column="GIVE_MTHD_CN"/>
         <result property="giveDdtYmd"       column="GIVE_DDT_YMD"/>
         <result property="dfrpGrnteBgngYmd" column="DFRP_GRNTE_BGNG_YMD"/>
@@ -37,6 +38,7 @@
         <result property="instSeNm"         column="INST_SE_NM"/>
         <result property="bizKndNm"         column="BIZ_KND_NM"/>
         <result property="bizSeNm"          column="BIZ_SE_NM"/>
+        <result property="giveMthdNm"       column="GIVE_MTHD_NM"/>
         <result property="custSn"           column="CUST_SN"/>
         <result property="custCoNm"         column="CUST_CO_NM"/>
         <result property="custSeCd"         column="CUST_SE_CD"/>
@@ -92,6 +94,7 @@
             ,IFNULL(INST_CD.CD_NM, B.INST_SE_CD) AS INST_SE_NM
             ,IFNULL(KND_CD.CD_NM, B.BIZ_KND_CD) AS BIZ_KND_NM
             ,IFNULL(SE_CD.CD_NM, B.BIZ_SE_CD) AS BIZ_SE_NM
+            ,IFNULL(GIVE_CD.CD_NM, B.GIVE_MTHD_CD) AS GIVE_MTHD_NM
     </sql>
 
     <sql id="bizCodeJoins">
@@ -99,6 +102,7 @@
         LEFT JOIN cmn_cd INST_CD ON INST_CD.CD_GROUP_ID = 'INST_SE_CD' AND INST_CD.CD = B.INST_SE_CD AND INST_CD.USE_YN = 'Y'
         LEFT JOIN cmn_cd KND_CD ON KND_CD.CD_GROUP_ID = 'BIZ_KND_CD' AND KND_CD.CD = B.BIZ_KND_CD AND KND_CD.USE_YN = 'Y'
         LEFT JOIN cmn_cd SE_CD ON SE_CD.CD_GROUP_ID = 'BIZ_SE_CD' AND SE_CD.CD = B.BIZ_SE_CD AND SE_CD.USE_YN = 'Y'
+        LEFT JOIN cmn_cd GIVE_CD ON GIVE_CD.CD_GROUP_ID = 'GIVE_MTHD_CD' AND GIVE_CD.CD = B.GIVE_MTHD_CD AND GIVE_CD.USE_YN = 'Y'
     </sql>
 
     <sql id="bizSearchWhere">
@@ -124,7 +128,7 @@
             ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
             ,DATE_FORMAT(IFNULL(B.BIZ_BGNG_YMD, B.OTST_YMD), '%Y-%m-%d') AS BIZ_BGNG_YMD
             ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
-            ,B.CTRT_AMT, B.GIVE_MTHD_CN
+            ,B.CTRT_AMT, B.GIVE_MTHD_CD, B.GIVE_MTHD_CN
             ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
@@ -153,7 +157,7 @@
             ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
             ,DATE_FORMAT(IFNULL(B.BIZ_BGNG_YMD, B.OTST_YMD), '%Y-%m-%d') AS BIZ_BGNG_YMD
             ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
-            ,B.CTRT_AMT, B.GIVE_MTHD_CN
+            ,B.CTRT_AMT, B.GIVE_MTHD_CD, B.GIVE_MTHD_CN
             ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
@@ -165,15 +169,21 @@
         WHERE B.BIZ_ID = #{bizId}
     </select>
 
+    <select id="selectNextBizCdSeq" parameterType="bizVO" resultType="int">
+        SELECT IFNULL(MAX(CAST(SUBSTRING(BIZ_CD, LENGTH(#{bizCdPrefix}) + 1) AS UNSIGNED)), 0) + 1
+        FROM biz_info
+        WHERE BIZ_CD LIKE CONCAT(#{bizCdPrefix}, '%')
+    </select>
+
     <insert id="insertBiz" parameterType="bizVO">
         INSERT INTO biz_info (
              BIZ_ID, CO_ID, BIZ_CD, BIZ_NM, INST_SE_CD, BIZ_KND_CD, BIZ_SE_CD, ORDPL_NM
-            ,CTRT_YMD, OTST_YMD, BIZ_BGNG_YMD, BIZ_END_YMD, CTRT_AMT, GIVE_MTHD_CN, GIVE_DDT_YMD
+            ,CTRT_YMD, OTST_YMD, BIZ_BGNG_YMD, BIZ_END_YMD, CTRT_AMT, GIVE_MTHD_CD, GIVE_MTHD_CN, GIVE_DDT_YMD
             ,DFRP_GRNTE_BGNG_YMD, DFRP_GRNTE_END_YMD, RMRK_CN, BIZ_STTS_CD, REG_DT
         ) VALUES (
              #{bizId}, #{coId}, #{bizCd}, #{bizNm}, #{instSeCd}, #{bizKndCd}, #{bizSeCd}, #{ordplNm}
             ,NULLIF(#{ctrtYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{bizEndYmd}, '')
-            ,#{ctrtAmt}, #{giveMthdCn}, NULLIF(#{giveDdtYmd}, '')
+            ,#{ctrtAmt}, NULLIF(#{giveMthdCd}, ''), #{giveMthdCn}, NULLIF(#{giveDdtYmd}, '')
             ,NULLIF(#{dfrpGrnteBgngYmd}, ''), NULLIF(#{dfrpGrnteEndYmd}, ''), #{rmrkCn}
             ,COALESCE(NULLIF(#{bizSttsCd}, ''), (
                 SELECT C.CD FROM cmn_cd C
@@ -196,6 +206,7 @@
             ,BIZ_BGNG_YMD = NULLIF(#{otstYmd}, '')
             ,BIZ_END_YMD = NULLIF(#{bizEndYmd}, '')
             ,CTRT_AMT = #{ctrtAmt}
+            ,GIVE_MTHD_CD = NULLIF(#{giveMthdCd}, '')
             ,GIVE_MTHD_CN = #{giveMthdCn}
             ,GIVE_DDT_YMD = NULLIF(#{giveDdtYmd}, '')
             ,DFRP_GRNTE_BGNG_YMD = NULLIF(#{dfrpGrnteBgngYmd}, '')
@@ -209,12 +220,6 @@
         DELETE FROM biz_info
         WHERE BIZ_ID = #{bizId}
     </delete>
-
-    <select id="selectNextBizCdSeq" parameterType="bizVO" resultType="int">
-        SELECT IFNULL(MAX(CAST(SUBSTRING(BIZ_CD, LENGTH(#{bizCdPrefix}) + 1) AS UNSIGNED)), 0) + 1
-        FROM biz_info
-        WHERE BIZ_CD LIKE CONCAT(#{bizCdPrefix}, '%')
-    </select>
 
     <select id="selectCustList" parameterType="bizVO" resultMap="bizResultMap">
         SELECT

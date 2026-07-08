@@ -34,6 +34,11 @@ public class BizServiceImpl implements BizService {
     }
 
     @Override
+    public int selectNextBizCdSeq(BizVO vo) throws Exception {
+        return bizMapper.selectNextBizCdSeq(vo);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertBiz(BizVO vo) throws Exception {
         return bizMapper.insertBiz(vo);
@@ -49,17 +54,6 @@ public class BizServiceImpl implements BizService {
     @Transactional(rollbackFor = Exception.class)
     public int deleteBiz(BizVO vo) throws Exception {
         return bizMapper.deleteBiz(vo);
-    }
-
-    /**
-     * 사업코드 Prefix 기준 다음 일련번호를 조회한다.
-     * @param vo bizCdPrefix 값을 담은 VO
-     * @return 다음 사업코드 일련번호
-     * @throws Exception 조회 중 예외 발생 시 전달
-     */
-    @Override
-    public int selectNextBizCdSeq(BizVO vo) throws Exception {
-        return bizMapper.selectNextBizCdSeq(vo);
     }
 
     @Override

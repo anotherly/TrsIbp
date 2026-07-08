@@ -36,24 +36,30 @@
                 </div>
             </div>
 
-            <input type="hidden" id="frmBizId" name="bizId" value="${param.bizId}">
-            <div class="ds-form-grid biz-basic-form biz-detail-view">
-                <div class="ds-field"><label class="required">사업코드</label><p id="dispBizCd" class="ds-display-text"></p></div>
-                <div class="ds-field"><label class="required">사업명</label><p id="dispBizNm" class="ds-display-text"></p></div>
-                <div class="ds-field"><label class="required">민간/공공</label><p id="dispInstSeNm" class="ds-display-text"></p></div>
-                <div class="ds-field"><label class="required">사업종류</label><p id="dispBizKndNm" class="ds-display-text"></p></div>
-                <div class="ds-field"><label class="required">사업상태</label><p id="dispBizSttsNm" class="ds-display-text"></p></div>
-                <div class="ds-field"><label class="required">사업성격</label><p id="dispBizSeNm" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>발주처</label><p id="dispOrdplNm" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>계약일</label><p id="dispCtrtYmd" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>착수일</label><p id="dispOtstYmd" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>사업종료일</label><p id="dispBizEndYmd" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>계약금액</label><p id="dispCtrtAmt" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>지급방법</label><p id="dispGiveMthdCn" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>지급기일</label><p id="dispGiveDdtYmd" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>하자보증시작일</label><p id="dispDfrpGrnteBgngYmd" class="ds-display-text"></p></div>
-                <div class="ds-field"><label>하자보증종료일</label><p id="dispDfrpGrnteEndYmd" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-span-2"><label>기타사항</label><p id="dispRmrkCn" class="ds-display-text ds-display-textarea"></p></div>
+            <input type="hidden" id="frmBizId" value="${param.bizId}">
+            <div class="ds-form-grid ds-form-grid-4 biz-basic-form biz-detail-view">
+                <div class="ds-field ds-col-span-1"><label class="required">사업코드</label><p id="dispBizCd" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-span-4"><label class="required">사업명</label><p id="dispBizNm" class="ds-display-text">-</p></div>
+
+                <div class="ds-field ds-col-span-2"><label class="required">민간/공공</label><p id="dispInstSeNm" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-span-2"><label class="required">사업종류</label><p id="dispBizKndNm" class="ds-display-text">-</p></div>
+
+                <div class="ds-field ds-col-span-2"><label class="required">사업상태</label><p id="dispBizSttsNm" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-span-2"><label class="required">사업성격</label><p id="dispBizSeNm" class="ds-display-text">-</p></div>
+
+                <div class="ds-field ds-col-span-4"><label>발주처</label><p id="dispOrdplNm" class="ds-display-text">-</p></div>
+
+                <div class="ds-field"><label>계약일</label><p id="dispCtrtYmd" class="ds-display-text">-</p></div>
+                <div class="ds-field"><label>착수일</label><p id="dispOtstYmd" class="ds-display-text">-</p></div>
+                <div class="ds-field"><label>사업종료일</label><p id="dispBizEndYmd" class="ds-display-text">-</p></div>
+
+                <div class="ds-field"><label>계약금액</label><p id="dispCtrtAmt" class="ds-display-text">-</p></div>
+                <div class="ds-field"><label>지급방법</label><p id="dispGiveMthdNm" class="ds-display-text">-</p></div>
+                <div class="ds-field"><label>지급방법상세</label><p id="dispGiveMthdCn" class="ds-display-text">-</p></div>
+                <div class="ds-field"><label>지급기일</label><p id="dispGiveDdtYmd" class="ds-display-text">-</p></div>
+
+                <div class="ds-field ds-col-span-2"><label>하자보증시작일</label><p id="dispDfrpGrnteBgngYmd" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-span-2"><label>하자보증종료일</label><p id="dispDfrpGrnteEndYmd" class="ds-display-text">-</p></div>
             </div>
         </section>
     </main>
