@@ -1,5 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%
+    String uri = request.getRequestURI();
+    boolean isBizList = uri.contains("/biz/bizList.do") || uri.contains("/biz/bizInsert.do") || uri.contains("/biz/bizDetail.do") || uri.contains("/biz/bizUpdate.do");
+    boolean isContract = uri.contains("/biz/contractList.do");
+    boolean isAccount = uri.contains("/biz/accountList.do");
+    boolean isMnpw = uri.contains("/biz/mnpwList.do");
+    boolean isSchdl = uri.contains("/biz/schdlList.do");
+    String activeCls = "block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40";
+    String normalCls = "block p-2 hover:text-white rounded-md hover:bg-brand-card";
+%>
 <aside class="w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
     <div>
         <div class="p-6 border-b border-brand-border flex items-center justify-between">
@@ -68,11 +78,11 @@
                     <i id="arrow-sub-project" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
                 </button>
                 <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="<%=request.getContextPath()%>/biz/bizList.do" class="block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40">사업 목록</a>
-                    <a href="<%=request.getContextPath()%>/biz/contractList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">계약 관리</a>
-                    <a href="<%=request.getContextPath()%>/biz/accountList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회계 관리</a>
-                    <a href="<%=request.getContextPath()%>/biz/mnpwList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">투입인력 관리</a>
-                    <a href="<%=request.getContextPath()%>/biz/schdlList.do" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로세스(일정) 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/bizList.do" class="<%= isBizList ? activeCls : normalCls %>">사업 목록</a>
+                    <a href="<%=request.getContextPath()%>/biz/contractList.do" class="<%= isContract ? activeCls : normalCls %>">계약 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/accountList.do" class="<%= isAccount ? activeCls : normalCls %>">회계 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/mnpwList.do" class="<%= isMnpw ? activeCls : normalCls %>">투입인력 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/schdlList.do" class="<%= isSchdl ? activeCls : normalCls %>">프로세스(일정) 관리</a>
                 </div>
             </div>
 

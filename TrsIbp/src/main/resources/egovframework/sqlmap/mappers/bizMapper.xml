@@ -52,9 +52,7 @@
         <result property="relSeCd"          column="REL_SE_CD"/>
         <result property="relSeNm"          column="REL_SE_NM"/>
         <result property="relLvl"           column="REL_LVL"/>
-        <result property="relSortSeq"       column="REL_SORT_SEQ"/>
         <result property="directCtrtYn"     column="DIRECT_CTRT_YN"/>
-        <result property="ourCoYn"          column="OUR_CO_YN"/>
         <result property="bizMnpwSn"        column="BIZ_MNPW_SN"/>
         <result property="userId"           column="USER_ID"/>
         <result property="userNm"           column="USER_NM"/>
@@ -138,7 +136,7 @@
         FROM biz_info B
         <include refid="bizCodeJoins"/>
         <include refid="bizSearchWhere"/>
-        ORDER BY B.REG_DT DESC, B.BIZ_ID DESC
+        ORDER BY B.BIZ_CD ASC, B.BIZ_ID ASC
         <if test="recordCountPerPage != null and recordCountPerPage != 0">
             LIMIT #{firstIndex}, #{recordCountPerPage}
         </if>
@@ -281,22 +279,22 @@
             ,C.BRNO, C.RPRSV_NM, C.TELNO, C.ADDR, C.DADDR
             ,IFNULL(CUST_CD.CD_NM, C.CUST_SE_CD) AS CUST_SE_NM
             ,R.REL_SE_CD, IFNULL(REL_CD.CD_NM, R.REL_SE_CD) AS REL_SE_NM
-            ,R.REL_LVL, R.SORT_SEQ AS REL_SORT_SEQ, R.DIRECT_CTRT_YN, R.OUR_CO_YN, R.RMRK_CN
+            ,R.REL_LVL, R.DIRECT_CTRT_YN, R.RMRK_CN
         FROM biz_cust_rel R
         INNER JOIN cust_info C ON C.CUST_SN = R.CUST_SN
         LEFT JOIN cmn_cd CUST_CD ON CUST_CD.CD_GROUP_ID = 'CUST_SE_CD' AND CUST_CD.CD = C.CUST_SE_CD AND CUST_CD.USE_YN = 'Y'
         LEFT JOIN cmn_cd REL_CD ON REL_CD.CD_GROUP_ID = 'REL_SE_CD' AND REL_CD.CD = R.REL_SE_CD AND REL_CD.USE_YN = 'Y'
         WHERE R.USE_YN = 'Y'
           AND R.BIZ_ID = #{bizId}
-        ORDER BY R.SORT_SEQ ASC, R.REL_LVL ASC, R.BIZ_CUST_REL_SN ASC
+        ORDER BY R.REL_LVL ASC, R.BIZ_CUST_REL_SN ASC
     </select>
 
     <insert id="insertBizCustRel" parameterType="bizVO" useGeneratedKeys="true" keyProperty="bizCustRelSn">
         INSERT INTO biz_cust_rel (
-             BIZ_ID, CUST_SN, REL_SE_CD, REL_LVL, SORT_SEQ, DIRECT_CTRT_YN, OUR_CO_YN, RMRK_CN, USE_YN, RGTR_ID, REG_DT
+             BIZ_ID, CUST_SN, REL_SE_CD, REL_LVL, DIRECT_CTRT_YN, RMRK_CN, USE_YN, RGTR_ID, REG_DT
         ) VALUES (
-             #{bizId}, #{custSn}, #{relSeCd}, #{relLvl}, #{relSortSeq}, COALESCE(NULLIF(#{directCtrtYn}, ''), 'N')
-            ,COALESCE(NULLIF(#{ourCoYn}, ''), 'N'), #{rmrkCn}, 'Y', #{rgtrId}, NOW()
+             #{bizId}, #{custSn}, #{relSeCd}, #{relLvl}, COALESCE(NULLIF(#{directCtrtYn}, ''), 'N')
+            ,#{rmrkCn}, 'Y', #{rgtrId}, NOW()
         )
     </insert>
 
@@ -306,9 +304,7 @@
              CUST_SN = #{custSn}
             ,REL_SE_CD = #{relSeCd}
             ,REL_LVL = #{relLvl}
-            ,SORT_SEQ = #{relSortSeq}
             ,DIRECT_CTRT_YN = COALESCE(NULLIF(#{directCtrtYn}, ''), 'N')
-            ,OUR_CO_YN = COALESCE(NULLIF(#{ourCoYn}, ''), 'N')
             ,RMRK_CN = #{rmrkCn}
             ,MDFR_ID = #{mdfrId}
             ,MDFCN_DT = NOW()

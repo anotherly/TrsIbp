@@ -120,7 +120,6 @@
                 <table id="bizTable" class="ds-table display">
                     <thead>
                     <tr>
-                        <th>번호</th>
                         <th>사업코드</th>
                         <th>사업명</th>
                         <th>기관구분</th>

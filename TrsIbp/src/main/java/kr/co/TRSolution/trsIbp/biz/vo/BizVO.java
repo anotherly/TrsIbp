@@ -69,9 +69,7 @@ public class BizVO extends BaseVO {
     private Long bizCustRelSn;
     private String relSeCd;
     private Integer relLvl;
-    private Integer relSortSeq;
     private String directCtrtYn;
-    private String ourCoYn;
 
     /* biz_mnpw */
     private Long bizMnpwSn;
@@ -215,12 +213,8 @@ public class BizVO extends BaseVO {
     public void setRelSeCd(String relSeCd) { this.relSeCd = relSeCd; }
     public Integer getRelLvl() { return relLvl; }
     public void setRelLvl(Integer relLvl) { this.relLvl = relLvl; }
-    public Integer getRelSortSeq() { return relSortSeq; }
-    public void setRelSortSeq(Integer relSortSeq) { this.relSortSeq = relSortSeq; }
     public String getDirectCtrtYn() { return directCtrtYn; }
     public void setDirectCtrtYn(String directCtrtYn) { this.directCtrtYn = directCtrtYn; }
-    public String getOurCoYn() { return ourCoYn; }
-    public void setOurCoYn(String ourCoYn) { this.ourCoYn = ourCoYn; }
 
     public Long getBizMnpwSn() { return bizMnpwSn; }
     public void setBizMnpwSn(Long bizMnpwSn) { this.bizMnpwSn = bizMnpwSn; }

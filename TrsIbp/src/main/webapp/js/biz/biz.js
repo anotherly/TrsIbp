@@ -223,8 +223,10 @@ function initBizDataTable() {
         pageLength: 10,
         lengthChange: false,
         columnDefs: [
-            { targets: -1, orderable: false }
+            { targets: -1, orderable: false },
+            { targets: '_all', className: 'dt-center' }
         ],
+        order: [[0, 'asc']],
         language: {
             emptyTable: '조회된 사업 데이터가 없습니다.',
             info: '_TOTAL_건 중 _START_ - _END_',
@@ -284,10 +286,11 @@ function renderBizList(list) {
     $.each(list, function(index, row) {
         var bizId = escapeHtml(row.bizId);
         var sttsCd = nvl(row.bizSttsCd, '');
-        var period = escapeHtml(nvl(row.otstYmd || row.bizBgngYmd, '-')) + ' ~ ' + escapeHtml(nvl(row.bizEndYmd, '-'));
+        var periodStart = escapeHtml(nvl(row.otstYmd || row.bizBgngYmd, '-'));
+        var periodEnd = escapeHtml(nvl(row.bizEndYmd, '-'));
+        var period = '<span class="ds-period"><span>' + periodStart + '</span><span>~ ' + periodEnd + '</span></span>';
 
         rows.push([
-            index + 1,
             '<span class="ds-code">' + escapeHtml(nvl(row.bizCd, '-')) + '</span>',
             '<a class="ds-link" href="' + ctxPath + '/biz/bizDetail.do?bizId=' + encodeURIComponent(row.bizId) + '">' + escapeHtml(row.bizNm) + '</a>',
             escapeHtml(nvl(row.instSeNm, getCodeNm('INST_SE_CD', row.instSeCd))),
@@ -558,7 +561,7 @@ function changeManagedBiz(manageType) {
  */
 function renderEmptyManageArea(manageType) {
     if (manageType === 'contract') {
-        $('#bizCustRelBody').html('<tr><td colspan="8" class="ds-empty">사업을 선택하십시오.</td></tr>');
+        $('#bizCustRelBody').html('<tr><td colspan="7" class="ds-empty">사업을 선택하십시오.</td></tr>');
     } else if (manageType === 'account') {
         $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">사업을 선택하십시오.</td></tr>');
         $('#profitCtrtAmt,#profitDirectCst,#profitLaborCst,#profitAmt').text('0');
@@ -810,9 +813,7 @@ function resetCustRelForm() {
     $('#frmAddr').val('');
     $('#frmRelSeCd').val(getDefaultCode('REL_SE_CD'));
     $('#frmRelLvl').val('');
-    $('#frmRelSortSeq').val('');
     $('#frmDirectCtrtYn').val('N');
-    $('#frmOurCoYn').val('N');
 }
 
 /**
@@ -830,7 +831,7 @@ function loadBizCustRelList() {
             renderBizCustRelList(res.list || []);
         },
         error: function() {
-            $('#bizCustRelBody').html('<tr><td colspan="8" class="ds-empty">계약 관계 조회 중 오류가 발생했습니다.</td></tr>');
+            $('#bizCustRelBody').html('<tr><td colspan="7" class="ds-empty">계약 관계 조회 중 오류가 발생했습니다.</td></tr>');
         }
     });
 }
@@ -843,7 +844,7 @@ function loadBizCustRelList() {
 function renderBizCustRelList(list) {
     var html = '';
     if (list.length === 0) {
-        $('#bizCustRelBody').html('<tr><td colspan="8" class="ds-empty">등록된 계약 관계가 없습니다.</td></tr>');
+        $('#bizCustRelBody').html('<tr><td colspan="7" class="ds-empty">등록된 계약 관계가 없습니다.</td></tr>');
         return;
     }
     $.each(list, function(index, row) {
@@ -854,7 +855,6 @@ function renderBizCustRelList(list) {
         html += '<td>' + escapeHtml(nvl(row.relSeNm, getCodeNm('REL_SE_CD', row.relSeCd))) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.relLvl, '-')) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.directCtrtYn, 'N')) + '</td>';
-        html += '<td>' + escapeHtml(nvl(row.ourCoYn, 'N')) + '</td>';
         html += '<td><div class="ds-row-actions">'
             + '<button type="button" class="ds-mini-btn" onclick="bindCustRelFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
             + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCustRel(\'' + escapeJs(row.bizCustRelSn) + '\');">삭제</button>'
@@ -880,9 +880,7 @@ function bindCustRelFormFromRow(row) {
     $('#frmAddr').val(nvl(row.addr, ''));
     $('#frmRelSeCd').val(nvl(row.relSeCd, ''));
     $('#frmRelLvl').val(nvl(row.relLvl, ''));
-    $('#frmRelSortSeq').val(nvl(row.relSortSeq, ''));
     $('#frmDirectCtrtYn').val(nvl(row.directCtrtYn, 'N'));
-    $('#frmOurCoYn').val(nvl(row.ourCoYn, 'N'));
 }
 
 /**
@@ -953,9 +951,7 @@ function saveBizCustRelAfterCust(custSn) {
             custSn: custSn,
             relSeCd: $('#frmRelSeCd').val(),
             relLvl: $('#frmRelLvl').val(),
-            relSortSeq: $('#frmRelSortSeq').val(),
-            directCtrtYn: $('#frmDirectCtrtYn').val(),
-            ourCoYn: $('#frmOurCoYn').val()
+            directCtrtYn: $('#frmDirectCtrtYn').val()
         },
         success: function(res) {
             if (res.result === 'OK') {

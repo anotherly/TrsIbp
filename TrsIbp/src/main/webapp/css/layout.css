@@ -205,6 +205,34 @@
     grid-column: span 2;
 }
 
+/* 12컬럼 공통 폼 그리드: 2/3/4분할을 같은 기준으로 균등 배치 */
+.ds-form-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px 18px;
+    align-items: end;
+}
+
+.ds-form-12 .ds-field,
+.ds-form-12 .ds-search-actions {
+    min-width: 0;
+}
+
+.ds-col-12 { grid-column: span 12; }
+.ds-col-9  { grid-column: span 9; }
+.ds-col-6  { grid-column: span 6; }
+.ds-col-4  { grid-column: span 4; }
+.ds-col-3  { grid-column: span 3; }
+.ds-col-2  { grid-column: span 2; }
+
+.ds-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
 .ds-field label,
 .ds-label {
     display: block;
@@ -226,6 +254,26 @@
     font-size: 14px;
     outline: none;
     transition: var(--ds-transition);
+    box-sizing: border-box;
+}
+
+.ds-select {
+    padding-right: 40px;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #dbeafe 50%),
+        linear-gradient(135deg, #dbeafe 50%, transparent 50%);
+    background-position:
+        calc(100% - 21px) 50%,
+        calc(100% - 15px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.ds-select::-ms-expand {
+    display: none;
 }
 
 .ds-input,
@@ -365,6 +413,15 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 8px;
+    table-layout: fixed;
+}
+
+.ds-table thead th,
+.ds-table tbody td {
+    text-align: center !important;
+    vertical-align: middle;
+    box-sizing: border-box;
+    line-height: 1.45;
 }
 
 .ds-table thead th {
@@ -375,6 +432,7 @@
     padding: 13px 12px;
     font-size: 13px;
     font-weight: 900;
+    white-space: nowrap;
 }
 
 .ds-table thead th:first-child {
@@ -388,14 +446,16 @@
 }
 
 .ds-table tbody tr {
-    background: rgba(12, 25, 50, .78);
+    background: transparent;
 }
 
 .ds-table tbody td {
     padding: 15px 12px;
     border: none;
+    background: rgba(12, 25, 50, .78);
     color: #eef5ff;
     font-size: 13px;
+    word-break: keep-all;
 }
 
 .ds-table tbody tr td:first-child {
@@ -406,6 +466,31 @@
 .ds-table tbody tr td:last-child {
     border-top-right-radius: 14px;
     border-bottom-right-radius: 14px;
+}
+
+.ds-table .ds-row-actions {
+    justify-content: center;
+}
+
+.ds-table.ds-table-compact {
+    border-spacing: 0 6px;
+}
+
+.ds-table.ds-table-compact thead th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.ds-table.ds-table-compact tbody td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 1.35;
+}
+
+.ds-table.ds-table-compact .ds-mini-btn {
+    min-height: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .ds-text-right {
@@ -679,4 +764,79 @@
     .biz-basic-form .ds-col-span-1 {
         grid-column: span 1;
     }
+}
+
+
+@media (max-width: 900px) {
+    .ds-form-12 .ds-col-2,
+    .ds-form-12 .ds-col-3,
+    .ds-form-12 .ds-col-4,
+    .ds-form-12 .ds-col-6,
+    .ds-form-12 .ds-col-9 {
+        grid-column: span 6;
+    }
+}
+
+@media (max-width: 640px) {
+    .ds-form-12 .ds-col-2,
+    .ds-form-12 .ds-col-3,
+    .ds-form-12 .ds-col-4,
+    .ds-form-12 .ds-col-6,
+    .ds-form-12 .ds-col-9,
+    .ds-form-12 .ds-col-12 {
+        grid-column: span 12;
+    }
+    .ds-form-actions {
+        justify-content: stretch;
+        flex-direction: column;
+    }
+    .ds-form-actions .ds-btn {
+        width: 100%;
+    }
+}
+
+
+/* 테이블 정렬/기간 표시 공통 보정 */
+.ds-table thead th,
+.ds-table tbody td,
+.dataTables_wrapper .ds-table thead th,
+.dataTables_wrapper .ds-table tbody td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.ds-table thead th {
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.ds-table thead th.sorting,
+.ds-table thead th.sorting_asc,
+.ds-table thead th.sorting_desc {
+    background-position: right 12px center !important;
+}
+
+.ds-table .ds-period {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+.ds-table .ds-period span {
+    display: block;
+}
+
+.ds-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.ds-form-actions .ds-btn {
+    min-width: 92px;
 }
