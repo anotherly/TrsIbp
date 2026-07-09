@@ -20,15 +20,18 @@
                 <div class="ds-field ds-col-3"><label for="frmSchdlNm">일정명</label><input type="text" id="frmSchdlNm" class="ds-input" maxlength="200"></div>
                 <div class="ds-field ds-col-3"><label for="frmSchdlBgngYmd">시작일</label><input type="date" id="frmSchdlBgngYmd" class="ds-input"></div>
                 <div class="ds-field ds-col-3"><label for="frmSchdlEndYmd">종료/완료일</label><input type="date" id="frmSchdlEndYmd" class="ds-input"></div>
-                <div class="ds-field ds-col-3"><label for="frmPicId">담당자ID</label><input type="text" id="frmPicId" class="ds-input" maxlength="50"></div>
+                <input type="hidden" id="frmPicId">
+                <div class="ds-field ds-col-3"><label for="frmPicDispNm">담당자 추가</label><div class="ds-input-button"><input type="text" id="frmPicDispNm" class="ds-input" readonly placeholder="사용자 검색"><button type="button" class="ds-btn ds-btn-outline" onclick="openUserSelectModal('schdl');">추가</button></div></div>
                 <div class="ds-field ds-col-9"><label for="frmSchdlCn">작업내용</label><input type="text" id="frmSchdlCn" class="ds-input" maxlength="1000"></div>
             </div>
             <div class="ds-table-wrap"><table class="ds-table ds-table-compact"><thead><tr><th>번호</th><th>구분</th><th>일정명</th><th>기간</th><th>담당자</th><th>작업내용</th><th>관리</th></tr></thead><tbody id="bizSchdlBody"></tbody></table></div>
         </section>
     </main>
 </div>
+<jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
 <script>var ctxPath='${pageContext.request.contextPath}'; var currentBizId=''; var bizPageMode='schdl';</script>
 <script src="${pageContext.request.contextPath}/js/biz/biz.js"></script>
+<script src="${pageContext.request.contextPath}/js/comm/userSelectModal.js"></script>
 <script>$(function(){ initBizManagePage('schdl'); });</script>
 </body>
 </html>

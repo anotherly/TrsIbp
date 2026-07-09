@@ -23,10 +23,13 @@
         <result property="deptId"          column="DEPT_ID"         />
         <result property="deptNm"        column="DEPT_NM"       />
         <result property="upDeptNm"  column="PARENT_DEPT_NM"/>
+        <result property="upDeptId"  column="UP_DEPT_ID"/>
+        <result property="sortDeptSeq"  column="SORT_SEQ"/>
         <result property="jbpsNm"        column="JBPS_NM"        />
         <result property="authrtId"          column="AUTHRT_ID"         />
         <result property="authrtNm"        column="AUTHRT_NM"       />
         <result property="userTelno"         column="USER_TELNO"        />
+        <result property="extNo"            column="EXT_NO"            />
         <result property="useYn"         column="USE_YN"        />
         <result property="memoCn"            column="MEMO_CN"            />
         <result property="regDt"           column="REG_DT"          />
@@ -183,6 +186,53 @@
             ,AUTHRT_EXPLN
         FROM AUTHRT_INFO
         ORDER BY SORT_SEQ ASC
+    </select>
+
+    <!-- ============================================================ -->
+    <!--  사용자 선택 모달용 부서 목록 조회                              -->
+    <!-- ============================================================ -->
+    <select id="selectUserSelectDeptList" parameterType="userVO" resultMap="userResultMap">
+        SELECT
+             D.DEPT_ID
+            ,D.CO_ID
+            ,D.DEPT_NM
+            ,D.UP_DEPT_ID
+            ,D.SORT_SEQ
+        FROM DEPT_INFO D
+        WHERE D.USE_YN = 'Y'
+          AND D.CO_ID = #{coId}
+          <if test="searchKeyword != null and searchKeyword != ''">
+          AND D.DEPT_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+          </if>
+        ORDER BY IFNULL(D.UP_DEPT_ID, ''), D.SORT_SEQ ASC, D.DEPT_NM ASC
+    </select>
+
+    <!-- ============================================================ -->
+    <!--  사용자 선택 모달용 사용자 목록 조회                            -->
+    <!-- ============================================================ -->
+    <select id="selectUserSelectUserList" parameterType="userVO" resultMap="userResultMap">
+        SELECT
+             U.USER_ID
+            ,U.USER_NM
+            ,U.CO_ID
+            ,U.DEPT_ID
+            ,D.DEPT_NM
+            ,D.UP_DEPT_ID
+            ,D.SORT_SEQ
+            ,U.JBPS_NM
+            ,U.USER_TELNO
+            ,U.EXT_NO
+        FROM USER_INFO U
+        LEFT JOIN DEPT_INFO D ON D.DEPT_ID = U.DEPT_ID
+        WHERE U.USE_YN = 'Y'
+          AND U.CO_ID = #{coId}
+          <if test="deptId != null and deptId != ''">AND U.DEPT_ID = #{deptId}</if>
+          <if test="searchKeyword != null and searchKeyword != ''">
+          AND (U.USER_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+            OR U.USER_ID LIKE CONCAT('%', #{searchKeyword}, '%')
+            OR IFNULL(D.DEPT_NM, '') LIKE CONCAT('%', #{searchKeyword}, '%'))
+          </if>
+        ORDER BY IFNULL(D.SORT_SEQ, 9999) ASC, U.USER_NM ASC, U.USER_ID ASC
     </select>
 
 </mapper>

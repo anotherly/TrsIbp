@@ -53,11 +53,75 @@ function formatAmt(value) {
     if (value === null || value === undefined || value === '') {
         return '-';
     }
-    var num = Number(value);
+    var num = Number(unformatNumber(value));
     if (isNaN(num)) {
         return escapeHtml(value);
     }
     return num.toLocaleString('ko-KR');
+}
+
+/**
+ * 화면 입력용 숫자 문자열에서 천 단위 콤마를 제거한다.
+ * @param {*} value 콤마가 포함될 수 있는 숫자 문자열
+ * @returns {string} 서버 전송용 숫자 문자열
+ */
+function unformatNumber(value) {
+    return String(nvl(value, '')).replace(/,/g, '').trim();
+}
+
+/**
+ * 숫자 입력값을 천 단위 콤마가 포함된 화면 표시 문자열로 변환한다.
+ * @param {*} value 숫자 또는 숫자 문자열
+ * @returns {string} 콤마가 적용된 숫자 문자열
+ */
+function formatNumberInput(value) {
+    var raw = unformatNumber(value).replace(/[^0-9.-]/g, '');
+    if (raw === '' || raw === '-' || raw === '.') {
+        return raw;
+    }
+    var parts = raw.split('.');
+    var integerPart = parts[0];
+    var decimalPart = parts.length > 1 ? '.' + parts.slice(1).join('').replace(/\./g, '') : '';
+    var sign = '';
+    if (integerPart.indexOf('-') === 0) {
+        sign = '-';
+        integerPart = integerPart.substring(1);
+    }
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return sign + integerPart + decimalPart;
+}
+
+/**
+ * ds-number-input 클래스가 지정된 숫자 입력창에 천 단위 콤마 표시 이벤트를 연결한다.
+ * @param {Object|string=} scope 이벤트 연결 범위. 없으면 document 기준
+ * @returns 없음
+ */
+function bindNumberInputFormatter(scope) {
+    var $scope = scope ? $(scope) : $(document);
+    $scope.find('.ds-number-input').addBack('.ds-number-input')
+        .off('input.numberFormat blur.numberFormat')
+        .on('input.numberFormat blur.numberFormat', function() {
+            this.value = formatNumberInput(this.value);
+        });
+}
+
+/**
+ * 날짜 기간을 기준으로 투입 M/M을 계산한다.
+ * @param {string} bgngYmd 투입시작일(yyyy-MM-dd)
+ * @param {string} endYmd 투입종료일(yyyy-MM-dd)
+ * @returns {string} 소수점 둘째 자리까지 계산된 M/M 문자열. 날짜가 없거나 잘못되면 빈 문자열
+ */
+function calcInputMcnt(bgngYmd, endYmd) {
+    if (!bgngYmd || !endYmd) {
+        return '';
+    }
+    var start = new Date(bgngYmd + 'T00:00:00');
+    var end = new Date(endYmd + 'T00:00:00');
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
+        return '';
+    }
+    var diffDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return (Math.round((diffDays / 30) * 100) / 100).toString();
 }
 
 /**
@@ -439,6 +503,7 @@ function deleteBizById(bizId) {
  * @returns 없음
  */
 function initBizInsertPage() {
+    bindNumberInputFormatter(document);
     loadBizCodeOptions(function() {
         $('#frmBizCd').val('저장 시 자동 생성');
         $('#frmBizSttsCd').val(getDefaultCode('BIZ_STTS_CD'));
@@ -468,6 +533,7 @@ function initBizDetailPage() {
  * @returns 없음
  */
 function initBizUpdatePage() {
+    bindNumberInputFormatter(document);
     if (!checkBizIdOrBack()) {
         return;
     }
@@ -483,6 +549,7 @@ function initBizUpdatePage() {
  * @returns 없음
  */
 function initBizManagePage(manageType) {
+    bindNumberInputFormatter(document);
     loadBizCodeOptions(function() {
         loadManageBizOptions(function() {
             var firstBizId = $('#manageBizId option:eq(1)').val();
@@ -625,7 +692,9 @@ function bindBizForm(data) {
 
     $('#frmBizId').val(nvl(data.bizId, ''));
     $('#frmBizCd').val(nvl(data.bizCd, '저장 시 자동 생성'));
+    $('#frmCtrtNo').val(nvl(data.ctrtNo, ''));
     $('#frmBizNm').val(nvl(data.bizNm, ''));
+    $('#frmBizAbrvNm').val(nvl(data.bizAbrvNm, ''));
     $('#frmInstSeCd').val(nvl(data.instSeCd, ''));
     $('#frmBizKndCd').val(nvl(data.bizKndCd, ''));
     $('#frmBizSttsCd').val(nvl(data.bizSttsCd, getDefaultCode('BIZ_STTS_CD')));
@@ -634,12 +703,13 @@ function bindBizForm(data) {
     $('#frmCtrtYmd').val(nvl(data.ctrtYmd, ''));
     $('#frmOtstYmd').val(nvl(data.otstYmd || data.bizBgngYmd, ''));
     $('#frmBizEndYmd').val(nvl(data.bizEndYmd, ''));
-    $('#frmCtrtAmt').val(nvl(data.ctrtAmt, ''));
+    $('#frmCtrtAmt').val(formatNumberInput(nvl(data.ctrtAmt, '')));
     $('#frmGiveMthdCd').val(nvl(data.giveMthdCd, ''));
     $('#frmGiveMthdCn').val(nvl(data.giveMthdCn, ''));
     $('#frmGiveDdtYmd').val(nvl(data.giveDdtYmd, ''));
     $('#frmDfrpGrnteBgngYmd').val(nvl(data.dfrpGrnteBgngYmd, ''));
     $('#frmDfrpGrnteEndYmd').val(nvl(data.dfrpGrnteEndYmd, ''));
+    $('#frmRmrkCn').val(nvl(data.rmrkCn, ''));
     toggleReadyContractFields();
 }
 
@@ -651,7 +721,9 @@ function bindBizForm(data) {
 function bindBizDetailText(data) {
     $('#frmBizId').val(nvl(data.bizId, ''));
     $('#dispBizCd').text(nvl(data.bizCd, '-'));
+    $('#dispCtrtNo').text(nvl(data.ctrtNo, '-'));
     $('#dispBizNm').text(nvl(data.bizNm, '-'));
+    $('#dispBizAbrvNm').text(nvl(data.bizAbrvNm, '-'));
     $('#dispInstSeNm').text(nvl(data.instSeNm, getCodeNm('INST_SE_CD', data.instSeCd)));
     $('#dispBizKndNm').text(nvl(data.bizKndNm, getCodeNm('BIZ_KND_CD', data.bizKndCd)));
     $('#dispBizSttsNm').text(nvl(data.bizSttsNm, getCodeNm('BIZ_STTS_CD', data.bizSttsCd)));
@@ -666,6 +738,7 @@ function bindBizDetailText(data) {
     $('#dispGiveDdtYmd').text(nvl(data.giveDdtYmd, '-'));
     $('#dispDfrpGrnteBgngYmd').text(nvl(data.dfrpGrnteBgngYmd, '-'));
     $('#dispDfrpGrnteEndYmd').text(nvl(data.dfrpGrnteEndYmd, '-'));
+    $('#dispRmrkCn').text(nvl(data.rmrkCn, '-'));
 }
 
 /**
@@ -723,7 +796,9 @@ function saveBiz() {
         dataType: 'json',
         data: {
             bizId: $('#frmBizId').val(),
+            ctrtNo: $('#frmCtrtNo').val(),
             bizNm: $('#frmBizNm').val(),
+            bizAbrvNm: $('#frmBizAbrvNm').val(),
             instSeCd: $('#frmInstSeCd').val(),
             bizKndCd: $('#frmBizKndCd').val(),
             bizSttsCd: $('#frmBizSttsCd').val(),
@@ -732,12 +807,13 @@ function saveBiz() {
             ctrtYmd: isReady ? '' : $('#frmCtrtYmd').val(),
             otstYmd: isReady ? '' : $('#frmOtstYmd').val(),
             bizEndYmd: isReady ? '' : $('#frmBizEndYmd').val(),
-            ctrtAmt: isReady ? '' : $('#frmCtrtAmt').val(),
+            ctrtAmt: isReady ? '' : unformatNumber($('#frmCtrtAmt').val()),
             giveMthdCd: isReady ? '' : $('#frmGiveMthdCd').val(),
             giveMthdCn: isReady ? '' : $('#frmGiveMthdCn').val(),
             giveDdtYmd: isReady ? '' : $('#frmGiveDdtYmd').val(),
             dfrpGrnteBgngYmd: isReady ? '' : $('#frmDfrpGrnteBgngYmd').val(),
-            dfrpGrnteEndYmd: isReady ? '' : $('#frmDfrpGrnteEndYmd').val()
+            dfrpGrnteEndYmd: isReady ? '' : $('#frmDfrpGrnteEndYmd').val(),
+            rmrkCn: $('#frmRmrkCn').val()
         },
         success: function(res) {
             if (res.result === 'OK') {
@@ -879,7 +955,7 @@ function bindCustRelFormFromRow(row) {
     $('#frmTelno').val(nvl(row.telno, ''));
     $('#frmAddr').val(nvl(row.addr, ''));
     $('#frmRelSeCd').val(nvl(row.relSeCd, ''));
-    $('#frmRelLvl').val(nvl(row.relLvl, ''));
+    $('#frmRelLvl').val(formatNumberInput(nvl(row.relLvl, '')));
     $('#frmDirectCtrtYn').val(nvl(row.directCtrtYn, 'N'));
 }
 
@@ -950,7 +1026,7 @@ function saveBizCustRelAfterCust(custSn) {
             bizId: currentBizId,
             custSn: custSn,
             relSeCd: $('#frmRelSeCd').val(),
-            relLvl: $('#frmRelLvl').val(),
+            relLvl: unformatNumber($('#frmRelLvl').val()),
             directCtrtYn: $('#frmDirectCtrtYn').val()
         },
         success: function(res) {
@@ -1061,7 +1137,7 @@ function bindCstFormFromRow(row) {
     $('#frmBizCstSn').val(nvl(row.bizCstSn, ''));
     $('#frmCstSeCd').val(nvl(row.cstSeCd, ''));
     $('#frmCstNm').val(nvl(row.cstNm, ''));
-    $('#frmOcrnCst').val(nvl(row.ocrnCst, ''));
+    $('#frmOcrnCst').val(formatNumberInput(nvl(row.ocrnCst, '')));
     $('#frmOcrnYmd').val(nvl(row.ocrnYmd, ''));
 }
 
@@ -1093,7 +1169,7 @@ function saveBizCst() {
             bizCstSn: $('#frmBizCstSn').val(),
             cstSeCd: $('#frmCstSeCd').val(),
             cstNm: $('#frmCstNm').val(),
-            ocrnCst: $('#frmOcrnCst').val(),
+            ocrnCst: unformatNumber($('#frmOcrnCst').val()),
             ocrnYmd: $('#frmOcrnYmd').val()
         },
         success: function(res) {
@@ -1141,6 +1217,7 @@ function deleteBizCst(bizCstSn) {
 function resetMnpwForm() {
     $('#frmBizMnpwSn').val('');
     $('#frmUserId').val('');
+    $('#frmUserDispNm').val('');
     $('#frmInputMnpwNm').val('');
     $('#frmInputSeCd').val(getDefaultCode('INPUT_SE_CD'));
     $('#frmRoleNm').val('');
@@ -1210,6 +1287,7 @@ function renderBizMnpwList(list) {
 function bindMnpwFormFromRow(row) {
     $('#frmBizMnpwSn').val(nvl(row.bizMnpwSn, ''));
     $('#frmUserId').val(nvl(row.userId, ''));
+    $('#frmUserDispNm').val(nvl(row.userNm || row.inputMnpwNm || row.userId, ''));
     $('#frmInputMnpwNm').val(nvl(row.inputMnpwNm || row.userNm, ''));
     $('#frmInputSeCd').val(nvl(row.inputSeCd, ''));
     $('#frmRoleNm').val(nvl(row.roleNm, ''));
@@ -1217,7 +1295,7 @@ function bindMnpwFormFromRow(row) {
     $('#frmInputBgngYmd').val(nvl(row.inputBgngYmd, ''));
     $('#frmInputEndYmd').val(nvl(row.inputEndYmd, ''));
     $('#frmInputMcnt').val(nvl(row.inputMcnt, ''));
-    $('#frmUntprc').val(nvl(row.untprc, ''));
+    $('#frmUntprc').val(formatNumberInput(nvl(row.untprc, '')));
 }
 
 /**
@@ -1254,8 +1332,8 @@ function saveBizMnpw() {
             jbpsNm: $('#frmJbpsNm').val(),
             inputBgngYmd: $('#frmInputBgngYmd').val(),
             inputEndYmd: $('#frmInputEndYmd').val(),
-            inputMcnt: $('#frmInputMcnt').val(),
-            untprc: $('#frmUntprc').val()
+            inputMcnt: calcInputMcnt($('#frmInputBgngYmd').val(), $('#frmInputEndYmd').val()),
+            untprc: unformatNumber($('#frmUntprc').val())
         },
         success: function(res) {
             if (res.result === 'OK') {
@@ -1307,6 +1385,7 @@ function resetSchdlForm() {
     $('#frmSchdlBgngYmd').val('');
     $('#frmSchdlEndYmd').val('');
     $('#frmPicId').val('');
+    $('#frmPicDispNm').val('');
 }
 
 /**
@@ -1370,6 +1449,7 @@ function bindSchdlFormFromRow(row) {
     $('#frmSchdlBgngYmd').val(nvl(row.schdlBgngYmd, ''));
     $('#frmSchdlEndYmd').val(nvl(row.schdlEndYmd, ''));
     $('#frmPicId').val(nvl(row.picId, ''));
+    $('#frmPicDispNm').val(nvl(row.picNm || row.picId, ''));
 }
 
 /**
@@ -1439,3 +1519,5 @@ function deleteBizSchdl(bizSchdlSn) {
         }
     });
 }
+
+

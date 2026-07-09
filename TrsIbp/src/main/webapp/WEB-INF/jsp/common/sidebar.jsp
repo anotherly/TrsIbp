@@ -2,13 +2,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
     String uri = request.getRequestURI();
-    boolean isBizList = uri.contains("/biz/bizList.do") || uri.contains("/biz/bizInsert.do") || uri.contains("/biz/bizDetail.do") || uri.contains("/biz/bizUpdate.do");
-    boolean isContract = uri.contains("/biz/contractList.do");
-    boolean isAccount = uri.contains("/biz/accountList.do");
-    boolean isMnpw = uri.contains("/biz/mnpwList.do");
-    boolean isSchdl = uri.contains("/biz/schdlList.do");
-    String activeCls = "block p-2 text-cyan-400 font-semibold rounded-md bg-slate-900/40";
-    String normalCls = "block p-2 hover:text-white rounded-md hover:bg-brand-card";
+    String ctx = request.getContextPath();
+    if (ctx != null && ctx.length() > 0 && uri.startsWith(ctx)) {
+        uri = uri.substring(ctx.length());
+    }
+    boolean isBizList = uri.equals("/biz/bizList.do") || uri.equals("/biz/bizInsert.do") || uri.equals("/biz/bizDetail.do") || uri.equals("/biz/bizUpdate.do");
+    boolean isContract = uri.equals("/biz/contractList.do");
+    boolean isAccount = uri.equals("/biz/accountList.do");
+    boolean isMnpw = uri.equals("/biz/mnpwList.do");
+    boolean isSchdl = uri.equals("/biz/schdlList.do");
 %>
 <aside class="w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
     <div>
@@ -42,9 +44,9 @@
                     <i id="arrow-sub-work" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
                 </button>
                 <div id="sub-work" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 transition-all duration-300">
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">출퇴근 및 타임카드</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">유연근무 현황</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">외근/파견/상주 신청</a>
+                    <a href="#" class="ds-sidebar-link">출퇴근 및 타임카드</a>
+                    <a href="#" class="ds-sidebar-link">유연근무 현황</a>
+                    <a href="#" class="ds-sidebar-link">외근/파견/상주 신청</a>
                 </div>
             </div>
 
@@ -54,9 +56,9 @@
                     <i id="arrow-sub-leave" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
                 </button>
                 <div id="sub-leave" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">휴가 신청서 작성</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">잔여 연차 현황</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">대체/보상 휴가 적립</a>
+                    <a href="#" class="ds-sidebar-link">휴가 신청서 작성</a>
+                    <a href="#" class="ds-sidebar-link">잔여 연차 현황</a>
+                    <a href="#" class="ds-sidebar-link">대체/보상 휴가 적립</a>
                 </div>
             </div>
 
@@ -66,9 +68,9 @@
                     <i id="arrow-sub-schedule" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
                 </button>
                 <div id="sub-schedule" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">종합 일정 캘린더</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">회의실/자원 예약</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">공용 테스트폰 대여</a>
+                    <a href="#" class="ds-sidebar-link">종합 일정 캘린더</a>
+                    <a href="#" class="ds-sidebar-link">회의실/자원 예약</a>
+                    <a href="#" class="ds-sidebar-link">공용 테스트폰 대여</a>
                 </div>
             </div>
 
@@ -78,11 +80,11 @@
                     <i id="arrow-sub-project" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
                 </button>
                 <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="<%=request.getContextPath()%>/biz/bizList.do" class="<%= isBizList ? activeCls : normalCls %>">사업 목록</a>
-                    <a href="<%=request.getContextPath()%>/biz/contractList.do" class="<%= isContract ? activeCls : normalCls %>">계약 관리</a>
-                    <a href="<%=request.getContextPath()%>/biz/accountList.do" class="<%= isAccount ? activeCls : normalCls %>">회계 관리</a>
-                    <a href="<%=request.getContextPath()%>/biz/mnpwList.do" class="<%= isMnpw ? activeCls : normalCls %>">투입인력 관리</a>
-                    <a href="<%=request.getContextPath()%>/biz/schdlList.do" class="<%= isSchdl ? activeCls : normalCls %>">프로세스(일정) 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/bizList.do" data-menu-path="/biz/bizList.do,/biz/bizInsert.do,/biz/bizDetail.do,/biz/bizUpdate.do" class="ds-sidebar-link <%= isBizList ? "is-active" : "" %>">사업 목록</a>
+                    <a href="<%=request.getContextPath()%>/biz/contractList.do" data-menu-path="/biz/contractList.do" class="ds-sidebar-link <%= isContract ? "is-active" : "" %>">계약 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/accountList.do" data-menu-path="/biz/accountList.do" class="ds-sidebar-link <%= isAccount ? "is-active" : "" %>">회계 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/mnpwList.do" data-menu-path="/biz/mnpwList.do" class="ds-sidebar-link <%= isMnpw ? "is-active" : "" %>">투입인력 관리</a>
+                    <a href="<%=request.getContextPath()%>/biz/schdlList.do" data-menu-path="/biz/schdlList.do" class="ds-sidebar-link <%= isSchdl ? "is-active" : "" %>">프로세스(일정) 관리</a>
                 </div>
             </div>
 
@@ -92,9 +94,9 @@
                     <i id="arrow-sub-infra" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
                 </button>
                 <div id="sub-infra" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">장비/기기 할당 대장</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">SW 라이선스 신청</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">비대면 증명서 발급</a>
+                    <a href="#" class="ds-sidebar-link">장비/기기 할당 대장</a>
+                    <a href="#" class="ds-sidebar-link">SW 라이선스 신청</a>
+                    <a href="#" class="ds-sidebar-link">비대면 증명서 발급</a>
                 </div>
             </div>
 
@@ -104,9 +106,9 @@
                     <i id="arrow-sub-finance" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
                 </button>
                 <div id="sub-finance" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">지출 경비 청구(OCR)</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">급여 명세서 조회</a>
-                    <a href="#" class="block p-2 hover:text-white rounded-md hover:bg-brand-card">프로젝트별 손익 리포트</a>
+                    <a href="#" class="ds-sidebar-link">지출 경비 청구(OCR)</a>
+                    <a href="#" class="ds-sidebar-link">급여 명세서 조회</a>
+                    <a href="#" class="ds-sidebar-link">프로젝트별 손익 리포트</a>
                 </div>
             </div>
         </nav>
@@ -122,3 +124,17 @@
         </div>
     </div>
 </aside>
+<script>
+(function() {
+    var path = window.location.pathname.replace('<%=request.getContextPath()%>', '');
+    document.querySelectorAll('.ds-sidebar-link[data-menu-path]').forEach(function(link) {
+        var paths = (link.getAttribute('data-menu-path') || '').split(',');
+        if (paths.indexOf(path) > -1) {
+            document.querySelectorAll('.ds-sidebar-link.is-active').forEach(function(activeLink) {
+                activeLink.classList.remove('is-active');
+            });
+            link.classList.add('is-active');
+        }
+    });
+})();
+</script>

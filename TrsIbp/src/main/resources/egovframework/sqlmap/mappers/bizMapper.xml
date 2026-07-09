@@ -9,7 +9,9 @@
         <id     property="bizId"            column="BIZ_ID"/>
         <result property="coId"             column="CO_ID"/>
         <result property="bizCd"            column="BIZ_CD"/>
+        <result property="ctrtNo"           column="CTRT_NO"/>
         <result property="bizNm"            column="BIZ_NM"/>
+        <result property="bizAbrvNm"        column="BIZ_ABRV_NM"/>
         <result property="dtlBizNm"         column="DTL_BIZ_NM"/>
         <result property="instSeCd"         column="INST_SE_CD"/>
         <result property="bizKndCd"         column="BIZ_KND_CD"/>
@@ -109,6 +111,8 @@
         <if test="searchKeyword != null and searchKeyword != ''">
             AND (B.BIZ_NM LIKE CONCAT('%', #{searchKeyword}, '%')
               OR B.BIZ_CD LIKE CONCAT('%', #{searchKeyword}, '%')
+              OR B.CTRT_NO LIKE CONCAT('%', #{searchKeyword}, '%')
+              OR B.BIZ_ABRV_NM LIKE CONCAT('%', #{searchKeyword}, '%')
               OR B.ORDPL_NM LIKE CONCAT('%', #{searchKeyword}, '%'))
         </if>
         <if test="searchBizSttsCd != null and searchBizSttsCd != ''">AND B.BIZ_STTS_CD = #{searchBizSttsCd}</if>
@@ -121,7 +125,7 @@
 
     <select id="selectBizList" parameterType="bizVO" resultMap="bizResultMap">
         SELECT
-             B.BIZ_ID, B.CO_ID, B.BIZ_CD, B.BIZ_NM, B.INST_SE_CD, B.BIZ_KND_CD, B.BIZ_SE_CD, B.ORDPL_NM
+             B.BIZ_ID, B.CO_ID, B.BIZ_CD, B.CTRT_NO, B.BIZ_NM, B.BIZ_ABRV_NM, B.INST_SE_CD, B.BIZ_KND_CD, B.BIZ_SE_CD, B.ORDPL_NM
             ,DATE_FORMAT(B.CTRT_YMD, '%Y-%m-%d') AS CTRT_YMD
             ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
             ,DATE_FORMAT(IFNULL(B.BIZ_BGNG_YMD, B.OTST_YMD), '%Y-%m-%d') AS BIZ_BGNG_YMD
@@ -150,7 +154,7 @@
 
     <select id="selectBizDetail" parameterType="bizVO" resultMap="bizResultMap">
         SELECT
-             B.BIZ_ID, B.CO_ID, B.BIZ_CD, B.BIZ_NM, B.INST_SE_CD, B.BIZ_KND_CD, B.BIZ_SE_CD, B.ORDPL_NM
+             B.BIZ_ID, B.CO_ID, B.BIZ_CD, B.CTRT_NO, B.BIZ_NM, B.BIZ_ABRV_NM, B.INST_SE_CD, B.BIZ_KND_CD, B.BIZ_SE_CD, B.ORDPL_NM
             ,DATE_FORMAT(B.CTRT_YMD, '%Y-%m-%d') AS CTRT_YMD
             ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
             ,DATE_FORMAT(IFNULL(B.BIZ_BGNG_YMD, B.OTST_YMD), '%Y-%m-%d') AS BIZ_BGNG_YMD
@@ -165,21 +169,23 @@
         FROM biz_info B
         <include refid="bizCodeJoins"/>
         WHERE B.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
     </select>
 
     <select id="selectNextBizCdSeq" parameterType="bizVO" resultType="int">
         SELECT IFNULL(MAX(CAST(SUBSTRING(BIZ_CD, LENGTH(#{bizCdPrefix}) + 1) AS UNSIGNED)), 0) + 1
         FROM biz_info
-        WHERE BIZ_CD LIKE CONCAT(#{bizCdPrefix}, '%')
+        WHERE CO_ID = #{coId}
+          AND BIZ_CD LIKE CONCAT(#{bizCdPrefix}, '%')
     </select>
 
     <insert id="insertBiz" parameterType="bizVO">
         INSERT INTO biz_info (
-             BIZ_ID, CO_ID, BIZ_CD, BIZ_NM, INST_SE_CD, BIZ_KND_CD, BIZ_SE_CD, ORDPL_NM
+             BIZ_ID, CO_ID, BIZ_CD, CTRT_NO, BIZ_NM, BIZ_ABRV_NM, INST_SE_CD, BIZ_KND_CD, BIZ_SE_CD, ORDPL_NM
             ,CTRT_YMD, OTST_YMD, BIZ_BGNG_YMD, BIZ_END_YMD, CTRT_AMT, GIVE_MTHD_CD, GIVE_MTHD_CN, GIVE_DDT_YMD
             ,DFRP_GRNTE_BGNG_YMD, DFRP_GRNTE_END_YMD, RMRK_CN, BIZ_STTS_CD, REG_DT
         ) VALUES (
-             #{bizId}, #{coId}, #{bizCd}, #{bizNm}, #{instSeCd}, #{bizKndCd}, #{bizSeCd}, #{ordplNm}
+             #{bizId}, #{coId}, #{bizCd}, NULLIF(#{ctrtNo}, ''), #{bizNm}, NULLIF(#{bizAbrvNm}, ''), #{instSeCd}, #{bizKndCd}, #{bizSeCd}, #{ordplNm}
             ,NULLIF(#{ctrtYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{bizEndYmd}, '')
             ,#{ctrtAmt}, NULLIF(#{giveMthdCd}, ''), #{giveMthdCn}, NULLIF(#{giveDdtYmd}, '')
             ,NULLIF(#{dfrpGrnteBgngYmd}, ''), NULLIF(#{dfrpGrnteEndYmd}, ''), #{rmrkCn}
@@ -194,7 +200,9 @@
     <update id="updateBiz" parameterType="bizVO">
         UPDATE biz_info
         SET
-             BIZ_NM = #{bizNm}
+             CTRT_NO = NULLIF(#{ctrtNo}, '')
+            ,BIZ_NM = #{bizNm}
+            ,BIZ_ABRV_NM = NULLIF(#{bizAbrvNm}, '')
             ,INST_SE_CD = #{instSeCd}
             ,BIZ_KND_CD = #{bizKndCd}
             ,BIZ_SE_CD = #{bizSeCd}
@@ -212,11 +220,13 @@
             ,RMRK_CN = #{rmrkCn}
             ,BIZ_STTS_CD = #{bizSttsCd}
         WHERE BIZ_ID = #{bizId}
+          AND CO_ID = #{coId}
     </update>
 
     <delete id="deleteBiz" parameterType="bizVO">
         DELETE FROM biz_info
         WHERE BIZ_ID = #{bizId}
+          AND CO_ID = #{coId}
     </delete>
 
     <select id="selectCustList" parameterType="bizVO" resultMap="bizResultMap">
@@ -238,6 +248,7 @@
         SELECT C.*
         FROM cust_info C
         WHERE C.CUST_SN = #{custSn}
+          AND C.CO_ID = #{coId}
     </select>
 
     <insert id="insertCust" parameterType="bizVO" useGeneratedKeys="true" keyProperty="custSn">
@@ -261,12 +272,14 @@
             ,MDFR_ID = #{mdfrId}
             ,MDFCN_DT = NOW()
         WHERE CUST_SN = #{custSn}
+          AND CO_ID = #{coId}
     </update>
 
     <update id="deleteCust" parameterType="bizVO">
         UPDATE cust_info
         SET USE_YN = 'N', MDFR_ID = #{mdfrId}, MDFCN_DT = NOW()
         WHERE CUST_SN = #{custSn}
+          AND CO_ID = #{coId}
           AND NOT EXISTS (
               SELECT 1 FROM biz_cust_rel R
               WHERE R.CUST_SN = cust_info.CUST_SN AND R.USE_YN = 'Y'
@@ -281,20 +294,31 @@
             ,R.REL_SE_CD, IFNULL(REL_CD.CD_NM, R.REL_SE_CD) AS REL_SE_NM
             ,R.REL_LVL, R.DIRECT_CTRT_YN, R.RMRK_CN
         FROM biz_cust_rel R
+        INNER JOIN biz_info B ON B.BIZ_ID = R.BIZ_ID
         INNER JOIN cust_info C ON C.CUST_SN = R.CUST_SN
         LEFT JOIN cmn_cd CUST_CD ON CUST_CD.CD_GROUP_ID = 'CUST_SE_CD' AND CUST_CD.CD = C.CUST_SE_CD AND CUST_CD.USE_YN = 'Y'
         LEFT JOIN cmn_cd REL_CD ON REL_CD.CD_GROUP_ID = 'REL_SE_CD' AND REL_CD.CD = R.REL_SE_CD AND REL_CD.USE_YN = 'Y'
         WHERE R.USE_YN = 'Y'
           AND R.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
+          AND C.CO_ID = #{coId}
         ORDER BY R.REL_LVL ASC, R.BIZ_CUST_REL_SN ASC
     </select>
 
     <insert id="insertBizCustRel" parameterType="bizVO" useGeneratedKeys="true" keyProperty="bizCustRelSn">
         INSERT INTO biz_cust_rel (
              BIZ_ID, CUST_SN, REL_SE_CD, REL_LVL, DIRECT_CTRT_YN, RMRK_CN, USE_YN, RGTR_ID, REG_DT
-        ) VALUES (
+        )
+        SELECT
              #{bizId}, #{custSn}, #{relSeCd}, #{relLvl}, COALESCE(NULLIF(#{directCtrtYn}, ''), 'N')
             ,#{rmrkCn}, 'Y', #{rgtrId}, NOW()
+        WHERE EXISTS (
+            SELECT 1 FROM biz_info B
+            WHERE B.BIZ_ID = #{bizId} AND B.CO_ID = #{coId}
+        )
+          AND EXISTS (
+            SELECT 1 FROM cust_info C
+            WHERE C.CUST_SN = #{custSn} AND C.CO_ID = #{coId} AND C.USE_YN = 'Y'
         )
     </insert>
 
@@ -310,6 +334,8 @@
             ,MDFCN_DT = NOW()
         WHERE BIZ_CUST_REL_SN = #{bizCustRelSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_cust_rel.BIZ_ID AND B.CO_ID = #{coId})
+          AND EXISTS (SELECT 1 FROM cust_info C WHERE C.CUST_SN = #{custSn} AND C.CO_ID = #{coId})
     </update>
 
     <update id="deleteBizCustRel" parameterType="bizVO">
@@ -317,6 +343,7 @@
         SET USE_YN = 'N', MDFR_ID = #{mdfrId}, MDFCN_DT = NOW()
         WHERE BIZ_CUST_REL_SN = #{bizCustRelSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_cust_rel.BIZ_ID AND B.CO_ID = #{coId})
     </update>
 
     <select id="selectBizMnpwList" parameterType="bizVO" resultMap="bizResultMap">
@@ -328,10 +355,12 @@
             ,DATE_FORMAT(M.INPUT_END_YMD, '%Y-%m-%d') AS INPUT_END_YMD
             ,M.INPUT_MCNT, M.UNTPRC, M.RMRK_CN
         FROM biz_mnpw M
+        INNER JOIN biz_info B ON B.BIZ_ID = M.BIZ_ID
         LEFT JOIN user_info U ON U.USER_ID = M.USER_ID
         LEFT JOIN cmn_cd INPUT_CD ON INPUT_CD.CD_GROUP_ID = 'INPUT_SE_CD' AND INPUT_CD.CD = M.INPUT_SE_CD AND INPUT_CD.USE_YN = 'Y'
         WHERE M.USE_YN = 'Y'
           AND M.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
         ORDER BY M.INPUT_BGNG_YMD ASC, M.BIZ_MNPW_SN ASC
     </select>
 
@@ -339,10 +368,14 @@
         INSERT INTO biz_mnpw (
              BIZ_ID, USER_ID, INPUT_MNPW_NM, INPUT_SE_CD, ROLE_NM, JBPS_NM
             ,INPUT_BGNG_YMD, INPUT_END_YMD, INPUT_MCNT, UNTPRC, RMRK_CN, USE_YN, RGTR_ID, REG_DT
-        ) VALUES (
+        )
+        SELECT
              #{bizId}, NULLIF(#{userId}, ''), #{inputMnpwNm}, #{inputSeCd}, #{roleNm}, #{jbpsNm}
             ,NULLIF(#{inputBgngYmd}, ''), NULLIF(#{inputEndYmd}, ''), #{inputMcnt}, #{untprc}, #{rmrkCn}, 'Y', #{rgtrId}, NOW()
-        )
+        WHERE EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = #{bizId} AND B.CO_ID = #{coId})
+          AND (NULLIF(#{userId}, '') IS NULL OR EXISTS (
+              SELECT 1 FROM user_info U WHERE U.USER_ID = #{userId} AND U.CO_ID = #{coId}
+          ))
     </insert>
 
     <update id="updateBizMnpw" parameterType="bizVO">
@@ -362,6 +395,10 @@
             ,MDFCN_DT = NOW()
         WHERE BIZ_MNPW_SN = #{bizMnpwSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_mnpw.BIZ_ID AND B.CO_ID = #{coId})
+          AND (NULLIF(#{userId}, '') IS NULL OR EXISTS (
+              SELECT 1 FROM user_info U WHERE U.USER_ID = #{userId} AND U.CO_ID = #{coId}
+          ))
     </update>
 
     <update id="deleteBizMnpw" parameterType="bizVO">
@@ -369,6 +406,7 @@
         SET USE_YN = 'N', MDFR_ID = #{mdfrId}, MDFCN_DT = NOW()
         WHERE BIZ_MNPW_SN = #{bizMnpwSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_mnpw.BIZ_ID AND B.CO_ID = #{coId})
     </update>
 
     <select id="selectBizCstList" parameterType="bizVO" resultMap="bizResultMap">
@@ -376,18 +414,20 @@
              C.BIZ_CST_SN, C.BIZ_ID, C.CST_SE_CD, IFNULL(CST_CD.CD_NM, C.CST_SE_CD) AS CST_SE_NM
             ,C.CST_NM, C.OCRN_CST, DATE_FORMAT(C.OCRN_YMD, '%Y-%m-%d') AS OCRN_YMD, C.RMRK_CN
         FROM biz_cst C
+        INNER JOIN biz_info B ON B.BIZ_ID = C.BIZ_ID
         LEFT JOIN cmn_cd CST_CD ON CST_CD.CD_GROUP_ID = 'CST_SE_CD' AND CST_CD.CD = C.CST_SE_CD AND CST_CD.USE_YN = 'Y'
         WHERE C.USE_YN = 'Y'
           AND C.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
         ORDER BY C.OCRN_YMD DESC, C.BIZ_CST_SN DESC
     </select>
 
     <insert id="insertBizCst" parameterType="bizVO" useGeneratedKeys="true" keyProperty="bizCstSn">
         INSERT INTO biz_cst (
              BIZ_ID, CST_SE_CD, CST_NM, OCRN_CST, OCRN_YMD, RMRK_CN, USE_YN, RGTR_ID, REG_DT
-        ) VALUES (
-             #{bizId}, #{cstSeCd}, #{cstNm}, #{ocrnCst}, NULLIF(#{ocrnYmd}, ''), #{rmrkCn}, 'Y', #{rgtrId}, NOW()
         )
+        SELECT #{bizId}, #{cstSeCd}, #{cstNm}, #{ocrnCst}, NULLIF(#{ocrnYmd}, ''), #{rmrkCn}, 'Y', #{rgtrId}, NOW()
+        WHERE EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = #{bizId} AND B.CO_ID = #{coId})
     </insert>
 
     <update id="updateBizCst" parameterType="bizVO">
@@ -402,6 +442,7 @@
             ,MDFCN_DT = NOW()
         WHERE BIZ_CST_SN = #{bizCstSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_cst.BIZ_ID AND B.CO_ID = #{coId})
     </update>
 
     <update id="deleteBizCst" parameterType="bizVO">
@@ -409,6 +450,7 @@
         SET USE_YN = 'N', MDFR_ID = #{mdfrId}, MDFCN_DT = NOW()
         WHERE BIZ_CST_SN = #{bizCstSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_cst.BIZ_ID AND B.CO_ID = #{coId})
     </update>
 
     <select id="selectBizSchdlList" parameterType="bizVO" resultMap="bizResultMap">
@@ -419,20 +461,26 @@
             ,DATE_FORMAT(S.SCHDL_END_YMD, '%Y-%m-%d') AS SCHDL_END_YMD
             ,S.PIC_ID, U.USER_NM AS PIC_NM, S.RMRK_CN
         FROM biz_schdl S
+        INNER JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID
         LEFT JOIN user_info U ON U.USER_ID = S.PIC_ID
         LEFT JOIN cmn_cd SCHDL_CD ON SCHDL_CD.CD_GROUP_ID = 'SCHDL_SE_CD' AND SCHDL_CD.CD = S.SCHDL_SE_CD AND SCHDL_CD.USE_YN = 'Y'
         WHERE S.USE_YN = 'Y'
           AND S.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
         ORDER BY S.SCHDL_BGNG_YMD ASC, S.BIZ_SCHDL_SN ASC
     </select>
 
     <insert id="insertBizSchdl" parameterType="bizVO" useGeneratedKeys="true" keyProperty="bizSchdlSn">
         INSERT INTO biz_schdl (
              BIZ_ID, SCHDL_SE_CD, SCHDL_NM, SCHDL_CN, SCHDL_BGNG_YMD, SCHDL_END_YMD, PIC_ID, RMRK_CN, USE_YN, RGTR_ID, REG_DT
-        ) VALUES (
+        )
+        SELECT
              #{bizId}, #{schdlSeCd}, #{schdlNm}, #{schdlCn}, NULLIF(#{schdlBgngYmd}, ''), NULLIF(#{schdlEndYmd}, '')
             ,NULLIF(#{picId}, ''), #{rmrkCn}, 'Y', #{rgtrId}, NOW()
-        )
+        WHERE EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = #{bizId} AND B.CO_ID = #{coId})
+          AND (NULLIF(#{picId}, '') IS NULL OR EXISTS (
+              SELECT 1 FROM user_info U WHERE U.USER_ID = #{picId} AND U.CO_ID = #{coId}
+          ))
     </insert>
 
     <update id="updateBizSchdl" parameterType="bizVO">
@@ -449,6 +497,10 @@
             ,MDFCN_DT = NOW()
         WHERE BIZ_SCHDL_SN = #{bizSchdlSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_schdl.BIZ_ID AND B.CO_ID = #{coId})
+          AND (NULLIF(#{picId}, '') IS NULL OR EXISTS (
+              SELECT 1 FROM user_info U WHERE U.USER_ID = #{picId} AND U.CO_ID = #{coId}
+          ))
     </update>
 
     <update id="deleteBizSchdl" parameterType="bizVO">
@@ -456,6 +508,7 @@
         SET USE_YN = 'N', MDFR_ID = #{mdfrId}, MDFCN_DT = NOW()
         WHERE BIZ_SCHDL_SN = #{bizSchdlSn}
           AND BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = biz_schdl.BIZ_ID AND B.CO_ID = #{coId})
     </update>
 
     <select id="selectBizProfitSummary" parameterType="bizVO" resultMap="bizResultMap">
@@ -483,6 +536,7 @@
             GROUP BY BIZ_ID
         ) MNPW ON MNPW.BIZ_ID = B.BIZ_ID
         WHERE B.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
     </select>
 
 </mapper>

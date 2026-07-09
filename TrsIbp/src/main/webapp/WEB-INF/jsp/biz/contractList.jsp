@@ -41,7 +41,11 @@
             <div class="ds-section-head">
                 <div>
                     <h2 class="ds-section-title">고객사/발주처 계약관계</h2>
-                    <p class="ds-section-desc">갑/을/병/정 관계, 직접계약 여부, 우리회사 위치를 관리합니다.</p>
+                    <p class="ds-section-desc">갑/을/병/정 관계와 직접계약 여부를 관리합니다.</p>
+                </div>
+                <div class="ds-form-actions ds-form-actions-top">
+                    <button type="button" class="ds-btn ds-btn-outline" onclick="resetCustRelForm();">초기화</button>
+                    <button type="button" class="ds-btn ds-btn-primary" onclick="saveCustAndRel();">저장</button>
                 </div>
             </div>
             <div class="ds-form-12 ds-mb-20">
@@ -55,13 +59,9 @@
                 <div class="ds-field ds-col-3"><label for="frmTelno">전화번호</label><input type="text" id="frmTelno" class="ds-input" maxlength="20"></div>
                 <div class="ds-field ds-col-3"><label for="frmAddr">주소</label><input type="text" id="frmAddr" class="ds-input" maxlength="300"></div>
                 <div class="ds-field ds-col-2"><label for="frmRelSeCd">계약관계</label><select id="frmRelSeCd" class="ds-select"><option value="">선택</option></select></div>
-                <div class="ds-field ds-col-2"><label for="frmRelLvl">관계레벨</label><input type="number" id="frmRelLvl" class="ds-input" min="1" step="1"></div>
+                <div class="ds-field ds-col-2"><label for="frmRelLvl">관계레벨</label><input type="text" id="frmRelLvl" class="ds-input ds-number-input" inputmode="numeric" autocomplete="off"></div>
                 <div class="ds-field ds-col-2"><label for="frmDirectCtrtYn">직접계약여부</label><select id="frmDirectCtrtYn" class="ds-select"><option value="N">N</option><option value="Y">Y</option></select></div>
 
-                <div class="ds-form-actions ds-col-12">
-                    <button type="button" class="ds-btn ds-btn-outline" onclick="resetCustRelForm();">초기화</button>
-                    <button type="button" class="ds-btn ds-btn-primary" onclick="saveCustAndRel();">저장</button>
-                </div>
             </div>
             <div class="ds-table-wrap">
                 <table class="ds-table ds-table-compact">

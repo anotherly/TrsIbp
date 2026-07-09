@@ -1,10 +1,14 @@
 
 package kr.co.TRSolution.trsIbp.biz.controller;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -46,13 +50,16 @@ public class BizController {
         String url = request.getRequestURI()
                 .substring(request.getContextPath().length())
                 .replaceFirst("\\.do$", "");
-        logger.debug("▶▶▶▶▶▶▶.보내려는 url : {}", url);
+        logger.debug("▶▶▶▶▶▶▶.보내려는 url : " + url);
         return url;
     }
 
     @RequestMapping(value = "/biz/bizList.ajax")
-    public ModelAndView selectBizList(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizList(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         List<BizVO> list = bizService.selectBizList(bizVO);
         int totalCnt = bizService.selectBizListCnt(bizVO);
@@ -65,8 +72,11 @@ public class BizController {
     }
 
     @RequestMapping(value = "/biz/bizDetail.ajax")
-    public ModelAndView selectBizDetail(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizDetail(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         BizVO detail = bizService.selectBizDetail(bizVO);
         BizVO summary = bizService.selectBizProfitSummary(bizVO);
@@ -81,13 +91,11 @@ public class BizController {
     @RequestMapping(value = "/biz/bizSave.ajax")
     public ModelAndView saveBiz(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setRgtrId(loginVO.getUserId());
-            bizVO.setMdfrId(loginVO.getUserId());
-            bizVO.setCoId(loginVO.getCoId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         clearContractFieldsWhenReady(bizVO);
 
@@ -109,11 +117,11 @@ public class BizController {
     @RequestMapping(value = "/biz/bizDelete.ajax")
     public ModelAndView deleteBiz(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt = bizService.deleteBiz(bizVO);
 
@@ -122,8 +130,11 @@ public class BizController {
     }
 
     @RequestMapping(value = "/biz/custList.ajax")
-    public ModelAndView selectCustList(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectCustList(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         List<BizVO> list = bizService.selectCustList(bizVO);
 
@@ -143,13 +154,11 @@ public class BizController {
     @RequestMapping(value = "/biz/custSave.ajax")
     public ModelAndView saveCust(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setRgtrId(loginVO.getUserId());
-            bizVO.setMdfrId(loginVO.getUserId());
-            bizVO.setCoId(loginVO.getCoId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt;
         if (bizVO.getCustSn() == null || bizVO.getCustSn() == 0) {
@@ -167,10 +176,11 @@ public class BizController {
     @RequestMapping(value = "/biz/custDelete.ajax")
     public ModelAndView deleteCust(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
-        if (loginVO != null) {
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt = bizService.deleteCust(bizVO);
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -179,8 +189,11 @@ public class BizController {
     }
 
     @RequestMapping(value = "/biz/custRelList.ajax")
-    public ModelAndView selectBizCustRelList(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizCustRelList(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         List<BizVO> list = bizService.selectBizCustRelList(bizVO);
 
@@ -193,12 +206,11 @@ public class BizController {
     @RequestMapping(value = "/biz/custRelSave.ajax")
     public ModelAndView saveBizCustRel(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setRgtrId(loginVO.getUserId());
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt;
         if (bizVO.getBizCustRelSn() == null || bizVO.getBizCustRelSn() == 0) {
@@ -215,10 +227,11 @@ public class BizController {
     @RequestMapping(value = "/biz/custRelDelete.ajax")
     public ModelAndView deleteBizCustRel(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
-        if (loginVO != null) {
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt = bizService.deleteBizCustRel(bizVO);
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -226,9 +239,43 @@ public class BizController {
         return mav;
     }
 
+
+    /**
+     * 투입시작일과 투입종료일 기준으로 투입 M/M을 계산한다.
+     * @param inputBgngYmd 투입시작일(yyyy-MM-dd)
+     * @param inputEndYmd 투입종료일(yyyy-MM-dd)
+     * @return 계산된 투입 M/M. 날짜가 없거나 형식이 잘못되면 null 반환
+     */
+    private BigDecimal calculateInputMcnt(String inputBgngYmd, String inputEndYmd) {
+        if (inputBgngYmd == null || inputBgngYmd.trim().isEmpty()
+                || inputEndYmd == null || inputEndYmd.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            LocalDate startDate = LocalDate.parse(inputBgngYmd);
+            LocalDate endDate = LocalDate.parse(inputEndYmd);
+            if (startDate.isAfter(endDate)) {
+                return null;
+            }
+
+            long inputDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+            return BigDecimal.valueOf(inputDays)
+                    .divide(BigDecimal.valueOf(30), 2, RoundingMode.HALF_UP);
+        } catch (RuntimeException e) {
+            logger.error("투입 M/M 계산 중 날짜 변환 실패"
+                    + " inputBgngYmd : " + inputBgngYmd
+                    + " inputEndYmd : " + inputEndYmd, e);
+            return null;
+        }
+    }
+
     @RequestMapping(value = "/biz/mnpwList.ajax")
-    public ModelAndView selectBizMnpwList(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizMnpwList(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         List<BizVO> list = bizService.selectBizMnpwList(bizVO);
 
@@ -241,12 +288,13 @@ public class BizController {
     @RequestMapping(value = "/biz/mnpwSave.ajax")
     public ModelAndView saveBizMnpw(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setRgtrId(loginVO.getUserId());
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
+
+        bizVO.setInputMcnt(calculateInputMcnt(bizVO.getInputBgngYmd(), bizVO.getInputEndYmd()));
 
         int cnt;
         if (bizVO.getBizMnpwSn() == null || bizVO.getBizMnpwSn() == 0) {
@@ -263,10 +311,11 @@ public class BizController {
     @RequestMapping(value = "/biz/mnpwDelete.ajax")
     public ModelAndView deleteBizMnpw(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
-        if (loginVO != null) {
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt = bizService.deleteBizMnpw(bizVO);
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -275,8 +324,11 @@ public class BizController {
     }
 
     @RequestMapping(value = "/biz/cstList.ajax")
-    public ModelAndView selectBizCstList(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizCstList(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         List<BizVO> list = bizService.selectBizCstList(bizVO);
 
@@ -289,12 +341,11 @@ public class BizController {
     @RequestMapping(value = "/biz/cstSave.ajax")
     public ModelAndView saveBizCst(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setRgtrId(loginVO.getUserId());
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt;
         if (bizVO.getBizCstSn() == null || bizVO.getBizCstSn() == 0) {
@@ -311,10 +362,11 @@ public class BizController {
     @RequestMapping(value = "/biz/cstDelete.ajax")
     public ModelAndView deleteBizCst(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
-        if (loginVO != null) {
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt = bizService.deleteBizCst(bizVO);
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -323,8 +375,11 @@ public class BizController {
     }
 
     @RequestMapping(value = "/biz/schdlList.ajax")
-    public ModelAndView selectBizSchdlList(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizSchdlList(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         List<BizVO> list = bizService.selectBizSchdlList(bizVO);
 
@@ -337,12 +392,11 @@ public class BizController {
     @RequestMapping(value = "/biz/schdlSave.ajax")
     public ModelAndView saveBizSchdl(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
 
-        if (loginVO != null) {
-            bizVO.setRgtrId(loginVO.getUserId());
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt;
         if (bizVO.getBizSchdlSn() == null || bizVO.getBizSchdlSn() == 0) {
@@ -359,10 +413,11 @@ public class BizController {
     @RequestMapping(value = "/biz/schdlDelete.ajax")
     public ModelAndView deleteBizSchdl(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-        UserVO loginVO = getLoginUser(request);
-        if (loginVO != null) {
-            bizVO.setMdfrId(loginVO.getUserId());
-        }
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setRgtrId(reqLoginVo.getUserId());
+        bizVO.setMdfrId(reqLoginVo.getUserId());
 
         int cnt = bizService.deleteBizSchdl(bizVO);
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -371,8 +426,11 @@ public class BizController {
     }
 
     @RequestMapping(value = "/biz/profitSummary.ajax")
-    public ModelAndView selectBizProfitSummary(@ModelAttribute("bizVO") BizVO bizVO) throws Exception {
+    public ModelAndView selectBizProfitSummary(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        bizVO.setCoId(reqLoginVo.getCoId());
 
         BizVO summary = bizService.selectBizProfitSummary(bizVO);
 
@@ -381,6 +439,7 @@ public class BizController {
 
         return mav;
     }
+
 
     /**
      * 사업상태가 준비(READY)인 경우 계약 관련 입력값을 저장하지 않도록 제거한다.
@@ -435,20 +494,6 @@ public class BizController {
             return normalized.substring(0, 2);
         }
         return (normalized + "CO").substring(0, 2);
-    }
-
-    private UserVO getLoginUser(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            return null;
-        }
-
-        Object loginObj = session.getAttribute("login");
-        if (loginObj instanceof UserVO) {
-            return (UserVO) loginObj;
-        }
-
-        return null;
     }
 
     /**

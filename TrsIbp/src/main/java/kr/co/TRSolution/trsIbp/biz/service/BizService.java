@@ -48,4 +48,6 @@ public interface BizService {
     int deleteBizSchdl(BizVO vo) throws Exception;
 
     BizVO selectBizProfitSummary(BizVO vo) throws Exception;
+
+
 }

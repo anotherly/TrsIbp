@@ -14,7 +14,7 @@
     </div>
 
     <div class="flex items-center gap-6">
-        <div class="hidden lg:flex items-center gap-3 text-xs bg-slate-900 border border-brand-border px-3 py-1.5 rounded-full">
+        <!-- <div class="hidden lg:flex items-center gap-3 text-xs bg-slate-900 border border-brand-border px-3 py-1.5 rounded-full">
             <span class="flex items-center gap-1.5 text-gray-400">
                 <i class="fa-brands fa-github text-gray-100"></i> Github: <span class="text-emerald-400 font-semibold">Connected</span>
             </span>
@@ -26,7 +26,7 @@
             <span class="flex items-center gap-1.5 text-gray-400">
                 <i class="fa-brands fa-slack text-orange-400"></i> Slack: <span class="text-emerald-400 font-semibold">Active</span>
             </span>
-        </div>
+        </div> -->
 
         <div class="relative w-64">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">

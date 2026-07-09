@@ -36,4 +36,19 @@ public interface UserService {
 
     /** 권한 목록 조회 */
     public List<Map<String, Object>> selectAuthList();
+    /**
+     * 사용자 선택 모달에 표시할 로그인 사용자 회사의 부서 목록을 조회한다.
+     * @param userVO coId, searchKeyword 등 조회조건을 담은 사용자 VO
+     * @return 부서 목록
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    public List<UserVO> selectUserSelectDeptList(UserVO userVO) throws Exception;
+
+    /**
+     * 사용자 선택 모달에 표시할 로그인 사용자 회사의 사용자 목록을 조회한다.
+     * @param userVO coId, deptId, searchKeyword 등 조회조건을 담은 사용자 VO
+     * @return 사용자 목록
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    public List<UserVO> selectUserSelectUserList(UserVO userVO) throws Exception;
 }

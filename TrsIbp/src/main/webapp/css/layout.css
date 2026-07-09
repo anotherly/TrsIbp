@@ -840,3 +840,194 @@
 .ds-form-actions .ds-btn {
     min-width: 92px;
 }
+
+/* =========================================================
+   Sidebar current menu state
+   ========================================================= */
+.ds-sidebar-link {
+    display: block;
+    padding: 8px;
+    border-radius: 8px;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: var(--ds-transition);
+}
+.ds-sidebar-link:hover {
+    color: #fff;
+    background: rgba(17, 24, 39, .9);
+}
+.ds-sidebar-link.is-active {
+    color: #22d3ee;
+    font-weight: 800;
+    background: rgba(15, 23, 42, .82);
+}
+
+/* =========================================================
+   Input with adjacent action button
+   ========================================================= */
+.ds-input-button {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    min-width: 0;
+}
+.ds-input-button .ds-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.ds-input-button .ds-btn {
+    flex: 0 0 auto;
+    min-width: 64px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+.ds-form-actions-top .ds-btn {
+    min-width: 86px;
+    min-height: 40px;
+}
+
+/* =========================================================
+   Common single-user select modal
+   ========================================================= */
+.ds-modal.hidden { display: none; }
+.ds-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.ds-modal-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, .72);
+    backdrop-filter: blur(3px);
+}
+.ds-modal-panel {
+    position: relative;
+    width: min(920px, calc(100vw - 48px));
+    max-height: calc(100vh - 72px);
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(17, 24, 39, .98), rgba(11, 15, 25, .98));
+    border: 1px solid var(--ds-border);
+    border-radius: 20px;
+    box-shadow: 0 22px 60px rgba(0,0,0,.45);
+    padding: 22px;
+}
+.ds-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.ds-modal-title {
+    margin: 0;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 900;
+}
+.ds-modal-desc {
+    margin: 4px 0 0;
+    color: var(--ds-text-sub);
+    font-size: 13px;
+}
+.ds-modal-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--ds-border);
+    border-radius: 10px;
+    background: rgba(255,255,255,.04);
+    color: #dbeafe;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+.ds-user-search-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.ds-user-picker {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 14px;
+    min-height: 420px;
+}
+.ds-user-dept-box,
+.ds-user-list-box {
+    border: 1px solid var(--ds-border);
+    border-radius: 14px;
+    background: rgba(8, 13, 24, .72);
+    overflow: hidden;
+}
+.ds-user-box-title {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ds-border);
+    color: #dbeafe;
+    font-size: 13px;
+    font-weight: 900;
+}
+.ds-user-dept-list,
+.ds-user-list {
+    max-height: 380px;
+    overflow: auto;
+    padding: 10px;
+}
+.ds-user-dept-item,
+.ds-user-row {
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #e5edf8;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+.ds-user-dept-item {
+    display: block;
+    padding: 9px 10px;
+    font-size: 13px;
+}
+.ds-user-dept-item:hover,
+.ds-user-dept-item.is-active,
+.ds-user-row:hover {
+    background: rgba(59, 130, 246, .16);
+}
+.ds-user-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 11px 12px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(148, 163, 184, .12);
+}
+.ds-user-row strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+}
+.ds-user-row span {
+    display: block;
+    color: var(--ds-text-sub);
+    font-size: 12px;
+    margin-top: 3px;
+}
+.ds-user-row em {
+    align-self: center;
+    color: #93c5fd;
+    font-style: normal;
+    font-size: 12px;
+}
+@media (max-width: 760px) {
+    .ds-user-picker { grid-template-columns: 1fr; }
+    .ds-user-dept-list,
+    .ds-user-list { max-height: 220px; }
+}
+.ds-user-dept-item.is-child span {
+    padding-left: 14px;
+}

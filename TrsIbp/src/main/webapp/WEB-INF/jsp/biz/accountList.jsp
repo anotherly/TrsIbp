@@ -35,7 +35,7 @@
                 <input type="hidden" id="frmBizCstSn">
                 <div class="ds-field ds-col-3"><label for="frmCstSeCd">비용구분</label><select id="frmCstSeCd" class="ds-select"><option value="">선택</option></select></div>
                 <div class="ds-field ds-col-3"><label for="frmCstNm">비용명</label><input type="text" id="frmCstNm" class="ds-input" maxlength="100"></div>
-                <div class="ds-field ds-col-3"><label for="frmOcrnCst">발생비용</label><input type="number" id="frmOcrnCst" class="ds-input" min="0" step="1"></div>
+                <div class="ds-field ds-col-3"><label for="frmOcrnCst">발생비용</label><input type="text" id="frmOcrnCst" class="ds-input ds-number-input" inputmode="numeric" autocomplete="off"></div>
                 <div class="ds-field ds-col-3"><label for="frmOcrnYmd">발생일자</label><input type="date" id="frmOcrnYmd" class="ds-input"></div>
             </div>
             <div class="ds-table-wrap"><table class="ds-table ds-table-compact"><thead><tr><th>번호</th><th>구분</th><th>비용명</th><th>금액</th><th>발생일자</th><th>관리</th></tr></thead><tbody id="bizCstBody"></tbody></table></div>

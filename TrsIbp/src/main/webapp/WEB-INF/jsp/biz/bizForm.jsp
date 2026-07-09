@@ -5,14 +5,22 @@
 %>
 <input type="hidden" id="frmBizId" name="bizId" value="<%=request.getParameter("bizId") == null ? "" : request.getParameter("bizId")%>">
 <div class="ds-form-grid ds-form-12 biz-basic-form">
-    <div class="ds-field ds-col-12">
+    <div class="ds-field ds-col-6">
         <label for="frmBizCd" class="required">사업코드</label>
         <input type="text" id="frmBizCd" class="ds-input" maxlength="30" placeholder="저장 시 자동 생성" readonly>
     </div>
+    <div class="ds-field ds-col-6">
+        <label for="frmCtrtNo">계약번호</label>
+        <input type="text" id="frmCtrtNo" class="ds-input" maxlength="20">
+    </div>
 
-    <div class="ds-field ds-col-12">
+    <div class="ds-field ds-col-6">
         <label for="frmBizNm" class="required">사업명</label>
         <input type="text" id="frmBizNm" class="ds-input" maxlength="200">
+    </div>
+    <div class="ds-field ds-col-6">
+        <label for="frmBizAbrvNm">사업약칭</label>
+        <input type="text" id="frmBizAbrvNm" class="ds-input" maxlength="100">
     </div>
 
     <div class="ds-field ds-col-6">
@@ -53,7 +61,7 @@
 
     <div class="ds-field ds-col-3">
         <label for="frmCtrtAmt">계약금액</label>
-        <input type="number" id="frmCtrtAmt" class="ds-input ready-disabled-field" min="0" step="1">
+        <input type="text" id="frmCtrtAmt" class="ds-input ds-number-input ready-disabled-field" inputmode="numeric" autocomplete="off">
     </div>
     <div class="ds-field ds-col-3">
         <label for="frmGiveMthdCd">지급방법</label>
