@@ -102,7 +102,7 @@ public class BizController {
         int cnt;
         if (bizVO.getBizId() == null || bizVO.getBizId().trim().isEmpty()) {
             bizVO.setBizId(createBizId());
-            bizVO.setBizCd(createBizCd(bizVO));
+            bizVO.setBizCd(createBizCd(bizVO, reqLoginVo.getCoCd()));
             cnt = bizService.insertBiz(bizVO);
         } else {
             cnt = bizService.updateBiz(bizVO);
@@ -463,13 +463,15 @@ public class BizController {
     }
 
     /**
-     * 회사코드-연도-일련번호 형식의 사업코드를 생성한다.
-     * @param bizVO 회사ID가 설정된 사업 VO
-     * @return 예: TR-26-0001
+     * 로그인 사용자 세션에 적재된 회사코드(CO_INFO.CO_CD)를 기준으로 사업코드를 생성한다.
+     *
+     * @param bizVO 회사ID가 설정된 사업 VO. 다음 일련번호 조회 시 CO_ID와 사업코드 prefix를 사용한다.
+     * @param coCd 로그인 사용자 회사코드(CO_INFO.CO_CD)
+     * @return 회사코드-연도-일련번호 형식의 사업코드. 예: TR-26-0001
      * @throws Exception 다음 일련번호 조회 중 예외 발생 시 전달
      */
-    private String createBizCd(BizVO bizVO) throws Exception {
-        String coPrefix = resolveCompanyCode(bizVO.getCoId());
+    private String createBizCd(BizVO bizVO, String coCd) throws Exception {
+        String coPrefix = normalizeCompanyCode(coCd);
         String yy = new SimpleDateFormat("yy").format(new Date());
         String prefix = coPrefix + "-" + yy + "-";
         bizVO.setBizCdPrefix(prefix);
@@ -478,22 +480,17 @@ public class BizController {
     }
 
     /**
-     * 회사ID 기준 사업코드 회사 접두어를 반환한다.
-     * @param coId 로그인 사용자의 회사ID
-     * @return 사업코드 회사 접두어
+     * 사업코드 생성에 사용할 회사코드를 영문/숫자 대문자 형태로 정규화한다.
+     *
+     * @param coCd 로그인 사용자 회사코드(CO_INFO.CO_CD)
+     * @return 정규화된 회사코드. 회사코드가 비어 있으면 기본값 CO 반환
      */
-    private String resolveCompanyCode(String coId) {
-        if ("COMP001".equals(coId)) {
-            return "TR";
-        }
-        if (coId == null || coId.trim().isEmpty()) {
+    private String normalizeCompanyCode(String coCd) {
+        if (coCd == null || coCd.trim().isEmpty()) {
             return "CO";
         }
-        String normalized = coId.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
-        if (normalized.length() >= 2) {
-            return normalized.substring(0, 2);
-        }
-        return (normalized + "CO").substring(0, 2);
+        String normalized = coCd.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+        return normalized.isEmpty() ? "CO" : normalized;
     }
 
     /**

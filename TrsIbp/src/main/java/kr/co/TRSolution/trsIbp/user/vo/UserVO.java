@@ -29,6 +29,9 @@ public class UserVO extends DeptVO {
     /** 소속회사ID (CO_INFO.CO_ID FK) */
     private String coId;
 
+    /** 회사코드 (CO_INFO.CO_CD, 사업코드 생성용) */
+    private String coCd;
+
     /** 소속부서ID (DEPT_INFO.DEPT_ID FK) */
     private String deptId;
 
@@ -101,6 +104,9 @@ public class UserVO extends DeptVO {
     public String getCoId() { return coId; }
     public void setCoId(String coId) { this.coId = coId; }
 
+    public String getCoCd() { return coCd; }
+    public void setCoCd(String coCd) { this.coCd = coCd; }
+
     public String getDeptId() { return deptId; }
     public void setDeptId(String deptId) { this.deptId = deptId; }
 
@@ -152,7 +158,7 @@ public class UserVO extends DeptVO {
     @Override
     public String toString() {
         return "UserVO [userId=" + userId + ", userNm=" + userNm
-                + ", coId=" + coId + ", deptId=" + deptId
+                + ", coId=" + coId + ", coCd=" + coCd + ", deptId=" + deptId
                 + ", jbpsNm=" + jbpsNm + ", authrtId=" + authrtId
                 + ", useYn=" + useYn + "]";
     }

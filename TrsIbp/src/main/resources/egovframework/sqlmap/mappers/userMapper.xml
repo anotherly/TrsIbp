@@ -19,6 +19,7 @@
         <result property="userEnpswd"          column="USER_ENPSWD"         />
         <result property="userNm"        column="USER_NM"       />
         <result property="coId"       column="CO_ID"      />
+        <result property="coCd"       column="CO_CD"      />
         <result property="coNm"     column="CO_NM"    />
         <result property="deptId"          column="DEPT_ID"         />
         <result property="deptNm"        column="DEPT_NM"       />
@@ -44,6 +45,7 @@
              U.USER_ID
             ,U.USER_NM
             ,U.CO_ID
+            ,C.CO_CD
             ,C.CO_NM
             ,U.DEPT_ID
             ,D.DEPT_NM
@@ -93,6 +95,8 @@
             ,U.USER_ENPSWD
             ,U.USER_NM
             ,U.CO_ID
+            ,C.CO_CD
+            ,C.CO_NM
             ,U.DEPT_ID
             ,U.JBPS_NM
             ,U.AUTHRT_ID
@@ -100,6 +104,7 @@
             ,U.USE_YN
         FROM USER_INFO U
         LEFT JOIN AUTHRT_INFO A ON U.AUTHRT_ID = A.AUTHRT_ID
+        LEFT JOIN CO_INFO C ON U.CO_ID = C.CO_ID
         WHERE U.USER_ID  = #{userId}
           AND U.USE_YN = 'Y'
     </select>
