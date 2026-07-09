@@ -38,8 +38,11 @@
 
             <input type="hidden" id="frmBizId" value="${param.bizId}">
             <div class="ds-form-grid ds-form-12 biz-basic-form biz-detail-view">
-                <div class="ds-field ds-col-12"><label class="required">사업코드</label><p id="dispBizCd" class="ds-display-text">-</p></div>
-                <div class="ds-field ds-col-12"><label class="required">사업명</label><p id="dispBizNm" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-6"><label class="required">사업코드</label><p id="dispBizCd" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-6"><label>계약번호</label><p id="dispCtrtNo" class="ds-display-text">-</p></div>
+
+                <div class="ds-field ds-col-6"><label class="required">사업명</label><p id="dispBizNm" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-6"><label>사업약칭</label><p id="dispBizAbrvNm" class="ds-display-text">-</p></div>
 
                 <div class="ds-field ds-col-6"><label class="required">민간/공공</label><p id="dispInstSeNm" class="ds-display-text">-</p></div>
                 <div class="ds-field ds-col-6"><label class="required">사업종류</label><p id="dispBizKndNm" class="ds-display-text">-</p></div>

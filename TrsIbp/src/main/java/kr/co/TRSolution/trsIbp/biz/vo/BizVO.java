@@ -30,7 +30,9 @@ public class BizVO extends BaseVO {
     private String bizId;
     private String coId;
     private String bizCd;
+    private String ctrtNo;
     private String bizNm;
+    private String bizAbrvNm;
     private String dtlBizNm;
     private String instSeCd;
     private String bizKndCd;
@@ -141,8 +143,12 @@ public class BizVO extends BaseVO {
     public void setCoId(String coId) { this.coId = coId; }
     public String getBizCd() { return bizCd; }
     public void setBizCd(String bizCd) { this.bizCd = bizCd; }
+    public String getCtrtNo() { return ctrtNo; }
+    public void setCtrtNo(String ctrtNo) { this.ctrtNo = ctrtNo; }
     public String getBizNm() { return bizNm; }
     public void setBizNm(String bizNm) { this.bizNm = bizNm; }
+    public String getBizAbrvNm() { return bizAbrvNm; }
+    public void setBizAbrvNm(String bizAbrvNm) { this.bizAbrvNm = bizAbrvNm; }
     public String getDtlBizNm() { return dtlBizNm; }
     public void setDtlBizNm(String dtlBizNm) { this.dtlBizNm = dtlBizNm; }
     public String getInstSeCd() { return instSeCd; }
