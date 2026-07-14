@@ -51,4 +51,26 @@ public interface UserService {
      * @throws Exception 조회 중 예외 발생 시 전달
      */
     public List<UserVO> selectUserSelectUserList(UserVO userVO) throws Exception;
+
+    /** 사용자(직원) 관리 목록 조회 */
+    public List<UserVO> selectUserManageList(UserVO userVO) throws Exception;
+
+    /** 사용자(직원) 관리 단건 조회 */
+    public UserVO selectUserManage(UserVO userVO) throws Exception;
+
+    /** 사용자ID 중복 건수 조회 */
+    public int selectUserIdCount(UserVO userVO) throws Exception;
+
+    /** 로그인 사용자 회사의 부서 목록 조회 */
+    public List<UserVO> selectDeptListByCoId(UserVO userVO) throws Exception;
+
+    /** 사용자(직원) 관리 등록 */
+    public void insertUserManage(UserVO userVO) throws Exception;
+
+    /** 사용자(직원) 관리 수정 */
+    public void updateUserManage(UserVO userVO) throws Exception;
+
+    /** 사용자(직원) 관리 삭제 처리 */
+    public void deleteUserManage(UserVO userVO) throws Exception;
+
 }

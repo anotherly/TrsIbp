@@ -41,6 +41,7 @@
         <result property="bizKndNm"         column="BIZ_KND_NM"/>
         <result property="bizSeNm"          column="BIZ_SE_NM"/>
         <result property="giveMthdNm"       column="GIVE_MTHD_NM"/>
+        <result property="vatInclNm"        column="VAT_INCL_NM"/>
         <result property="custSn"           column="CUST_SN"/>
         <result property="custCoNm"         column="CUST_CO_NM"/>
         <result property="custSeCd"         column="CUST_SE_CD"/>
@@ -55,6 +56,8 @@
         <result property="relSeNm"          column="REL_SE_NM"/>
         <result property="relLvl"           column="REL_LVL"/>
         <result property="directCtrtYn"     column="DIRECT_CTRT_YN"/>
+        <result property="bizGiveMthdSn"    column="BIZ_GIVE_MTHD_SN"/>
+        <result property="sortSeq"          column="SORT_SEQ"/>
         <result property="bizMnpwSn"        column="BIZ_MNPW_SN"/>
         <result property="userId"           column="USER_ID"/>
         <result property="userNm"           column="USER_NM"/>
@@ -67,6 +70,7 @@
         <result property="inputEndYmd"      column="INPUT_END_YMD"/>
         <result property="inputMcnt"        column="INPUT_MCNT"/>
         <result property="untprc"           column="UNTPRC"/>
+        <result property="inputRt"          column="INPUT_RT"/>
         <result property="bizCstSn"         column="BIZ_CST_SN"/>
         <result property="cstSeCd"          column="CST_SE_CD"/>
         <result property="cstSeNm"          column="CST_SE_NM"/>
@@ -95,6 +99,7 @@
             ,IFNULL(KND_CD.CD_NM, B.BIZ_KND_CD) AS BIZ_KND_NM
             ,IFNULL(SE_CD.CD_NM, B.BIZ_SE_CD) AS BIZ_SE_NM
             ,IFNULL(GIVE_CD.CD_NM, B.GIVE_MTHD_CD) AS GIVE_MTHD_NM
+            ,CASE B.VAT_INCL_YN WHEN 'Y' THEN 'VAT포함' WHEN 'N' THEN 'VAT별도' ELSE '' END AS VAT_INCL_NM
     </sql>
 
     <sql id="bizCodeJoins">
@@ -130,7 +135,7 @@
             ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
             ,DATE_FORMAT(IFNULL(B.BIZ_BGNG_YMD, B.OTST_YMD), '%Y-%m-%d') AS BIZ_BGNG_YMD
             ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
-            ,B.CTRT_AMT, B.GIVE_MTHD_CD, B.GIVE_MTHD_CN
+            ,B.CTRT_AMT, B.VAT_INCL_YN, B.GIVE_MTHD_CD, B.GIVE_MTHD_CN
             ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
@@ -159,7 +164,7 @@
             ,DATE_FORMAT(B.OTST_YMD, '%Y-%m-%d') AS OTST_YMD
             ,DATE_FORMAT(IFNULL(B.BIZ_BGNG_YMD, B.OTST_YMD), '%Y-%m-%d') AS BIZ_BGNG_YMD
             ,DATE_FORMAT(B.BIZ_END_YMD, '%Y-%m-%d') AS BIZ_END_YMD
-            ,B.CTRT_AMT, B.GIVE_MTHD_CD, B.GIVE_MTHD_CN
+            ,B.CTRT_AMT, B.VAT_INCL_YN, B.GIVE_MTHD_CD, B.GIVE_MTHD_CN
             ,DATE_FORMAT(B.GIVE_DDT_YMD, '%Y-%m-%d') AS GIVE_DDT_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_BGNG_YMD, '%Y-%m-%d') AS DFRP_GRNTE_BGNG_YMD
             ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
@@ -182,12 +187,12 @@
     <insert id="insertBiz" parameterType="bizVO">
         INSERT INTO biz_info (
              BIZ_ID, CO_ID, BIZ_CD, CTRT_NO, BIZ_NM, BIZ_ABRV_NM, INST_SE_CD, BIZ_KND_CD, BIZ_SE_CD, ORDPL_NM
-            ,CTRT_YMD, OTST_YMD, BIZ_BGNG_YMD, BIZ_END_YMD, CTRT_AMT, GIVE_MTHD_CD, GIVE_MTHD_CN, GIVE_DDT_YMD
+            ,CTRT_YMD, OTST_YMD, BIZ_BGNG_YMD, BIZ_END_YMD, CTRT_AMT, VAT_INCL_YN, GIVE_MTHD_CD, GIVE_MTHD_CN, GIVE_DDT_YMD
             ,DFRP_GRNTE_BGNG_YMD, DFRP_GRNTE_END_YMD, RMRK_CN, BIZ_STTS_CD, REG_DT
         ) VALUES (
              #{bizId}, #{coId}, #{bizCd}, NULLIF(#{ctrtNo}, ''), #{bizNm}, NULLIF(#{bizAbrvNm}, ''), #{instSeCd}, #{bizKndCd}, #{bizSeCd}, #{ordplNm}
             ,NULLIF(#{ctrtYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{otstYmd}, ''), NULLIF(#{bizEndYmd}, '')
-            ,#{ctrtAmt}, NULLIF(#{giveMthdCd}, ''), #{giveMthdCn}, NULLIF(#{giveDdtYmd}, '')
+            ,#{ctrtAmt}, NULLIF(#{vatInclYn}, ''), NULLIF(#{giveMthdCd}, ''), #{giveMthdCn}, NULLIF(#{giveDdtYmd}, '')
             ,NULLIF(#{dfrpGrnteBgngYmd}, ''), NULLIF(#{dfrpGrnteEndYmd}, ''), #{rmrkCn}
             ,COALESCE(NULLIF(#{bizSttsCd}, ''), (
                 SELECT C.CD FROM cmn_cd C
@@ -212,6 +217,7 @@
             ,BIZ_BGNG_YMD = NULLIF(#{otstYmd}, '')
             ,BIZ_END_YMD = NULLIF(#{bizEndYmd}, '')
             ,CTRT_AMT = #{ctrtAmt}
+            ,VAT_INCL_YN = NULLIF(#{vatInclYn}, '')
             ,GIVE_MTHD_CD = NULLIF(#{giveMthdCd}, '')
             ,GIVE_MTHD_CN = #{giveMthdCn}
             ,GIVE_DDT_YMD = NULLIF(#{giveDdtYmd}, '')
@@ -228,6 +234,35 @@
         WHERE BIZ_ID = #{bizId}
           AND CO_ID = #{coId}
     </delete>
+
+
+    <select id="selectBizGiveMthdList" parameterType="bizVO" resultMap="bizResultMap">
+        SELECT
+             G.BIZ_GIVE_MTHD_SN, G.BIZ_ID, G.GIVE_MTHD_CD, IFNULL(GIVE_CD.CD_NM, G.GIVE_MTHD_CD) AS GIVE_MTHD_NM
+            ,G.GIVE_MTHD_CN, G.SORT_SEQ, G.USE_YN
+        FROM biz_give_mthd G
+        INNER JOIN biz_info B ON B.BIZ_ID = G.BIZ_ID
+        LEFT JOIN cmn_cd GIVE_CD ON GIVE_CD.CD_GROUP_ID = 'GIVE_MTHD_CD' AND GIVE_CD.CD = G.GIVE_MTHD_CD AND GIVE_CD.USE_YN = 'Y'
+        WHERE G.USE_YN = 'Y'
+          AND G.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
+        ORDER BY G.SORT_SEQ ASC, G.BIZ_GIVE_MTHD_SN ASC
+    </select>
+
+    <update id="deleteBizGiveMthdByBizId" parameterType="bizVO">
+        UPDATE biz_give_mthd G
+        SET G.USE_YN = 'N', G.MDFR_ID = #{mdfrId}, G.MDFCN_DT = NOW()
+        WHERE G.BIZ_ID = #{bizId}
+          AND EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = G.BIZ_ID AND B.CO_ID = #{coId})
+    </update>
+
+    <insert id="insertBizGiveMthd" parameterType="bizVO" useGeneratedKeys="true" keyProperty="bizGiveMthdSn">
+        INSERT INTO biz_give_mthd (
+             BIZ_ID, GIVE_MTHD_CD, GIVE_MTHD_CN, SORT_SEQ, USE_YN, RGTR_ID, REG_DT
+        )
+        SELECT #{bizId}, NULLIF(#{giveMthdCd}, ''), #{giveMthdCn}, #{sortSeq}, 'Y', #{rgtrId}, NOW()
+        WHERE EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = #{bizId} AND B.CO_ID = #{coId})
+    </insert>
 
     <select id="selectCustList" parameterType="bizVO" resultMap="bizResultMap">
         SELECT
@@ -353,7 +388,7 @@
             ,M.ROLE_NM, M.JBPS_NM
             ,DATE_FORMAT(M.INPUT_BGNG_YMD, '%Y-%m-%d') AS INPUT_BGNG_YMD
             ,DATE_FORMAT(M.INPUT_END_YMD, '%Y-%m-%d') AS INPUT_END_YMD
-            ,M.INPUT_MCNT, M.UNTPRC, M.RMRK_CN
+            ,M.INPUT_MCNT, M.UNTPRC, M.INPUT_RT, M.RMRK_CN
         FROM biz_mnpw M
         INNER JOIN biz_info B ON B.BIZ_ID = M.BIZ_ID
         LEFT JOIN user_info U ON U.USER_ID = M.USER_ID
@@ -367,11 +402,11 @@
     <insert id="insertBizMnpw" parameterType="bizVO" useGeneratedKeys="true" keyProperty="bizMnpwSn">
         INSERT INTO biz_mnpw (
              BIZ_ID, USER_ID, INPUT_MNPW_NM, INPUT_SE_CD, ROLE_NM, JBPS_NM
-            ,INPUT_BGNG_YMD, INPUT_END_YMD, INPUT_MCNT, UNTPRC, RMRK_CN, USE_YN, RGTR_ID, REG_DT
+            ,INPUT_BGNG_YMD, INPUT_END_YMD, INPUT_MCNT, UNTPRC, INPUT_RT, RMRK_CN, USE_YN, RGTR_ID, REG_DT
         )
         SELECT
              #{bizId}, NULLIF(#{userId}, ''), #{inputMnpwNm}, #{inputSeCd}, #{roleNm}, #{jbpsNm}
-            ,NULLIF(#{inputBgngYmd}, ''), NULLIF(#{inputEndYmd}, ''), #{inputMcnt}, #{untprc}, #{rmrkCn}, 'Y', #{rgtrId}, NOW()
+            ,NULLIF(#{inputBgngYmd}, ''), NULLIF(#{inputEndYmd}, ''), #{inputMcnt}, #{untprc}, #{inputRt}, #{rmrkCn}, 'Y', #{rgtrId}, NOW()
         WHERE EXISTS (SELECT 1 FROM biz_info B WHERE B.BIZ_ID = #{bizId} AND B.CO_ID = #{coId})
           AND (NULLIF(#{userId}, '') IS NULL OR EXISTS (
               SELECT 1 FROM user_info U WHERE U.USER_ID = #{userId} AND U.CO_ID = #{coId}
@@ -390,6 +425,7 @@
             ,INPUT_END_YMD = NULLIF(#{inputEndYmd}, '')
             ,INPUT_MCNT = #{inputMcnt}
             ,UNTPRC = #{untprc}
+            ,INPUT_RT = #{inputRt}
             ,RMRK_CN = #{rmrkCn}
             ,MDFR_ID = #{mdfrId}
             ,MDFCN_DT = NOW()

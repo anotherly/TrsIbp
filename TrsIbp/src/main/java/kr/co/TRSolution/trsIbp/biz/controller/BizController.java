@@ -7,6 +7,8 @@ import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -22,8 +24,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import kr.co.TRSolution.trsIbp.biz.service.BizService;
 import kr.co.TRSolution.trsIbp.biz.vo.BizVO;
+import kr.co.TRSolution.trsIbp.comm.filter.HTMLTagFilter;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 
 @Controller
@@ -32,6 +38,7 @@ public class BizController {
     public static final Logger logger = LoggerFactory.getLogger(BizController.class);
     private static final SecureRandom BIZ_ID_RANDOM = new SecureRandom();
     private static final char[] BIZ_ID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    private static final ObjectMapper BIZ_OBJECT_MAPPER = new ObjectMapper();
 
     @Resource(name = "bizService")
     private BizService bizService;
@@ -80,10 +87,12 @@ public class BizController {
 
         BizVO detail = bizService.selectBizDetail(bizVO);
         BizVO summary = bizService.selectBizProfitSummary(bizVO);
+        List<BizVO> giveMthdList = bizService.selectBizGiveMthdList(bizVO);
 
         mav.addObject("result", detail == null ? "NO_DATA" : "OK");
         mav.addObject("detail", detail);
         mav.addObject("summary", summary);
+        mav.addObject("giveMthdList", giveMthdList);
 
         return mav;
     }
@@ -98,6 +107,8 @@ public class BizController {
         bizVO.setMdfrId(reqLoginVo.getUserId());
 
         clearContractFieldsWhenReady(bizVO);
+        List<BizVO> giveMthdList = parseGiveMthdList(bizVO, reqLoginVo);
+        applyFirstGiveMthdForLegacyColumns(bizVO, giveMthdList);
 
         int cnt;
         if (bizVO.getBizId() == null || bizVO.getBizId().trim().isEmpty()) {
@@ -106,6 +117,10 @@ public class BizController {
             cnt = bizService.insertBiz(bizVO);
         } else {
             cnt = bizService.updateBiz(bizVO);
+        }
+
+        if (cnt > 0) {
+            saveBizGiveMthdList(bizVO, giveMthdList);
         }
 
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -244,9 +259,10 @@ public class BizController {
      * 투입시작일과 투입종료일 기준으로 투입 M/M을 계산한다.
      * @param inputBgngYmd 투입시작일(yyyy-MM-dd)
      * @param inputEndYmd 투입종료일(yyyy-MM-dd)
+     * @param inputRt 투입률. 100이면 100% 투입으로 계산하며 값이 없으면 100으로 본다.
      * @return 계산된 투입 M/M. 날짜가 없거나 형식이 잘못되면 null 반환
      */
-    private BigDecimal calculateInputMcnt(String inputBgngYmd, String inputEndYmd) {
+    private BigDecimal calculateInputMcnt(String inputBgngYmd, String inputEndYmd, BigDecimal inputRt) {
         if (inputBgngYmd == null || inputBgngYmd.trim().isEmpty()
                 || inputEndYmd == null || inputEndYmd.trim().isEmpty()) {
             return null;
@@ -259,13 +275,16 @@ public class BizController {
                 return null;
             }
 
+            BigDecimal rate = inputRt == null ? BigDecimal.valueOf(100) : inputRt;
             long inputDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
             return BigDecimal.valueOf(inputDays)
-                    .divide(BigDecimal.valueOf(30), 2, RoundingMode.HALF_UP);
+                    .multiply(rate)
+                    .divide(BigDecimal.valueOf(3000), 2, RoundingMode.HALF_UP);
         } catch (RuntimeException e) {
             logger.error("투입 M/M 계산 중 날짜 변환 실패"
                     + " inputBgngYmd : " + inputBgngYmd
-                    + " inputEndYmd : " + inputEndYmd, e);
+                    + " inputEndYmd : " + inputEndYmd
+                    + " inputRt : " + inputRt, e);
             return null;
         }
     }
@@ -294,7 +313,7 @@ public class BizController {
         bizVO.setRgtrId(reqLoginVo.getUserId());
         bizVO.setMdfrId(reqLoginVo.getUserId());
 
-        bizVO.setInputMcnt(calculateInputMcnt(bizVO.getInputBgngYmd(), bizVO.getInputEndYmd()));
+        bizVO.setInputMcnt(calculateInputMcnt(bizVO.getInputBgngYmd(), bizVO.getInputEndYmd(), bizVO.getInputRt()));
 
         int cnt;
         if (bizVO.getBizMnpwSn() == null || bizVO.getBizMnpwSn() == 0) {
@@ -441,6 +460,98 @@ public class BizController {
     }
 
 
+
+    /**
+     * 화면에서 전달된 대금지급방법 단계 JSON을 사업 VO 목록으로 변환한다.
+     * @param bizVO 대금지급방법 JSON 문자열을 포함한 사업 VO
+     * @param reqLoginVo 로그인 사용자 정보. 회사ID/사용자ID를 단계 VO에 설정한다.
+     * @return 저장 대상 대금지급방법 단계 목록
+     * @throws Exception JSON 변환 중 예외 발생 시 전달
+     */
+    private List<BizVO> parseGiveMthdList(BizVO bizVO, UserVO reqLoginVo) throws Exception {
+        List<BizVO> resultList = new ArrayList<BizVO>();
+        if (bizVO.getGiveMthdListJson() == null || bizVO.getGiveMthdListJson().trim().isEmpty()) {
+            return resultList;
+        }
+
+        String giveMthdListJson = HTMLTagFilter.restoreJsonQuoteOnly(bizVO.getGiveMthdListJson());
+        List<Map<String, Object>> rowList = BIZ_OBJECT_MAPPER.readValue(
+                giveMthdListJson, new TypeReference<List<Map<String, Object>>>() {});
+
+        int sortSeq = 1;
+        for (Map<String, Object> row : rowList) {
+            String giveMthdCd = getStringValue(row.get("giveMthdCd"));
+            String giveMthdCn = getStringValue(row.get("giveMthdCn"));
+            if ((giveMthdCd == null || giveMthdCd.trim().isEmpty())
+                    && (giveMthdCn == null || giveMthdCn.trim().isEmpty())) {
+                continue;
+            }
+
+            BizVO giveVO = new BizVO();
+            giveVO.setBizId(bizVO.getBizId());
+            giveVO.setCoId(reqLoginVo.getCoId());
+            giveVO.setRgtrId(reqLoginVo.getUserId());
+            giveVO.setMdfrId(reqLoginVo.getUserId());
+            giveVO.setGiveMthdCd(giveMthdCd);
+            giveVO.setGiveMthdCn(giveMthdCn);
+            giveVO.setSortSeq(sortSeq++);
+            resultList.add(giveVO);
+        }
+        return resultList;
+    }
+
+    /**
+     * 대금지급방법 단계 목록의 첫 번째 값을 기존 biz_info 지급방법 컬럼에 동기화한다.
+     * @param bizVO 저장 대상 사업 VO
+     * @param giveMthdList 대금지급방법 단계 목록
+     * @return 없음
+     */
+    private void applyFirstGiveMthdForLegacyColumns(BizVO bizVO, List<BizVO> giveMthdList) {
+        if ("READY".equals(bizVO.getBizSttsCd())) {
+            bizVO.setGiveMthdCd(null);
+            bizVO.setGiveMthdCn(null);
+            return;
+        }
+        if (giveMthdList == null || giveMthdList.isEmpty()) {
+            bizVO.setGiveMthdCd(null);
+            bizVO.setGiveMthdCn(null);
+            return;
+        }
+        BizVO firstGive = giveMthdList.get(0);
+        bizVO.setGiveMthdCd(firstGive.getGiveMthdCd());
+        bizVO.setGiveMthdCn(firstGive.getGiveMthdCn());
+    }
+
+    /**
+     * 사업별 대금지급방법 단계를 기존 목록 삭제 후 새 목록으로 저장한다.
+     * @param bizVO 사업ID, 회사ID, 수정자ID가 설정된 사업 VO
+     * @param giveMthdList 저장할 대금지급방법 단계 목록
+     * @return 없음
+     * @throws Exception 저장 중 예외 발생 시 전달
+     */
+    private void saveBizGiveMthdList(BizVO bizVO, List<BizVO> giveMthdList) throws Exception {
+        bizService.deleteBizGiveMthdByBizId(bizVO);
+        if ("READY".equals(bizVO.getBizSttsCd()) || giveMthdList == null) {
+            return;
+        }
+        for (BizVO giveVO : giveMthdList) {
+            giveVO.setBizId(bizVO.getBizId());
+            giveVO.setCoId(bizVO.getCoId());
+            giveVO.setRgtrId(bizVO.getRgtrId());
+            giveVO.setMdfrId(bizVO.getMdfrId());
+            bizService.insertBizGiveMthd(giveVO);
+        }
+    }
+
+    /**
+     * JSON Map 값에서 문자열을 안전하게 꺼낸다.
+     * @param value 변환 대상 값
+     * @return 문자열 값. null이면 null 반환
+     */
+    private String getStringValue(Object value) {
+        return value == null ? null : String.valueOf(value).trim();
+    }
+
     /**
      * 사업상태가 준비(READY)인 경우 계약 관련 입력값을 저장하지 않도록 제거한다.
      * @param bizVO 저장 요청 사업 VO
@@ -455,6 +566,7 @@ public class BizController {
         bizVO.setBizBgngYmd(null);
         bizVO.setBizEndYmd(null);
         bizVO.setCtrtAmt(null);
+        bizVO.setVatInclYn(null);
         bizVO.setGiveMthdCd(null);
         bizVO.setGiveMthdCn(null);
         bizVO.setGiveDdtYmd(null);

@@ -92,4 +92,47 @@ public class UserServiceImpl implements UserService {
     public List<UserVO> selectUserSelectUserList(UserVO userVO) throws Exception {
         return userMapper.selectUserSelectUserList(userVO);
     }
+
+    /** 사용자(직원) 관리 목록 조회 */
+    @Override
+    public List<UserVO> selectUserManageList(UserVO userVO) throws Exception {
+        return userMapper.selectUserManageList(userVO);
+    }
+
+    /** 사용자(직원) 관리 단건 조회 */
+    @Override
+    public UserVO selectUserManage(UserVO userVO) throws Exception {
+        return userMapper.selectUserManage(userVO);
+    }
+
+    /** 사용자ID 중복 건수 조회 */
+    @Override
+    public int selectUserIdCount(UserVO userVO) throws Exception {
+        return userMapper.selectUserIdCount(userVO);
+    }
+
+    /** 로그인 사용자 회사의 부서 목록 조회 */
+    @Override
+    public List<UserVO> selectDeptListByCoId(UserVO userVO) throws Exception {
+        return userMapper.selectDeptListByCoId(userVO);
+    }
+
+    /** 사용자(직원) 관리 등록 */
+    @Override
+    public void insertUserManage(UserVO userVO) throws Exception {
+        userMapper.insertUserManage(userVO);
+    }
+
+    /** 사용자(직원) 관리 수정 */
+    @Override
+    public void updateUserManage(UserVO userVO) throws Exception {
+        userMapper.updateUserManage(userVO);
+    }
+
+    /** 사용자(직원) 관리 삭제 처리 */
+    @Override
+    public void deleteUserManage(UserVO userVO) throws Exception {
+        userMapper.deleteUserManage(userVO);
+    }
+
 }

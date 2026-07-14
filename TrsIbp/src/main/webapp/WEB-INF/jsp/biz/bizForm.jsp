@@ -58,22 +58,35 @@
         <label for="frmBizEndYmd">사업종료일</label>
         <input type="date" id="frmBizEndYmd" class="ds-input ready-disabled-field">
     </div>
-
-    <div class="ds-field ds-col-3">
+    
+    <div class="ds-field ds-col-4">
         <label for="frmCtrtAmt">계약금액</label>
         <input type="text" id="frmCtrtAmt" class="ds-input ds-number-input ready-disabled-field" inputmode="numeric" autocomplete="off">
     </div>
-    <div class="ds-field ds-col-3">
-        <label for="frmGiveMthdCd">지급방법</label>
-        <select id="frmGiveMthdCd" class="ds-select ready-disabled-field"><option value="">선택</option></select>
+    <div class="ds-field ds-col-4">
+        <label for="frmVatInclYn">VAT구분</label>
+        <select id="frmVatInclYn" class="ds-select ready-disabled-field">
+            <option value="">선택</option>
+            <option value="Y">VAT포함</option>
+            <option value="N">VAT별도</option>
+        </select>
     </div>
-    <div class="ds-field ds-col-3">
-        <label for="frmGiveMthdCn">지급방법상세</label>
-        <input type="text" id="frmGiveMthdCn" class="ds-input ready-disabled-field" maxlength="1000" placeholder="예: 70%, 1000만원">
-    </div>
-    <div class="ds-field ds-col-3">
+    <div class="ds-field ds-col-4">
         <label for="frmGiveDdtYmd">지급기일</label>
         <input type="date" id="frmGiveDdtYmd" class="ds-input ready-disabled-field">
+    </div>
+
+    <div class="ds-field ds-col-12 ready-disabled-field-wrap">
+        <label>대금지급방법</label>
+        <div class="ds-table-wrap">
+            <table class="ds-table ds-table-compact ds-pay-table">
+                <thead><tr><th>대금지급방법</th><th>대금지급방법상세</th><th>관리</th></tr></thead>
+                <tbody id="bizGiveMthdEditBody"></tbody>
+            </table>
+        </div>
+        <div class="ds-form-actions ds-form-actions-right ds-mt-10">
+            <button type="button" class="ds-btn ds-btn-outline ready-disabled-field" onclick="addBizGiveMthdRow();">+ 추가</button>
+        </div>
     </div>
 
     <div class="ds-field ds-col-6">

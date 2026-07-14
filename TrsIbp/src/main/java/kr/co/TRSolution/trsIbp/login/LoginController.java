@@ -99,23 +99,26 @@ public class LoginController {
 			// 2. 사용자 미존재
 			if (loginUser == null) {
 				logger.debug("▶ 사용자 미존재: {}", userVO.getUserId());
-				mav.addObject("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
-				return mav;
+				redirectAttributes.addFlashAttribute("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+				redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
+				return new ModelAndView("redirect:/login/login.do");
 			}
 
 			// 3. 사용 정지 계정 확인
 			if (!"Y".equals(loginUser.getUseYn())) {
 				logger.debug("▶ 사용 정지 계정: {}", userVO.getUserId());
-				mav.addObject("errorMsg", "사용이 정지된 계정입니다. 관리자에게 문의하세요.");
-				return mav;
+				redirectAttributes.addFlashAttribute("errorMsg", "사용이 정지된 계정입니다. 관리자에게 문의하세요.");
+				redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
+				return new ModelAndView("redirect:/login/login.do");
 			}
 
 			// 4. BCrypt 비밀번호 검증
 			boolean pwMatch = BCrypt.checkpw(userVO.getUserEnpswd(), loginUser.getUserEnpswd());
 			if (!pwMatch) {
 				logger.debug("▶ 비밀번호 불일치: {}", userVO.getUserId());
-				mav.addObject("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
-				return mav;
+				redirectAttributes.addFlashAttribute("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+				redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
+				return new ModelAndView("redirect:/login/login.do");
 			}
 
 			// 5. 접속 IP 기록
@@ -127,10 +130,14 @@ public class LoginController {
 
 		} catch (IndexOutOfBoundsException | NullPointerException e) {
 			logger.debug("▶ 사용자 조회 실패 (없는 ID): {}", userVO.getUserId());
-			mav.addObject("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+			redirectAttributes.addFlashAttribute("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+			redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
+			return new ModelAndView("redirect:/login/login.do");
 		} catch (Exception e) {
 			logger.error("▶ 로그인 처리 중 예외 발생: {}", e.toString());
-			mav.addObject("errorMsg", "로그인 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+			redirectAttributes.addFlashAttribute("errorMsg", "로그인 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+			redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
+			return new ModelAndView("redirect:/login/login.do");
 		}
 		return mav;
 	}

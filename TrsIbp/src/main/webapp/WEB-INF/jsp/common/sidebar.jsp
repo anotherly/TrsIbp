@@ -11,6 +11,8 @@
     boolean isAccount = uri.equals("/biz/accountList.do");
     boolean isMnpw = uri.equals("/biz/mnpwList.do");
     boolean isSchdl = uri.equals("/biz/schdlList.do");
+    boolean isEmpMgmt = uri.equals("/user/empList.do") || uri.equals("/user/empInsert.do") || uri.equals("/user/empDetail.do") || uri.equals("/user/empUpdate.do");
+    boolean isProject = isBizList || isContract || isAccount || isMnpw || isSchdl;
 %>
 <aside class="w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
     <div>
@@ -75,16 +77,28 @@
             </div>
 
             <div>
-                <button type="button" onclick="toggleSubmenu('sub-project')" class="w-full flex items-center justify-between p-3 text-white bg-brand-card rounded-lg transition duration-200 group">
-                    <span class="flex items-center gap-3"><i class="fa-solid fa-cubes-stacked text-cyan-400 w-5"></i><span class="font-medium text-sm">프로젝트/사업</span></span>
-                    <i id="arrow-sub-project" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
+                <button type="button" onclick="toggleSubmenu('sub-project')" class="w-full flex items-center justify-between p-3 <%= isProject ? "text-white bg-brand-card" : "text-gray-300 hover:text-white hover:bg-brand-card" %> rounded-lg transition duration-200 group">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-cubes-stacked <%= isProject ? "text-cyan-400" : "text-gray-400 group-hover:text-cyan-400" %> w-5"></i><span class="font-medium text-sm">프로젝트/사업</span></span>
+                    <i id="arrow-sub-project" class="fa-solid <%= isProject ? "fa-chevron-up text-cyan-400" : "fa-chevron-down text-gray-500" %> text-xs transition-transform"></i>
                 </button>
-                <div id="sub-project" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                <div id="sub-project" class="<%= isProject ? "" : "hidden" %> pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
                     <a href="<%=request.getContextPath()%>/biz/bizList.do" data-menu-path="/biz/bizList.do,/biz/bizInsert.do,/biz/bizDetail.do,/biz/bizUpdate.do" class="ds-sidebar-link <%= isBizList ? "is-active" : "" %>">사업 목록</a>
                     <a href="<%=request.getContextPath()%>/biz/contractList.do" data-menu-path="/biz/contractList.do" class="ds-sidebar-link <%= isContract ? "is-active" : "" %>">계약 관리</a>
                     <a href="<%=request.getContextPath()%>/biz/accountList.do" data-menu-path="/biz/accountList.do" class="ds-sidebar-link <%= isAccount ? "is-active" : "" %>">회계 관리</a>
                     <a href="<%=request.getContextPath()%>/biz/mnpwList.do" data-menu-path="/biz/mnpwList.do" class="ds-sidebar-link <%= isMnpw ? "is-active" : "" %>">투입인력 관리</a>
                     <a href="<%=request.getContextPath()%>/biz/schdlList.do" data-menu-path="/biz/schdlList.do" class="ds-sidebar-link <%= isSchdl ? "is-active" : "" %>">프로세스(일정) 관리</a>
+                </div>
+            </div>
+
+
+
+            <div>
+                <button type="button" onclick="toggleSubmenu('sub-user-mgmt')" class="w-full flex items-center justify-between p-3 <%= isEmpMgmt ? "text-white bg-brand-card" : "text-gray-300 hover:text-white hover:bg-brand-card" %> rounded-lg transition duration-200 group">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-users text-gray-400 group-hover:text-cyan-400 w-5"></i><span class="font-medium text-sm">사용자(직원) 관리</span></span>
+                    <i id="arrow-sub-user-mgmt" class="fa-solid <%= isEmpMgmt ? "fa-chevron-up text-cyan-400" : "fa-chevron-down text-gray-500" %> text-xs transition-transform"></i>
+                </button>
+                <div id="sub-user-mgmt" class="<%= isEmpMgmt ? "" : "hidden" %> pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                    <a href="<%=request.getContextPath()%>/user/empList.do" data-menu-path="/user/empList.do,/user/empInsert.do,/user/empDetail.do,/user/empUpdate.do" class="ds-sidebar-link <%= isEmpMgmt ? "is-active" : "" %>">사용자 목록</a>
                 </div>
             </div>
 

@@ -44,4 +44,24 @@ public class CommonController {
         return mav;
     }
 
+
+    /**
+     * 로그인 사용자의 회사 기준으로 부서 선택 모달에 사용할 부서 목록을 조회한다.
+     * @param userVO 검색어 등 부서 선택 검색조건을 담은 VO
+     * @param request 로그인 사용자 회사ID 확인용 HttpServletRequest
+     * @return jsonView: result, deptList
+     * @throws Exception 부서 조회 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/common/deptSelectList.ajax")
+    public ModelAndView selectDeptSelectList(@ModelAttribute("userVO") UserVO userVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        userVO.setCoId(reqLoginVo.getCoId());
+        List<UserVO> deptList = userService.selectUserSelectDeptList(userVO);
+
+        mav.addObject("result", "OK");
+        mav.addObject("deptList", deptList);
+        return mav;
+    }
+
 }

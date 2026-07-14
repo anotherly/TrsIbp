@@ -23,6 +23,28 @@ public interface BizMapper {
     int updateBiz(BizVO vo) throws Exception;
     int deleteBiz(BizVO vo) throws Exception;
 
+    /**
+     * 사업별 대금지급방법 단계 목록을 조회한다.
+     * @param vo 사업ID, 회사ID가 설정된 사업 VO
+     * @return 대금지급방법 단계 목록
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    List<BizVO> selectBizGiveMthdList(BizVO vo) throws Exception;
+    /**
+     * 사업별 대금지급방법 단계를 삭제 처리한다.
+     * @param vo 사업ID, 회사ID, 수정자ID가 설정된 사업 VO
+     * @return 삭제 처리 건수
+     * @throws Exception 삭제 중 예외 발생 시 전달
+     */
+    int deleteBizGiveMthdByBizId(BizVO vo) throws Exception;
+    /**
+     * 사업별 대금지급방법 단계를 등록한다.
+     * @param vo 사업ID, 지급방법코드, 지급방법상세, 정렬순서가 설정된 사업 VO
+     * @return 등록 건수
+     * @throws Exception 등록 중 예외 발생 시 전달
+     */
+    int insertBizGiveMthd(BizVO vo) throws Exception;
+
     List<BizVO> selectCustList(BizVO vo) throws Exception;
     BizVO selectCustDetail(BizVO vo) throws Exception;
     int insertCust(BizVO vo) throws Exception;

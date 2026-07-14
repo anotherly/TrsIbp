@@ -1031,3 +1031,32 @@
 .ds-user-dept-item.is-child span {
     padding-left: 14px;
 }
+
+/* =========================================================
+   Common organization tree picker refinement
+   ========================================================= */
+.ds-user-dept-node { width: 100%; }
+.ds-user-dept-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: calc(10px + var(--dept-depth, 0px));
+}
+.ds-user-dept-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    flex: 0 0 16px;
+    color: #cbd5e1;
+    font-size: 12px;
+}
+.ds-user-dept-toggle.is-empty { color: #94a3b8; }
+.ds-user-dept-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ds-dept-picker .ds-user-row strong { font-size: 14px; }
+.ds-dept-picker .ds-user-row span span { color: #9ca3af; }

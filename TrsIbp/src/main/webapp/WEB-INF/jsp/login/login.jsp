@@ -130,7 +130,7 @@
                     <input type="text" id="userId" name="userId"
                         class="login-input w-full bg-slate-900 border border-brand-border rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 transition"
                         placeholder="아이디를 입력하세요"
-                        value="${not empty param.userId ? param.userId : ''}"
+                        value="${not empty loginUserId ? loginUserId : (not empty param.userId ? param.userId : '')}"
                         required>
                 </div>
 				<!-- autocomplete="username" -->
@@ -191,6 +191,10 @@
     </div>
 
 <script>
+<c:if test="${not empty errorMsg}">
+alert('<c:out value="${errorMsg}"/>');
+</c:if>
+
 // 비밀번호 표시/숨기기 토글
 function togglePw() {
     var pwInput = document.getElementById('userEnpswd');

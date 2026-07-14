@@ -109,9 +109,10 @@ function bindNumberInputFormatter(scope) {
  * 날짜 기간을 기준으로 투입 M/M을 계산한다.
  * @param {string} bgngYmd 투입시작일(yyyy-MM-dd)
  * @param {string} endYmd 투입종료일(yyyy-MM-dd)
+ * @param {*} inputRt 투입률. 값이 없으면 100으로 계산
  * @returns {string} 소수점 둘째 자리까지 계산된 M/M 문자열. 날짜가 없거나 잘못되면 빈 문자열
  */
-function calcInputMcnt(bgngYmd, endYmd) {
+function calcInputMcnt(bgngYmd, endYmd, inputRt) {
     if (!bgngYmd || !endYmd) {
         return '';
     }
@@ -120,8 +121,12 @@ function calcInputMcnt(bgngYmd, endYmd) {
     if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
         return '';
     }
+    var rate = Number(unformatNumber(nvl(inputRt, '100')));
+    if (isNaN(rate)) {
+        rate = 100;
+    }
     var diffDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return (Math.round((diffDays / 30) * 100) / 100).toString();
+    return (Math.round((diffDays / 30) * (rate / 100) * 100) / 100).toString();
 }
 
 /**
@@ -146,7 +151,6 @@ function loadBizCodeOptions(callback) {
                 populateCodeSelect('frmInstSeCd', 'INST_SE_CD', '선택');
                 populateCodeSelect('frmBizKndCd', 'BIZ_KND_CD', '선택');
                 populateCodeSelect('frmBizSeCd', 'BIZ_SE_CD', '선택');
-                populateCodeSelect('frmGiveMthdCd', 'GIVE_MTHD_CD', '선택');
                 populateCodeSelect('frmCustSeCd', 'CUST_SE_CD', '선택');
                 populateCodeSelect('frmRelSeCd', 'REL_SE_CD', '선택');
                 populateCodeSelect('frmInputSeCd', 'INPUT_SE_CD', '선택');
@@ -509,6 +513,7 @@ function initBizInsertPage() {
         $('#frmBizSttsCd').val(getDefaultCode('BIZ_STTS_CD'));
         $('#frmInstSeCd').val(getDefaultCode('INST_SE_CD'));
         bindBizStatusChangeEvent();
+        bindBizGiveMthdRows([]);
         toggleReadyContractFields();
     });
 }
@@ -634,7 +639,7 @@ function renderEmptyManageArea(manageType) {
         $('#profitCtrtAmt,#profitDirectCst,#profitLaborCst,#profitAmt').text('0');
         $('#profitRate').text('0%');
     } else if (manageType === 'mnpw') {
-        $('#bizMnpwBody').html('<tr><td colspan="9" class="ds-empty">사업을 선택하십시오.</td></tr>');
+        $('#bizMnpwBody').html('<tr><td colspan="10" class="ds-empty">사업을 선택하십시오.</td></tr>');
     } else if (manageType === 'schdl') {
         $('#bizSchdlBody').html('<tr><td colspan="7" class="ds-empty">사업을 선택하십시오.</td></tr>');
     }
@@ -672,6 +677,7 @@ function loadBizDetail() {
                 return;
             }
             bindBizForm(res.detail || {});
+            bindBizGiveMthdRows(res.giveMthdList || []);
         },
         error: function() {
             alert('사업 상세 조회 중 오류가 발생했습니다.');
@@ -704,8 +710,7 @@ function bindBizForm(data) {
     $('#frmOtstYmd').val(nvl(data.otstYmd || data.bizBgngYmd, ''));
     $('#frmBizEndYmd').val(nvl(data.bizEndYmd, ''));
     $('#frmCtrtAmt').val(formatNumberInput(nvl(data.ctrtAmt, '')));
-    $('#frmGiveMthdCd').val(nvl(data.giveMthdCd, ''));
-    $('#frmGiveMthdCn').val(nvl(data.giveMthdCn, ''));
+    $('#frmVatInclYn').val(nvl(data.vatInclYn, ''));
     $('#frmGiveDdtYmd').val(nvl(data.giveDdtYmd, ''));
     $('#frmDfrpGrnteBgngYmd').val(nvl(data.dfrpGrnteBgngYmd, ''));
     $('#frmDfrpGrnteEndYmd').val(nvl(data.dfrpGrnteEndYmd, ''));
@@ -733,12 +738,109 @@ function bindBizDetailText(data) {
     $('#dispOtstYmd').text(nvl(data.otstYmd || data.bizBgngYmd, '-'));
     $('#dispBizEndYmd').text(nvl(data.bizEndYmd, '-'));
     $('#dispCtrtAmt').text(formatAmt(data.ctrtAmt));
-    $('#dispGiveMthdNm').text(nvl(data.giveMthdNm, getCodeNm('GIVE_MTHD_CD', data.giveMthdCd)));
-    $('#dispGiveMthdCn').text(nvl(data.giveMthdCn, '-'));
+    $('#dispVatInclNm').text(nvl(data.vatInclNm, data.vatInclYn === 'Y' ? 'VAT포함' : (data.vatInclYn === 'N' ? 'VAT별도' : '-')));
     $('#dispGiveDdtYmd').text(nvl(data.giveDdtYmd, '-'));
     $('#dispDfrpGrnteBgngYmd').text(nvl(data.dfrpGrnteBgngYmd, '-'));
     $('#dispDfrpGrnteEndYmd').text(nvl(data.dfrpGrnteEndYmd, '-'));
     $('#dispRmrkCn').text(nvl(data.rmrkCn, '-'));
+}
+
+
+/**
+ * 대금지급방법 입력 행을 추가한다.
+ * @param {Object=} row 기존 대금지급방법 행 데이터
+ * @returns 없음
+ */
+function addBizGiveMthdRow(row) {
+    var idx = $('#bizGiveMthdEditBody tr').length;
+    var html = '<tr>'
+        + '<td><select class="ds-select give-mthd-cd ready-disabled-field"><option value="">선택</option></select></td>'
+        + '<td><input type="text" class="ds-input give-mthd-cn ready-disabled-field" maxlength="1000" placeholder="예: 10%, 몇 단계 완료 시 얼마"></td>'
+        + '<td><button type="button" class="ds-mini-btn ds-mini-btn-danger ready-disabled-field" onclick="removeBizGiveMthdRow(this);">삭제</button></td>'
+        + '</tr>';
+    $('#bizGiveMthdEditBody').append(html);
+    var $tr = $('#bizGiveMthdEditBody tr').eq(idx);
+    populateGiveMthdSelect($tr.find('.give-mthd-cd'));
+    if (row) {
+        $tr.find('.give-mthd-cd').val(nvl(row.giveMthdCd, ''));
+        $tr.find('.give-mthd-cn').val(nvl(row.giveMthdCn, ''));
+    }
+    toggleReadyContractFields();
+}
+
+/**
+ * 대금지급방법 행의 지급방법 select option을 구성한다.
+ * @param {Object} $select 지급방법 select jQuery 객체
+ * @returns 없음
+ */
+function populateGiveMthdSelect($select) {
+    $select.empty().append('<option value="">선택</option>');
+    $.each(bizCodeMap['GIVE_MTHD_CD'] || [], function(_, code) {
+        $select.append('<option value="' + escapeHtml(code.cd) + '">' + escapeHtml(code.cdNm) + '</option>');
+    });
+}
+
+/**
+ * 선택한 대금지급방법 입력 행을 제거한다.
+ * @param {HTMLElement} btn 삭제 버튼
+ * @returns 없음
+ */
+function removeBizGiveMthdRow(btn) {
+    $(btn).closest('tr').remove();
+}
+
+/**
+ * 조회된 대금지급방법 목록을 등록/수정 또는 상세 화면에 바인딩한다.
+ * @param {Array} list 대금지급방법 단계 목록
+ * @returns 없음
+ */
+function bindBizGiveMthdRows(list) {
+    if (bizPageMode === 'detail') {
+        renderBizGiveMthdDetailRows(list || []);
+        return;
+    }
+    $('#bizGiveMthdEditBody').empty();
+    $.each(list || [], function(_, row) {
+        addBizGiveMthdRow(row);
+    });
+    if ($('#bizGiveMthdEditBody tr').length === 0) {
+        addBizGiveMthdRow();
+    }
+}
+
+/**
+ * 상세 화면 대금지급방법 목록을 표시한다.
+ * @param {Array} list 대금지급방법 단계 목록
+ * @returns 없음
+ */
+function renderBizGiveMthdDetailRows(list) {
+    var html = '';
+    if (!list || list.length === 0) {
+        $('#bizGiveMthdDetailBody').html('<tr><td colspan="2" class="ds-empty">등록된 대금지급방법이 없습니다.</td></tr>');
+        return;
+    }
+    $.each(list, function(_, row) {
+        html += '<tr><td>' + escapeHtml(nvl(row.giveMthdNm, getCodeNm('GIVE_MTHD_CD', row.giveMthdCd))) + '</td>'
+            + '<td>' + escapeHtml(nvl(row.giveMthdCn, '-')) + '</td></tr>';
+    });
+    $('#bizGiveMthdDetailBody').html(html);
+}
+
+/**
+ * 등록/수정 화면의 대금지급방법 입력 행을 서버 전송용 배열로 수집한다.
+ * @param 없음
+ * @returns {Array} 대금지급방법 단계 배열
+ */
+function collectBizGiveMthdRows() {
+    var rows = [];
+    $('#bizGiveMthdEditBody tr').each(function() {
+        var giveMthdCd = $(this).find('.give-mthd-cd').val();
+        var giveMthdCn = $(this).find('.give-mthd-cn').val();
+        if (giveMthdCd || giveMthdCn) {
+            rows.push({ giveMthdCd: giveMthdCd, giveMthdCn: giveMthdCn });
+        }
+    });
+    return rows;
 }
 
 /**
@@ -808,8 +910,8 @@ function saveBiz() {
             otstYmd: isReady ? '' : $('#frmOtstYmd').val(),
             bizEndYmd: isReady ? '' : $('#frmBizEndYmd').val(),
             ctrtAmt: isReady ? '' : unformatNumber($('#frmCtrtAmt').val()),
-            giveMthdCd: isReady ? '' : $('#frmGiveMthdCd').val(),
-            giveMthdCn: isReady ? '' : $('#frmGiveMthdCn').val(),
+            vatInclYn: isReady ? '' : $('#frmVatInclYn').val(),
+            giveMthdListJson: isReady ? '[]' : JSON.stringify(collectBizGiveMthdRows()),
             giveDdtYmd: isReady ? '' : $('#frmGiveDdtYmd').val(),
             dfrpGrnteBgngYmd: isReady ? '' : $('#frmDfrpGrnteBgngYmd').val(),
             dfrpGrnteEndYmd: isReady ? '' : $('#frmDfrpGrnteEndYmd').val(),
@@ -1226,6 +1328,7 @@ function resetMnpwForm() {
     $('#frmInputEndYmd').val('');
     $('#frmInputMcnt').val('');
     $('#frmUntprc').val('');
+    $('#frmInputRt').val('100');
 }
 
 /**
@@ -1243,7 +1346,7 @@ function loadBizMnpwList() {
             renderBizMnpwList(res.list || []);
         },
         error: function() {
-            $('#bizMnpwBody').html('<tr><td colspan="9" class="ds-empty">투입인력 조회 중 오류가 발생했습니다.</td></tr>');
+            $('#bizMnpwBody').html('<tr><td colspan="10" class="ds-empty">투입인력 조회 중 오류가 발생했습니다.</td></tr>');
         }
     });
 }
@@ -1256,7 +1359,7 @@ function loadBizMnpwList() {
 function renderBizMnpwList(list) {
     var html = '';
     if (list.length === 0) {
-        $('#bizMnpwBody').html('<tr><td colspan="9" class="ds-empty">등록된 투입인력이 없습니다.</td></tr>');
+        $('#bizMnpwBody').html('<tr><td colspan="10" class="ds-empty">등록된 투입인력이 없습니다.</td></tr>');
         return;
     }
     $.each(list, function(index, row) {
@@ -1267,6 +1370,7 @@ function renderBizMnpwList(list) {
         html += '<td>' + escapeHtml(nvl(row.inputSeNm, getCodeNm('INPUT_SE_CD', row.inputSeCd))) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.roleNm, '-')) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.inputBgngYmd, '-')) + ' ~ ' + escapeHtml(nvl(row.inputEndYmd, '-')) + '</td>';
+        html += '<td>' + escapeHtml(nvl(row.inputRt, '100')) + '%</td>';
         html += '<td>' + escapeHtml(nvl(row.inputMcnt, '0')) + '</td>';
         html += '<td>' + formatAmt(row.untprc) + '</td>';
         html += '<td>' + formatAmt(labor) + '</td>';
@@ -1296,6 +1400,7 @@ function bindMnpwFormFromRow(row) {
     $('#frmInputEndYmd').val(nvl(row.inputEndYmd, ''));
     $('#frmInputMcnt').val(nvl(row.inputMcnt, ''));
     $('#frmUntprc').val(formatNumberInput(nvl(row.untprc, '')));
+    $('#frmInputRt').val(formatNumberInput(nvl(row.inputRt, '100')));
 }
 
 /**
@@ -1332,8 +1437,9 @@ function saveBizMnpw() {
             jbpsNm: $('#frmJbpsNm').val(),
             inputBgngYmd: $('#frmInputBgngYmd').val(),
             inputEndYmd: $('#frmInputEndYmd').val(),
-            inputMcnt: calcInputMcnt($('#frmInputBgngYmd').val(), $('#frmInputEndYmd').val()),
-            untprc: unformatNumber($('#frmUntprc').val())
+            inputMcnt: calcInputMcnt($('#frmInputBgngYmd').val(), $('#frmInputEndYmd').val(), $('#frmInputRt').val()),
+            untprc: unformatNumber($('#frmUntprc').val()),
+            inputRt: unformatNumber($('#frmInputRt').val()) || '100'
         },
         success: function(res) {
             if (res.result === 'OK') {

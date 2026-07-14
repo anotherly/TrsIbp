@@ -49,6 +49,7 @@ public class BizVO extends BaseVO {
     private String dfrpGrnteBgngYmd;
     private String dfrpGrnteEndYmd;
     private String vatInclYn;
+    private String giveMthdListJson;
     private String bizPrgrsStepCd;
     private String bizSttsCd;
     private String rmrkCn;
@@ -73,6 +74,10 @@ public class BizVO extends BaseVO {
     private Integer relLvl;
     private String directCtrtYn;
 
+    /* biz_give_mthd */
+    private Long bizGiveMthdSn;
+    private Integer sortSeq;
+
     /* biz_mnpw */
     private Long bizMnpwSn;
     private String userId;
@@ -84,6 +89,7 @@ public class BizVO extends BaseVO {
     private String inputEndYmd;
     private BigDecimal inputMcnt;
     private BigDecimal untprc;
+    private BigDecimal inputRt;
 
     /* biz_cst */
     private Long bizCstSn;
@@ -108,6 +114,7 @@ public class BizVO extends BaseVO {
     private String bizKndNm;
     private String bizSeNm;
     private String giveMthdNm;
+    private String vatInclNm;
     private String custSeNm;
     private String relSeNm;
     private String inputSeNm;
@@ -181,6 +188,8 @@ public class BizVO extends BaseVO {
     public void setDfrpGrnteEndYmd(String dfrpGrnteEndYmd) { this.dfrpGrnteEndYmd = dfrpGrnteEndYmd; }
     public String getVatInclYn() { return vatInclYn; }
     public void setVatInclYn(String vatInclYn) { this.vatInclYn = vatInclYn; }
+    public String getGiveMthdListJson() { return giveMthdListJson; }
+    public void setGiveMthdListJson(String giveMthdListJson) { this.giveMthdListJson = giveMthdListJson; }
     public String getBizPrgrsStepCd() { return bizPrgrsStepCd; }
     public void setBizPrgrsStepCd(String bizPrgrsStepCd) { this.bizPrgrsStepCd = bizPrgrsStepCd; }
     public String getBizSttsCd() { return bizSttsCd; }
@@ -222,6 +231,11 @@ public class BizVO extends BaseVO {
     public String getDirectCtrtYn() { return directCtrtYn; }
     public void setDirectCtrtYn(String directCtrtYn) { this.directCtrtYn = directCtrtYn; }
 
+    public Long getBizGiveMthdSn() { return bizGiveMthdSn; }
+    public void setBizGiveMthdSn(Long bizGiveMthdSn) { this.bizGiveMthdSn = bizGiveMthdSn; }
+    public Integer getSortSeq() { return sortSeq; }
+    public void setSortSeq(Integer sortSeq) { this.sortSeq = sortSeq; }
+
     public Long getBizMnpwSn() { return bizMnpwSn; }
     public void setBizMnpwSn(Long bizMnpwSn) { this.bizMnpwSn = bizMnpwSn; }
     public String getUserId() { return userId; }
@@ -242,6 +256,8 @@ public class BizVO extends BaseVO {
     public void setInputMcnt(BigDecimal inputMcnt) { this.inputMcnt = inputMcnt; }
     public BigDecimal getUntprc() { return untprc; }
     public void setUntprc(BigDecimal untprc) { this.untprc = untprc; }
+    public BigDecimal getInputRt() { return inputRt; }
+    public void setInputRt(BigDecimal inputRt) { this.inputRt = inputRt; }
 
     public Long getBizCstSn() { return bizCstSn; }
     public void setBizCstSn(Long bizCstSn) { this.bizCstSn = bizCstSn; }
@@ -281,6 +297,8 @@ public class BizVO extends BaseVO {
     public void setBizSeNm(String bizSeNm) { this.bizSeNm = bizSeNm; }
     public String getGiveMthdNm() { return giveMthdNm; }
     public void setGiveMthdNm(String giveMthdNm) { this.giveMthdNm = giveMthdNm; }
+    public String getVatInclNm() { return vatInclNm; }
+    public void setVatInclNm(String vatInclNm) { this.vatInclNm = vatInclNm; }
     public String getCustSeNm() { return custSeNm; }
     public void setCustSeNm(String custSeNm) { this.custSeNm = custSeNm; }
     public String getRelSeNm() { return relSeNm; }

@@ -57,6 +57,25 @@ public class HTMLTagFilter implements Filter {
 
 	}
 
+	/**
+	 * HTMLTagFilterRequestWrapper를 통과하며 JSON 문법용 큰따옴표가 HTML 엔티티로 치환된 경우,
+	 * ObjectMapper가 JSON 구조를 파싱할 수 있도록 큰따옴표 계열만 복원한다.
+	 * 사용자 입력값의 XSS 방어를 유지하기 위해 &lt;, &gt;, &amp;, 작은따옴표 계열은 복원하지 않는다.
+	 *
+	 * @param json HTML 엔티티가 포함될 수 있는 JSON 문자열
+	 * @return JSON 필드명/문자열 구분에 필요한 큰따옴표만 복원된 JSON 문자열
+	 */
+	public static String restoreJsonQuoteOnly(String json) {
+		if (json == null) {
+			return null;
+		}
+		return json.replace("&quot;", "\"")
+				.replace("&#34;", "\"")
+				.replace("&#034;", "\"")
+				.replace("&#x22;", "\"")
+				.replace("&#X22;", "\"");
+	}
+
 	// 25년 보안취약점 조치
 	// 필터 예외 메소드 수정 변경
 	private boolean checkUrl(HttpServletRequest req) {

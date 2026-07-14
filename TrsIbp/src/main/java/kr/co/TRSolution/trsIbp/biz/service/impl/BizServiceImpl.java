@@ -57,6 +57,23 @@ public class BizServiceImpl implements BizService {
     }
 
     @Override
+    public List<BizVO> selectBizGiveMthdList(BizVO vo) throws Exception {
+        return bizMapper.selectBizGiveMthdList(vo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteBizGiveMthdByBizId(BizVO vo) throws Exception {
+        return bizMapper.deleteBizGiveMthdByBizId(vo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int insertBizGiveMthd(BizVO vo) throws Exception {
+        return bizMapper.insertBizGiveMthd(vo);
+    }
+
+    @Override
     public List<BizVO> selectCustList(BizVO vo) throws Exception {
         return bizMapper.selectCustList(vo);
     }

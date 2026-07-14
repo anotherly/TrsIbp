@@ -8,6 +8,7 @@
     <title>DevSync - 일반회원가입</title>
     <script src="${pageContext.request.contextPath}/protoType/saved_resource"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/layout.css">
     <script>
         tailwind.config = {
             theme: {
@@ -101,9 +102,11 @@
 
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-1.5">소속 부서 *</label>
-                    <select name="deptId" id="deptId" required class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-300">
-                        <option value="">소속 회사를 먼저 선택해 주세요</option>
-                    </select>
+                    <input type="hidden" name="deptId" id="deptId" required>
+                    <div class="flex gap-2">
+                        <input type="text" id="deptNm" readonly required class="input-style flex-grow bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="소속 회사를 선택한 후 부서를 선택하세요">
+                        <button type="button" onclick="openJoinDeptSelectModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-brand-border text-xs font-bold rounded-lg transition text-gray-200">부서선택</button>
+                    </div>
                 </div>
 
                 <div>
@@ -123,8 +126,11 @@
         </form>
     </div>
 
+    <jsp:include page="/WEB-INF/jsp/common/deptSelectModal.jsp"/>
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/comm/validation-engine.js"></script>
+    <script src="${pageContext.request.contextPath}/js/comm/deptSelectModal.js"></script>
     <script>
         var ctxPath = '${pageContext.request.contextPath}';
 
@@ -164,28 +170,29 @@
             $('#companyListContainer').addClass('hidden');
             $('#selectedCompanyCard').removeClass('hidden');
 
-            loadDepartmentList(id);
+            clearSelectedDepartment();
         }
 
-        function loadDepartmentList(coId) {
-            $.ajax({
+        function clearSelectedDepartment() {
+            $('#deptId').val('');
+            $('#deptNm').val('');
+        }
+
+        function openJoinDeptSelectModal() {
+            var coId = $('#coId').val();
+            if (!coId) {
+                alert('소속 회사를 먼저 선택해 주세요.');
+                return;
+            }
+            openDeptSelectModal({
                 url: ctxPath + '/login/selectDeptList.ajax',
                 type: 'POST',
-                data: { coId: coId },
-                dataType: 'json',
-                success: function(data) {
-                    var select = $('#deptId');
-                    select.empty();
-                    if(data.list && data.list.length > 0) {
-                        $.each(data.list, function(idx, item) {
-                            select.append('<option value="' + item.deptId + '">' + item.deptNm + '</option>');
-                        });
-                    } else {
-                        select.append('<option value="">등록된 사내 부서가 없습니다 (관리자 문의)</option>');
-                    }
-                }
+                coId: function() { return $('#coId').val(); },
+                targetId: '#deptId',
+                targetName: '#deptNm'
             });
         }
+
 
         function submitJoinForm() {
             var form = $('#joinForm')[0];

@@ -56,10 +56,19 @@
                 <div class="ds-field ds-col-4"><label>착수일</label><p id="dispOtstYmd" class="ds-display-text">-</p></div>
                 <div class="ds-field ds-col-4"><label>사업종료일</label><p id="dispBizEndYmd" class="ds-display-text">-</p></div>
 
-                <div class="ds-field ds-col-3"><label>계약금액</label><p id="dispCtrtAmt" class="ds-display-text">-</p></div>
-                <div class="ds-field ds-col-3"><label>지급방법</label><p id="dispGiveMthdNm" class="ds-display-text">-</p></div>
-                <div class="ds-field ds-col-3"><label>지급방법상세</label><p id="dispGiveMthdCn" class="ds-display-text">-</p></div>
-                <div class="ds-field ds-col-3"><label>지급기일</label><p id="dispGiveDdtYmd" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-4"><label>계약금액</label><p id="dispCtrtAmt" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-4"><label>VAT구분</label><p id="dispVatInclNm" class="ds-display-text">-</p></div>
+                <div class="ds-field ds-col-4"><label>지급기일</label><p id="dispGiveDdtYmd" class="ds-display-text">-</p></div>
+
+                <div class="ds-field ds-col-12">
+                    <label>대금지급방법</label>
+                    <div class="ds-table-wrap">
+                        <table class="ds-table ds-table-compact ds-pay-table">
+                            <thead><tr><th>대금지급방법</th><th>대금지급방법상세</th></tr></thead>
+                            <tbody id="bizGiveMthdDetailBody"><tr><td colspan="2" class="ds-empty">등록된 대금지급방법이 없습니다.</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <div class="ds-field ds-col-6"><label>하자보증시작일</label><p id="dispDfrpGrnteBgngYmd" class="ds-display-text">-</p></div>
                 <div class="ds-field ds-col-6"><label>하자보증종료일</label><p id="dispDfrpGrnteEndYmd" class="ds-display-text">-</p></div>

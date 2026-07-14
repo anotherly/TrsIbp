@@ -44,9 +44,6 @@ public class UserVO extends DeptVO {
     /** 연락처 */
     private String userTelno;
 
-    /** 내선번호 */
-    private String extNo;
-
     /** 사용여부 (Y/N) */
     private String useYn;
 
@@ -88,6 +85,9 @@ public class UserVO extends DeptVO {
     /** 검색 종료일 */
     private String eDate;
 
+    /** 저장 모드(insert/update) */
+    private String saveMode;
+
     // ============================================================
     // Getter / Setter
     // ============================================================
@@ -118,9 +118,6 @@ public class UserVO extends DeptVO {
 
     public String getUserTelno() { return userTelno; }
     public void setUserTelno(String userTelno) { this.userTelno = userTelno; }
-
-    public String getExtNo() { return extNo; }
-    public void setExtNo(String extNo) { this.extNo = extNo; }
 
     public String getUseYn() { return useYn; }
     public void setUseYn(String useYn) { this.useYn = useYn; }
@@ -154,6 +151,9 @@ public class UserVO extends DeptVO {
 
     public String geteDate() { return eDate; }
     public void seteDate(String eDate) { this.eDate = eDate; }
+
+    public String getSaveMode() { return saveMode; }
+    public void setSaveMode(String saveMode) { this.saveMode = saveMode; }
 
     @Override
     public String toString() {
