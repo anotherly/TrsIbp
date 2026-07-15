@@ -5,7 +5,6 @@
     <jsp:include page="/WEB-INF/jsp/common/head.jsp">
         <jsp:param name="dsTitle" value="DevSync - 종합 일정 캘린더"/>
     </jsp:include>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/vendor/jquery-datetimepicker/jquery.datetimepicker.min.css">
 </head>
 <body class="ds-body min-h-screen flex">
 <jsp:include page="/WEB-INF/jsp/common/sidebar.jsp"/>
@@ -85,12 +84,6 @@
 </div>
 <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
 <script>var ctxPath='${pageContext.request.contextPath}';</script>
-<script>
-    if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.jquery) {
-        document.write('<script src="${pageContext.request.contextPath}/js/vendor/jquery/jquery-3.7.1.min.js"><\/script>');
-    }
-</script>
-<script src="${pageContext.request.contextPath}/js/vendor/jquery-datetimepicker/jquery.datetimepicker.full.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/comm/userSelectModal.js"></script>
 <script src="${pageContext.request.contextPath}/js/schedule/schedule.js"></script>
 <script>$(function(){ initSchedulePage(); });</script>

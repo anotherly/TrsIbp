@@ -60,12 +60,6 @@
      * @returns {void}
      */
     function initializeScheduleDateTimePicker() {
-        if (!$.fn || typeof $.fn.datetimepicker !== 'function') {
-            return;
-        }
-        if ($.datetimepicker && typeof $.datetimepicker.setLocale === 'function') {
-            $.datetimepicker.setLocale('ko');
-        }
         configureScheduleDateTimePicker(false);
     }
 
@@ -75,30 +69,12 @@
      * @returns {void}
      */
     function configureScheduleDateTimePicker(allDay) {
-        if (!$.fn || typeof $.fn.datetimepicker !== 'function') {
+        if (!window.DsDateTimePicker) {
             return;
         }
-        $('#frmBgngDt,#frmEndDt').each(function() {
-            var $input = $(this);
-            if ($input.data('xdsoft_datetimepicker')) {
-                $input.datetimepicker('destroy');
-            }
-            $input.datetimepicker({
-                format: allDay ? 'Y-m-d' : 'Y-m-d H:i',
-                formatDate: 'Y-m-d',
-                formatTime: 'H:i',
-                timepicker: !allDay,
-                closeOnDateSelect: allDay,
-                closeOnWithoutClick: true,
-                dayOfWeekStart: 0,
-                step: 1,
-                scrollInput: false,
-                scrollTime: false,
-                validateOnBlur: false,
-                onSelectTime: function(currentTime, selectedInput) {
-                    selectedInput.datetimepicker('hide');
-                }
-            });
+        window.DsDateTimePicker.configure('#frmBgngDt,#frmEndDt', {
+            dateTime: !allDay,
+            step: 1
         });
     }
 
@@ -267,8 +243,8 @@
      * @returns {void}
      */
     window.closeScheduleModal = function() {
-        if ($.fn && typeof $.fn.datetimepicker === 'function') {
-            $('#frmBgngDt,#frmEndDt').datetimepicker('hide');
+        if (window.DsDateTimePicker) {
+            window.DsDateTimePicker.hide('#frmBgngDt,#frmEndDt');
         }
         $('#scheduleModal').addClass('hidden').attr('aria-hidden', 'true');
     };
