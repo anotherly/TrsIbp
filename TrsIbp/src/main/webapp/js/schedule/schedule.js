@@ -11,6 +11,8 @@
     var monthSummary = {};
     var scheduleCodes = [];
     var selectedUsers = {};
+    var previousBgngTime = '09:00';
+    var previousEndTime = '18:00';
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -20,13 +22,31 @@
     function toDatetimeLocal(v) { return nvl(v, '').replace(' ', 'T'); }
     function toDisplayTime(v, allDayYn) { return allDayYn === 'Y' ? 'All Day' : nvl(v, '').substring(11, 16); }
     function colorClass(colorType) { return 'ds-schedule-' + (colorType || 'etc'); }
-    function parseInputDateTime(v) { return v ? new Date(v.replace(' ', 'T')) : null; }
+    /**
+     * date/datetime-local 입력값을 비교 가능한 Date 객체로 변환한다.
+     * @param {string} v 날짜 또는 일시 입력값
+     * @param {boolean} isEndOfDay 날짜만 입력된 경우 종료일 끝 시각 적용 여부
+     * @returns {Date|null} 변환된 Date 객체. 입력값이 없으면 null
+     */
+    function parseInputDateTime(v, isEndOfDay) {
+        if (!v) return null;
+        var normalized = v.indexOf('T') >= 0 || v.indexOf(' ') >= 0
+            ? v.replace(' ', 'T')
+            : v + (isEndOfDay ? 'T23:59:59' : 'T00:00:00');
+        return new Date(normalized);
+    }
 
     /**
      * 종합 일정 캘린더 화면을 초기화한다.
      * @returns {void}
      */
     window.initSchedulePage = function() {
+        $('#frmAllDayYn').on('change', function() {
+            applyAllDayInputMode($(this).val() === 'Y');
+        });
+        $('#frmBgngDt,#frmEndDt').on('change', function() {
+            this.blur();
+        });
         loadScheduleMeta(function() {
             loadScheduleList();
         });
@@ -186,19 +206,34 @@
             $('#scheduleModalTitle').text('일정 등록');
             $('#frmBgngDt').val(ymd(selectedDate) + 'T09:00');
             $('#frmEndDt').val(ymd(selectedDate) + 'T18:00');
+            previousBgngTime = '09:00';
+            previousEndTime = '18:00';
+            applyAllDayInputMode(false);
         }
     };
 
     window.closeScheduleModal = function() { $('#scheduleModal').addClass('hidden').attr('aria-hidden', 'true'); };
 
+    /**
+     * 일정 등록·수정 폼과 대상자 선택 상태를 기본값으로 초기화한다.
+     * @returns {void}
+     */
     function clearScheduleForm() {
         $('#frmSchdlSn,#frmCalSchdlNm,#frmPlaceNm,#frmCalSchdlCn,#frmTargetUserIds').val('');
         $('#frmCalSchdlSeCd').val('');
         $('#frmAllDayYn').val('N');
+        previousBgngTime = '09:00';
+        previousEndTime = '18:00';
+        applyAllDayInputMode(false);
         selectedUsers = {};
         renderScheduleTargetChips();
     }
 
+    /**
+     * 조회한 일정 상세정보를 수정 폼과 대상자 선택 상태에 반영한다.
+     * @param {Object} row 일정 상세정보
+     * @returns {void}
+     */
     function bindScheduleForm(row) {
         $('#frmSchdlSn').val(nvl(row.schdlSn));
         $('#frmCalSchdlSeCd').val(nvl(row.schdlSeCd));
@@ -213,6 +248,43 @@
         var nms = nvl(row.targetUserNms).split(', ');
         ids.forEach(function(id, idx) { if (id) selectedUsers[id] = { userId: id, userNm: nms[idx] || id }; });
         renderScheduleTargetChips();
+        rememberScheduleTimes(row.bgngDt, row.endDt);
+        applyAllDayInputMode(row.allDayYn === 'Y');
+    }
+
+    /**
+     * 저장된 일정 또는 현재 입력값에서 종일 해제 시 복원할 시작·종료 시각을 기억한다.
+     * @param {string} bgngDt 시작일시
+     * @param {string} endDt 종료일시
+     * @returns {void}
+     */
+    function rememberScheduleTimes(bgngDt, endDt) {
+        var bgngTime = nvl(bgngDt, '').substring(11, 16);
+        var endTime = nvl(endDt, '').substring(11, 16);
+        if (bgngTime && bgngTime !== '00:00') previousBgngTime = bgngTime;
+        if (endTime && endTime !== '23:59') previousEndTime = endTime;
+    }
+
+    /**
+     * 종일 여부에 따라 날짜 입력 형식을 전환하고 기존 시각을 복원한다.
+     * @param {boolean} allDay 종일 일정 여부
+     * @returns {void}
+     */
+    function applyAllDayInputMode(allDay) {
+        var $bgng = $('#frmBgngDt');
+        var $end = $('#frmEndDt');
+        var bgngValue = $bgng.val();
+        var endValue = $end.val();
+        if (allDay) {
+            rememberScheduleTimes(bgngValue, endValue);
+            $bgng.attr('type', 'date').val(nvl(bgngValue, '').substring(0, 10));
+            $end.attr('type', 'date').val(nvl(endValue, '').substring(0, 10));
+            return;
+        }
+        var bgngYmd = nvl(bgngValue, ymd(selectedDate)).substring(0, 10);
+        var endYmd = nvl(endValue, bgngYmd).substring(0, 10);
+        $bgng.attr('type', 'datetime-local').val(bgngYmd + 'T' + (previousBgngTime || '09:00'));
+        $end.attr('type', 'datetime-local').val(endYmd + 'T' + (previousEndTime || '18:00'));
     }
 
     /**
@@ -226,6 +298,14 @@
             if (user.userId) selectedUsers[user.userId] = user;
         });
         renderScheduleTargetChips();
+    };
+
+    /**
+     * 사용자 선택 모달을 다시 열 때 유지할 현재 일정 대상자 목록을 반환한다.
+     * @returns {Array} 현재 선택된 사용자 목록
+     */
+    window.getScheduleSelectedUsers = function() {
+        return Object.keys(selectedUsers).map(function(id) { return selectedUsers[id]; });
     };
 
     function renderScheduleTargetChips() {
@@ -245,8 +325,9 @@
         if (!$('#frmCalSchdlNm').val()) { alert('일정명을 입력하세요.'); return; }
         if (!$('#frmTargetUserIds').val()) { alert('대상자를 선택하세요.'); return; }
         if (!$('#frmBgngDt').val() || !$('#frmEndDt').val()) { alert('시작일시와 종료일시를 입력하세요.'); return; }
-        var bgngDt = parseInputDateTime($('#frmBgngDt').val());
-        var endDt = parseInputDateTime($('#frmEndDt').val());
+        var allDay = $('#frmAllDayYn').val() === 'Y';
+        var bgngDt = parseInputDateTime($('#frmBgngDt').val(), false);
+        var endDt = parseInputDateTime($('#frmEndDt').val(), allDay);
         if (!bgngDt || !endDt || isNaN(bgngDt.getTime()) || isNaN(endDt.getTime())) { alert('시작일시 또는 종료일시 형식이 올바르지 않습니다.'); return; }
         if (endDt <= bgngDt) { alert('종료일시는 시작일시보다 이후여야 합니다.'); return; }
         $.ajax({

@@ -182,6 +182,9 @@ public class ScheduleController {
      * @return 오류 메시지. 정상인 경우 null
      */
     private String validateScheduleForSave(ScheduleVO scheduleVO) {
+        if (!"Y".equals(scheduleVO.getAllDayYn()) && !"N".equals(scheduleVO.getAllDayYn())) {
+            return "종일여부 값이 올바르지 않습니다.";
+        }
         if (scheduleVO.getSchdlSeCd() == null || scheduleVO.getSchdlSeCd().trim().isEmpty()) {
             return "일정구분을 선택하세요.";
         }
@@ -196,8 +199,9 @@ public class ScheduleController {
             return "시작일시와 종료일시를 입력하세요.";
         }
         try {
-            LocalDateTime bgngDt = LocalDateTime.parse(scheduleVO.getBgngDt(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            LocalDateTime endDt = LocalDateTime.parse(scheduleVO.getEndDt(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm[:ss]");
+            LocalDateTime bgngDt = LocalDateTime.parse(scheduleVO.getBgngDt(), formatter);
+            LocalDateTime endDt = LocalDateTime.parse(scheduleVO.getEndDt(), formatter);
             if (!endDt.isAfter(bgngDt)) {
                 return "종료일시는 시작일시보다 이후여야 합니다.";
             }
@@ -208,15 +212,34 @@ public class ScheduleController {
     }
 
     /**
-     * HTML datetime-local 값의 T 구분자를 DB 저장 가능한 공백 구분자로 보정한다.
+     * HTML 날짜/일시 값을 DB 저장 형식으로 보정하고 종일 일정의 시작·종료 시각을 확정한다.
      * @param scheduleVO 시작/종료일시 값을 포함한 VO
      */
     private void normalizeDateTime(ScheduleVO scheduleVO) {
+        if ("Y".equals(scheduleVO.getAllDayYn())) {
+            String bgngYmd = extractYmd(scheduleVO.getBgngDt());
+            String endYmd = extractYmd(scheduleVO.getEndDt());
+            scheduleVO.setBgngDt(bgngYmd == null ? null : bgngYmd + " 00:00:00");
+            scheduleVO.setEndDt(endYmd == null ? null : endYmd + " 23:59:59");
+            return;
+        }
         if (scheduleVO.getBgngDt() != null) {
             scheduleVO.setBgngDt(scheduleVO.getBgngDt().replace("T", " "));
         }
         if (scheduleVO.getEndDt() != null) {
             scheduleVO.setEndDt(scheduleVO.getEndDt().replace("T", " "));
         }
+    }
+
+    /**
+     * HTML date/datetime-local 값에서 yyyy-MM-dd 부분을 추출한다.
+     * @param dateTimeValue 날짜 또는 일시 문자열
+     * @return yyyy-MM-dd 형식 문자열. 값이 없거나 길이가 부족하면 null
+     */
+    private String extractYmd(String dateTimeValue) {
+        if (dateTimeValue == null || dateTimeValue.trim().length() < 10) {
+            return null;
+        }
+        return dateTimeValue.trim().substring(0, 10);
     }
 }

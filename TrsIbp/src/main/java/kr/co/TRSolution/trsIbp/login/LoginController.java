@@ -181,12 +181,24 @@ public class LoginController {
 
 	/**
 	 * [신규 API] 일반 사원 회원 데이터 데이터베이스 영속화 마감 처리
+	 * @param userVO 가입할 사용자 정보
+	 * @return 회원가입 처리 결과 JSON
 	 */
 	@RequestMapping(value = "/login/insertUserJoin.ajax", method = RequestMethod.POST)
 	@ResponseBody
 	public ModelAndView insertUserJoin(@ModelAttribute UserVO userVO) {
 		ModelAndView mav = new ModelAndView("jsonView");
 		try {
+			if (!isValidJoinUserId(userVO.getUserId())) {
+				mav.addObject("result", "FAIL");
+				mav.addObject("msg", "사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.");
+				return mav;
+			}
+			if (userService.selectUserIdCount(userVO) > 0) {
+				mav.addObject("result", "DUP");
+				mav.addObject("msg", "이미 사용 중인 사용자ID입니다.");
+				return mav;
+			}
 			// trsIbp.sql의 USER_INFO 테이블 제약조건에 따라 권한(AUTHRT_ID)의 디폴트값 강제 주입
 			userVO.setAuthrtId("USER"); // 일반 직원 권한으로 고정 배치
 			userVO.setUseYn("Y"); // 즉시 활성화 상태 부여
@@ -205,6 +217,40 @@ public class LoginController {
 			mav.addObject("msg", "회원가입에 실패했습니다.");
 		}
 		return mav;
+	}
+
+	/**
+	 * 일반회원가입 화면에서 사용자ID 형식과 중복 여부를 조회한다.
+	 * @param userVO 확인할 사용자ID를 포함한 사용자 정보
+	 * @return 사용자ID 형식 및 중복확인 결과 JSON
+	 */
+	@RequestMapping(value = "/login/userIdCheck.ajax", method = RequestMethod.POST)
+	@ResponseBody
+	public ModelAndView checkJoinUserId(@ModelAttribute UserVO userVO) {
+		ModelAndView mav = new ModelAndView("jsonView");
+		try {
+			if (!isValidJoinUserId(userVO.getUserId())) {
+				mav.addObject("result", "FAIL");
+				mav.addObject("msg", "사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.");
+				return mav;
+			}
+			mav.addObject("result", "OK");
+			mav.addObject("cnt", userService.selectUserIdCount(userVO));
+		} catch (Exception e) {
+			logger.error("▶ 회원가입 사용자ID 중복확인 에러: {}", e.toString());
+			mav.addObject("result", "ERROR");
+			mav.addObject("msg", "사용자ID 중복확인 중 오류가 발생했습니다.");
+		}
+		return mav;
+	}
+
+	/**
+	 * 회원가입 사용자ID가 영문 소문자를 포함한 소문자·숫자 6~20자 형식인지 검사한다.
+	 * @param userId 검사할 사용자ID
+	 * @return 사용자ID 정책 충족 여부
+	 */
+	private boolean isValidJoinUserId(String userId) {
+		return userId != null && userId.matches("^(?=.*[a-z])[a-z0-9]{6,20}$");
 	}
 
 }

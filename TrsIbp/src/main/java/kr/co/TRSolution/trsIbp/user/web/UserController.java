@@ -1,6 +1,9 @@
 package kr.co.TRSolution.trsIbp.user.web;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import org.springframework.ui.Model;
@@ -38,6 +41,9 @@ import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 
 @Controller
 public class UserController {
+
+    private static final String EMP_UPDATE_TARGETS_SESSION_KEY = "empUpdateTargets";
+    private static final int MAX_EMP_UPDATE_TARGETS = 20;
 	
 	public static final Logger logger = LoggerFactory.getLogger(UserController.class);
 	
@@ -367,6 +373,7 @@ public class UserController {
     public ModelAndView empUpdatePage(HttpServletRequest request, @ModelAttribute("userVO") UserVO userVO) throws Exception {
         ModelAndView mav = new ModelAndView("/user/empUpdate");
         mav.addObject("userId", userVO.getUserId());
+        mav.addObject("updateToken", createEmpUpdateToken(request, userVO.getUserId()));
         mav.addObject("mode", "update");
         return mav;
     }
@@ -431,6 +438,12 @@ public class UserController {
     @RequestMapping(value="/user/empIdCheck.ajax")
     public ModelAndView checkEmpId(@ModelAttribute("userVO") UserVO userVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
+        if (!isValidUserId(userVO.getUserId())) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("msg", "사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.");
+            return mav;
+        }
+        mav.addObject("result", "OK");
         mav.addObject("cnt", userService.selectUserIdCount(userVO));
         return mav;
     }
@@ -457,6 +470,11 @@ public class UserController {
                 mav.addObject("msg", "사용자ID를 입력해 주세요.");
                 return mav;
             }
+            if ("insert".equals(userVO.getSaveMode()) && !isValidUserId(userVO.getUserId())) {
+                mav.addObject("result", "FAIL");
+                mav.addObject("msg", "사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.");
+                return mav;
+            }
             if (userVO.getUserNm() == null || "".equals(userVO.getUserNm().trim())) {
                 mav.addObject("result", "FAIL");
                 mav.addObject("msg", "사용자명을 입력해 주세요.");
@@ -476,6 +494,13 @@ public class UserController {
                 userVO.setUserEnpswd(BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt()));
                 userService.insertUserManage(userVO);
             } else {
+                String updateUserId = resolveEmpUpdateTarget(request, request.getParameter("updateToken"));
+                if (updateUserId == null || updateUserId.trim().isEmpty()) {
+                    mav.addObject("result", "FAIL");
+                    mav.addObject("msg", "수정 대상 확인정보가 만료되었거나 올바르지 않습니다. 목록에서 다시 수정 화면으로 이동해 주세요.");
+                    return mav;
+                }
+                userVO.setUserId(updateUserId);
                 if (userVO.getUserEnpswd() != null && !"".equals(userVO.getUserEnpswd().trim())) {
                     userVO.setUserEnpswd(BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt()));
                 }
@@ -488,6 +513,64 @@ public class UserController {
             mav.addObject("msg", "사용자 저장 중 오류가 발생했습니다.");
         }
         return mav;
+    }
+
+    /**
+     * 사용자 수정 화면별 난수 토큰을 생성하고 서버 세션에 원래 사용자ID와 연결해 보관한다.
+     * @param request 수정 화면 요청 객체
+     * @param userId 수정 대상 사용자ID
+     * @return 화면에 전달할 수정 토큰. 사용자ID가 없으면 빈 문자열
+     */
+    @SuppressWarnings("unchecked")
+    private String createEmpUpdateToken(HttpServletRequest request, String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            return "";
+        }
+        HttpSession session = request.getSession();
+        Map<String, String> targets = (Map<String, String>) session.getAttribute(EMP_UPDATE_TARGETS_SESSION_KEY);
+        if (targets == null) {
+            targets = new LinkedHashMap<String, String>();
+            session.setAttribute(EMP_UPDATE_TARGETS_SESSION_KEY, targets);
+        }
+        synchronized (targets) {
+            while (targets.size() >= MAX_EMP_UPDATE_TARGETS) {
+                String oldestToken = targets.keySet().iterator().next();
+                targets.remove(oldestToken);
+            }
+            String token = UUID.randomUUID().toString();
+            targets.put(token, userId.trim());
+            return token;
+        }
+    }
+
+    /**
+     * 수정 토큰에 연결된 원래 사용자ID를 서버 세션에서 조회한다.
+     * @param request 사용자 저장 요청 객체
+     * @param updateToken 수정 화면에서 전달된 난수 토큰
+     * @return 서버가 보관한 수정 대상 사용자ID. 토큰이 없거나 올바르지 않으면 null
+     */
+    @SuppressWarnings("unchecked")
+    private String resolveEmpUpdateTarget(HttpServletRequest request, String updateToken) {
+        if (updateToken == null || updateToken.trim().isEmpty()) {
+            return null;
+        }
+        Object targetObject = request.getSession().getAttribute(EMP_UPDATE_TARGETS_SESSION_KEY);
+        if (!(targetObject instanceof Map)) {
+            return null;
+        }
+        Map<String, String> targets = (Map<String, String>) targetObject;
+        synchronized (targets) {
+            return targets.get(updateToken);
+        }
+    }
+
+    /**
+     * 사용자ID가 영문 소문자를 포함한 소문자·숫자 6~20자 형식인지 검사한다.
+     * @param userId 검사할 사용자ID
+     * @return 사용자ID 정책 충족 여부
+     */
+    private boolean isValidUserId(String userId) {
+        return userId != null && userId.matches("^(?=.*[a-z])[a-z0-9]{6,20}$");
     }
 
     /**

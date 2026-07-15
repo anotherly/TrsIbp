@@ -2,13 +2,18 @@
 <%
     String mode = request.getParameter("mode");
     boolean insert = "insert".equals(mode);
+    String updateToken = request.getParameter("updateToken");
+    if (updateToken == null) {
+        updateToken = "";
+    }
 %>
 <section class="ds-card ds-card-inner">
     <div class="ds-section-head"><div><h2 class="ds-section-title">기본 정보</h2><p class="ds-section-desc">필수값은 빨간색 * 항목입니다.</p></div></div>
     <form id="empForm" onsubmit="saveEmp(); return false;">
         <input type="hidden" id="frmSaveMode" name="saveMode" value="<%=mode%>">
+        <input type="hidden" id="frmUpdateToken" name="updateToken" value="<%=updateToken%>">
         <div class="ds-form-12">
-            <div class="ds-field ds-col-6"><label class="required">사용자ID</label><input type="text" id="frmUserId" name="userId" class="ds-input" maxlength="50" <%=insert ? "" : "readonly"%> placeholder="영문/숫자 조합"></div>
+            <div class="ds-field ds-col-6"><label class="required">사용자ID</label><div class="ds-input-button"><input type="text" id="frmUserId" name="userId" class="ds-input" maxlength="20" <%=insert ? "" : "readonly"%> placeholder="영문 소문자·숫자 6~20자"><% if (insert) { %><button type="button" id="btnEmpIdCheck" class="ds-btn ds-btn-outline" onclick="checkEmpUserId();">중복확인</button><% } %></div><% if (insert) { %><span id="empIdCheckMessage" class="ds-field-help"></span><% } %></div>
             <div class="ds-field ds-col-6"><label class="required">사용자명</label><input type="text" id="frmUserNm" name="userNm" class="ds-input" maxlength="100"></div>
             <div class="ds-field ds-col-4"><label class="required">부서</label><input type="hidden" id="frmDeptId" name="deptId"><div class="ds-input-button"><input type="text" id="frmDeptNm" class="ds-input" readonly placeholder="부서 선택"><button type="button" class="ds-btn ds-btn-outline" onclick="openEmpDeptSelectModal();">선택</button></div></div>
             <div class="ds-field ds-col-4"><label>직위</label><input type="text" id="frmJbpsNm" name="jbpsNm" class="ds-input" maxlength="50" placeholder="과장, 차장 등"></div>

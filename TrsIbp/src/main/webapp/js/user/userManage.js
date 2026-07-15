@@ -1,4 +1,5 @@
 var empTable = null;
+var empIdCheckedValue = '';
 
 /**
  * 사용자 목록 화면을 초기화한다.
@@ -17,9 +18,56 @@ function initEmpListPage() {
  * @returns {void}
  */
 function initEmpFormPage(mode, userId) {
+    if (mode === 'insert') {
+        $('#frmUserId').on('input', function () {
+            empIdCheckedValue = '';
+            $('#empIdCheckMessage').text('');
+        });
+    }
     loadEmpMeta(function () {
         if (mode === 'update' && userId) {
             loadEmpForm(userId);
+        }
+    });
+}
+
+/**
+ * 사용자 등록 화면에서 사용자ID 형식과 중복 여부를 확인한다.
+ * @returns {void}
+ */
+function checkEmpUserId() {
+    var userId = $.trim($('#frmUserId').val());
+    if (!/^(?=.*[a-z])[a-z0-9]{6,20}$/.test(userId)) {
+        empIdCheckedValue = '';
+        $('#empIdCheckMessage').text('');
+        alert('사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.');
+        $('#frmUserId').focus();
+        return;
+    }
+    $.ajax({
+        url: getContextPath() + '/user/empIdCheck.ajax',
+        type: 'GET',
+        data: { userId: userId },
+        dataType: 'json',
+        success: function (res) {
+            if (res.result !== 'OK') {
+                empIdCheckedValue = '';
+                $('#empIdCheckMessage').text('');
+                alert(res.msg || '사용자ID를 확인하지 못했습니다.');
+                return;
+            }
+            if (Number(res.cnt || 0) > 0) {
+                empIdCheckedValue = '';
+                $('#empIdCheckMessage').text('이미 사용 중인 사용자ID입니다.');
+                return;
+            }
+            empIdCheckedValue = userId;
+            $('#empIdCheckMessage').text('사용할 수 있는 사용자ID입니다.');
+        },
+        error: function () {
+            empIdCheckedValue = '';
+            $('#empIdCheckMessage').text('');
+            alert('사용자ID 중복확인 중 오류가 발생했습니다.');
         }
     });
 }
@@ -291,6 +339,19 @@ function validateEmpForm() {
         alert('사용자명을 입력해 주세요.');
         $('#frmUserNm').focus();
         return false;
+    }
+    if ($('#frmSaveMode').val() === 'insert') {
+        var userId = $.trim($('#frmUserId').val());
+        if (!/^(?=.*[a-z])[a-z0-9]{6,20}$/.test(userId)) {
+            alert('사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.');
+            $('#frmUserId').focus();
+            return false;
+        }
+        if (empIdCheckedValue !== userId) {
+            alert('사용자ID 중복확인을 해 주세요.');
+            $('#btnEmpIdCheck').focus();
+            return false;
+        }
     }
     if (!$('#frmDeptId').val()) {
         alert('부서를 선택해 주세요.');

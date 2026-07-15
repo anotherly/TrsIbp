@@ -6,7 +6,7 @@ const ValidEngine = {
     regex: {
         password: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,15}$/,
         phone: /^(010|02|03[1-3]|04[1-4]|05[1-5]|06[1-4]|070|080|15[0-9]{2}|16[0-9]{2})[-]?([0-9]{3,4})[-]?([0-9]{4})$/,
-        userId: /^[A-Za-z0-9]{6,10}$/,
+        userId: /^(?=.*[a-z])[a-z0-9]{6,20}$/,
         // ★ [신규 추가] 글로벌 표준 이메일 정규식 명세
         email: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/
     },
@@ -49,7 +49,7 @@ const ValidEngine = {
                 }
 
                 if (validTypes.includes('userid') && !ValidEngine.regex.userId.test(val)) {
-                    alert(`[${labelName}] 영문 대소문자와 숫자를 조합하여 6~10자리로 입력해 주세요.`);
+                    alert(`[${labelName}] 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해 주세요.`);
                     $this.focus();
                     isAllValid = false;
                     return false;

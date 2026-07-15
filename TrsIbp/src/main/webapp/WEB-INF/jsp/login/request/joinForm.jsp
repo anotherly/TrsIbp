@@ -87,7 +87,11 @@
             <div class="space-y-4">
                 <div>
 				    <label class="block text-xs font-bold text-gray-400 mb-1.5">사용자 ID *</label>
-				    <input type="text" name="userId" id="userId" data-valid="userid" maxlength="10" required autocomplete="one-time-code" class="input-style w-full bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="사용할 아이디를 입력하세요(영문, 숫자 6~10자)">
+                    <div class="flex gap-2">
+				        <input type="text" name="userId" id="userId" data-valid="userid" maxlength="20" required autocomplete="one-time-code" class="input-style flex-grow bg-slate-900 border border-brand-border text-xs rounded-lg p-2.5 text-gray-100" placeholder="영문 소문자·숫자 6~20자">
+                        <button type="button" id="btnJoinUserIdCheck" onclick="checkJoinUserId()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-brand-border text-xs font-bold rounded-lg transition text-gray-200">중복확인</button>
+                    </div>
+                    <p id="joinUserIdCheckMessage" class="mt-1 text-[11px] text-gray-400"></p>
 				</div>
 
                 <div>
@@ -133,6 +137,54 @@
     <script src="${pageContext.request.contextPath}/js/comm/deptSelectModal.js"></script>
     <script>
         var ctxPath = '${pageContext.request.contextPath}';
+        var joinUserIdCheckedValue = '';
+
+        /**
+         * 회원가입 사용자ID 입력이 바뀌면 기존 중복확인 결과를 초기화한다.
+         * @returns {void}
+         */
+        function resetJoinUserIdCheck() {
+            joinUserIdCheckedValue = '';
+            $('#joinUserIdCheckMessage').text('');
+        }
+
+        /**
+         * 일반회원가입 사용자ID의 형식과 중복 여부를 서버에서 확인한다.
+         * @returns {void}
+         */
+        function checkJoinUserId() {
+            var userId = $.trim($('#userId').val());
+            if (!/^(?=.*[a-z])[a-z0-9]{6,20}$/.test(userId)) {
+                resetJoinUserIdCheck();
+                alert('사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.');
+                $('#userId').focus();
+                return;
+            }
+            $.ajax({
+                url: ctxPath + '/login/userIdCheck.ajax',
+                type: 'POST',
+                data: { userId: userId },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.result !== 'OK') {
+                        resetJoinUserIdCheck();
+                        alert(data.msg || '사용자ID를 확인하지 못했습니다.');
+                        return;
+                    }
+                    if (Number(data.cnt || 0) > 0) {
+                        resetJoinUserIdCheck();
+                        $('#joinUserIdCheckMessage').text('이미 사용 중인 사용자ID입니다.');
+                        return;
+                    }
+                    joinUserIdCheckedValue = userId;
+                    $('#joinUserIdCheckMessage').text('사용할 수 있는 사용자ID입니다.');
+                },
+                error: function() {
+                    resetJoinUserIdCheck();
+                    alert('사용자ID 중복확인 중 오류가 발생했습니다.');
+                }
+            });
+        }
 
         function searchCompany() {
             var keyword = $('#searchValue').val().trim();
@@ -200,6 +252,11 @@
 
             // 공통 벨리데이션 체크 엔진 작동
             if (!ValidEngine.validateForm('#joinForm')) { return; }
+            if (joinUserIdCheckedValue !== $.trim($('#userId').val())) {
+                alert('사용자ID 중복확인을 해 주세요.');
+                $('#btnJoinUserIdCheck').focus();
+                return;
+            }
 
             $.ajax({
                 url: ctxPath + '/login/insertUserJoin.ajax',
@@ -217,6 +274,8 @@
                 error: function() { alert('서버 원격 가입 엔진 통신 오류'); }
             });
         }
+
+        $('#userId').on('input', resetJoinUserIdCheck);
     </script>
 </body>
 </html>

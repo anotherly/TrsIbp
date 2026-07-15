@@ -77,6 +77,13 @@
         userSelectDeptId = '';
         userDeptExpandedMap = {};
         userMultiSelectedMap = {};
+        if (userSelectTarget === 'scheduleMulti' && typeof window.getScheduleSelectedUsers === 'function') {
+            window.getScheduleSelectedUsers().forEach(function(user) {
+                if (user && user.userId) {
+                    userMultiSelectedMap[user.userId] = user;
+                }
+            });
+        }
         $('#userSelectKeyword').val('');
         if (userSelectTarget === 'scheduleMulti') {
             $('#userSelectMultiFooter').removeClass('hidden');
@@ -222,10 +229,11 @@
         var html = '';
         $('#userSelectUserList').data('lastUserList', userList);
         $.each(userList, function(index, user) {
-            html += '<button type="button" class="ds-user-row" onclick="applySelectedUserFromEncoded(\'' + usmEncodeRowData(user) + '\');">'
+            var selected = userSelectTarget === 'scheduleMulti' && userMultiSelectedMap[user.userId];
+            html += '<button type="button" class="ds-user-row ' + (selected ? 'is-selected' : '') + '" aria-pressed="' + (selected ? 'true' : 'false') + '" onclick="applySelectedUserFromEncoded(\'' + usmEncodeRowData(user) + '\');">'
                 + '<span><strong>' + usmEscapeHtml(usmNvl(user.userNm, '-')) + '</strong>'
                 + '<span>' + usmEscapeHtml(usmNvl(user.deptNm, '-')) + ' / ' + usmEscapeHtml(usmNvl(user.jbpsNm, '-')) + ' / ' + usmEscapeHtml(usmNvl(user.userId, '-')) + '</span></span>'
-                + '<em>선택</em>'
+                + '<em>' + (selected ? '선택됨' : '선택') + '</em>'
                 + '</button>';
         });
         $('#userSelectUserList').html(html);
