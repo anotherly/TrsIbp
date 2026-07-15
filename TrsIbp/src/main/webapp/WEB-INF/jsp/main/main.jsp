@@ -138,7 +138,7 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-12">
-                    <div class="lg:col-span-4 p-6 border-r border-brand-border bg-slate-950/20">
+                    <div class="lg:col-span-8 p-6 border-r border-brand-border bg-slate-950/20">
                         <div class="ds-calendar-head">
                             <button type="button" class="ds-icon-btn" onclick="moveDashboardScheduleMonth(-1);">‹</button>
                             <strong id="dashScheduleMonthLabel"></strong>
@@ -152,7 +152,7 @@
                             <span><i class="ds-dot ds-dot-etc"></i>기타</span>
                         </div>
                     </div>
-                    <div class="lg:col-span-8 p-6">
+                    <div class="lg:col-span-4 p-6">
                         <div class="ds-schedule-list-head">
                             <h3 id="dashScheduleSelectedTitle" class="font-bold text-sm text-gray-300"></h3>
                             <a href="${pageContext.request.contextPath}/schedule/scheduleList.do" class="ds-btn ds-btn-outline">캘린더 크게보기</a>

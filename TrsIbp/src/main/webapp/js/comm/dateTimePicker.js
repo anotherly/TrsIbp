@@ -9,6 +9,76 @@
     var DATETIME_SELECTOR = '.ds-datetime-picker';
 
     /**
+     * 시·분 선택 목록에 사용할 두 자리 숫자를 반환한다.
+     * @param {number} value 숫자
+     * @returns {string} 두 자리 숫자 문자열
+     */
+    function pad(value) {
+        return value < 10 ? '0' + value : String(value);
+    }
+
+    /**
+     * 날짜·시간 입력값에서 현재 시·분을 추출한다.
+     * @param {string} value yyyy-MM-dd HH:mm 형식의 입력값
+     * @returns {{hour:string, minute:string}} 시·분 값
+     */
+    function extractTime(value) {
+        var matched = String(value || '').match(/(?:T|\s)(\d{2}):(\d{2})/);
+        return matched
+            ? { hour: matched[1], minute: matched[2] }
+            : { hour: '09', minute: '00' };
+    }
+
+    /**
+     * 날짜·시간 선택창에 시와 분을 분리한 선택 영역을 구성한다.
+     * @param {jQuery} $input DateTimePicker 대상 입력 요소
+     * @returns {void}
+     */
+    function renderSplitTimeSelector($input) {
+        var $picker = $input.data('xdsoft_datetimepicker');
+        if (!$picker || !$picker.length) {
+            return;
+        }
+        $picker.addClass('ds-xdsoft-picker ds-xdsoft-datetime-picker');
+        var $selector = $picker.children('.ds-split-time-selector');
+        if (!$selector.length) {
+            var hourOptions = '';
+            var minuteOptions = '';
+            for (var hour = 0; hour < 24; hour++) {
+                hourOptions += '<option value="' + pad(hour) + '">' + pad(hour) + '</option>';
+            }
+            for (var minute = 0; minute < 60; minute++) {
+                minuteOptions += '<option value="' + pad(minute) + '">' + pad(minute) + '</option>';
+            }
+            $selector = $('<div class="ds-split-time-selector">'
+                + '<strong>시간 선택</strong>'
+                + '<label><span>시</span><select class="ds-time-hour" aria-label="시 선택">' + hourOptions + '</select></label>'
+                + '<i>:</i>'
+                + '<label><span>분</span><select class="ds-time-minute" aria-label="분 선택">' + minuteOptions + '</select></label>'
+                + '<button type="button" class="ds-time-apply">적용</button>'
+                + '</div>');
+            $picker.append($selector);
+        }
+
+        var time = extractTime($input.val());
+        $selector.find('.ds-time-hour').val(time.hour);
+        $selector.find('.ds-time-minute').val(time.minute);
+        $selector.off('.dsSplitTime').on('click.dsSplitTime mousedown.dsSplitTime', function(event) {
+            event.stopPropagation();
+        });
+        $selector.find('.ds-time-apply').off('click.dsSplitTime').on('click.dsSplitTime', function() {
+            var datePart = String($input.val() || '').substring(0, 10);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+                alert('날짜를 먼저 선택해 주세요.');
+                return;
+            }
+            $input.val(datePart + ' ' + $selector.find('.ds-time-hour').val() + ':' + $selector.find('.ds-time-minute').val());
+            $input.trigger('change');
+            $input.datetimepicker('hide');
+        });
+    }
+
+    /**
      * 선택한 입력 요소의 기존 DateTimePicker 인스턴스를 제거한다.
      * @param {jQuery|string|Element} target 입력 요소 또는 선택자
      * @returns {void}
@@ -34,6 +104,10 @@
         }
         options = options || {};
         var dateTime = options.dateTime === true;
+        var customPickerOptions = options.pickerOptions || {};
+        var originalOnShow = customPickerOptions.onShow;
+        var originalOnGenerate = customPickerOptions.onGenerate;
+        var originalOnSelectDate = customPickerOptions.onSelectDate;
         var pickerOptions = $.extend({}, {
             format: dateTime ? 'Y-m-d H:i' : 'Y-m-d',
             formatDate: 'Y-m-d',
@@ -41,7 +115,7 @@
             datepicker: true,
             timepicker: dateTime,
             closeOnDateSelect: !dateTime,
-            closeOnTimeSelect: dateTime,
+            closeOnTimeSelect: false,
             closeOnWithoutClick: true,
             dayOfWeekStart: 0,
             step: options.step || 1,
@@ -49,15 +123,50 @@
             scrollMonth: false,
             scrollTime: false,
             validateOnBlur: false
-        }, options.pickerOptions || {});
+        }, customPickerOptions);
 
         destroy(target);
         $(target).each(function() {
-            $(this)
+            var $input = $(this);
+            var inputPickerOptions = $.extend({}, pickerOptions, {
+                onShow: function(currentTime, selectedInput, event) {
+                    var $picker = selectedInput.data('xdsoft_datetimepicker');
+                    if ($picker && $picker.length) {
+                        $picker.addClass('ds-xdsoft-picker');
+                    }
+                    if (dateTime) {
+                        renderSplitTimeSelector(selectedInput);
+                    }
+                    if (typeof originalOnShow === 'function') {
+                        return originalOnShow.call(this, currentTime, selectedInput, event);
+                    }
+                },
+                onGenerate: function(currentTime, selectedInput) {
+                    var $picker = selectedInput.data('xdsoft_datetimepicker');
+                    if ($picker && $picker.length) {
+                        $picker.addClass('ds-xdsoft-picker');
+                    }
+                    if (dateTime) {
+                        renderSplitTimeSelector(selectedInput);
+                    }
+                    if (typeof originalOnGenerate === 'function') {
+                        originalOnGenerate.call(this, currentTime, selectedInput);
+                    }
+                },
+                onSelectDate: function(currentTime, selectedInput, event) {
+                    if (dateTime) {
+                        renderSplitTimeSelector(selectedInput);
+                    }
+                    if (typeof originalOnSelectDate === 'function') {
+                        originalOnSelectDate.call(this, currentTime, selectedInput, event);
+                    }
+                }
+            });
+            $input
                 .attr('type', 'text')
                 .attr('readonly', 'readonly')
                 .attr('autocomplete', 'off')
-                .datetimepicker(pickerOptions);
+                .datetimepicker(inputPickerOptions);
         });
     }
 
