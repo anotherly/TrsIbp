@@ -92,11 +92,11 @@
                     </div>
                     <div class="ds-field">
                         <label for="sDate">착수일</label>
-                        <input type="date" id="sDate" name="sDate" class="ds-input">
+                        <input type="text" id="sDate" name="sDate" class="ds-input ds-date-picker" readonly autocomplete="off">
                     </div>
                     <div class="ds-field">
                         <label for="eDate">종료일</label>
-                        <input type="date" id="eDate" name="eDate" class="ds-input">
+                        <input type="text" id="eDate" name="eDate" class="ds-input ds-date-picker" readonly autocomplete="off">
                     </div>
                     <div class="ds-search-actions">
                         <button type="submit" class="ds-btn ds-btn-primary ds-btn-full">검색</button>

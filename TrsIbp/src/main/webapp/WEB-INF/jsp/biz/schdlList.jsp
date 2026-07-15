@@ -18,8 +18,8 @@
                 <input type="hidden" id="frmBizSchdlSn">
                 <div class="ds-field ds-col-3"><label for="frmSchdlSeCd">일정구분</label><select id="frmSchdlSeCd" class="ds-select"><option value="">선택</option></select></div>
                 <div class="ds-field ds-col-3"><label for="frmSchdlNm">일정명</label><input type="text" id="frmSchdlNm" class="ds-input" maxlength="200"></div>
-                <div class="ds-field ds-col-3"><label for="frmSchdlBgngYmd">시작일</label><input type="date" id="frmSchdlBgngYmd" class="ds-input"></div>
-                <div class="ds-field ds-col-3"><label for="frmSchdlEndYmd">종료/완료일</label><input type="date" id="frmSchdlEndYmd" class="ds-input"></div>
+                <div class="ds-field ds-col-3"><label for="frmSchdlBgngYmd">시작일</label><input type="text" id="frmSchdlBgngYmd" class="ds-input ds-date-picker" readonly autocomplete="off"></div>
+                <div class="ds-field ds-col-3"><label for="frmSchdlEndYmd">종료/완료일</label><input type="text" id="frmSchdlEndYmd" class="ds-input ds-date-picker" readonly autocomplete="off"></div>
                 <input type="hidden" id="frmPicId">
                 <div class="ds-field ds-col-3"><label for="frmPicDispNm">담당자 추가</label><div class="ds-input-button"><input type="text" id="frmPicDispNm" class="ds-input" readonly placeholder="사용자 검색"><button type="button" class="ds-btn ds-btn-outline" onclick="openUserSelectModal('schdl');">추가</button></div></div>
                 <div class="ds-field ds-col-9"><label for="frmSchdlCn">작업내용</label><input type="text" id="frmSchdlCn" class="ds-input" maxlength="1000"></div>

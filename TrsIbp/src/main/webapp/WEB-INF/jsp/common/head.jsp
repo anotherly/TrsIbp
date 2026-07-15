@@ -41,10 +41,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/layout.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/vendor/jquery-datetimepicker/jquery.datetimepicker.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-    window.jQuery || document.write('<script src="<%=request.getContextPath()%>/js/lib/jquery-lite.js"><\/script>');
+    window.jQuery || document.write('<script src="<%=request.getContextPath()%>/js/vendor/jquery/jquery-3.7.1.min.js"><\/script>');
 </script>
+<script src="<%=request.getContextPath()%>/js/vendor/jquery-datetimepicker/jquery.datetimepicker.full.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/comm/dateTimePicker.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/comm/layout.js"></script>

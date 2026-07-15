@@ -23,8 +23,8 @@
                 <div class="ds-field ds-col-3"><label for="frmRoleNm">역할</label><input type="text" id="frmRoleNm" class="ds-input" maxlength="100"></div>
                 <input type="hidden" id="frmJbpsNm">
                 <div class="ds-field ds-col-3"><label for="frmUntprc">단가</label><input type="text" id="frmUntprc" class="ds-input ds-number-input" inputmode="numeric" autocomplete="off"></div>
-                <div class="ds-field ds-col-3"><label for="frmInputBgngYmd">투입시작일</label><input type="date" id="frmInputBgngYmd" class="ds-input"></div>
-                <div class="ds-field ds-col-3"><label for="frmInputEndYmd">투입종료일</label><input type="date" id="frmInputEndYmd" class="ds-input"></div>
+                <div class="ds-field ds-col-3"><label for="frmInputBgngYmd">투입시작일</label><input type="text" id="frmInputBgngYmd" class="ds-input ds-date-picker" readonly autocomplete="off"></div>
+                <div class="ds-field ds-col-3"><label for="frmInputEndYmd">투입종료일</label><input type="text" id="frmInputEndYmd" class="ds-input ds-date-picker" readonly autocomplete="off"></div>
                 <input type="hidden" id="frmInputMcnt">
                 <div class="ds-field ds-col-3"><label for="frmInputRt">투입률(%)</label><input type="text" id="frmInputRt" class="ds-input ds-number-input" inputmode="decimal" autocomplete="off" placeholder="예: 100"></div>
             </div>

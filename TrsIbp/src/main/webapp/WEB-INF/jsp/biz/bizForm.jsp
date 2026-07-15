@@ -48,15 +48,15 @@
 
     <div class="ds-field ds-col-4">
         <label for="frmCtrtYmd">계약일</label>
-        <input type="date" id="frmCtrtYmd" class="ds-input ready-disabled-field">
+        <input type="text" id="frmCtrtYmd" class="ds-input ds-date-picker ready-disabled-field" readonly autocomplete="off">
     </div>
     <div class="ds-field ds-col-4">
         <label for="frmOtstYmd">착수일</label>
-        <input type="date" id="frmOtstYmd" class="ds-input ready-disabled-field">
+        <input type="text" id="frmOtstYmd" class="ds-input ds-date-picker ready-disabled-field" readonly autocomplete="off">
     </div>
     <div class="ds-field ds-col-4">
         <label for="frmBizEndYmd">사업종료일</label>
-        <input type="date" id="frmBizEndYmd" class="ds-input ready-disabled-field">
+        <input type="text" id="frmBizEndYmd" class="ds-input ds-date-picker ready-disabled-field" readonly autocomplete="off">
     </div>
     
     <div class="ds-field ds-col-4">
@@ -73,7 +73,7 @@
     </div>
     <div class="ds-field ds-col-4">
         <label for="frmGiveDdtYmd">지급기일</label>
-        <input type="date" id="frmGiveDdtYmd" class="ds-input ready-disabled-field">
+        <input type="text" id="frmGiveDdtYmd" class="ds-input ds-date-picker ready-disabled-field" readonly autocomplete="off">
     </div>
 
     <div class="ds-field ds-col-12 ready-disabled-field-wrap">
@@ -91,11 +91,11 @@
 
     <div class="ds-field ds-col-6">
         <label for="frmDfrpGrnteBgngYmd">하자보증시작일</label>
-        <input type="date" id="frmDfrpGrnteBgngYmd" class="ds-input ready-disabled-field">
+        <input type="text" id="frmDfrpGrnteBgngYmd" class="ds-input ds-date-picker ready-disabled-field" readonly autocomplete="off">
     </div>
     <div class="ds-field ds-col-6">
         <label for="frmDfrpGrnteEndYmd">하자보증종료일</label>
-        <input type="date" id="frmDfrpGrnteEndYmd" class="ds-input ready-disabled-field">
+        <input type="text" id="frmDfrpGrnteEndYmd" class="ds-input ds-date-picker ready-disabled-field" readonly autocomplete="off">
     </div>
 
     <div class="ds-field ds-col-12">

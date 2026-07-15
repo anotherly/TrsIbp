@@ -74,8 +74,8 @@
             <div class="ds-field ds-col-6"><label class="required">일정명</label><input type="text" id="frmCalSchdlNm" class="ds-input" maxlength="100"></div>
             <div class="ds-field ds-col-12"><label class="required">대상자</label><div class="ds-input-action-row"><div id="scheduleTargetChips" class="ds-chip-box"></div><button type="button" class="ds-btn ds-btn-outline" onclick="openUserSelectModal('scheduleMulti');">대상자 선택</button></div></div>
             <div class="ds-field ds-col-4"><label>종일여부</label><select id="frmAllDayYn" class="ds-select"><option value="N">시간 지정</option><option value="Y">종일</option></select></div>
-            <div class="ds-field ds-col-4"><label class="required">시작일시</label><input type="datetime-local" id="frmBgngDt" class="ds-input"></div>
-            <div class="ds-field ds-col-4"><label class="required">종료일시</label><input type="datetime-local" id="frmEndDt" class="ds-input"></div>
+            <div class="ds-field ds-col-4"><label class="required">시작일시</label><input type="text" id="frmBgngDt" class="ds-input ds-datetime-picker" readonly autocomplete="off"></div>
+            <div class="ds-field ds-col-4"><label class="required">종료일시</label><input type="text" id="frmEndDt" class="ds-input ds-datetime-picker" readonly autocomplete="off"></div>
             <div class="ds-field ds-col-12"><label>장소</label><input type="text" id="frmPlaceNm" class="ds-input" maxlength="100"></div>
             <div class="ds-field ds-col-12"><label>상세내용</label><textarea id="frmCalSchdlCn" class="ds-textarea" maxlength="1000"></textarea></div>
         </div>

@@ -19,7 +19,12 @@
     function ymLabel(d) { return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월'; }
     function nvl(v, d) { return v === null || v === undefined || v === '' ? (d || '') : v; }
     function escapeHtml(v) { return String(nvl(v, '')).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-    function toDatetimeLocal(v) { return nvl(v, '').replace(' ', 'T'); }
+    /**
+     * 서버 일시값을 DateTimePicker 표시 형식으로 변환한다.
+     * @param {string} v 서버 일시값(yyyy-MM-dd HH:mm[:ss] 또는 yyyy-MM-ddTHH:mm[:ss])
+     * @returns {string} DateTimePicker 표시값(yyyy-MM-dd HH:mm)
+     */
+    function toPickerDateTime(v) { return nvl(v, '').replace('T', ' ').substring(0, 16); }
     function toDisplayTime(v, allDayYn) { return allDayYn === 'Y' ? 'All Day' : nvl(v, '').substring(11, 16); }
     function colorClass(colorType) { return 'ds-schedule-' + (colorType || 'etc'); }
     /**
@@ -41,16 +46,37 @@
      * @returns {void}
      */
     window.initSchedulePage = function() {
+        initializeScheduleDateTimePicker();
         $('#frmAllDayYn').on('change', function() {
             applyAllDayInputMode($(this).val() === 'Y');
-        });
-        $('#frmBgngDt,#frmEndDt').on('change', function() {
-            this.blur();
         });
         loadScheduleMeta(function() {
             loadScheduleList();
         });
     };
+
+    /**
+     * 일정관리 시작·종료 입력란에 로컬 jQuery DateTimePicker를 초기화한다.
+     * @returns {void}
+     */
+    function initializeScheduleDateTimePicker() {
+        configureScheduleDateTimePicker(false);
+    }
+
+    /**
+     * 종일 여부에 맞춰 일정관리 DateTimePicker의 날짜·시간 선택 방식을 설정한다.
+     * @param {boolean} allDay 종일 일정 여부
+     * @returns {void}
+     */
+    function configureScheduleDateTimePicker(allDay) {
+        if (!window.DsDateTimePicker) {
+            return;
+        }
+        window.DsDateTimePicker.configure('#frmBgngDt,#frmEndDt', {
+            dateTime: !allDay,
+            step: 1
+        });
+    }
 
     /**
      * 대시보드 일정 위젯을 초기화한다.
@@ -212,7 +238,16 @@
         }
     };
 
-    window.closeScheduleModal = function() { $('#scheduleModal').addClass('hidden').attr('aria-hidden', 'true'); };
+    /**
+     * 일정 등록·수정 모달과 열려 있는 DateTimePicker를 닫는다.
+     * @returns {void}
+     */
+    window.closeScheduleModal = function() {
+        if (window.DsDateTimePicker) {
+            window.DsDateTimePicker.hide('#frmBgngDt,#frmEndDt');
+        }
+        $('#scheduleModal').addClass('hidden').attr('aria-hidden', 'true');
+    };
 
     /**
      * 일정 등록·수정 폼과 대상자 선택 상태를 기본값으로 초기화한다.
@@ -238,8 +273,8 @@
         $('#frmSchdlSn').val(nvl(row.schdlSn));
         $('#frmCalSchdlSeCd').val(nvl(row.schdlSeCd));
         $('#frmCalSchdlNm').val(nvl(row.schdlNm));
-        $('#frmBgngDt').val(toDatetimeLocal(row.bgngDt));
-        $('#frmEndDt').val(toDatetimeLocal(row.endDt));
+        $('#frmBgngDt').val(toPickerDateTime(row.bgngDt));
+        $('#frmEndDt').val(toPickerDateTime(row.endDt));
         $('#frmAllDayYn').val(nvl(row.allDayYn, 'N'));
         $('#frmPlaceNm').val(nvl(row.placeNm));
         $('#frmCalSchdlCn').val(nvl(row.schdlCn));
@@ -277,14 +312,16 @@
         var endValue = $end.val();
         if (allDay) {
             rememberScheduleTimes(bgngValue, endValue);
-            $bgng.attr('type', 'date').val(nvl(bgngValue, '').substring(0, 10));
-            $end.attr('type', 'date').val(nvl(endValue, '').substring(0, 10));
+            $bgng.val(nvl(bgngValue, '').substring(0, 10));
+            $end.val(nvl(endValue, '').substring(0, 10));
+            configureScheduleDateTimePicker(true);
             return;
         }
         var bgngYmd = nvl(bgngValue, ymd(selectedDate)).substring(0, 10);
         var endYmd = nvl(endValue, bgngYmd).substring(0, 10);
-        $bgng.attr('type', 'datetime-local').val(bgngYmd + 'T' + (previousBgngTime || '09:00'));
-        $end.attr('type', 'datetime-local').val(endYmd + 'T' + (previousEndTime || '18:00'));
+        $bgng.val(bgngYmd + ' ' + (previousBgngTime || '09:00'));
+        $end.val(endYmd + ' ' + (previousEndTime || '18:00'));
+        configureScheduleDateTimePicker(false);
     }
 
     /**
