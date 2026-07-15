@@ -23,5 +23,9 @@
                 <div id="userSelectUserList" class="ds-user-list"></div>
             </div>
         </div>
+        <div id="userSelectMultiFooter" class="ds-modal-actions hidden">
+            <div id="userSelectMultiSummary" class="ds-modal-summary">선택된 사용자 0명</div>
+            <button type="button" class="ds-btn ds-btn-primary" onclick="applyMultiSelectedUsers();">선택완료</button>
+        </div>
     </div>
 </div>

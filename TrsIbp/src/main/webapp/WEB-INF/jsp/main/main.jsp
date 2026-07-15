@@ -121,203 +121,43 @@
                 </div>
             </section>
 
-            <!-- ROW 2: SIGNATURE SCHEDULE WIDGET (시그니처 스마트 일정 위젯 - 2단분리) -->
+            <!-- ROW 2: SMART SCHEDULE WIDGET -->
             <section class="bg-brand-card rounded-2xl border border-brand-border shadow-xl overflow-hidden">
-                <!-- 위젯 타이틀 및 대형 필터 컨트롤 -->
                 <div class="p-6 border-b border-brand-border bg-slate-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-2.5 h-6 bg-brand-accent rounded-full"></div>
                         <div>
                             <h2 class="text-lg font-bold text-gray-100">스마트 일정 위젯 (스케줄러)</h2>
-                            <p class="text-xs text-gray-400">출퇴근 근무기록, 프로젝트 마일스톤, 팀원 상태의 지능형 캘린더 통합</p>
+                            <p class="text-xs text-gray-400">휴가, 출장, 외근, 회의, 기타 일정을 종합 캘린더와 연동합니다.</p>
                         </div>
                     </div>
-
-                    <!-- 퀵 캘린더 탭 (INTERACTIVE!) -->
                     <div class="flex p-1 bg-slate-900 border border-brand-border rounded-xl">
-                        <button id="tab-all" onclick="filterEvents('all')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-accent transition">전체 일정</button>
-                        <button id="tab-my" onclick="filterEvents('my')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">내 일정</button>
-                        <button id="tab-project" onclick="filterEvents('project')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">프로젝트</button>
-                        <button id="tab-team" onclick="filterEvents('team')" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-gray-400 hover:text-white transition">팀 휴가/재택</button>
+                        <button type="button" data-view-type="all" onclick="changeDashboardScheduleView('all')" class="dash-schedule-tab ds-tab is-active">전체 일정</button>
+                        <button type="button" data-view-type="my" onclick="changeDashboardScheduleView('my')" class="dash-schedule-tab ds-tab">내 일정</button>
+                        <button type="button" data-view-type="team" onclick="changeDashboardScheduleView('team')" class="dash-schedule-tab ds-tab">팀 휴가/출장</button>
                     </div>
                 </div>
-
-                <!-- 캘린더 2컬럼 레이아웃 -->
                 <div class="grid grid-cols-1 lg:grid-cols-12">
-                    <!-- 좌측 1/3 컬럼: Mini Calendar -->
                     <div class="lg:col-span-4 p-6 border-r border-brand-border bg-slate-950/20">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-sm font-extrabold text-gray-200">2026년 5월</span>
-                            <div class="flex gap-1.5">
-                                <button class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 border border-brand-border text-gray-400 hover:text-white transition"><i class="fa-solid fa-angle-left text-xs"></i></button>
-                                <button class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 border border-brand-border text-gray-400 hover:text-white transition"><i class="fa-solid fa-angle-right text-xs"></i></button>
-                            </div>
+                        <div class="ds-calendar-head">
+                            <button type="button" class="ds-icon-btn" onclick="moveDashboardScheduleMonth(-1);">‹</button>
+                            <strong id="dashScheduleMonthLabel"></strong>
+                            <button type="button" class="ds-icon-btn" onclick="moveDashboardScheduleMonth(1);">›</button>
                         </div>
-
-                        <!-- 캘린더 일자 그리드 (INTERACTIVE!) -->
-                        <div class="grid grid-cols-7 gap-y-2 text-center text-xs mb-4">
-                            <!-- 요일 라벨 -->
-                            <span class="text-red-400 font-semibold opacity-80">일</span>
-                            <span class="text-gray-400 font-semibold">월</span>
-                            <span class="text-gray-400 font-semibold">화</span>
-                            <span class="text-gray-400 font-semibold">수</span>
-                            <span class="text-gray-400 font-semibold">목</span>
-                            <span class="text-gray-400 font-semibold">금</span>
-                            <span class="text-gray-400 font-semibold">토</span>
-
-                            <!-- 빈 셀 (이전달) -->
-                            <span class="text-gray-700 py-2">26</span>
-                            <span class="text-gray-700 py-2">27</span>
-                            <span class="text-gray-700 py-2">28</span>
-                            <span class="text-gray-700 py-2">29</span>
-                            <span class="text-gray-700 py-2">30</span>
-                            <span class="text-gray-500 py-2">1</span>
-                            <span class="text-gray-500 py-2">2</span>
-
-                            <!-- 이번달 일자 및 일정 도트(Indicator) 표시 -->
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">3</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">4</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">5</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">6</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">7</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">8</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">9</span>
-
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">10</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">11</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">12</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">13</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">14</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">15</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">16</span>
-
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">17</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">18</span>
-                            <!-- 일정 있는 날(도트) -->
-                            <span onclick="selectCalendarDate(19)" class="text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center">19<span class="w-1 h-1 bg-purple-500 rounded-full absolute bottom-1"></span></span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">20</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">21</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">22</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">23</span>
-
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">24</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">25</span>
-                            <!-- 오늘 날짜 및 활성화(Selected) 처리 -->
-                            <span id="cal-date-26" onclick="selectCalendarDate(26)" class="text-white py-2 bg-brand-accent/40 border border-brand-accent rounded-lg cursor-pointer relative flex flex-col items-center justify-center font-bold">26<span class="w-1 h-1 bg-cyan-400 rounded-full absolute bottom-1"></span></span>
-                            <!-- 다른 일정 있는 날짜들 -->
-                            <span id="cal-date-27" onclick="selectCalendarDate(27)" class="text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center">27<span class="w-1.5 h-1.5 bg-brand-neonGreen rounded-full absolute bottom-1"></span></span>
-                            <span id="cal-date-28" onclick="selectCalendarDate(28)" class="text-gray-300 py-2 hover:bg-slate-900 rounded-lg cursor-pointer relative flex flex-col items-center justify-center">28<span class="w-1.5 h-1.5 bg-yellow-500 rounded-full absolute bottom-1"></span></span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">29</span>
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">30</span>
-                            
-                            <span class="text-gray-400 py-2 hover:bg-slate-900 rounded-lg cursor-pointer">31</span>
-                            <span class="text-gray-700 py-2">1</span>
-                            <span class="text-gray-700 py-2">2</span>
-                            <span class="text-gray-700 py-2">3</span>
-                            <span class="text-gray-700 py-2">4</span>
-                            <span class="text-gray-700 py-2">5</span>
-                            <span class="text-gray-700 py-2">6</span>
-                        </div>
-
-                        <!-- 캘린더 범례 요약 -->
-                        <div class="border-t border-brand-border/60 pt-4 space-y-2">
-                            <span class="text-xs font-bold text-gray-400 block mb-1">일정 구분별 색상 피드</span>
-                            <div class="grid grid-cols-2 gap-2 text-[10px] text-gray-400 font-semibold">
-                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-red-500 rounded-full"></span>배포 및 핫픽스</span>
-                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-purple-500 rounded-full"></span>클라이언트 미팅</span>
-                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-brand-accent rounded-full"></span>스프린트 회의</span>
-                                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 bg-brand-neonGreen rounded-full"></span>대체/팀원휴가</span>
-                            </div>
+                        <div id="dashScheduleCalendarGrid" class="ds-calendar-grid"></div>
+                        <div class="ds-calendar-legend">
+                            <span><i class="ds-dot ds-dot-leave"></i>휴가</span>
+                            <span><i class="ds-dot ds-dot-trip"></i>출장/외근</span>
+                            <span><i class="ds-dot ds-dot-meeting"></i>회의</span>
+                            <span><i class="ds-dot ds-dot-etc"></i>기타</span>
                         </div>
                     </div>
-
-                    <!-- 우측 2/3 컬럼: Timeline & List View (INTERACTIVE EVENT LIST) -->
-                    <div class="lg:col-span-8 p-6 flex flex-col justify-between h-[400px] overflow-y-auto">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-sm text-gray-300">
-                                    <span id="timeline-date-label">5월 26일 (오늘)</span>의 스케줄 리스트
-                                </h3>
-                                <button onclick="openAddEventModal()" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 border border-brand-border text-cyan-400 hover:text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-plus"></i> 새 일정 등록
-                                </button>
-                            </div>
-
-                            <!-- 타임라인 카드 세트 (클릭 시 가변적으로 렌더링되도록 구현) -->
-                            <div id="timeline-events-container" class="space-y-3">
-                                <!-- 이벤트 1: 데일리 스크럼 (Meeting) -->
-                                <div class="event-card-item bg-slate-900 border-l-4 border-brand-accent p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="my">
-                                    <div class="flex items-start gap-4">
-                                        <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
-                                            <span class="block text-gray-100 font-bold">10:00</span>
-                                            <span>30m</span>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="px-1.5 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] rounded font-bold">스프린트 미팅</span>
-                                                <span class="text-[11px] text-gray-500"><i class="fa-solid fa-map-pin"></i> 3층 미팅룸 B</span>
-                                            </div>
-                                            <h4 class="font-bold text-sm text-white">Daily Scrum &amp; UI/UX 설계안 중간 검토</h4>
-                                            <p class="text-xs text-gray-400 mt-1">스프린트 24차 진행도 검수 및 피드백 통합 정리</p>
-                                        </div>
-                                    </div>
-                                    <!-- 액션: 원클릭 화상회의 바로가기 -->
-                                    <div class="flex items-center gap-2">
-                                        <a href="https://zoom.us/" target="_blank" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition">
-                                            <i class="fa-solid fa-video"></i> 화상회의
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <!-- 이벤트 2: 배포 일정 (Project) -->
-                                <div class="event-card-item bg-slate-900 border-l-4 border-red-500 p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="project">
-                                    <div class="flex items-start gap-4">
-                                        <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
-                                            <span class="block text-gray-100 font-bold">14:00</span>
-                                            <span>1h</span>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="px-1.5 py-0.5 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] rounded font-bold">인프라/배포</span>
-                                                <span class="text-[11px] text-gray-500"><i class="fa-brands fa-jira"></i> DEV-402</span>
-                                            </div>
-                                            <h4 class="font-bold text-sm text-white">PG 결제대행 실서버 핫픽스 배포</h4>
-                                            <p class="text-xs text-gray-400 mt-1">모바일 팝업 결제 에러 현상 개선안 마스터 브랜치 배포 예정</p>
-                                        </div>
-                                    </div>
-                                    <!-- 액션: Jira 바로가기 -->
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs text-gray-500">배포 담당: 이도현</span>
-                                    </div>
-                                </div>
-
-                                <!-- 이벤트 3: 보상 휴가 현황 (Team/Vacation) -->
-                                <div class="event-card-item bg-slate-900 border-l-4 border-emerald-500 p-4 rounded-r-xl border-y border-r border-brand-border/60 flex items-center justify-between gap-4" data-category="team">
-                                    <div class="flex items-start gap-4">
-                                        <div class="text-center font-mono text-xs text-gray-400 bg-slate-950 px-2 py-1.5 rounded-lg border border-brand-border/80">
-                                            <span class="block text-gray-100 font-bold">All Day</span>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] rounded font-bold">휴가/재택</span>
-                                            </div>
-                                            <h4 class="font-bold text-sm text-white">김민서 Senior Dev - 대체 휴가</h4>
-                                            <p class="text-xs text-gray-400 mt-1">주말 정기 배포 장애 대응 온콜(On-Call) 실적에 따른 보상 적립 연차 사용</p>
-                                        </div>
-                                    </div>
-                                    <!-- 프로필 아바타 -->
-                                    <div>
-                                        <img src="<%=request.getContextPath()%>/protoType/photo-1494790108377-be9c29b29330" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500 object-cover">
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="lg:col-span-8 p-6">
+                        <div class="ds-schedule-list-head">
+                            <h3 id="dashScheduleSelectedTitle" class="font-bold text-sm text-gray-300"></h3>
+                            <a href="${pageContext.request.contextPath}/schedule/scheduleList.do" class="ds-btn ds-btn-outline">캘린더 크게보기</a>
                         </div>
-
-                        <!-- 타임라인 푸터 -->
-                        <div class="border-t border-brand-border/60 pt-4 flex items-center justify-between text-xs text-gray-500">
-                            <span>* 일정 데이터는 Jira, 사내 전자결재와 실시간 갱신 처리됩니다.</span>
-                            <span class="text-brand-neonBlue cursor-pointer hover:underline">캘린더 크게보기 <i class="fa-solid fa-up-right-from-square text-[10px]"></i></span>
-                        </div>
+                        <div id="dashScheduleDayList" class="ds-schedule-list"></div>
                     </div>
                 </div>
             </section>
@@ -499,5 +339,7 @@
     </script>
 
     <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
+    <script src="<%=request.getContextPath()%>/js/schedule/schedule.js"></script>
 
+<script>$(function(){ if (typeof initDashboardScheduleWidget === 'function') { initDashboardScheduleWidget(); } });</script>
 </body></html>

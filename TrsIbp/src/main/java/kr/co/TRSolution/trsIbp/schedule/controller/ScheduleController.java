@@ -1,0 +1,222 @@
+package kr.co.TRSolution.trsIbp.schedule.controller;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import kr.co.TRSolution.trsIbp.schedule.service.ScheduleService;
+import kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO;
+import kr.co.TRSolution.trsIbp.user.vo.UserVO;
+
+/**
+ * 종합 일정 캘린더 Controller
+ */
+@Controller
+public class ScheduleController {
+
+    @Resource(name = "scheduleService")
+    private ScheduleService scheduleService;
+
+    /**
+     * 종합 일정 캘린더 화면으로 이동한다.
+     * @return 일정 캘린더 JSP 경로
+     */
+    @RequestMapping(value = "/schedule/scheduleList.do")
+    public ModelAndView scheduleListPage() {
+        return new ModelAndView("/schedule/scheduleList");
+    }
+
+    /**
+     * 일정 화면 초기 구분코드 목록을 조회한다.
+     * @param scheduleVO 조회조건 VO
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result, codeList
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/scheduleMeta.ajax")
+    public ModelAndView selectScheduleMeta(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        applyLoginUser(scheduleVO, request, false);
+        mav.addObject("result", "OK");
+        mav.addObject("codeList", scheduleService.selectScheduleCodeList(scheduleVO));
+        return mav;
+    }
+
+    /**
+     * 월간 달력 표시용 일정 요약과 선택일자의 일정 목록을 조회한다.
+     * @param scheduleVO selectedYmd, viewType 등 조회조건 VO
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result, monthList, dayList
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/scheduleList.ajax")
+    public ModelAndView selectScheduleList(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        applyLoginUser(scheduleVO, request, false);
+        normalizeDateRange(scheduleVO);
+        List<ScheduleVO> monthList = scheduleService.selectMonthScheduleSummaryList(scheduleVO);
+        List<ScheduleVO> dayList = scheduleService.selectDayScheduleList(scheduleVO);
+        mav.addObject("result", "OK");
+        mav.addObject("monthList", monthList);
+        mav.addObject("dayList", dayList);
+        return mav;
+    }
+
+    /**
+     * 대시보드 일정 위젯용 월간/일간 일정 데이터를 조회한다.
+     * @param scheduleVO selectedYmd, viewType 등 조회조건 VO
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result, monthList, dayList
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/dashboardSchedule.ajax")
+    public ModelAndView selectDashboardSchedule(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        return selectScheduleList(scheduleVO, request);
+    }
+
+    /**
+     * 일정 단건 상세정보를 조회한다.
+     * @param scheduleVO schdlSn을 포함한 조회조건 VO
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result, schedule
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/scheduleDetail.ajax")
+    public ModelAndView selectSchedule(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        applyLoginUser(scheduleVO, request, false);
+        mav.addObject("result", "OK");
+        mav.addObject("schedule", scheduleService.selectSchedule(scheduleVO));
+        return mav;
+    }
+
+    /**
+     * 일정을 등록하거나 수정한다.
+     * @param scheduleVO 저장할 일정 정보와 대상자ID 목록
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result
+     * @throws Exception 저장 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/scheduleSave.ajax")
+    public ModelAndView saveSchedule(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        applyLoginUser(scheduleVO, request, true);
+        normalizeDateTime(scheduleVO);
+        String validateMsg = validateScheduleForSave(scheduleVO);
+        if (validateMsg != null) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("message", validateMsg);
+            return mav;
+        }
+        try {
+            scheduleService.saveSchedule(scheduleVO);
+            mav.addObject("result", "OK");
+            mav.addObject("schdlSn", scheduleVO.getSchdlSn());
+        } catch (IllegalArgumentException e) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("message", e.getMessage());
+        }
+        return mav;
+    }
+
+    /**
+     * 일정을 삭제 처리한다.
+     * @param scheduleVO 삭제할 일정 순번
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result
+     * @throws Exception 삭제 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/scheduleDelete.ajax")
+    public ModelAndView deleteSchedule(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        applyLoginUser(scheduleVO, request, true);
+        scheduleService.deleteSchedule(scheduleVO);
+        mav.addObject("result", "OK");
+        return mav;
+    }
+
+    /**
+     * 로그인 사용자 회사/사용자 정보를 일정 VO에 세팅한다.
+     * @param scheduleVO 로그인 사용자 정보를 반영할 VO
+     * @param request 세션 조회용 요청 객체
+     * @param withAudit 등록자/수정자 세팅 여부
+     */
+    private void applyLoginUser(ScheduleVO scheduleVO, HttpServletRequest request, boolean withAudit) {
+        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
+        scheduleVO.setCoId(reqLoginVo.getCoId());
+        scheduleVO.setTargetUserId(reqLoginVo.getUserId());
+        if (withAudit) {
+            scheduleVO.setRgtrId(reqLoginVo.getUserId());
+            scheduleVO.setMdfrId(reqLoginVo.getUserId());
+        }
+    }
+
+    /**
+     * 선택일자 기준으로 월 시작일/종료일을 계산한다.
+     * @param scheduleVO selectedYmd를 포함한 조회조건 VO
+     */
+    private void normalizeDateRange(ScheduleVO scheduleVO) {
+        String selectedYmd = scheduleVO.getSelectedYmd();
+        if (selectedYmd == null || selectedYmd.trim().isEmpty()) {
+            selectedYmd = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+            scheduleVO.setSelectedYmd(selectedYmd);
+        }
+        YearMonth ym = YearMonth.from(LocalDate.parse(selectedYmd));
+        scheduleVO.setMonthStartYmd(ym.atDay(1).format(DateTimeFormatter.ISO_DATE));
+        scheduleVO.setMonthEndYmd(ym.atEndOfMonth().format(DateTimeFormatter.ISO_DATE));
+    }
+
+    /**
+     * 일정 저장 전 필수값과 시작/종료일시의 선후관계를 검증한다.
+     * @param scheduleVO 검증할 일정 정보
+     * @return 오류 메시지. 정상인 경우 null
+     */
+    private String validateScheduleForSave(ScheduleVO scheduleVO) {
+        if (scheduleVO.getSchdlSeCd() == null || scheduleVO.getSchdlSeCd().trim().isEmpty()) {
+            return "일정구분을 선택하세요.";
+        }
+        if (scheduleVO.getSchdlNm() == null || scheduleVO.getSchdlNm().trim().isEmpty()) {
+            return "일정명을 입력하세요.";
+        }
+        if (scheduleVO.getTargetUserIds() == null || scheduleVO.getTargetUserIds().trim().isEmpty()) {
+            return "대상자를 선택하세요.";
+        }
+        if (scheduleVO.getBgngDt() == null || scheduleVO.getBgngDt().trim().isEmpty()
+                || scheduleVO.getEndDt() == null || scheduleVO.getEndDt().trim().isEmpty()) {
+            return "시작일시와 종료일시를 입력하세요.";
+        }
+        try {
+            LocalDateTime bgngDt = LocalDateTime.parse(scheduleVO.getBgngDt(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            LocalDateTime endDt = LocalDateTime.parse(scheduleVO.getEndDt(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            if (!endDt.isAfter(bgngDt)) {
+                return "종료일시는 시작일시보다 이후여야 합니다.";
+            }
+        } catch (Exception e) {
+            return "시작일시 또는 종료일시 형식이 올바르지 않습니다.";
+        }
+        return null;
+    }
+
+    /**
+     * HTML datetime-local 값의 T 구분자를 DB 저장 가능한 공백 구분자로 보정한다.
+     * @param scheduleVO 시작/종료일시 값을 포함한 VO
+     */
+    private void normalizeDateTime(ScheduleVO scheduleVO) {
+        if (scheduleVO.getBgngDt() != null) {
+            scheduleVO.setBgngDt(scheduleVO.getBgngDt().replace("T", " "));
+        }
+        if (scheduleVO.getEndDt() != null) {
+            scheduleVO.setEndDt(scheduleVO.getEndDt().replace("T", " "));
+        }
+    }
+}

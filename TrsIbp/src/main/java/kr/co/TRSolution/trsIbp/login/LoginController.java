@@ -99,7 +99,7 @@ public class LoginController {
 			// 2. 사용자 미존재
 			if (loginUser == null) {
 				logger.debug("▶ 사용자 미존재: {}", userVO.getUserId());
-				redirectAttributes.addFlashAttribute("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+				redirectAttributes.addFlashAttribute("errorMsg", "해당 회원정보가 없습니다.");
 				redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
 				return new ModelAndView("redirect:/login/login.do");
 			}
@@ -107,7 +107,7 @@ public class LoginController {
 			// 3. 사용 정지 계정 확인
 			if (!"Y".equals(loginUser.getUseYn())) {
 				logger.debug("▶ 사용 정지 계정: {}", userVO.getUserId());
-				redirectAttributes.addFlashAttribute("errorMsg", "사용이 정지된 계정입니다. 관리자에게 문의하세요.");
+				redirectAttributes.addFlashAttribute("errorMsg", "잠금 처리된 계정입니다. 관리자에게 문의하세요.");
 				redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
 				return new ModelAndView("redirect:/login/login.do");
 			}
@@ -130,7 +130,7 @@ public class LoginController {
 
 		} catch (IndexOutOfBoundsException | NullPointerException e) {
 			logger.debug("▶ 사용자 조회 실패 (없는 ID): {}", userVO.getUserId());
-			redirectAttributes.addFlashAttribute("errorMsg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+			redirectAttributes.addFlashAttribute("errorMsg", "해당 회원정보가 없습니다.");
 			redirectAttributes.addFlashAttribute("loginUserId", userVO.getUserId());
 			return new ModelAndView("redirect:/login/login.do");
 		} catch (Exception e) {

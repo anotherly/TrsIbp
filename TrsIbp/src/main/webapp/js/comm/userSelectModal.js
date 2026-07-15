@@ -10,6 +10,7 @@
     var userSelectDeptId = '';
     var userSelectDeptList = [];
     var userDeptExpandedMap = {};
+    var userMultiSelectedMap = {};
 
     /**
      * null/undefined 값을 기본 문자열로 치환한다.
@@ -75,7 +76,14 @@
         userSelectTarget = target || '';
         userSelectDeptId = '';
         userDeptExpandedMap = {};
+        userMultiSelectedMap = {};
         $('#userSelectKeyword').val('');
+        if (userSelectTarget === 'scheduleMulti') {
+            $('#userSelectMultiFooter').removeClass('hidden');
+        } else {
+            $('#userSelectMultiFooter').addClass('hidden');
+        }
+        updateUserSelectMultiSummary();
         $('#userSelectModal').removeClass('hidden').attr('aria-hidden', 'false');
         window.loadUserSelectList();
         setTimeout(function() { $('#userSelectKeyword').focus(); }, 50);
@@ -212,6 +220,7 @@
             return;
         }
         var html = '';
+        $('#userSelectUserList').data('lastUserList', userList);
         $.each(userList, function(index, user) {
             html += '<button type="button" class="ds-user-row" onclick="applySelectedUserFromEncoded(\'' + usmEncodeRowData(user) + '\');">'
                 + '<span><strong>' + usmEscapeHtml(usmNvl(user.userNm, '-')) + '</strong>'
@@ -237,6 +246,19 @@
      * @returns {void}
      */
     window.applySelectedUser = function(user) {
+        if (userSelectTarget === 'scheduleMulti') {
+            var userId = usmNvl(user.userId, '');
+            if (userId) {
+                if (userMultiSelectedMap[userId]) {
+                    delete userMultiSelectedMap[userId];
+                } else {
+                    userMultiSelectedMap[userId] = user;
+                }
+                updateUserSelectMultiSummary();
+                renderUserSelectUserList($('#userSelectUserList').data('lastUserList') || []);
+            }
+            return;
+        }
         if (userSelectTarget === 'mnpw') {
             $('#frmUserId').val(usmNvl(user.userId, ''));
             $('#frmUserDispNm').val(usmNvl(user.userNm, ''));
@@ -247,6 +269,26 @@
         } else if (userSelectTarget === 'schdl') {
             $('#frmPicId').val(usmNvl(user.userId, ''));
             $('#frmPicDispNm').val(usmNvl(user.userNm, ''));
+        }
+        window.closeUserSelectModal();
+    };
+
+    /**
+     * 다중 사용자 선택 상태 요약을 갱신한다.
+     * @returns {void}
+     */
+    function updateUserSelectMultiSummary() {
+        var count = Object.keys(userMultiSelectedMap).length;
+        $('#userSelectMultiSummary').text('선택된 사용자 ' + count + '명');
+    }
+
+    /**
+     * 다중 선택된 사용자를 호출 화면에 반영한다.
+     * @returns {void}
+     */
+    window.applyMultiSelectedUsers = function() {
+        if (typeof window.setScheduleSelectedUsers === 'function') {
+            window.setScheduleSelectedUsers(Object.keys(userMultiSelectedMap).map(function(key) { return userMultiSelectedMap[key]; }));
         }
         window.closeUserSelectModal();
     };

@@ -12,6 +12,7 @@
     boolean isMnpw = uri.equals("/biz/mnpwList.do");
     boolean isSchdl = uri.equals("/biz/schdlList.do");
     boolean isEmpMgmt = uri.equals("/user/empList.do") || uri.equals("/user/empInsert.do") || uri.equals("/user/empDetail.do") || uri.equals("/user/empUpdate.do");
+    boolean isSchedule = uri.equals("/schedule/scheduleList.do");
     boolean isProject = isBizList || isContract || isAccount || isMnpw || isSchdl;
 %>
 <aside class="w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
@@ -65,12 +66,12 @@
             </div>
 
             <div>
-                <button type="button" onclick="toggleSubmenu('sub-schedule')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
-                    <span class="flex items-center gap-3"><i class="fa-solid fa-calendar-check text-gray-400 group-hover:text-cyan-400 w-5"></i><span class="font-medium text-sm">일정/공유</span></span>
-                    <i id="arrow-sub-schedule" class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                <button type="button" onclick="toggleSubmenu('sub-schedule')" class="w-full flex items-center justify-between p-3 <%= isSchedule ? "text-white bg-brand-card" : "text-gray-300 hover:text-white hover:bg-brand-card" %> rounded-lg transition duration-200 group">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-calendar-check <%= isSchedule ? "text-cyan-400" : "text-gray-400 group-hover:text-cyan-400" %> w-5"></i><span class="font-medium text-sm">일정/공유</span></span>
+                    <i id="arrow-sub-schedule" class="fa-solid <%= isSchedule ? "fa-chevron-up text-cyan-400" : "fa-chevron-down text-gray-500" %> text-xs transition-transform"></i>
                 </button>
-                <div id="sub-schedule" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="#" class="ds-sidebar-link">종합 일정 캘린더</a>
+                <div id="sub-schedule" class="<%= isSchedule ? "" : "hidden" %> pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                    <a href="<%=request.getContextPath()%>/schedule/scheduleList.do" data-menu-path="/schedule/scheduleList.do" class="ds-sidebar-link <%= isSchedule ? "is-active" : "" %>">종합 일정 캘린더</a>
                     <a href="#" class="ds-sidebar-link">회의실/자원 예약</a>
                     <a href="#" class="ds-sidebar-link">공용 테스트폰 대여</a>
                 </div>
