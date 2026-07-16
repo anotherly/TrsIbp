@@ -30,6 +30,21 @@
     }
 
     /**
+     * 분리된 시·분 선택값을 입력 요소의 날짜·시간 값에 즉시 반영한다.
+     * @param {jQuery} $input DateTimePicker 대상 입력 요소
+     * @param {jQuery} $selector 시·분 선택 영역
+     * @returns {void}
+     */
+    function applySplitTime($input, $selector) {
+        var datePart = String($input.val() || '').substring(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+            return;
+        }
+        $input.val(datePart + ' ' + $selector.find('.ds-time-hour').val() + ':' + $selector.find('.ds-time-minute').val());
+        $input.trigger('change');
+    }
+
+    /**
      * 날짜·시간 선택창에 시와 분을 분리한 선택 영역을 구성한다.
      * @param {jQuery} $input DateTimePicker 대상 입력 요소
      * @returns {void}
@@ -55,7 +70,6 @@
                 + '<label><span>시</span><select class="ds-time-hour" aria-label="시 선택">' + hourOptions + '</select></label>'
                 + '<i>:</i>'
                 + '<label><span>분</span><select class="ds-time-minute" aria-label="분 선택">' + minuteOptions + '</select></label>'
-                + '<button type="button" class="ds-time-apply">적용</button>'
                 + '</div>');
             $picker.append($selector);
         }
@@ -63,18 +77,20 @@
         var time = extractTime($input.val());
         $selector.find('.ds-time-hour').val(time.hour);
         $selector.find('.ds-time-minute').val(time.minute);
-        $selector.off('.dsSplitTime').on('click.dsSplitTime mousedown.dsSplitTime', function(event) {
+        $selector.off('.dsSplitTime').on('mousedown.dsSplitTime focusin.dsSplitTime', function(event) {
+            $picker.data('dsSplitTimeInteracting', true);
             event.stopPropagation();
         });
-        $selector.find('.ds-time-apply').off('click.dsSplitTime').on('click.dsSplitTime', function() {
-            var datePart = String($input.val() || '').substring(0, 10);
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
-                alert('날짜를 먼저 선택해 주세요.');
-                return;
-            }
-            $input.val(datePart + ' ' + $selector.find('.ds-time-hour').val() + ':' + $selector.find('.ds-time-minute').val());
-            $input.trigger('change');
-            $input.datetimepicker('hide');
+        $selector.on('click.dsSplitTime', function(event) {
+            event.stopPropagation();
+        });
+        $selector.on('focusout.dsSplitTime', function() {
+            window.setTimeout(function() {
+                $picker.data('dsSplitTimeInteracting', false);
+            }, 150);
+        });
+        $selector.find('select').off('change.dsSplitTime').on('change.dsSplitTime', function() {
+            applySplitTime($input, $selector);
         });
     }
 
@@ -108,13 +124,14 @@
         var originalOnShow = customPickerOptions.onShow;
         var originalOnGenerate = customPickerOptions.onGenerate;
         var originalOnSelectDate = customPickerOptions.onSelectDate;
+        var originalOnClose = customPickerOptions.onClose;
         var pickerOptions = $.extend({}, {
             format: dateTime ? 'Y-m-d H:i' : 'Y-m-d',
             formatDate: 'Y-m-d',
             formatTime: 'H:i',
             datepicker: true,
             timepicker: dateTime,
-            closeOnDateSelect: !dateTime,
+            closeOnDateSelect: true,
             closeOnTimeSelect: false,
             closeOnWithoutClick: true,
             dayOfWeekStart: 0,
@@ -155,10 +172,22 @@
                 },
                 onSelectDate: function(currentTime, selectedInput, event) {
                     if (dateTime) {
-                        renderSplitTimeSelector(selectedInput);
+                        var $picker = selectedInput.data('xdsoft_datetimepicker');
+                        var $selector = $picker.children('.ds-split-time-selector');
+                        $picker.data('dsSplitTimeInteracting', false);
+                        applySplitTime(selectedInput, $selector);
                     }
                     if (typeof originalOnSelectDate === 'function') {
                         originalOnSelectDate.call(this, currentTime, selectedInput, event);
+                    }
+                },
+                onClose: function(currentTime, selectedInput, event) {
+                    var $picker = selectedInput.data('xdsoft_datetimepicker');
+                    if (dateTime && $picker && $picker.data('dsSplitTimeInteracting')) {
+                        return false;
+                    }
+                    if (typeof originalOnClose === 'function') {
+                        return originalOnClose.call(this, currentTime, selectedInput, event);
                     }
                 }
             });
