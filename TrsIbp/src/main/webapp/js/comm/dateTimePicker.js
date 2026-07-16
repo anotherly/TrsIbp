@@ -67,9 +67,9 @@
             }
             $selector = $('<div class="ds-split-time-selector">'
                 + '<strong>시간 선택</strong>'
-                + '<label><span>시</span><select class="ds-time-hour" aria-label="시 선택">' + hourOptions + '</select></label>'
+                + '<select class="ds-time-hour" aria-label="시 선택">' + hourOptions + '</select>'
                 + '<i>:</i>'
-                + '<label><span>분</span><select class="ds-time-minute" aria-label="분 선택">' + minuteOptions + '</select></label>'
+                + '<select class="ds-time-minute" aria-label="분 선택">' + minuteOptions + '</select>'
                 + '</div>');
             $picker.append($selector);
         }
