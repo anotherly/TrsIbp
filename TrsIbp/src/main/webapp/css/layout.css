@@ -1092,6 +1092,9 @@
 .ds-tab-group { display: inline-flex; gap: 6px; padding: 5px; border: 1px solid var(--ds-border); border-radius: 14px; background: rgba(15, 23, 42, .72); }
 .ds-tab { border: 0; border-radius: 10px; padding: 8px 14px; background: transparent; color: #94a3b8; font-size: 13px; font-weight: 800; cursor: pointer; }
 .ds-tab:hover, .ds-tab.is-active { background: #3b82f6; color: #fff; }
+.ds-schedule-toolbar { display: flex; align-items: flex-end; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.ds-project-filter { display: flex; flex-direction: column; gap: 6px; min-width: 280px; max-width: 420px; color: #94a3b8; font-size: 12px; font-weight: 800; text-align: left; }
+.ds-project-filter .ds-select { min-height: 42px; }
 .ds-calendar-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 24px; }
 .ds-calendar-box, .ds-schedule-list-box { border: 1px solid var(--ds-border); border-radius: 18px; background: rgba(8, 13, 24, .55); padding: 22px; min-width: 0; }
 .ds-calendar-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -1117,8 +1120,11 @@
 .ds-schedule-list-head h3 { color: #fff; font-size: 18px; font-weight: 900; }
 .ds-schedule-list { min-height: 360px; max-height: 430px; overflow-y: auto; padding-right: 6px; display: flex; flex-direction: column; gap: 12px; }
 .ds-schedule-card { border: 1px solid var(--ds-border); border-left-width: 5px; border-radius: 14px; padding: 16px; background: rgba(15,23,42,.72); display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+.ds-schedule-card-main { flex: 1 1 auto; min-width: 0; }
+.ds-schedule-card-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .ds-schedule-card strong { color: #fff; font-size: 15px; font-weight: 900; }
 .ds-schedule-card p { color: #a8b3c3; font-size: 12px; margin-top: 5px; }
+.ds-project-badge { display: inline-block; min-width: 0; max-width: 100%; border-radius: 999px; padding: 5px 9px; background: rgba(59,130,246,.18); color: #bfdbfe; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ds-schedule-leave { border-left-color: #10b981; }
 .ds-schedule-trip { border-left-color: #f97316; }
 .ds-schedule-project { border-left-color: #3b82f6; }
@@ -1133,7 +1139,8 @@
 .ds-modal-summary { color: #cbd5e1; font-size: 13px; font-weight: 800; margin: 10px auto; }
 .ds-user-row.is-selected { background: rgba(59, 130, 246, .34); border-color: #60a5fa; box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .35); }
 .ds-user-row.is-selected em { color: #bfdbfe; font-weight: 900; }
-@media (max-width: 1024px) { .ds-calendar-layout { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) { .ds-calendar-layout { grid-template-columns: 1fr; } .ds-schedule-section-head { align-items: flex-start; flex-direction: column; } .ds-schedule-toolbar { width: 100%; justify-content: space-between; } }
+@media (max-width: 640px) { .ds-project-filter { min-width: 100%; max-width: none; } .ds-schedule-toolbar .ds-tab-group { width: 100%; } .ds-schedule-toolbar .ds-tab { flex: 1 1 auto; padding-left: 8px; padding-right: 8px; } }
 
 /* =========================================================
    Common jQuery DateTimePicker theme

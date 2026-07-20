@@ -11,6 +11,8 @@
     var monthSummary = {};
     var scheduleCodes = [];
     var scheduleProjects = [];
+    var projectFilterValue = '';
+    var unassignedProjectFilterValue = '__UNASSIGNED__';
     var selectedUsers = {};
     var previousBgngTime = '09:00';
     var previousEndTime = '18:00';
@@ -64,6 +66,9 @@
         $('#frmCalSchdlSeCd').on('change', function() {
             applyScheduleProjectAvailability();
         });
+        $('#scheduleProjectFilter').on('change', function() {
+            changeScheduleProjectFilter($(this).val(), false);
+        });
         loadScheduleMeta(function() {
             loadScheduleList();
         });
@@ -98,7 +103,12 @@
      */
     window.initDashboardScheduleWidget = function() {
         viewType = 'all';
-        loadScheduleList(true);
+        $('#dashScheduleProjectFilter').on('change', function() {
+            changeScheduleProjectFilter($(this).val(), true);
+        });
+        loadScheduleMeta(function() {
+            loadScheduleList(true);
+        });
     };
 
     /**
@@ -134,17 +144,33 @@
     }
 
     /**
-     * 프로젝트 선택란에 로그인 회사의 사업 목록과 미할당 기본값을 표시한다.
+     * 일정 입력용 프로젝트 선택란과 일정 조회용 프로젝트 필터를 구성한다.
      * @returns {void}
      */
     function renderScheduleProjectOptions() {
-        var html = '<option value="">할당되지 않음</option>';
+        var inputHtml = '<option value="">할당되지 않음</option>';
+        var filterHtml = '<option value="">전체 프로젝트</option><option value="' + unassignedProjectFilterValue + '">프로젝트 미할당</option>';
         scheduleProjects.forEach(function(project) {
             var label = project.bizCd ? project.bizCd + ' · ' + nvl(project.bizNm) : nvl(project.bizNm);
-            html += '<option value="' + escapeHtml(project.bizId) + '">' + escapeHtml(label) + '</option>';
+            var option = '<option value="' + escapeHtml(project.bizId) + '">' + escapeHtml(label) + '</option>';
+            inputHtml += option;
+            filterHtml += option;
         });
-        $('#frmBizId').html(html);
+        $('#frmBizId').html(inputHtml);
+        $('#scheduleProjectFilter,#dashScheduleProjectFilter').html(filterHtml).val(projectFilterValue);
         applyScheduleProjectAvailability();
+    }
+
+    /**
+     * 프로젝트 필터값을 일정관리 또는 대시보드 조회에 적용한다.
+     * @param {string} value 사업ID 또는 프로젝트 미할당 구분값
+     * @param {boolean} isDashboard 대시보드 일정 위젯 여부
+     * @returns {void}
+     */
+    function changeScheduleProjectFilter(value, isDashboard) {
+        projectFilterValue = nvl(value, '');
+        $('#scheduleProjectFilter,#dashScheduleProjectFilter').val(projectFilterValue);
+        loadScheduleList(isDashboard);
     }
 
     /**
@@ -157,12 +183,23 @@
         $('#frmBizId').prop('disabled', isVacation);
     }
 
+    /**
+     * 현재 월·일자·일정 범위·프로젝트 조건으로 일정 목록을 조회한다.
+     * @param {boolean=} isDashboard 대시보드 일정 위젯 여부
+     * @returns {void}
+     */
     function loadScheduleList(isDashboard) {
+        var isUnassignedProject = projectFilterValue === unassignedProjectFilterValue;
         $.ajax({
             url: ctxPath + (isDashboard ? '/schedule/dashboardSchedule.ajax' : '/schedule/scheduleList.ajax'),
             type: 'GET',
             dataType: 'json',
-            data: { selectedYmd: ymd(selectedDate), viewType: viewType },
+            data: {
+                selectedYmd: ymd(selectedDate),
+                viewType: viewType,
+                searchBizId: isUnassignedProject ? '' : projectFilterValue,
+                searchUnassignedYn: isUnassignedProject ? 'Y' : 'N'
+            },
             success: function(res) {
                 monthSummary = buildMonthSummary(res.monthList || []);
                 if (isDashboard) {
@@ -219,7 +256,7 @@
         var html = '';
         list.forEach(function(row) {
             html += '<div class="ds-schedule-card ' + colorClass(row.colorType) + '">'
-                + '<div><strong>' + escapeHtml(row.schdlNm) + '</strong>'
+                + '<div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>' + escapeHtml(row.schdlNm) + '</strong>' + renderProjectBadge(row) + '</div>'
                 + '<p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p>'
                 + (row.placeNm ? '<p>' + escapeHtml(row.placeNm) + '</p>' : '')
                 + '</div><button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal(' + row.schdlSn + ');">수정</button></div>';
@@ -229,7 +266,7 @@
 
     /**
      * 일정 탭을 변경한다.
-     * @param {string} type 조회 탭 유형(all/my/project/team)
+     * @param {string} type 조회 탭 유형(all/my/team)
      * @returns {void}
      */
     window.changeScheduleView = function(type) {
@@ -488,8 +525,18 @@
     function renderDashboardDayList(list) {
         if (list.length === 0) { $('#dashScheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>'); return; }
         $('#dashScheduleDayList').html(list.map(function(row) {
-            return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div><strong>' + escapeHtml(row.schdlNm) + '</strong><p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
+            return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>' + escapeHtml(row.schdlNm) + '</strong>' + renderProjectBadge(row) + '</div><p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
         }).join(''));
+    }
+
+    /**
+     * 프로젝트가 연결된 일정에만 우측 목록용 프로젝트 배지를 생성한다.
+     * @param {Object} row 일정 목록 행
+     * @returns {string} 프로젝트 배지 HTML. 프로젝트 미할당이면 빈 문자열
+     */
+    function renderProjectBadge(row) {
+        if (!row.bizId || !row.bizNm) return '';
+        return '<span class="ds-project-badge" title="' + escapeHtml(row.bizNm) + '">' + escapeHtml(row.bizNm) + '</span>';
     }
 
     window.selectDashboardScheduleDate = function(dateYmd) { selectedDate = new Date(dateYmd); currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1); loadScheduleList(true); };

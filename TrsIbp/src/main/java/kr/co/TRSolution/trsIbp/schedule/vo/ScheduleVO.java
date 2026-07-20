@@ -29,6 +29,8 @@ public class ScheduleVO extends BaseVO {
     private String selectedYmd;
     private String monthStartYmd;
     private String monthEndYmd;
+    private String searchBizId;
+    private String searchUnassignedYn;
     private String viewType;
     private String colorType;
     private Integer targetCnt;
@@ -77,6 +79,10 @@ public class ScheduleVO extends BaseVO {
     public void setMonthStartYmd(String monthStartYmd) { this.monthStartYmd = monthStartYmd; }
     public String getMonthEndYmd() { return monthEndYmd; }
     public void setMonthEndYmd(String monthEndYmd) { this.monthEndYmd = monthEndYmd; }
+    public String getSearchBizId() { return searchBizId; }
+    public void setSearchBizId(String searchBizId) { this.searchBizId = searchBizId; }
+    public String getSearchUnassignedYn() { return searchUnassignedYn; }
+    public void setSearchUnassignedYn(String searchUnassignedYn) { this.searchUnassignedYn = searchUnassignedYn; }
     public String getViewType() { return viewType; }
     public void setViewType(String viewType) { this.viewType = viewType; }
     public String getColorType() { return colorType; }

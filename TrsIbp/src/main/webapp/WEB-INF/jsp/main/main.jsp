@@ -123,7 +123,7 @@
 
             <!-- ROW 2: SMART SCHEDULE WIDGET -->
             <section class="bg-brand-card rounded-2xl border border-brand-border shadow-xl overflow-hidden">
-                <div class="p-6 border-b border-brand-border bg-slate-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="p-6 border-b border-brand-border bg-slate-950/40 flex flex-col xl:flex-row xl:items-end justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-2.5 h-6 bg-brand-accent rounded-full"></div>
                         <div>
@@ -131,10 +131,13 @@
                             <p class="text-xs text-gray-400">휴가, 출장, 외근, 회의, 기타 일정을 종합 캘린더와 연동합니다.</p>
                         </div>
                     </div>
-                    <div class="flex p-1 bg-slate-900 border border-brand-border rounded-xl">
-                        <button type="button" data-view-type="all" onclick="changeDashboardScheduleView('all')" class="dash-schedule-tab ds-tab is-active">전체 일정</button>
-                        <button type="button" data-view-type="my" onclick="changeDashboardScheduleView('my')" class="dash-schedule-tab ds-tab">내 일정</button>
-                        <button type="button" data-view-type="team" onclick="changeDashboardScheduleView('team')" class="dash-schedule-tab ds-tab">팀 일정</button>
+                    <div class="ds-schedule-toolbar">
+                        <label class="ds-project-filter">프로젝트 필터<select id="dashScheduleProjectFilter" class="ds-select"><option value="">전체 프로젝트</option></select></label>
+                        <div class="ds-tab-group">
+                            <button type="button" data-view-type="all" onclick="changeDashboardScheduleView('all')" class="dash-schedule-tab ds-tab is-active">전체 일정</button>
+                            <button type="button" data-view-type="my" onclick="changeDashboardScheduleView('my')" class="dash-schedule-tab ds-tab">내 일정</button>
+                            <button type="button" data-view-type="team" onclick="changeDashboardScheduleView('team')" class="dash-schedule-tab ds-tab">팀 일정</button>
+                        </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-12">
