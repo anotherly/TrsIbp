@@ -15,8 +15,8 @@
     boolean isSchedule = uri.equals("/schedule/scheduleList.do");
     boolean isProject = isBizList || isContract || isAccount || isMnpw || isSchdl;
 %>
-<aside class="w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
-    <div>
+<aside class="ds-sidebar w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
+    <div class="ds-sidebar-scroll">
         <div class="p-6 border-b border-brand-border flex items-center justify-between">
             <a href="<%=request.getContextPath()%>/main/main.do" class="flex items-center gap-3">
                 <div class="bg-gradient-to-tr from-brand-accent to-cyan-400 p-2 rounded-lg text-white">
@@ -129,7 +129,7 @@
         </nav>
     </div>
 
-    <div class="p-4 border-t border-brand-border flex items-center justify-between text-xs text-gray-500">
+    <div class="ds-sidebar-footer p-4 border-t border-brand-border flex items-center justify-between text-xs text-gray-500">
         <span>Server: <span class="text-emerald-500 font-bold">Stable</span></span>
         <div class="flex items-center gap-2">
             <button type="button" class="hover:text-white" title="설정"><i class="fa-solid fa-gear text-sm"></i></button>
