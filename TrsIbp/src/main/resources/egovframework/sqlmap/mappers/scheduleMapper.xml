@@ -35,7 +35,7 @@
     <sql id="scheduleFilter">
         S.CO_ID = #{coId}
         AND S.USE_YN = 'Y'
-        <if test="searchUnassignedYn != null and searchUnassignedYn == 'Y'">
+        <if test='searchUnassignedYn != null and searchUnassignedYn == "Y"'>
             AND S.BIZ_ID IS NULL
         </if>
         <if test="searchBizId != null and searchBizId != ''">

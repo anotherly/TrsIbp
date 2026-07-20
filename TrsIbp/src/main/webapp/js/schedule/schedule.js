@@ -210,7 +210,13 @@
                 }
             },
             error: function() {
-                if (!isDashboard) alert('일정 목록을 조회하지 못했습니다.');
+                if (isDashboard) {
+                    monthSummary = {};
+                    renderDashboardCalendar([]);
+                    $('#dashScheduleDayList').html('<div class="ds-empty">일정 정보를 조회하지 못했습니다.</div>');
+                } else {
+                    alert('일정 목록을 조회하지 못했습니다.');
+                }
             }
         });
     }
