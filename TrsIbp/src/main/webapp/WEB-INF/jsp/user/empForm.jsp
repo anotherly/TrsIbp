@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-    String mode = request.getParameter("mode");
+    Object modeAttribute = request.getAttribute("mode");
+    String mode = modeAttribute == null ? request.getParameter("mode") : String.valueOf(modeAttribute);
     boolean insert = "insert".equals(mode);
     String updateToken = request.getParameter("updateToken");
     if (updateToken == null) {

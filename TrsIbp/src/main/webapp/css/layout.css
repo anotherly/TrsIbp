@@ -1099,7 +1099,7 @@
 .ds-chip-placeholder { color: #64748b; font-size: 13px; padding-left: 6px; }
 .ds-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(59,130,246,.20); color: #dbeafe; padding: 6px 9px; font-size: 12px; font-weight: 800; }
 .ds-chip button { border: 0; background: transparent; color: #bfdbfe; cursor: pointer; font-weight: 900; }
-.ds-modal-summary { color: #cbd5e1; font-size: 13px; font-weight: 800; margin-right: auto; }
+.ds-modal-summary { color: #cbd5e1; font-size: 13px; font-weight: 800; margin: 10px auto; }
 .ds-user-row.is-selected { background: rgba(59, 130, 246, .34); border-color: #60a5fa; box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .35); }
 .ds-user-row.is-selected em { color: #bfdbfe; font-weight: 900; }
 @media (max-width: 1024px) { .ds-calendar-layout { grid-template-columns: 1fr; } }
