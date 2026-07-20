@@ -5,6 +5,8 @@
     <resultMap id="scheduleMap" type="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">
         <id property="schdlSn" column="SCHDL_SN"/>
         <result property="coId" column="CO_ID"/>
+        <result property="bizId" column="BIZ_ID"/>
+        <result property="bizNm" column="BIZ_NM"/>
         <result property="schdlSeCd" column="SCHDL_SE_CD"/>
         <result property="schdlSeNm" column="SCHDL_SE_NM"/>
         <result property="schdlNm" column="SCHDL_NM"/>
@@ -75,6 +77,8 @@
     <select id="selectDayScheduleList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
         SELECT S.SCHDL_SN,
                S.CO_ID,
+               S.BIZ_ID,
+               B.BIZ_NM,
                S.SCHDL_SE_CD,
                C.CD_NM AS SCHDL_SE_NM,
                S.SCHDL_NM,
@@ -93,6 +97,7 @@
                    ELSE 'etc'
                END AS COLOR_TYPE
         FROM schdl_info S
+        LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID AND B.CO_ID = S.CO_ID
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD
         LEFT JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
         LEFT JOIN user_info U ON U.USER_ID = R.USER_ID
@@ -106,6 +111,8 @@
     <select id="selectSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
         SELECT S.SCHDL_SN,
                S.CO_ID,
+               S.BIZ_ID,
+               B.BIZ_NM,
                S.SCHDL_SE_CD,
                C.CD_NM AS SCHDL_SE_NM,
                S.SCHDL_NM,
@@ -117,6 +124,7 @@
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS
         FROM schdl_info S
+        LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID AND B.CO_ID = S.CO_ID
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD
         LEFT JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
         LEFT JOIN user_info U ON U.USER_ID = R.USER_ID
@@ -128,10 +136,10 @@
 
     <insert id="insertSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" useGeneratedKeys="true" keyProperty="schdlSn">
         INSERT INTO schdl_info (
-            CO_ID, SCHDL_SE_CD, SCHDL_NM, BGNG_DT, END_DT, ALL_DAY_YN,
+            CO_ID, BIZ_ID, SCHDL_SE_CD, SCHDL_NM, BGNG_DT, END_DT, ALL_DAY_YN,
             PLACE_NM, SCHDL_CN, USE_YN, REG_DT, RGTR_ID
         ) VALUES (
-            #{coId}, #{schdlSeCd}, #{schdlNm}, #{bgngDt}, #{endDt}, IFNULL(#{allDayYn}, 'N'),
+            #{coId}, #{bizId}, #{schdlSeCd}, #{schdlNm}, #{bgngDt}, #{endDt}, IFNULL(#{allDayYn}, 'N'),
             #{placeNm}, #{schdlCn}, 'Y', NOW(), #{rgtrId}
         )
     </insert>
@@ -139,6 +147,7 @@
     <update id="updateSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">
         UPDATE schdl_info
         SET SCHDL_SE_CD = #{schdlSeCd},
+            BIZ_ID = #{bizId},
             SCHDL_NM = #{schdlNm},
             BGNG_DT = #{bgngDt},
             END_DT = #{endDt},

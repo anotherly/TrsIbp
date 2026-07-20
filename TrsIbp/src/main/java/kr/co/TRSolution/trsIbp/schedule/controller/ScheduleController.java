@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import kr.co.TRSolution.trsIbp.biz.service.BizService;
+import kr.co.TRSolution.trsIbp.biz.vo.BizVO;
 import kr.co.TRSolution.trsIbp.schedule.service.ScheduleService;
 import kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
@@ -26,6 +29,9 @@ public class ScheduleController {
 
     @Resource(name = "scheduleService")
     private ScheduleService scheduleService;
+
+    @Resource(name = "bizService")
+    private BizService bizService;
 
     /**
      * 종합 일정 캘린더 화면으로 이동한다.
@@ -40,7 +46,7 @@ public class ScheduleController {
      * 일정 화면 초기 구분코드 목록을 조회한다.
      * @param scheduleVO 조회조건 VO
      * @param request 로그인 사용자 세션 확인용 요청 객체
-     * @return jsonView: result, codeList
+     * @return jsonView: result, codeList, bizList
      * @throws Exception 조회 중 예외 발생 시 전달
      */
     @RequestMapping(value = "/schedule/scheduleMeta.ajax")
@@ -49,6 +55,7 @@ public class ScheduleController {
         applyLoginUser(scheduleVO, request, false);
         mav.addObject("result", "OK");
         mav.addObject("codeList", scheduleService.selectScheduleCodeList(scheduleVO));
+        mav.addObject("bizList", selectScheduleProjectList(scheduleVO.getCoId()));
         return mav;
     }
 
@@ -113,6 +120,12 @@ public class ScheduleController {
         applyLoginUser(scheduleVO, request, true);
         normalizeDateTime(scheduleVO);
         String validateMsg = validateScheduleForSave(scheduleVO);
+        if (validateMsg != null) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("message", validateMsg);
+            return mav;
+        }
+        validateMsg = validateAndNormalizeProject(scheduleVO);
         if (validateMsg != null) {
             mav.addObject("result", "FAIL");
             mav.addObject("message", validateMsg);
@@ -209,6 +222,55 @@ public class ScheduleController {
             return "시작일시 또는 종료일시 형식이 올바르지 않습니다.";
         }
         return null;
+    }
+
+    /**
+     * 일정의 연관 프로젝트를 정규화하고 현재 회사 소속 프로젝트인지 검증한다.
+     * 휴가 일정은 프로젝트와 연결하지 않으며, 미할당 값은 null로 저장한다.
+     * @param scheduleVO 일정구분, 사업ID, 회사ID가 설정된 일정 VO
+     * @return 오류 메시지. 정상인 경우 null
+     * @throws Exception 사업 상세 조회 중 예외 발생 시 전달
+     */
+    private String validateAndNormalizeProject(ScheduleVO scheduleVO) throws Exception {
+        if ("VAC".equals(scheduleVO.getSchdlSeCd())) {
+            scheduleVO.setBizId(null);
+            return null;
+        }
+        String bizId = scheduleVO.getBizId();
+        if (bizId == null || bizId.trim().isEmpty()) {
+            scheduleVO.setBizId(null);
+            return null;
+        }
+        bizId = bizId.trim();
+        BizVO bizVO = new BizVO();
+        bizVO.setCoId(scheduleVO.getCoId());
+        bizVO.setBizId(bizId);
+        if (bizService.selectBizDetail(bizVO) == null) {
+            return "선택한 프로젝트가 없거나 현재 회사에 속하지 않습니다.";
+        }
+        scheduleVO.setBizId(bizId);
+        return null;
+    }
+
+    /**
+     * 기존 사업 목록 조회 기능을 이용해 일정 프로젝트 선택에 필요한 최소 정보만 반환한다.
+     * @param coId 로그인 사용자의 회사ID
+     * @return 사업ID, 사업코드, 사업명만 포함한 프로젝트 목록
+     * @throws Exception 사업 목록 조회 중 예외 발생 시 전달
+     */
+    private List<BizVO> selectScheduleProjectList(String coId) throws Exception {
+        BizVO searchVO = new BizVO();
+        searchVO.setCoId(coId);
+        searchVO.setRecordCountPerPage(0);
+        List<BizVO> projectList = new ArrayList<BizVO>();
+        for (BizVO bizVO : bizService.selectBizList(searchVO)) {
+            BizVO projectVO = new BizVO();
+            projectVO.setBizId(bizVO.getBizId());
+            projectVO.setBizCd(bizVO.getBizCd());
+            projectVO.setBizNm(bizVO.getBizNm());
+            projectList.add(projectVO);
+        }
+        return projectList;
     }
 
     /**

@@ -10,6 +10,7 @@
     var viewType = 'all';
     var monthSummary = {};
     var scheduleCodes = [];
+    var scheduleProjects = [];
     var selectedUsers = {};
     var previousBgngTime = '09:00';
     var previousEndTime = '18:00';
@@ -25,7 +26,17 @@
      * @returns {string} DateTimePicker 표시값(yyyy-MM-dd HH:mm)
      */
     function toPickerDateTime(v) { return nvl(v, '').replace('T', ' ').substring(0, 16); }
-    function toDisplayTime(v, allDayYn) { return allDayYn === 'Y' ? 'All Day' : nvl(v, '').substring(11, 16); }
+    /**
+     * 일정의 종일 여부 또는 시작·종료 시각을 우측 일정 목록 표시문구로 변환한다.
+     * @param {string} bgngDt 시작일시
+     * @param {string} endDt 종료일시
+     * @param {string} allDayYn 종일 여부(Y/N)
+     * @returns {string} 종일 또는 HH:mm ~ HH:mm 형식의 표시문구
+     */
+    function toDisplayTime(bgngDt, endDt, allDayYn) {
+        if (allDayYn === 'Y') return '종일';
+        return nvl(bgngDt, '').substring(11, 16) + ' ~ ' + nvl(endDt, '').substring(11, 16);
+    }
     function colorClass(colorType) { return 'ds-schedule-' + (colorType || 'etc'); }
     /**
      * date/datetime-local 입력값을 비교 가능한 Date 객체로 변환한다.
@@ -49,6 +60,9 @@
         initializeScheduleDateTimePicker();
         $('#frmAllDayYn').on('change', function() {
             applyAllDayInputMode($(this).val() === 'Y');
+        });
+        $('#frmCalSchdlSeCd').on('change', function() {
+            applyScheduleProjectAvailability();
         });
         loadScheduleMeta(function() {
             loadScheduleList();
@@ -87,6 +101,11 @@
         loadScheduleList(true);
     };
 
+    /**
+     * 일정구분 공통코드와 로그인 회사의 프로젝트 목록을 조회한다.
+     * @param {Function=} callback 조회 완료 후 실행할 함수
+     * @returns {void}
+     */
     function loadScheduleMeta(callback) {
         $.ajax({
             url: ctxPath + '/schedule/scheduleMeta.ajax',
@@ -94,11 +113,13 @@
             dataType: 'json',
             success: function(res) {
                 scheduleCodes = res.codeList || [];
+                scheduleProjects = res.bizList || [];
                 renderScheduleCodeOptions();
+                renderScheduleProjectOptions();
                 if (typeof callback === 'function') callback();
             },
             error: function() {
-                alert('일정 구분 정보를 조회하지 못했습니다.');
+                alert('일정 구분 및 프로젝트 정보를 조회하지 못했습니다.');
             }
         });
     }
@@ -110,6 +131,30 @@
             html += '<option value="' + escapeHtml(code.schdlSeCd) + '">' + escapeHtml(code.schdlSeNm) + '</option>';
         });
         $('#frmCalSchdlSeCd').html(html);
+    }
+
+    /**
+     * 프로젝트 선택란에 로그인 회사의 사업 목록과 미할당 기본값을 표시한다.
+     * @returns {void}
+     */
+    function renderScheduleProjectOptions() {
+        var html = '<option value="">할당되지 않음</option>';
+        scheduleProjects.forEach(function(project) {
+            var label = project.bizCd ? project.bizCd + ' · ' + nvl(project.bizNm) : nvl(project.bizNm);
+            html += '<option value="' + escapeHtml(project.bizId) + '">' + escapeHtml(label) + '</option>';
+        });
+        $('#frmBizId').html(html);
+        applyScheduleProjectAvailability();
+    }
+
+    /**
+     * 휴가 일정이면 프로젝트를 미할당으로 고정하고, 그 외 일정이면 선택 가능하게 한다.
+     * @returns {void}
+     */
+    function applyScheduleProjectAvailability() {
+        var isVacation = $('#frmCalSchdlSeCd').val() === 'VAC';
+        if (isVacation) $('#frmBizId').val('');
+        $('#frmBizId').prop('disabled', isVacation);
     }
 
     function loadScheduleList(isDashboard) {
@@ -161,6 +206,11 @@
         $('#scheduleCalendarGrid').html(html);
     }
 
+    /**
+     * 선택일자의 일정을 우측 목록에 렌더링한다.
+     * @param {Array} list 선택일자 일정 목록
+     * @returns {void}
+     */
     function renderDayList(list) {
         if (list.length === 0) {
             $('#scheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>');
@@ -170,7 +220,7 @@
         list.forEach(function(row) {
             html += '<div class="ds-schedule-card ' + colorClass(row.colorType) + '">'
                 + '<div><strong>' + escapeHtml(row.schdlNm) + '</strong>'
-                + '<p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p>'
+                + '<p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p>'
                 + (row.placeNm ? '<p>' + escapeHtml(row.placeNm) + '</p>' : '')
                 + '</div><button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal(' + row.schdlSn + ');">수정</button></div>';
         });
@@ -256,6 +306,8 @@
     function clearScheduleForm() {
         $('#frmSchdlSn,#frmCalSchdlNm,#frmPlaceNm,#frmCalSchdlCn,#frmTargetUserIds').val('');
         $('#frmCalSchdlSeCd').val('');
+        $('#frmBizId').val('');
+        applyScheduleProjectAvailability();
         $('#frmAllDayYn').val('N');
         previousBgngTime = '09:00';
         previousEndTime = '18:00';
@@ -272,6 +324,8 @@
     function bindScheduleForm(row) {
         $('#frmSchdlSn').val(nvl(row.schdlSn));
         $('#frmCalSchdlSeCd').val(nvl(row.schdlSeCd));
+        $('#frmBizId').val(nvl(row.bizId));
+        applyScheduleProjectAvailability();
         $('#frmCalSchdlNm').val(nvl(row.schdlNm));
         $('#frmBgngDt').val(toPickerDateTime(row.bgngDt));
         $('#frmEndDt').val(toPickerDateTime(row.endDt));
@@ -357,6 +411,10 @@
 
     window.removeScheduleTarget = function(userId) { delete selectedUsers[userId]; renderScheduleTargetChips(); };
 
+    /**
+     * 일정 입력값을 검증하고 선택한 프로젝트 및 대상자와 함께 저장한다.
+     * @returns {void}
+     */
     window.saveSchedule = function() {
         if (!$('#frmCalSchdlSeCd').val()) { alert('일정구분을 선택하세요.'); return; }
         if (!$('#frmCalSchdlNm').val()) { alert('일정명을 입력하세요.'); return; }
@@ -374,6 +432,7 @@
             data: {
                 schdlSn: $('#frmSchdlSn').val(),
                 schdlSeCd: $('#frmCalSchdlSeCd').val(),
+                bizId: $('#frmBizId').prop('disabled') ? '' : $('#frmBizId').val(),
                 schdlNm: $('#frmCalSchdlNm').val(),
                 targetUserIds: $('#frmTargetUserIds').val(),
                 bgngDt: $('#frmBgngDt').val(),
@@ -421,10 +480,15 @@
         $(selector).html(html);
     }
 
+    /**
+     * 메인 대시보드의 선택일자 일정 목록을 렌더링한다.
+     * @param {Array} list 선택일자 일정 목록
+     * @returns {void}
+     */
     function renderDashboardDayList(list) {
         if (list.length === 0) { $('#dashScheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>'); return; }
         $('#dashScheduleDayList').html(list.map(function(row) {
-            return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div><strong>' + escapeHtml(row.schdlNm) + '</strong><p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
+            return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div><strong>' + escapeHtml(row.schdlNm) + '</strong><p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
         }).join(''));
     }
 

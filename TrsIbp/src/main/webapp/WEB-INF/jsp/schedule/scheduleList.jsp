@@ -31,7 +31,7 @@
                 <div class="ds-tab-group">
                     <button type="button" class="ds-tab is-active" data-view-type="all" onclick="changeScheduleView('all');">전체 일정</button>
                     <button type="button" class="ds-tab" data-view-type="my" onclick="changeScheduleView('my');">내 일정</button>
-                    <button type="button" class="ds-tab" data-view-type="team" onclick="changeScheduleView('team');">팀 휴가/출장</button>
+                    <button type="button" class="ds-tab" data-view-type="team" onclick="changeScheduleView('team');">팀 일정</button>
                 </div>
             </div>
             <div class="ds-calendar-layout">
@@ -70,8 +70,9 @@
         <input type="hidden" id="frmSchdlSn">
         <input type="hidden" id="frmTargetUserIds">
         <div class="ds-form-grid ds-form-12">
-            <div class="ds-field ds-col-6"><label class="required">일정구분</label><select id="frmCalSchdlSeCd" class="ds-select"></select></div>
-            <div class="ds-field ds-col-6"><label class="required">일정명</label><input type="text" id="frmCalSchdlNm" class="ds-input" maxlength="100"></div>
+            <div class="ds-field ds-col-4"><label class="required">일정구분</label><select id="frmCalSchdlSeCd" class="ds-select"></select></div>
+            <div class="ds-field ds-col-4"><label>프로젝트 명</label><select id="frmBizId" class="ds-select"><option value="">할당되지 않음</option></select></div>
+            <div class="ds-field ds-col-4"><label class="required">일정명</label><input type="text" id="frmCalSchdlNm" class="ds-input" maxlength="100"></div>
             <div class="ds-field ds-col-12"><label class="required">대상자</label><div class="ds-input-action-row"><div id="scheduleTargetChips" class="ds-chip-box"></div><button type="button" class="ds-btn ds-btn-outline" onclick="openUserSelectModal('scheduleMulti');">대상자 선택</button></div></div>
             <div class="ds-field ds-col-4"><label>종일여부</label><select id="frmAllDayYn" class="ds-select"><option value="N">시간 지정</option><option value="Y">종일</option></select></div>
             <div class="ds-field ds-col-4"><label class="required">시작일시</label><input type="text" id="frmBgngDt" class="ds-input ds-datetime-picker" readonly autocomplete="off"></div>

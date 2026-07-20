@@ -134,7 +134,7 @@
                     <div class="flex p-1 bg-slate-900 border border-brand-border rounded-xl">
                         <button type="button" data-view-type="all" onclick="changeDashboardScheduleView('all')" class="dash-schedule-tab ds-tab is-active">전체 일정</button>
                         <button type="button" data-view-type="my" onclick="changeDashboardScheduleView('my')" class="dash-schedule-tab ds-tab">내 일정</button>
-                        <button type="button" data-view-type="team" onclick="changeDashboardScheduleView('team')" class="dash-schedule-tab ds-tab">팀 휴가/출장</button>
+                        <button type="button" data-view-type="team" onclick="changeDashboardScheduleView('team')" class="dash-schedule-tab ds-tab">팀 일정</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-12">

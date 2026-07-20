@@ -9,6 +9,8 @@ import kr.co.TRSolution.trsIbp.comm.BaseVO;
 public class ScheduleVO extends BaseVO {
     private Long schdlSn;
     private String coId;
+    private String bizId;
+    private String bizNm;
     private String schdlSeCd;
     private String schdlSeNm;
     private String schdlNm;
@@ -35,6 +37,10 @@ public class ScheduleVO extends BaseVO {
     public void setSchdlSn(Long schdlSn) { this.schdlSn = schdlSn; }
     public String getCoId() { return coId; }
     public void setCoId(String coId) { this.coId = coId; }
+    public String getBizId() { return bizId; }
+    public void setBizId(String bizId) { this.bizId = bizId; }
+    public String getBizNm() { return bizNm; }
+    public void setBizNm(String bizNm) { this.bizNm = bizNm; }
     public String getSchdlSeCd() { return schdlSeCd; }
     public void setSchdlSeCd(String schdlSeCd) { this.schdlSeCd = schdlSeCd; }
     public String getSchdlSeNm() { return schdlSeNm; }
