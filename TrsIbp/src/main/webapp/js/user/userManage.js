@@ -2,6 +2,20 @@ var empTable = null;
 var empIdCheckedValue = '';
 
 /**
+ * 사용자ID 중복확인 결과 문구와 상태 색상을 갱신한다.
+ * @param {string} message 표시할 결과 문구
+ * @param {string} state success, error 또는 빈 문자열
+ * @returns {void}
+ */
+function setEmpIdCheckMessage(message, state) {
+    var $message = $('#empIdCheckMessage');
+    $message.text(message || '').removeClass('is-success is-error');
+    if (state === 'success' || state === 'error') {
+        $message.addClass('is-' + state);
+    }
+}
+
+/**
  * 사용자 목록 화면을 초기화한다.
  * @returns {void}
  */
@@ -21,7 +35,7 @@ function initEmpFormPage(mode, userId) {
     if (mode === 'insert') {
         $('#frmUserId').on('input', function () {
             empIdCheckedValue = '';
-            $('#empIdCheckMessage').text('');
+            setEmpIdCheckMessage('', '');
         });
     }
     loadEmpMeta(function () {
@@ -39,7 +53,7 @@ function checkEmpUserId() {
     var userId = $.trim($('#frmUserId').val());
     if (!/^(?=.*[a-z])[a-z0-9]{6,20}$/.test(userId)) {
         empIdCheckedValue = '';
-        $('#empIdCheckMessage').text('');
+        setEmpIdCheckMessage('', '');
         alert('사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.');
         $('#frmUserId').focus();
         return;
@@ -52,21 +66,21 @@ function checkEmpUserId() {
         success: function (res) {
             if (res.result !== 'OK') {
                 empIdCheckedValue = '';
-                $('#empIdCheckMessage').text('');
+                setEmpIdCheckMessage('', '');
                 alert(res.msg || '사용자ID를 확인하지 못했습니다.');
                 return;
             }
             if (Number(res.cnt || 0) > 0) {
                 empIdCheckedValue = '';
-                $('#empIdCheckMessage').text('이미 사용 중인 사용자ID입니다.');
+                setEmpIdCheckMessage('이미 사용 중인 사용자ID입니다.', 'error');
                 return;
             }
             empIdCheckedValue = userId;
-            $('#empIdCheckMessage').text('사용할 수 있는 사용자ID입니다.');
+            setEmpIdCheckMessage('사용할 수 있는 사용자ID입니다.', 'success');
         },
         error: function () {
             empIdCheckedValue = '';
-            $('#empIdCheckMessage').text('');
+            setEmpIdCheckMessage('', '');
             alert('사용자ID 중복확인 중 오류가 발생했습니다.');
         }
     });

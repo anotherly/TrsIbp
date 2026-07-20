@@ -462,31 +462,43 @@ public class UserController {
         userVO.setCoId(reqLoginVo.getCoId());
 
         try {
+            logger.info("사용자 저장 요청: mode={}, requestedUserId={}, loginUserId={}, coId={}",
+                    userVO.getSaveMode(), userVO.getUserId(), reqLoginVo.getUserId(), userVO.getCoId());
             if (userVO.getUseYn() == null || "".equals(userVO.getUseYn())) {
                 userVO.setUseYn("Y");
             }
             if (userVO.getUserId() == null || "".equals(userVO.getUserId().trim())) {
+                logger.warn("사용자 저장 검증 실패: 사용자ID 미입력, mode={}, loginUserId={}, coId={}",
+                        userVO.getSaveMode(), reqLoginVo.getUserId(), userVO.getCoId());
                 mav.addObject("result", "FAIL");
                 mav.addObject("msg", "사용자ID를 입력해 주세요.");
                 return mav;
             }
             if ("insert".equals(userVO.getSaveMode()) && !isValidUserId(userVO.getUserId())) {
+                logger.warn("사용자 등록 검증 실패: 사용자ID 형식 오류, requestedUserId={}, loginUserId={}, coId={}",
+                        userVO.getUserId(), reqLoginVo.getUserId(), userVO.getCoId());
                 mav.addObject("result", "FAIL");
                 mav.addObject("msg", "사용자ID는 영문 소문자와 숫자 6~20자로 입력하고 영문 소문자를 포함해야 합니다.");
                 return mav;
             }
             if (userVO.getUserNm() == null || "".equals(userVO.getUserNm().trim())) {
+                logger.warn("사용자 저장 검증 실패: 사용자명 미입력, mode={}, requestedUserId={}, loginUserId={}, coId={}",
+                        userVO.getSaveMode(), userVO.getUserId(), reqLoginVo.getUserId(), userVO.getCoId());
                 mav.addObject("result", "FAIL");
                 mav.addObject("msg", "사용자명을 입력해 주세요.");
                 return mav;
             }
             if ("insert".equals(userVO.getSaveMode())) {
                 if (userVO.getUserEnpswd() == null || "".equals(userVO.getUserEnpswd().trim())) {
+                    logger.warn("사용자 등록 검증 실패: 초기 비밀번호 미입력, requestedUserId={}, loginUserId={}, coId={}",
+                            userVO.getUserId(), reqLoginVo.getUserId(), userVO.getCoId());
                     mav.addObject("result", "FAIL");
                     mav.addObject("msg", "초기 비밀번호를 입력해 주세요.");
                     return mav;
                 }
                 if (userService.selectUserIdCount(userVO) > 0) {
+                    logger.warn("사용자 등록 검증 실패: 사용자ID 중복, requestedUserId={}, loginUserId={}, coId={}",
+                            userVO.getUserId(), reqLoginVo.getUserId(), userVO.getCoId());
                     mav.addObject("result", "DUP");
                     mav.addObject("msg", "이미 사용 중인 사용자ID입니다.");
                     return mav;
@@ -496,10 +508,16 @@ public class UserController {
             } else {
                 String updateUserId = resolveEmpUpdateTarget(request, request.getParameter("updateToken"));
                 if (updateUserId == null || updateUserId.trim().isEmpty()) {
+                    logger.warn("사용자 수정 대상 확인 실패: requestedUserId={}, tokenPresent={}, loginUserId={}, coId={}",
+                            userVO.getUserId(), request.getParameter("updateToken") != null
+                                    && !request.getParameter("updateToken").trim().isEmpty(),
+                            reqLoginVo.getUserId(), userVO.getCoId());
                     mav.addObject("result", "FAIL");
                     mav.addObject("msg", "수정 대상 확인정보가 만료되었거나 올바르지 않습니다. 목록에서 다시 수정 화면으로 이동해 주세요.");
                     return mav;
                 }
+                logger.debug("사용자 수정 대상 확인 성공: requestedUserId={}, resolvedUserId={}, loginUserId={}, coId={}",
+                        userVO.getUserId(), updateUserId, reqLoginVo.getUserId(), userVO.getCoId());
                 userVO.setUserId(updateUserId);
                 if (userVO.getUserEnpswd() != null && !"".equals(userVO.getUserEnpswd().trim())) {
                     userVO.setUserEnpswd(BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt()));
@@ -507,6 +525,8 @@ public class UserController {
                 userService.updateUserManage(userVO);
             }
             mav.addObject("result", "OK");
+            logger.info("사용자 저장 완료: mode={}, userId={}, loginUserId={}, coId={}",
+                    userVO.getSaveMode(), userVO.getUserId(), reqLoginVo.getUserId(), userVO.getCoId());
         } catch (Exception e) {
             logger.error("사용자 저장 중 오류 발생 userId : " + userVO.getUserId(), e);
             mav.addObject("result", "FAIL");
