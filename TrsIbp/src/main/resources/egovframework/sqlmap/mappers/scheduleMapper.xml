@@ -202,8 +202,10 @@
           <if test="schdlSn != null">
           AND S.SCHDL_SN <![CDATA[<>]]> #{schdlSn}
           </if>
-          AND S.BGNG_DT <![CDATA[<]]> STR_TO_DATE(#{endDt}, '%Y-%m-%d %H:%i')
-          AND S.END_DT <![CDATA[>]]> STR_TO_DATE(#{bgngDt}, '%Y-%m-%d %H:%i')
+          /* 과거 데이터 중 시작일시와 종료일시가 역전된 일정은 충돌 판정에서 제외한다. */
+          AND S.BGNG_DT <![CDATA[<]]> S.END_DT
+          AND S.BGNG_DT <![CDATA[<]]> CAST(#{endDt} AS DATETIME)
+          AND S.END_DT <![CDATA[>]]> CAST(#{bgngDt} AS DATETIME)
     </select>
 
 </mapper>
