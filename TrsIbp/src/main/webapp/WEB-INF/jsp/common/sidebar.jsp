@@ -1,7 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
-    String uri = request.getRequestURI();
+    Object forwardRequestUri = request.getAttribute("javax.servlet.forward.request_uri");
+    String uri = forwardRequestUri == null ? request.getRequestURI() : String.valueOf(forwardRequestUri);
     String ctx = request.getContextPath();
     if (ctx != null && ctx.length() > 0 && uri.startsWith(ctx)) {
         uri = uri.substring(ctx.length());
@@ -13,7 +14,7 @@
     boolean isSchdl = uri.equals("/biz/schdlList.do");
     boolean isEmpMgmt = uri.equals("/user/empList.do") || uri.equals("/user/empInsert.do") || uri.equals("/user/empDetail.do") || uri.equals("/user/empUpdate.do");
     boolean isSchedule = uri.equals("/schedule/scheduleList.do");
-    boolean isProject = isBizList || isContract || isAccount || isMnpw || isSchdl;
+    boolean isProject = uri.startsWith("/biz/") && uri.endsWith(".do");
 %>
 <aside class="ds-sidebar w-64 bg-slate-950 border-r border-brand-border flex flex-col justify-between h-screen sticky top-0 z-30">
     <div class="ds-sidebar-scroll">
@@ -44,9 +45,9 @@
             <div>
                 <button type="button" onclick="toggleSubmenu('sub-work')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                     <span class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-gray-400 group-hover:text-cyan-400 w-5"></i><span class="font-medium text-sm">근무 관리</span></span>
-                    <i id="arrow-sub-work" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
+                    <i id="arrow-sub-work" class="fa-solid fa-chevron-down text-xs transition-transform text-gray-500"></i>
                 </button>
-                <div id="sub-work" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 transition-all duration-300">
+                <div id="sub-work" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400 transition-all duration-300">
                     <a href="#" class="ds-sidebar-link">출퇴근 및 타임카드</a>
                     <a href="#" class="ds-sidebar-link">유연근무 현황</a>
                     <a href="#" class="ds-sidebar-link">외근/파견/상주 신청</a>
@@ -56,9 +57,9 @@
             <div>
                 <button type="button" onclick="toggleSubmenu('sub-leave')" class="w-full flex items-center justify-between p-3 text-gray-300 hover:text-white hover:bg-brand-card rounded-lg transition duration-200 group">
                     <span class="flex items-center gap-3"><i class="fa-solid fa-umbrella text-gray-400 group-hover:text-cyan-400 w-5"></i><span class="font-medium text-sm">휴가 관리</span></span>
-                    <i id="arrow-sub-leave" class="fa-solid fa-chevron-up text-xs transition-transform text-cyan-400"></i>
+                    <i id="arrow-sub-leave" class="fa-solid fa-chevron-down text-xs transition-transform text-gray-500"></i>
                 </button>
-                <div id="sub-leave" class="pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                <div id="sub-leave" class="hidden pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
                     <a href="#" class="ds-sidebar-link">휴가 신청서 작성</a>
                     <a href="#" class="ds-sidebar-link">잔여 연차 현황</a>
                     <a href="#" class="ds-sidebar-link">대체/보상 휴가 적립</a>
