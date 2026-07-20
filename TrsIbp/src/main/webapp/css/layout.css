@@ -510,7 +510,6 @@
 
 .ds-table-wrap {
     width: 100%;
-    overflow-x: auto;
 }
 
 .ds-table-wrap .dataTables_wrapper {
