@@ -50,6 +50,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleMapper.selectScheduleConflictCount(scheduleVO);
     }
 
+    @Override
+    public List<ScheduleVO> selectScheduleConflictList(ScheduleVO scheduleVO) throws Exception {
+        return scheduleMapper.selectScheduleConflictList(scheduleVO);
+    }
+
     /**
      * 일정 기본정보와 대상자 관계를 저장한다.
      * @param scheduleVO 저장할 일정 기본정보와 콤마 구분 대상자ID 목록
@@ -58,11 +63,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void saveSchedule(ScheduleVO scheduleVO) throws Exception {
         String[] userIds = splitTargetUserIds(scheduleVO.getTargetUserIds());
+        java.util.ArrayList<ScheduleVO> conflictList = new java.util.ArrayList<ScheduleVO>();
         for (String userId : userIds) {
             scheduleVO.setTargetUserId(userId);
-            if (scheduleMapper.selectScheduleConflictCount(scheduleVO) > 0) {
-                throw new IllegalArgumentException("선택한 대상자 중 이미 같은 시간대에 등록된 일정이 있습니다. 대상자와 일정을 확인하세요.");
-            }
+            conflictList.addAll(scheduleMapper.selectScheduleConflictList(scheduleVO));
+        }
+        if (!conflictList.isEmpty()) {
+            throw new IllegalArgumentException(buildConflictMessage(conflictList));
         }
 
         if (scheduleVO.getSchdlSn() == null) {
@@ -94,6 +101,26 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
         }
         return userIdSet.toArray(new String[userIdSet.size()]);
+    }
+
+    /**
+     * 충돌 대상자, 기간, 일정구분과 일정명을 한 번에 확인할 수 있는 안내문을 만든다.
+     */
+    private String buildConflictMessage(List<ScheduleVO> conflictList) {
+        StringBuilder message = new StringBuilder("다음 일정과 시간이 겹쳐 저장할 수 없습니다.");
+        for (ScheduleVO conflict : conflictList) {
+            message.append("\n- ")
+                   .append(conflict.getTargetUserNm() == null ? conflict.getTargetUserId() : conflict.getTargetUserNm())
+                   .append(": ")
+                   .append(conflict.getBgngDt())
+                   .append(" ~ ")
+                   .append(conflict.getEndDt())
+                   .append(" [")
+                   .append(conflict.getSchdlSeNm() == null ? conflict.getSchdlSeCd() : conflict.getSchdlSeNm())
+                   .append("] ")
+                   .append(conflict.getSchdlNm());
+        }
+        return message.toString();
     }
 
     @Override

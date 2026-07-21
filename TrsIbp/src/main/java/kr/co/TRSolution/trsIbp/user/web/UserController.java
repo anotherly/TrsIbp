@@ -18,10 +18,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import kr.co.TRSolution.trsIbp.comm.file.service.CommonFileService;
+import kr.co.TRSolution.trsIbp.comm.file.vo.CommonFileVO;
+import kr.co.TRSolution.trsIbp.comm.file.web.CommonFileController;
 import kr.co.TRSolution.trsIbp.user.service.UserService;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 
@@ -49,6 +54,9 @@ public class UserController {
 	
 	@Resource(name="userService")
 	private UserService userService;
+
+    @Resource(name = "commonFileService")
+    private CommonFileService commonFileService;
 
 	public String url="";
 	public boolean isClose = false;
@@ -424,7 +432,21 @@ public class UserController {
         ModelAndView mav = new ModelAndView("jsonView");
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         userVO.setCoId(reqLoginVo.getCoId());
-        mav.addObject("user", userService.selectUserManage(userVO));
+        UserVO user = userService.selectUserManage(userVO);
+        mav.addObject("user", user);
+        if (user != null) {
+            CommonFileVO profileFile = commonFileService.selectUserProfileFile(reqLoginVo.getCoId(), user.getUserId());
+            mav.addObject("profileFile", CommonFileController.toClientFile(profileFile));
+            List<Map<String, Object>> clientFiles = new java.util.ArrayList<Map<String, Object>>();
+            if (canManageUserFile(reqLoginVo, user.getUserId())) {
+                List<CommonFileVO> documentFiles = commonFileService.selectUserDocumentFileList(
+                        reqLoginVo.getCoId(), user.getUserId());
+                for (CommonFileVO file : documentFiles) {
+                    clientFiles.add(CommonFileController.toClientFile(file));
+                }
+            }
+            mav.addObject("attachmentList", clientFiles);
+        }
         return mav;
     }
 
@@ -456,7 +478,10 @@ public class UserController {
      * @throws Exception 저장 중 예외 발생 시 전달
      */
     @RequestMapping(value="/user/empSave.ajax", method=RequestMethod.POST)
-    public ModelAndView saveEmp(@ModelAttribute("userVO") UserVO userVO, HttpServletRequest request) throws Exception {
+    public ModelAndView saveEmp(@ModelAttribute("userVO") UserVO userVO,
+            @RequestParam(value = "profileFile", required = false) MultipartFile profileFile,
+            @RequestParam(value = "userFiles", required = false) MultipartFile[] userFiles,
+            HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         userVO.setCoId(reqLoginVo.getCoId());
@@ -512,7 +537,7 @@ public class UserController {
                     return mav;
                 }
                 userVO.setUserEnpswd(BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt()));
-                userService.insertUserManage(userVO);
+                userService.insertUserManage(userVO, profileFile, userFiles, reqLoginVo.getUserId());
             } else {
                 String updateUserId = resolveEmpUpdateTarget(request, request.getParameter("updateToken"));
                 if (updateUserId == null || updateUserId.trim().isEmpty()) {
@@ -534,13 +559,17 @@ public class UserController {
                 if (userVO.getUserEnpswd() != null && !"".equals(userVO.getUserEnpswd().trim())) {
                     userVO.setUserEnpswd(BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt()));
                 }
-                userService.updateUserManage(userVO);
+                userService.updateUserManage(userVO, profileFile, userFiles, reqLoginVo.getUserId());
             }
             mav.addObject("result", "OK");
             logger.info("사용자 저장 완료: mode=" + userVO.getSaveMode()
                     + ", userId=" + userVO.getUserId()
                     + ", loginUserId=" + reqLoginVo.getUserId()
                     + ", coId=" + userVO.getCoId());
+        } catch (IllegalArgumentException e) {
+            logger.warn("사용자 저장 입력값 오류 userId=" + userVO.getUserId() + ", reason=" + e.getMessage());
+            mav.addObject("result", "FAIL");
+            mav.addObject("msg", e.getMessage());
         } catch (Exception e) {
             logger.error("사용자 저장 중 오류 발생 userId : " + userVO.getUserId(), e);
             mav.addObject("result", "FAIL");
@@ -596,6 +625,12 @@ public class UserController {
         synchronized (targets) {
             return targets.get(updateToken);
         }
+    }
+
+    private boolean canManageUserFile(UserVO loginUser, String targetUserId) {
+        return targetUserId != null && (targetUserId.equals(loginUser.getUserId())
+                || "ADMIN".equals(loginUser.getAuthrtId())
+                || "MANAGER".equals(loginUser.getAuthrtId()));
     }
 
     /**

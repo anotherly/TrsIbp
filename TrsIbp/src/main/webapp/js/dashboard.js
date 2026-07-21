@@ -50,7 +50,8 @@ function loadTodayAttendStatus() {
 
              $('#checkin-time-display').text('출근 인증 : -');
              $('#checkout-time-display').text('');
-             setWorkLocationUI(data.powkNm || 'OFFICE');
+             renderWorkLocationOptions(data.powkCodeList || [], data.powkNm || 'OFFICE', data.scheduleLinkedYn === 'Y');
+             setWorkLocationUI(data.powkNm || 'OFFICE', data.scheduleLinkedYn === 'Y', data.powkSeNm, data.scheduleNm);
              return;
          }
 
@@ -80,7 +81,8 @@ function loadTodayAttendStatus() {
 
              $('#checkin-time-display').text('출근 인증 : -');
              $('#checkout-time-display').text('');
-             setWorkLocationUI(powkNm);
+             renderWorkLocationOptions(data.powkCodeList || [], powkNm, data.scheduleLinkedYn === 'Y');
+             setWorkLocationUI(powkNm, data.scheduleLinkedYn === 'Y', data.powkSeNm, data.scheduleNm);
              return;
          }
 
@@ -108,7 +110,8 @@ function loadTodayAttendStatus() {
 
              stopTimer();
              updateCheckOutUI(lvwkDt, workMinutes);
-             setWorkLocationUI(powkNm);
+             renderWorkLocationOptions(data.powkCodeList || [], powkNm, data.scheduleLinkedYn === 'Y');
+             setWorkLocationUI(powkNm, data.scheduleLinkedYn === 'Y', data.powkSeNm, data.scheduleNm);
              return;
          }
 
@@ -134,7 +137,8 @@ function loadTodayAttendStatus() {
          }
 
          startTimer(initSeconds);
-         setWorkLocationUI(powkNm);
+         renderWorkLocationOptions(data.powkCodeList || [], powkNm, data.scheduleLinkedYn === 'Y');
+         setWorkLocationUI(powkNm, data.scheduleLinkedYn === 'Y', data.powkSeNm, data.scheduleNm);
      },
      error: function(xhr) {
          console.warn('▶ [DevSync] 당일 근태 데이터 로드 실패 (통신 오류)', xhr);
@@ -185,65 +189,131 @@ function calcElapsedSecondsFromDateTime(dateTimeStr) {
  }
 }
 
-/* ============================================================
-   2. 외근 / 출장 비동기 전환 처리 (AJAX POST)
-   ============================================================ */
-function toggleOutsideWork(status) {
-    if (!isWorking || isCheckedOut) return;
+// 근무지 상태값에 따른 상단 배지 및 토글 UI 변경
+function setWorkLocationUI(locCode, scheduleLinked, statusName, scheduleName) {
+    currentWorkLoc = locCode;
+    const $badge = $('#work-location-badge');
+    var label = statusName || workStatusName(locCode);
+    $badge.text(workStatusDisplayLabel(locCode, label));
+    $badge.attr('class', 'px-2.5 py-0.5 border text-xs rounded-full font-bold ' + workStatusBadgeClass(locCode));
+    $('#work-location-notice').text(scheduleLinked
+        ? '[' + label + '] ' + (scheduleName || '일정') + '과 연동된 상태입니다.' : '');
+    $('#work-location-options button').each(function() {
+        var selected = $(this).attr('data-location-code') === locCode;
+        $(this).toggleClass('bg-brand-accent text-white border-brand-accent', selected)
+               .toggleClass('bg-slate-900 text-gray-400 border-brand-border', !selected);
+    });
+}
 
-    // GO: 외근/출장 출발, BACK: 회사 복귀
-    const targetLoc = (status === 'GO') ? 'OUTSIDE' : 'OFFICE';
-    
+function renderWorkLocationOptions(codeList, selectedCode, scheduleLinked) {
+    var html = '';
+    (codeList || []).forEach(function(item) {
+        var code = item.powkNm || '';
+        var name = item.statusNm || code;
+        html += '<button type="button" data-location-code="' + escapeDashboardHtml(code) + '" onclick="setWorkLocation(\''
+            + escapeDashboardJs(code) + '\')" class="py-1 text-xs rounded-lg font-semibold border transition '
+            + (code === selectedCode ? 'bg-brand-accent text-white border-brand-accent' : 'bg-slate-900 text-gray-400 border-brand-border hover:text-white')
+            + '"' + (scheduleLinked ? ' disabled title="일정 연동 상태에서는 직접 변경할 수 없습니다."' : '') + '>'
+            + escapeDashboardHtml(name) + '</button>';
+    });
+    $('#work-location-options').html(html);
+}
+
+function setWorkLocation(locCode) {
     $.ajax({
-        url      : ctxPath + '/attend/changeStatus.ajax',
-        type     : 'POST',
-        data     : { workLocation : targetLoc },
-        dataType : 'json',
-        success  : function(data) {
+        url: ctxPath + '/attend/powkNm.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { powkNm: locCode },
+        success: function(data) {
             if (data.result === 'OK') {
-                setWorkLocationUI(targetLoc);
-                if (targetLoc === 'OUTSIDE') {
-                    showToast('외근/출장 상태로 변경되었습니다.', 'info');
-                } else {
-                    showToast('사무실 복귀가 반영되었습니다.', 'success');
-                }
-            } else {
-                showToast('상태 변경 중 오류가 발생했습니다.', 'error');
+                showToast('근무상태가 변경되었습니다.', 'success');
+                loadTodayAttendStatus();
+                loadTeamStatus();
+                return;
             }
+            showToast(data.msg || '근무상태를 변경하지 못했습니다.', 'error');
         },
         error: function() {
-            showToast('서버 통신 장애로 인해 상태 변경에 실패했습니다.', 'error');
+            showToast('근무상태 변경 중 통신 오류가 발생했습니다.', 'error');
         }
     });
 }
 
-// 근무지 상태값에 따른 상단 배지 및 토글 UI 변경
-function setWorkLocationUI(locCode) {
-    currentWorkLoc = locCode;
-    const $badge = $('#work-location-badge');
-    const $btnOutside = $('#btn-outside');
+function workStatusName(code) {
+    return { OFFICE: '본사', HOME: '재택', OUTSIDE: '외근', CLIENT: '상주', VAC: '휴가', BIZTRIP: '출장' }[code] || code || '-';
+}
 
-    if (locCode === 'OUTSIDE') {
-        $badge.text('외근/출장 중').removeClass('bg-brand-accent/15 text-brand-neonBlue').addClass('bg-orange-500/15 text-orange-400');
-        $btnOutside.html('<i class="fa-solid fa-house"></i> 본사복귀 완료');
-        $btnOutside.attr('onclick', "toggleOutsideWork('BACK')");
-    } else {
-        $badge.text('본사 근무').removeClass('bg-orange-500/15 text-orange-400').addClass('bg-brand-accent/15 text-brand-neonBlue');
-        $btnOutside.html('<i class="fa-solid fa-briefcase"></i> 외근/출장 출발');
-        $btnOutside.attr('onclick', "toggleOutsideWork('GO')");
-    }
+function workStatusDisplayLabel(code, name) {
+    return code === 'OFFICE' || code === 'HOME' || code === 'CLIENT' ? name + ' 근무' : name;
+}
 
-    // 하단 라디오 칩스 동기화 선택 처리
-    const types = ['OFFICE', 'HOME'];
-    types.forEach(function(loc) {
-        const $btn = $('#loc-' + loc);
-        if (!$btn.length) return;
-        if (loc === locCode) {
-            $btn.attr('class', 'py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition');
-        } else {
-            $btn.attr('class', 'py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition');
+function workStatusBadgeClass(code) {
+    var classes = {
+        OFFICE: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
+        HOME: 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300',
+        OUTSIDE: 'bg-amber-500/10 border-amber-500/20 text-amber-300',
+        CLIENT: 'bg-purple-500/10 border-purple-500/20 text-purple-300',
+        VAC: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300',
+        BIZTRIP: 'bg-orange-500/10 border-orange-500/20 text-orange-300'
+    };
+    return classes[code] || classes.OFFICE;
+}
+
+function loadTeamStatus() {
+    $.ajax({
+        url: ctxPath + '/attend/teamStatus.ajax',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            if (data.result !== 'OK') {
+                $('#teamStatusSummary').text('조회 실패');
+                $('#teamStatusList').html('<div class="ds-empty">부서원 상태를 조회하지 못했습니다.</div>');
+                return;
+            }
+            renderTeamStatus(data.teamList || []);
+        },
+        error: function() {
+            $('#teamStatusSummary').text('조회 실패');
+            $('#teamStatusList').html('<div class="ds-empty">부서원 상태를 조회하지 못했습니다.</div>');
         }
     });
+}
+
+function renderTeamStatus(list) {
+    var externalCount = list.filter(function(item) { return item.externalYn === 'Y'; }).length;
+    $('#teamStatusSummary').text('총 ' + list.length + '명 중 ' + externalCount + '명 외부·부재');
+    if (!list.length) {
+        $('#teamStatusList').html('<div class="ds-empty">조회된 부서원이 없습니다.</div>');
+        return;
+    }
+    var html = list.map(function(item) {
+        var name = item.userNm || item.userId || '-';
+        var initials = name.substring(0, 1);
+        var profile = item.profileFileSn
+            ? '<img src="' + ctxPath + '/common/fileView.do?atchFileSn=' + encodeURIComponent(item.profileFileSn) + '" alt="' + escapeDashboardHtml(name) + ' 프로필" class="w-9 h-9 rounded-full object-cover border border-slate-500">'
+            : '<span class="ds-team-avatar-fallback">' + escapeDashboardHtml(initials) + '</span>';
+        var detail = item.deptNm || '-';
+        var title = item.schdlNm ? ' title="' + escapeDashboardHtml(item.schdlNm) + '"' : '';
+        return '<div class="flex items-center justify-between gap-3 bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">'
+            + '<div class="flex items-center gap-3 min-w-0">' + profile + '<div class="min-w-0"><span class="font-bold text-sm text-gray-200">'
+            + escapeDashboardHtml(name) + (item.jbpsNm ? ' ' + escapeDashboardHtml(item.jbpsNm) : '')
+            + '</span><p class="text-[11px] text-gray-400 truncate">' + escapeDashboardHtml(detail || '-') + '</p></div></div>'
+            + '<span class="px-2 py-1 text-xs rounded-full font-bold whitespace-nowrap border ' + workStatusBadgeClass(item.statusCd) + '"' + title + '>'
+            + escapeDashboardHtml(item.statusNm || workStatusName(item.statusCd)) + '</span></div>';
+    }).join('');
+    $('#teamStatusList').html(html);
+}
+
+function escapeDashboardHtml(value) {
+    return String(value === null || value === undefined ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function escapeDashboardJs(value) {
+    return String(value === null || value === undefined ? '' : value)
+        .replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ');
 }
 
 
@@ -264,13 +334,13 @@ function triggerCheckOut() {
                 isWorking    = false;
                 isCheckedOut = true;
                 stopTimer();
-                updateCheckOutUI(data.checkOutTime, data.workMinutes);
+                updateCheckOutUI(data.lvwkDt, data.workMinutes);
                 showToast('퇴근 처리가 마감되었습니다.', 'success');
             } else if (data.result === 'ALREADY_CHECKED_OUT') {
                 isWorking    = false;
                 isCheckedOut = true;
                 stopTimer();
-                updateCheckOutUI(data.checkOutTime, data.workMinutes);
+                updateCheckOutUI(data.lvwkDt, data.workMinutes);
                 showToast('이미 퇴근 마감된 레코드입니다.', 'info');
             } else {
                 showToast(data.msg || '퇴근 처리 중 오류가 발생했습니다.', 'error');
@@ -290,7 +360,7 @@ function updateCheckOutUI(checkOutTime, workMinutes) {
         .addClass('bg-slate-800 text-gray-500 border-brand-border cursor-not-allowed');
 
     if (checkOutTime) {
-        $('#checkout-time-display').text('퇴근 마감 : ' + checkOutTime.substring(11, 16));
+        $('#checkout-time-display').text('퇴근 마감 : ' + formatDateTimeToHm(checkOutTime));
     }
     
     if (workMinutes) {
@@ -536,4 +606,5 @@ function addNewEvent(e) {
 $(document).ready(function() {
     // 최초 화면 로딩 시 당일 자동 출근 검증 프로세스 연동 스캔
     loadTodayAttendStatus();
+    loadTeamStatus();
 });

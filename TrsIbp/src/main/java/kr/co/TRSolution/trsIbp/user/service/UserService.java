@@ -3,6 +3,8 @@ package kr.co.TRSolution.trsIbp.user.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 
 /**
@@ -67,8 +69,16 @@ public interface UserService {
     /** 사용자(직원) 관리 등록 */
     public void insertUserManage(UserVO userVO) throws Exception;
 
+    /** 사용자 기본정보와 프로필 사진/증빙서류를 함께 등록 */
+    public void insertUserManage(UserVO userVO, MultipartFile profileFile,
+            MultipartFile[] userFiles, String rgtrId) throws Exception;
+
     /** 사용자(직원) 관리 수정 */
     public void updateUserManage(UserVO userVO) throws Exception;
+
+    /** 사용자 기본정보와 새 프로필 사진/증빙서류를 함께 수정 */
+    public void updateUserManage(UserVO userVO, MultipartFile profileFile,
+            MultipartFile[] userFiles, String rgtrId) throws Exception;
 
     /** 사용자(직원) 관리 삭제 처리 */
     public void deleteUserManage(UserVO userVO) throws Exception;

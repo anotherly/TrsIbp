@@ -6,7 +6,10 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import kr.co.TRSolution.trsIbp.comm.file.service.CommonFileService;
 import kr.co.TRSolution.trsIbp.user.mapper.UserMapper;
 import kr.co.TRSolution.trsIbp.user.service.UserService;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
@@ -22,6 +25,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource(name = "userMapper")
     private UserMapper userMapper;
+
+    @Resource(name = "commonFileService")
+    private CommonFileService commonFileService;
 
     /** 사용자 목록 조회 */
     @Override
@@ -123,10 +129,28 @@ public class UserServiceImpl implements UserService {
         userMapper.insertUserManage(userVO);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void insertUserManage(UserVO userVO, MultipartFile profileFile,
+            MultipartFile[] userFiles, String rgtrId) throws Exception {
+        userMapper.insertUserManage(userVO);
+        commonFileService.replaceProfileFile(userVO.getCoId(), userVO.getUserId(), profileFile, rgtrId);
+        commonFileService.saveUserDocumentFiles(userVO.getCoId(), userVO.getUserId(), userFiles, rgtrId);
+    }
+
     /** 사용자(직원) 관리 수정 */
     @Override
     public void updateUserManage(UserVO userVO) throws Exception {
         userMapper.updateUserManage(userVO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUserManage(UserVO userVO, MultipartFile profileFile,
+            MultipartFile[] userFiles, String rgtrId) throws Exception {
+        userMapper.updateUserManage(userVO);
+        commonFileService.replaceProfileFile(userVO.getCoId(), userVO.getUserId(), profileFile, rgtrId);
+        commonFileService.saveUserDocumentFiles(userVO.getCoId(), userVO.getUserId(), userFiles, rgtrId);
     }
 
     /** 사용자(직원) 관리 삭제 처리 */

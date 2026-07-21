@@ -19,5 +19,6 @@ public interface ScheduleMapper {
     public void deleteScheduleUserRel(ScheduleVO scheduleVO) throws Exception;
     public void insertScheduleUserRel(ScheduleVO scheduleVO) throws Exception;
     public int selectScheduleConflictCount(ScheduleVO scheduleVO) throws Exception;
+    public List<ScheduleVO> selectScheduleConflictList(ScheduleVO scheduleVO) throws Exception;
     public void deleteSchedule(ScheduleVO scheduleVO) throws Exception;
 }

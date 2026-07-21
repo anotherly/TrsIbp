@@ -1,5 +1,7 @@
 package kr.co.TRSolution.trsIbp.attend.mapper;
 
+import java.util.List;
+
 import egovframework.rte.psl.dataaccess.mapper.Mapper;
 import kr.co.TRSolution.trsIbp.attend.vo.AttendVO;
 
@@ -16,6 +18,12 @@ public interface AttendMapper {
      * 오늘 출근 기록 조회 (userId + 오늘날짜)
      */
     AttendVO selectTodayAttend(AttendVO attendVO);
+
+    AttendVO selectTodayScheduleStatus(AttendVO attendVO);
+
+    List<AttendVO> selectPowkCodeList();
+
+    List<AttendVO> selectTeamStatusList(AttendVO attendVO);
 
     /**
      * 공통코드 기준 기본 근무장소구분코드를 조회한다.
@@ -35,5 +43,5 @@ public interface AttendMapper {
     /**
      * 근무지 업데이트
      */
-    void updatePowkNm(AttendVO attendVO);
+    int updatePowkNm(AttendVO attendVO);
 }

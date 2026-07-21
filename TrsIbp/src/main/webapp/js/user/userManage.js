@@ -38,6 +38,8 @@ function initEmpFormPage(mode, userId) {
             setEmpIdCheckMessage('', '');
         });
     }
+    $('#frmProfileFile').on('change', previewEmpProfileFile);
+    $('#frmUserFiles').on('change', renderSelectedEmpFiles);
     loadEmpMeta(function () {
         if (mode === 'update' && userId) {
             loadEmpForm(userId);
@@ -256,6 +258,8 @@ function loadEmpForm(userId) {
             $('#frmUserTelno').val(user.userTelno);
             $('#frmUseYn').val(user.useYn || 'Y');
             $('#frmMemoCn').val(user.memoCn);
+            renderEmpProfile(res.profileFile, false);
+            renderEmpAttachmentList(res.attachmentList || [], false);
         },
         error: function () {
             alert('사용자 정보 조회 중 오류가 발생했습니다.');
@@ -291,6 +295,8 @@ function loadEmpDetail(userId) {
             $('#dispUseYn').text(user.useYn === 'Y' ? '사용' : '미사용');
             $('#dispRegDt').text(user.regDt || '');
             $('#dispMemoCn').text(user.memoCn || '');
+            renderEmpProfile(res.profileFile, true);
+            renderEmpAttachmentList(res.attachmentList || [], true);
         },
         error: function () {
             alert('사용자 정보 조회 중 오류가 발생했습니다.');
@@ -306,10 +312,16 @@ function saveEmp() {
     if (!validateEmpForm()) {
         return;
     }
+    if (!validateEmpFiles()) {
+        return;
+    }
+    var formData = new FormData($('#empForm')[0]);
     $.ajax({
         url: getContextPath() + '/user/empSave.ajax',
         type: 'POST',
-        data: $('#empForm').serialize(),
+        data: formData,
+        processData: false,
+        contentType: false,
         dataType: 'json',
         success: function (res) {
             if (res.result === 'OK') {
@@ -323,6 +335,133 @@ function saveEmp() {
             alert('사용자 저장 중 오류가 발생했습니다.');
         }
     });
+}
+
+function previewEmpProfileFile() {
+    var file = this.files && this.files[0];
+    if (!file) {
+        return;
+    }
+    if (!/^image\/(jpeg|png|gif)$/i.test(file.type) || file.size > 5 * 1000 * 1000) {
+        alert('프로필 사진은 JPG, PNG, GIF 형식의 5MB 이하 파일만 등록할 수 있습니다.');
+        $(this).val('');
+        return;
+    }
+    $('#empProfilePreview').attr('src', URL.createObjectURL(file)).removeClass('hidden');
+    $('#empProfileFallback').addClass('hidden');
+}
+
+function renderSelectedEmpFiles() {
+    var files = Array.prototype.slice.call(this.files || []);
+    if (!files.length) {
+        $('#empSelectedFileList').empty();
+        return;
+    }
+    $('#empSelectedFileList').html('<strong class="ds-file-list-title">새로 등록할 파일</strong>' + files.map(function(file) {
+        return '<div class="ds-file-row"><span>' + escapeHtml(file.name) + '</span><em>' + formatEmpFileSize(file.size) + '</em></div>';
+    }).join(''));
+}
+
+function renderEmpProfile(profileFile, detailMode) {
+    var fileSn = profileFile && profileFile.atchFileSn;
+    if (detailMode) {
+        if (!fileSn) {
+            $('#dispProfilePhoto').html('<span class="ds-profile-fallback">사진 없음</span>');
+            return;
+        }
+        $('#dispProfilePhoto').html('<img src="' + getContextPath() + '/common/fileView.do?atchFileSn=' + encodeURIComponent(fileSn)
+            + '" alt="프로필 사진" class="ds-profile-detail-image">');
+        return;
+    }
+    $('#btnDeleteProfileFile').data('fileSn', fileSn || '').toggleClass('hidden', !fileSn);
+    if (!fileSn) {
+        $('#empProfilePreview').attr('src', '').addClass('hidden');
+        $('#empProfileFallback').removeClass('hidden');
+        return;
+    }
+    $('#empProfilePreview').attr('src', getContextPath() + '/common/fileView.do?atchFileSn=' + encodeURIComponent(fileSn)).removeClass('hidden');
+    $('#empProfileFallback').addClass('hidden');
+}
+
+function renderEmpAttachmentList(list, detailMode) {
+    var selector = detailMode ? '#dispAttachmentList' : '#empExistingFileList';
+    if (!list.length) {
+        $(selector).html('<span class="ds-file-empty">등록된 첨부파일이 없습니다.</span>');
+        return;
+    }
+    var title = detailMode ? '' : '<strong class="ds-file-list-title">기존 등록 파일</strong>';
+    $(selector).html(title + list.map(function(file) {
+        var download = getContextPath() + '/common/fileDownload.do?atchFileSn=' + encodeURIComponent(file.atchFileSn);
+        return '<div class="ds-file-row"><a href="' + download + '">' + escapeHtml(file.orgnlFileNm || '첨부파일') + '</a><span class="ds-file-row-actions"><em>'
+            + formatEmpFileSize(file.fileSz) + '</em>'
+            + (detailMode ? '' : '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteEmpAttachment(' + Number(file.atchFileSn) + ');">삭제</button>')
+            + '</span></div>';
+    }).join(''));
+}
+
+function deleteCurrentEmpProfile() {
+    var fileSn = $('#btnDeleteProfileFile').data('fileSn');
+    if (fileSn) {
+        deleteEmpFile(fileSn);
+    }
+}
+
+function deleteEmpAttachment(fileSn) {
+    deleteEmpFile(fileSn);
+}
+
+function deleteEmpFile(fileSn) {
+    var userId = $('#frmUserId').val();
+    if (!fileSn || !userId || !confirm('선택한 파일을 삭제하시겠습니까?')) {
+        return;
+    }
+    $.ajax({
+        url: getContextPath() + '/common/userFileDelete.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { atchFileSn: fileSn, userId: userId },
+        success: function(res) {
+            if (res.result !== 'OK') {
+                alert(res.msg || '파일을 삭제하지 못했습니다.');
+                return;
+            }
+            loadEmpForm(userId);
+        },
+        error: function() {
+            alert('파일 삭제 중 오류가 발생했습니다.');
+        }
+    });
+}
+
+function validateEmpFiles() {
+    var profile = $('#frmProfileFile')[0];
+    if (profile && profile.files && profile.files[0]) {
+        var profileFile = profile.files[0];
+        if (!/^image\/(jpeg|png|gif)$/i.test(profileFile.type) || profileFile.size > 5 * 1000 * 1000) {
+            alert('프로필 사진은 JPG, PNG, GIF 형식의 5MB 이하 파일만 등록할 수 있습니다.');
+            return false;
+        }
+    }
+    var input = $('#frmUserFiles')[0];
+    var files = input ? Array.prototype.slice.call(input.files || []) : [];
+    if (files.length > 10) {
+        alert('첨부파일은 한 번에 최대 10개까지 등록할 수 있습니다.');
+        return false;
+    }
+    for (var i = 0; i < files.length; i++) {
+        if (files[i].size > 10 * 1000 * 1000) {
+            alert(files[i].name + ' 파일이 10MB를 초과합니다.');
+            return false;
+        }
+    }
+    return true;
+}
+
+function formatEmpFileSize(size) {
+    var value = Number(size || 0);
+    if (value >= 1000 * 1000) return (value / (1000 * 1000)).toFixed(1) + ' MB';
+    if (value >= 1000) return Math.round(value / 1000) + ' KB';
+    return value + ' B';
 }
 
 

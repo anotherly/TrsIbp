@@ -12,6 +12,7 @@
         <section class="ds-card ds-card-inner">
             <div class="ds-section-head"><div><h2 class="ds-section-title">기본 정보</h2><p class="ds-section-desc">사용자 정보는 상세 화면에서 수정되지 않습니다.</p></div></div>
             <div class="ds-form-12">
+                <div class="ds-field ds-col-12"><label>프로필 사진</label><div id="dispProfilePhoto" class="ds-profile-detail"></div></div>
                 <div class="ds-field ds-col-6"><label>사용자ID</label><p id="dispUserId" class="ds-display-text"></p></div>
                 <div class="ds-field ds-col-6"><label>사용자명</label><p id="dispUserNm" class="ds-display-text"></p></div>
                 <div class="ds-field ds-col-4"><label>회사</label><p id="dispCoNm" class="ds-display-text"></p></div>
@@ -22,6 +23,7 @@
                 <div class="ds-field ds-col-4"><label>사용여부</label><p id="dispUseYn" class="ds-display-text"></p></div>
                 <div class="ds-field ds-col-4"><label>등록일</label><p id="dispRegDt" class="ds-display-text"></p></div>
                 <div class="ds-field ds-col-12"><label>메모</label><p id="dispMemoCn" class="ds-display-text ds-display-textarea"></p></div>
+                <div class="ds-field ds-col-12"><label>증빙 첨부파일</label><div id="dispAttachmentList" class="ds-file-list"></div></div>
             </div>
         </section>
     </main>

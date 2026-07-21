@@ -15,6 +15,8 @@
         <result property="allDayYn" column="ALL_DAY_YN"/>
         <result property="placeNm" column="PLACE_NM"/>
         <result property="schdlCn" column="SCHDL_CN"/>
+        <result property="targetUserId" column="TARGET_USER_ID"/>
+        <result property="targetUserNm" column="TARGET_USER_NM"/>
         <result property="targetUserIds" column="TARGET_USER_IDS"/>
         <result property="targetUserNms" column="TARGET_USER_NMS"/>
         <result property="targetCnt" column="TARGET_CNT"/>
@@ -28,7 +30,7 @@
         FROM cmn_cd
         WHERE CD_GROUP_ID = 'CAL_SCHDL_SE_CD'
           AND USE_YN = 'Y'
-          AND CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'MEETING', 'ETC')
+          AND CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT', 'MEETING', 'ETC')
         ORDER BY SORT_SEQ, CD
     </select>
 
@@ -49,7 +51,7 @@
             )
         </if>
         <if test="viewType != null and viewType == 'team'">
-            AND S.SCHDL_SE_CD IN ('VAC', 'BIZTRIP', 'OUTSIDE')
+            AND S.SCHDL_SE_CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT')
         </if>
     </sql>
 
@@ -58,7 +60,10 @@
                S.SCHDL_SE_CD,
                CASE
                    WHEN S.SCHDL_SE_CD = 'VAC' THEN 'leave'
-                   WHEN S.SCHDL_SE_CD IN ('BIZTRIP','OUTSIDE') THEN 'trip'
+                   WHEN S.SCHDL_SE_CD = 'BIZTRIP' THEN 'biztrip'
+                   WHEN S.SCHDL_SE_CD = 'OUTSIDE' THEN 'outside'
+                   WHEN S.SCHDL_SE_CD = 'HOME' THEN 'home'
+                   WHEN S.SCHDL_SE_CD = 'CLIENT' THEN 'resident'
                    WHEN S.SCHDL_SE_CD = 'MEETING' THEN 'meeting'
                    ELSE 'etc'
                END AS COLOR_TYPE,
@@ -77,7 +82,7 @@
           AND DATE(S.BGNG_DT) <![CDATA[<=]]> STR_TO_DATE(#{monthEndYmd}, '%Y-%m-%d')
           AND DATE(S.END_DT) <![CDATA[>=]]> STR_TO_DATE(#{monthStartYmd}, '%Y-%m-%d')
         GROUP BY DT.CAL_YMD, S.SCHDL_SE_CD, COLOR_TYPE
-        ORDER BY DT.CAL_YMD, FIELD(COLOR_TYPE, 'leave', 'trip', 'meeting', 'etc')
+        ORDER BY DT.CAL_YMD, FIELD(COLOR_TYPE, 'leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'etc')
     </select>
 
     <select id="selectDayScheduleList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
@@ -98,7 +103,10 @@
                COUNT(U.USER_ID) AS TARGET_CNT,
                CASE
                    WHEN S.SCHDL_SE_CD = 'VAC' THEN 'leave'
-                   WHEN S.SCHDL_SE_CD IN ('BIZTRIP','OUTSIDE') THEN 'trip'
+                   WHEN S.SCHDL_SE_CD = 'BIZTRIP' THEN 'biztrip'
+                   WHEN S.SCHDL_SE_CD = 'OUTSIDE' THEN 'outside'
+                   WHEN S.SCHDL_SE_CD = 'HOME' THEN 'home'
+                   WHEN S.SCHDL_SE_CD = 'CLIENT' THEN 'resident'
                    WHEN S.SCHDL_SE_CD = 'MEETING' THEN 'meeting'
                    ELSE 'etc'
                END AS COLOR_TYPE
@@ -206,6 +214,34 @@
           AND S.BGNG_DT <![CDATA[<]]> S.END_DT
           AND S.BGNG_DT <![CDATA[<]]> CAST(#{endDt} AS DATETIME)
           AND S.END_DT <![CDATA[>]]> CAST(#{bgngDt} AS DATETIME)
+    </select>
+
+    <select id="selectScheduleConflictList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
+        SELECT S.SCHDL_SN,
+               S.SCHDL_SE_CD,
+               C.CD_NM AS SCHDL_SE_NM,
+               S.SCHDL_NM,
+               DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d %H:%i') AS BGNG_DT,
+               DATE_FORMAT(S.END_DT, '%Y-%m-%d %H:%i') AS END_DT,
+               S.ALL_DAY_YN,
+               R.USER_ID AS TARGET_USER_ID,
+               U.USER_NM AS TARGET_USER_NM
+        FROM schdl_info S
+        JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
+        JOIN user_info U ON U.USER_ID = R.USER_ID
+        LEFT JOIN cmn_cd C
+          ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD'
+         AND C.CD = S.SCHDL_SE_CD
+        WHERE S.CO_ID = #{coId}
+          AND S.USE_YN = 'Y'
+          AND R.USER_ID = #{targetUserId}
+          <if test="schdlSn != null">
+          AND S.SCHDL_SN <![CDATA[<>]]> #{schdlSn}
+          </if>
+          AND S.BGNG_DT <![CDATA[<]]> S.END_DT
+          AND S.BGNG_DT <![CDATA[<]]> CAST(#{endDt} AS DATETIME)
+          AND S.END_DT <![CDATA[>]]> CAST(#{bgngDt} AS DATETIME)
+        ORDER BY S.BGNG_DT, S.SCHDL_SN
     </select>
 
 </mapper>

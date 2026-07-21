@@ -11,7 +11,7 @@
 %>
 <section class="ds-card ds-card-inner">
     <div class="ds-section-head"><div><h2 class="ds-section-title">기본 정보</h2><p class="ds-section-desc">필수값은 빨간색 * 항목입니다.</p></div></div>
-    <form id="empForm" onsubmit="saveEmp(); return false;">
+    <form id="empForm" enctype="multipart/form-data" onsubmit="saveEmp(); return false;">
         <input type="hidden" id="frmSaveMode" name="saveMode" value="<%=mode%>">
         <input type="hidden" id="frmUpdateToken" name="updateToken" value="<%=updateToken%>">
         <div class="ds-form-12">
@@ -25,6 +25,29 @@
             
             <div class="ds-field ds-col-4"><label>사용여부</label><select id="frmUseYn" name="useYn" class="ds-select"><option value="Y">사용</option><option value="N">미사용</option></select></div>
             <div class="ds-field ds-col-12"><label>메모</label><textarea id="frmMemoCn" name="memoCn" class="ds-textarea" maxlength="500"></textarea></div>
+            <div class="ds-field ds-col-4">
+                <label>프로필 사진</label>
+                <div class="ds-profile-upload-box">
+                    <div class="ds-profile-preview-wrap">
+                        <img id="empProfilePreview" class="ds-profile-preview hidden" alt="프로필 사진 미리보기">
+                        <span id="empProfileFallback" class="ds-profile-fallback">사진 없음</span>
+                    </div>
+                    <div class="ds-profile-upload-actions">
+                        <input type="file" id="frmProfileFile" name="profileFile" class="ds-file-input" accept="image/jpeg,image/png,image/gif">
+                        <button type="button" id="btnDeleteProfileFile" class="ds-mini-btn ds-mini-btn-danger hidden" onclick="deleteCurrentEmpProfile();">기존 사진 삭제</button>
+                    </div>
+                </div>
+                <p class="ds-field-help">JPG·PNG·GIF, 5MB 이하</p>
+            </div>
+            <div class="ds-field ds-col-8">
+                <label>증빙 첨부파일</label>
+                <div class="ds-file-upload-box">
+                    <input type="file" id="frmUserFiles" name="userFiles" class="ds-file-input" multiple>
+                    <p class="ds-field-help">통장사본, 졸업증명서, 주민등록등본 등 기존 파일 포함 최대 10개 · 파일당 10MB 이하</p>
+                    <div id="empSelectedFileList" class="ds-file-list"></div>
+                    <div id="empExistingFileList" class="ds-file-list"></div>
+                </div>
+            </div>
         </div>
     </form>
 </section>

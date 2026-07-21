@@ -33,11 +33,21 @@
      * @param {string} bgngDt 시작일시
      * @param {string} endDt 종료일시
      * @param {string} allDayYn 종일 여부(Y/N)
-     * @returns {string} 종일 또는 HH:mm ~ HH:mm 형식의 표시문구
+     * @returns {string} 단일일은 시각, 여러 날짜에 걸치면 시작일시~종료일시 표시문구
      */
     function toDisplayTime(bgngDt, endDt, allDayYn) {
-        if (allDayYn === 'Y') return '종일';
-        return nvl(bgngDt, '').substring(11, 16) + ' ~ ' + nvl(endDt, '').substring(11, 16);
+        var start = nvl(bgngDt, '');
+        var end = nvl(endDt, '');
+        var startYmd = start.substring(0, 10);
+        var endYmd = end.substring(0, 10);
+        var multipleDays = startYmd && endYmd && startYmd !== endYmd;
+        if (allDayYn === 'Y') {
+            return multipleDays ? startYmd + ' ~ ' + endYmd + ' · 종일' : '종일';
+        }
+        if (multipleDays) {
+            return startYmd + ' ' + start.substring(11, 16) + ' ~ ' + endYmd + ' ' + end.substring(11, 16);
+        }
+        return start.substring(11, 16) + ' ~ ' + end.substring(11, 16);
     }
     function colorClass(colorType) { return 'ds-schedule-' + (colorType || 'etc'); }
     /**
@@ -65,7 +75,9 @@
         });
         $('#frmCalSchdlSeCd').on('change', function() {
             applyScheduleProjectAvailability();
+            clearScheduleConflictMessage();
         });
+        $('#frmBgngDt,#frmEndDt,#frmAllDayYn').on('change', clearScheduleConflictMessage);
         $('#scheduleProjectFilter').on('change', function() {
             changeScheduleProjectFilter($(this).val(), false);
         });
@@ -137,7 +149,7 @@
     function renderScheduleCodeOptions() {
         var html = '<option value="">선택</option>';
         scheduleCodes.forEach(function(code) {
-            if (['PROJECT', 'HOME', 'REMOTE'].indexOf(code.schdlSeCd) >= 0) return;
+            if (['PROJECT', 'REMOTE'].indexOf(code.schdlSeCd) >= 0) return;
             html += '<option value="' + escapeHtml(code.schdlSeCd) + '">' + escapeHtml(code.schdlSeNm) + '</option>';
         });
         $('#frmCalSchdlSeCd').html(html);
@@ -262,9 +274,10 @@
         var html = '';
         list.forEach(function(row) {
             html += '<div class="ds-schedule-card ' + colorClass(row.colorType) + '">'
-                + '<div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>' + escapeHtml(row.schdlNm) + '</strong>' + renderProjectBadge(row) + '</div>'
-                + '<p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p>'
-                + (row.placeNm ? '<p>' + escapeHtml(row.placeNm) + '</p>' : '')
+                + '<div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>[' + escapeHtml(row.schdlSeNm || row.schdlSeCd) + '] ' + escapeHtml(row.schdlNm) + '</strong></div>'
+                + renderProjectBadge(row)
+                + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + (row.placeNm ? ' · ' + escapeHtml(row.placeNm) : '') + '</p>'
+                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p>'
                 + '</div><button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal(' + row.schdlSn + ');">수정</button></div>';
         });
         $('#scheduleDayList').html(html);
@@ -357,6 +370,7 @@
         applyAllDayInputMode(false);
         selectedUsers = {};
         renderScheduleTargetChips();
+        clearScheduleConflictMessage();
     }
 
     /**
@@ -432,6 +446,7 @@
             if (user.userId) selectedUsers[user.userId] = user;
         });
         renderScheduleTargetChips();
+        clearScheduleConflictMessage();
     };
 
     /**
@@ -452,13 +467,22 @@
         $('#scheduleTargetChips').html(ids.map(function(id) { return '<span class="ds-chip ds-chip-selected">' + escapeHtml(selectedUsers[id].userNm || id) + '<button type="button" onclick="removeScheduleTarget(\'' + escapeHtml(id) + '\');">×</button></span>'; }).join(''));
     }
 
-    window.removeScheduleTarget = function(userId) { delete selectedUsers[userId]; renderScheduleTargetChips(); };
+    window.removeScheduleTarget = function(userId) { delete selectedUsers[userId]; renderScheduleTargetChips(); clearScheduleConflictMessage(); };
+
+    function clearScheduleConflictMessage() {
+        $('#scheduleConflictMessage').addClass('hidden').text('');
+    }
+
+    function showScheduleConflictMessage(message) {
+        $('#scheduleConflictMessage').removeClass('hidden').text(message || '일정 저장 조건을 확인하세요.');
+    }
 
     /**
      * 일정 입력값을 검증하고 선택한 프로젝트 및 대상자와 함께 저장한다.
      * @returns {void}
      */
     window.saveSchedule = function() {
+        clearScheduleConflictMessage();
         if (!$('#frmCalSchdlSeCd').val()) { alert('일정구분을 선택하세요.'); return; }
         if (!$('#frmCalSchdlNm').val()) { alert('일정명을 입력하세요.'); return; }
         if (!$('#frmTargetUserIds').val()) { alert('대상자를 선택하세요.'); return; }
@@ -486,9 +510,9 @@
             },
             success: function(res) {
                 if (res.result === 'OK') { closeScheduleModal(); loadScheduleList(); }
-                else alert(res.message || '일정 저장에 실패했습니다.');
+                else showScheduleConflictMessage(res.message || '일정 저장에 실패했습니다.');
             },
-            error: function() { alert('일정 저장 중 오류가 발생했습니다.'); }
+            error: function() { showScheduleConflictMessage('일정 저장 중 오류가 발생했습니다.'); }
         });
     };
 
@@ -531,7 +555,11 @@
     function renderDashboardDayList(list) {
         if (list.length === 0) { $('#dashScheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>'); return; }
         $('#dashScheduleDayList').html(list.map(function(row) {
-            return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>' + escapeHtml(row.schdlNm) + '</strong>' + renderProjectBadge(row) + '</div><p>' + escapeHtml(row.schdlSeNm) + ' · ' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + ' · ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
+            return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div class="ds-schedule-card-main">'
+                + '<div class="ds-schedule-card-title"><strong>[' + escapeHtml(row.schdlSeNm || row.schdlSeCd) + '] ' + escapeHtml(row.schdlNm) + '</strong></div>'
+                + renderProjectBadge(row)
+                + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + '</p>'
+                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
         }).join(''));
     }
 
@@ -542,7 +570,7 @@
      */
     function renderProjectBadge(row) {
         if (!row.bizId || !row.bizNm) return '';
-        return '<span class="ds-project-badge" title="' + escapeHtml(row.bizNm) + '">' + escapeHtml(row.bizNm) + '</span>';
+        return '<div class="ds-project-badge-row"><span class="ds-project-badge" title="' + escapeHtml(row.bizNm) + '">' + escapeHtml(row.bizNm) + '</span></div>';
     }
 
     window.selectDashboardScheduleDate = function(dateYmd) { selectedDate = new Date(dateYmd); currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1); loadScheduleList(true); };

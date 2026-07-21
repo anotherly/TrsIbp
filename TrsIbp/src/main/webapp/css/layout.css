@@ -1095,7 +1095,7 @@
 .ds-schedule-toolbar { display: flex; align-items: flex-end; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
 .ds-project-filter { display: flex; flex-direction: column; gap: 6px; min-width: 280px; max-width: 420px; color: #94a3b8; font-size: 12px; font-weight: 800; text-align: left; }
 .ds-project-filter .ds-select { min-height: 42px; }
-.ds-calendar-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 24px; }
+.ds-calendar-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(360px, 1fr); gap: 24px; }
 .ds-calendar-box, .ds-schedule-list-box { border: 1px solid var(--ds-border); border-radius: 18px; background: rgba(8, 13, 24, .55); padding: 22px; min-width: 0; }
 .ds-calendar-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .ds-calendar-head strong { color: #fff; font-size: 18px; }
@@ -1112,7 +1112,10 @@
 .ds-calendar-legend span { display: inline-flex; align-items: center; gap: 7px; }
 .ds-dot { display: inline-block; width: 7px; height: 7px; border-radius: 999px; }
 .ds-dot-leave { background: #10b981; }
-.ds-dot-trip { background: #f97316; }
+.ds-dot-biztrip { background: #f97316; }
+.ds-dot-outside { background: #f59e0b; }
+.ds-dot-home { background: #38bdf8; }
+.ds-dot-resident { background: #c084fc; }
 .ds-dot-project { background: #3b82f6; }
 .ds-dot-meeting { background: #8b5cf6; }
 .ds-dot-etc { background: #94a3b8; }
@@ -1124,9 +1127,14 @@
 .ds-schedule-card-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .ds-schedule-card strong { color: #fff; font-size: 15px; font-weight: 900; }
 .ds-schedule-card p { color: #a8b3c3; font-size: 12px; margin-top: 5px; }
-.ds-project-badge { display: inline-block; min-width: 0; max-width: 100%; border-radius: 999px; padding: 5px 9px; background: rgba(59,130,246,.18); color: #bfdbfe; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-project-badge-row { width: 100%; margin-top: 7px; }
+.ds-project-badge { display: block; width: 100%; min-width: 0; border-radius: 8px; padding: 5px 9px; background: rgba(59,130,246,.18); color: #bfdbfe; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ds-schedule-card .ds-schedule-participants { color: #cbd5e1; }
 .ds-schedule-leave { border-left-color: #10b981; }
-.ds-schedule-trip { border-left-color: #f97316; }
+.ds-schedule-biztrip { border-left-color: #f97316; }
+.ds-schedule-outside { border-left-color: #f59e0b; }
+.ds-schedule-home { border-left-color: #38bdf8; }
+.ds-schedule-resident { border-left-color: #c084fc; }
 .ds-schedule-project { border-left-color: #3b82f6; }
 .ds-schedule-meeting { border-left-color: #8b5cf6; }
 .ds-schedule-etc { border-left-color: #94a3b8; }
@@ -1136,6 +1144,27 @@
 .ds-chip-placeholder { color: #64748b; font-size: 13px; padding-left: 6px; }
 .ds-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(59,130,246,.20); color: #dbeafe; padding: 6px 9px; font-size: 12px; font-weight: 800; }
 .ds-chip button { border: 0; background: transparent; color: #bfdbfe; cursor: pointer; font-weight: 900; }
+.ds-schedule-conflict { padding: 12px 14px; border: 1px solid rgba(248,113,113,.45); border-radius: 12px; background: rgba(127,29,29,.22); color: #fecaca; font-size: 12px; font-weight: 800; line-height: 1.65; white-space: pre-line; }
+.ds-team-avatar-fallback { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex: 0 0 36px; border: 1px solid #475569; border-radius: 999px; background: #1e293b; color: #bfdbfe; font-size: 13px; font-weight: 900; }
+.ds-profile-upload-box { display: flex; align-items: center; gap: 16px; min-height: 112px; padding: 14px; border: 1px solid var(--ds-border); border-radius: 14px; background: rgba(8,13,24,.72); }
+.ds-profile-preview-wrap { width: 84px; height: 84px; flex: 0 0 84px; border: 1px solid #334155; border-radius: 16px; overflow: hidden; background: #111827; }
+.ds-profile-preview { width: 100%; height: 100%; object-fit: cover; }
+.ds-profile-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #64748b; font-size: 12px; font-weight: 800; }
+.ds-profile-upload-actions { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; }
+.ds-file-input { display: block; width: 100%; max-width: 100%; color: #cbd5e1; font-size: 12px; }
+.ds-field-help { margin-top: 7px; color: #64748b; font-size: 11px; line-height: 1.45; }
+.ds-file-upload-box { min-height: 112px; padding: 14px; border: 1px solid var(--ds-border); border-radius: 14px; background: rgba(8,13,24,.72); }
+.ds-file-list { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
+.ds-file-list-title { color: #cbd5e1; font-size: 12px; }
+.ds-file-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 8px 10px; border: 1px solid rgba(148,163,184,.15); border-radius: 9px; background: rgba(15,23,42,.72); color: #dbeafe; font-size: 12px; }
+.ds-file-row > span, .ds-file-row > a { min-width: 0; overflow: hidden; color: #dbeafe; text-overflow: ellipsis; white-space: nowrap; }
+.ds-file-row > a:hover { color: #60a5fa; text-decoration: underline; }
+.ds-file-row em { color: #94a3b8; font-style: normal; white-space: nowrap; }
+.ds-file-row-actions { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.ds-file-empty { color: #64748b; font-size: 12px; }
+.ds-profile-detail { min-height: 110px; }
+.ds-profile-detail-image { width: 100px; height: 100px; border: 1px solid #475569; border-radius: 18px; object-fit: cover; }
+@media (max-width: 640px) { .ds-profile-upload-box { align-items: flex-start; flex-direction: column; } }
 .ds-modal-summary { color: #cbd5e1; font-size: 13px; font-weight: 800; margin: 10px auto; }
 .ds-user-row.is-selected { background: rgba(59, 130, 246, .34); border-color: #60a5fa; box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .35); }
 .ds-user-row.is-selected em { color: #bfdbfe; font-weight: 900; }

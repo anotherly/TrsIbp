@@ -1,5 +1,7 @@
 package kr.co.TRSolution.trsIbp.attend.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -26,6 +28,21 @@ public class AttendServiceImpl implements AttendService {
     }
 
     @Override
+    public AttendVO selectTodayScheduleStatus(AttendVO attendVO) {
+        return attendMapper.selectTodayScheduleStatus(attendVO);
+    }
+
+    @Override
+    public List<AttendVO> selectPowkCodeList() {
+        return attendMapper.selectPowkCodeList();
+    }
+
+    @Override
+    public List<AttendVO> selectTeamStatusList(AttendVO attendVO) {
+        return attendMapper.selectTeamStatusList(attendVO);
+    }
+
+    @Override
     public String selectDefaultPowkSeCd() {
         return attendMapper.selectDefaultPowkSeCd();
     }
@@ -41,7 +58,7 @@ public class AttendServiceImpl implements AttendService {
     }
 
     @Override
-    public void updatePowkNm(AttendVO attendVO) {
-        attendMapper.updatePowkNm(attendVO);
+    public int updatePowkNm(AttendVO attendVO) {
+        return attendMapper.updatePowkNm(attendVO);
     }
 }

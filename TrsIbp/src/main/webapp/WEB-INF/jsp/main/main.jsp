@@ -27,16 +27,12 @@
                     <div>
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="font-bold text-gray-200 text-base">근무 상태 컨트롤러</h3>
-                            <span id="work-location-badge" class="px-2.5 py-0.5 bg-brand-accent/15 border border-brand-accent/30 text-brand-neonBlue text-xs rounded-full font-bold">본사 근무</span>
+                            <span id="work-location-badge" class="px-2.5 py-0.5 bg-brand-accent/15 border border-brand-accent/30 text-brand-neonBlue text-xs rounded-full font-bold">조회 중</span>
                         </div>
                         
                         <!-- 근무지 토글 칩스 -->
-                        <div class="grid grid-cols-4 gap-1.5 mb-4">
-                            <button onclick="setWorkLocation('본사')" id="loc-본사" class="py-1 text-xs rounded-lg font-semibold bg-brand-accent text-white border border-brand-accent transition">본사</button>
-                            <button onclick="setWorkLocation('재택')" id="loc-재택" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">재택</button>
-                            <button onclick="setWorkLocation('외근')" id="loc-외근" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">외근</button>
-                            <button onclick="setWorkLocation('상주')" id="loc-상주" class="py-1 text-xs rounded-lg font-semibold bg-slate-900 text-gray-400 border border-brand-border hover:text-white transition">상주</button>
-                        </div>
+                        <div id="work-location-options" class="grid grid-cols-4 gap-1.5 mb-2"></div>
+                        <p id="work-location-notice" class="text-[11px] text-amber-300 min-h-[16px] mb-2"></p>
 
                         <!-- 실시간 근무 타이머 -->
                         <div class="text-center py-2">
@@ -141,7 +137,7 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-12">
-                    <div class="lg:col-span-8 p-6 border-r border-brand-border bg-slate-950/20">
+                    <div class="lg:col-span-7 p-6 border-r border-brand-border bg-slate-950/20">
                         <div class="ds-calendar-head">
                             <button type="button" class="ds-icon-btn" onclick="moveDashboardScheduleMonth(-1);">‹</button>
                             <strong id="dashScheduleMonthLabel"></strong>
@@ -150,12 +146,15 @@
                         <div id="dashScheduleCalendarGrid" class="ds-calendar-grid"></div>
                         <div class="ds-calendar-legend">
                             <span><i class="ds-dot ds-dot-leave"></i>휴가</span>
-                            <span><i class="ds-dot ds-dot-trip"></i>출장/외근</span>
+                            <span><i class="ds-dot ds-dot-biztrip"></i>출장</span>
+                            <span><i class="ds-dot ds-dot-outside"></i>외근</span>
+                            <span><i class="ds-dot ds-dot-home"></i>재택</span>
+                            <span><i class="ds-dot ds-dot-resident"></i>상주</span>
                             <span><i class="ds-dot ds-dot-meeting"></i>회의</span>
                             <span><i class="ds-dot ds-dot-etc"></i>기타</span>
                         </div>
                     </div>
-                    <div class="lg:col-span-4 p-6">
+                    <div class="lg:col-span-5 p-6">
                         <div class="ds-schedule-list-head">
                             <h3 id="dashScheduleSelectedTitle" class="font-bold text-sm text-gray-300"></h3>
                             <a href="${pageContext.request.contextPath}/schedule/scheduleList.do" class="ds-btn ds-btn-outline">캘린더 크게보기</a>
@@ -175,55 +174,13 @@
                                 <i class="fa-solid fa-users text-cyan-400"></i>
                                 <h3 class="font-bold text-gray-200 text-base">오늘의 부서원 상태 공유</h3>
                             </div>
-                            <span class="text-xs bg-slate-900 border border-brand-border px-2 py-1 rounded text-gray-400">총 8명 중 3명 외부 근무</span>
+                            <span id="teamStatusSummary" class="text-xs bg-slate-900 border border-brand-border px-2 py-1 rounded text-gray-400">조회 중</span>
                         </div>
 
-                        <div class="space-y-3">
-                            <!-- 팀원 1: 재택 -->
-                            <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
-                                <div class="flex items-center gap-3">
-                                    <img src="<%=request.getContextPath()%>/protoType/photo-1438761681033-6461ffad8d80" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-blue-400">
-                                    <div>
-                                        <span class="font-bold text-sm text-gray-200">한혜지 대리</span>
-                                        <p class="text-[11px] text-gray-400">웹 디자인 파트</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="px-2 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs rounded-full font-bold"><i class="fa-solid fa-house-laptop"></i> 재택 근무</span>
-                                </div>
-                            </div>
-
-                            <!-- 팀원 2: 상주(파견) -->
-                            <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
-                                <div class="flex items-center gap-3">
-                                    <img src="<%=request.getContextPath()%>/protoType/photo-1507003211169-0a1dd7228f2d" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-purple-400">
-                                    <div>
-                                        <span class="font-bold text-sm text-gray-200">정재윤 책임</span>
-                                        <p class="text-[11px] text-gray-400">백엔드 아키텍트</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="px-2 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs rounded-full font-bold"><i class="fa-solid fa-network-wired"></i> 고객사 상주</span>
-                                </div>
-                            </div>
-
-                            <!-- 팀원 3: 연차 -->
-                            <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">
-                                <div class="flex items-center gap-3">
-                                    <img src="<%=request.getContextPath()%>/protoType/photo-1494790108377-be9c29b29330" alt="Team Profile" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
-                                    <div>
-                                        <span class="font-bold text-sm text-gray-200">김민서 수석</span>
-                                        <p class="text-[11px] text-gray-400">인프라/보안 파트</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-full font-bold"><i class="fa-solid fa-umbrella"></i> 연차 휴가</span>
-                                </div>
-                            </div>
-                        </div>
+                        <div id="teamStatusList" class="space-y-3"><div class="ds-empty">부서원 상태를 조회 중입니다.</div></div>
                     </div>
                     <!-- 단축 연락망 -->
-                    <p class="text-[11px] text-gray-500 mt-3">* 해당 상태 정보는 슬랙(Slack)의 상태 마크에 실시간 자동 동기화되어 반영됩니다.</p>
+                    <p class="text-[11px] text-gray-500 mt-3">* 현재 근무상태와 진행 중인 휴가·출장·외근·재택·상주 일정을 함께 반영합니다.</p>
                 </div>
 
                 <!-- 우측 5/12: 사내 대여 자산 및 회의실 실시간 예약 상황 -->

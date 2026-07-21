@@ -1,5 +1,7 @@
 package kr.co.TRSolution.trsIbp.attend.web;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -56,26 +58,67 @@ public class AttendController {
 
             AttendVO param = new AttendVO();
             param.setUserId(loginUser.getUserId());
+            param.setCoId(loginUser.getCoId());
+            param.setDeptId(loginUser.getDeptId());
 
             AttendVO todayAttend = attendService.selectTodayAttend(param);
+            AttendVO scheduleStatus = attendService.selectTodayScheduleStatus(param);
+            List<AttendVO> powkCodeList = attendService.selectPowkCodeList();
+            String effectiveStatusCd = scheduleStatus == null
+                    ? (todayAttend == null || todayAttend.getPowkNm() == null
+                            ? attendService.selectDefaultPowkSeCd() : todayAttend.getPowkNm())
+                    : scheduleStatus.getStatusCd();
+            String effectiveStatusNm = scheduleStatus == null
+                    ? findPowkCodeName(powkCodeList, effectiveStatusCd) : scheduleStatus.getStatusNm();
+
+            mav.addObject("powkNm", effectiveStatusCd);
+            mav.addObject("powkSeNm", effectiveStatusNm);
+            mav.addObject("scheduleLinkedYn", scheduleStatus == null ? "N" : "Y");
+            mav.addObject("scheduleNm", scheduleStatus == null ? "" : scheduleStatus.getSchdlNm());
+            mav.addObject("powkCodeList", powkCodeList);
 
             if (todayAttend != null) {
                 mav.addObject("result", "OK");
                 mav.addObject("gtwkDt",  todayAttend.getGtwkDt());
                 mav.addObject("lvwkDt", todayAttend.getLvwkDt());
-                mav.addObject("powkNm", todayAttend.getPowkNm());
                 mav.addObject("workMinutes",  todayAttend.getWorkMinutes());
             } else {
                 mav.addObject("result", "NO_RECORD");
                 mav.addObject("gtwkDt",  "");
                 mav.addObject("lvwkDt", "");
-                mav.addObject("powkNm", attendService.selectDefaultPowkSeCd());
                 mav.addObject("workMinutes",  "0");
             }
         } catch (Exception e) {
-            logger.error("▶ todayStatus 오류: {}", e.toString());
+            logger.error("▶ todayStatus 오류", e);
             mav.addObject("result", "ERROR");
             mav.addObject("msg", e.getMessage());
+        }
+        return mav;
+    }
+
+    /**
+     * 로그인 사용자와 같은 부서의 현재 근무/일정 상태를 조회한다.
+     */
+    @RequestMapping(value = "/attend/teamStatus.ajax", method = RequestMethod.GET)
+    @ResponseBody
+    public ModelAndView teamStatus(HttpServletRequest request) {
+        ModelAndView mav = new ModelAndView("jsonView");
+        try {
+            UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+            if (loginUser == null) {
+                mav.addObject("result", "NO_SESSION");
+                return mav;
+            }
+            AttendVO param = new AttendVO();
+            param.setCoId(loginUser.getCoId());
+            param.setDeptId(loginUser.getDeptId());
+            List<AttendVO> teamList = attendService.selectTeamStatusList(param);
+            mav.addObject("result", "OK");
+            mav.addObject("teamList", teamList);
+        } catch (Exception e) {
+            logger.error("▶ teamStatus 오류", e);
+            mav.addObject("result", "ERROR");
+            mav.addObject("msg", "부서원 상태를 조회하지 못했습니다.");
         }
         return mav;
     }
@@ -123,7 +166,7 @@ public class AttendController {
             logger.debug("▶ 출근 처리 완료: userId={}, location={}", loginUser.getUserId(), attendVO.getPowkNm());
 
         } catch (Exception e) {
-            logger.error("▶ checkIn 오류: {}", e.toString());
+            logger.error("▶ checkIn 오류", e);
             mav.addObject("result", "ERROR");
             mav.addObject("msg", "출근 처리 중 오류가 발생했습니다.");
         }
@@ -171,7 +214,7 @@ public class AttendController {
             logger.debug("▶ 퇴근 처리 완료: userId={}", loginUser.getUserId());
 
         } catch (Exception e) {
-            logger.error("▶ checkOut 오류: {}", e.toString());
+            logger.error("▶ checkOut 오류", e);
             mav.addObject("result", "ERROR");
             mav.addObject("msg", "퇴근 처리 중 오류가 발생했습니다.");
         }
@@ -197,15 +240,57 @@ public class AttendController {
                 return mav;
             }
             attendVO.setUserId(loginUser.getUserId());
-            attendService.updatePowkNm(attendVO);
+            attendVO.setCoId(loginUser.getCoId());
+            AttendVO scheduleStatus = attendService.selectTodayScheduleStatus(attendVO);
+            if (scheduleStatus != null) {
+                mav.addObject("result", "FAIL");
+                mav.addObject("msg", "현재 [" + scheduleStatus.getStatusNm() + "] "
+                        + scheduleStatus.getSchdlNm() + " 일정과 연동되어 근무상태를 직접 변경할 수 없습니다.");
+                return mav;
+            }
+            if (!isValidPowkCode(attendVO.getPowkNm(), attendService.selectPowkCodeList())) {
+                mav.addObject("result", "FAIL");
+                mav.addObject("msg", "근무장소 값이 올바르지 않습니다.");
+                return mav;
+            }
+            int updatedCount = attendService.updatePowkNm(attendVO);
+            if (updatedCount == 0) {
+                mav.addObject("result", "FAIL");
+                mav.addObject("msg", "오늘 출근기록이 없어 근무상태를 변경하지 못했습니다.");
+                return mav;
+            }
             mav.addObject("result", "OK");
             mav.addObject("powkNm", attendVO.getPowkNm());
             logger.debug("▶ 근무지 변경: userId={}, location={}", loginUser.getUserId(), attendVO.getPowkNm());
 
         } catch (Exception e) {
-            logger.error("▶ updatePowkNm 오류: {}", e.toString());
+            logger.error("▶ updatePowkNm 오류", e);
             mav.addObject("result", "ERROR");
+            mav.addObject("msg", "근무상태 변경 중 오류가 발생했습니다.");
         }
         return mav;
+    }
+
+    private String findPowkCodeName(List<AttendVO> codeList, String code) {
+        if (codeList != null) {
+            for (AttendVO item : codeList) {
+                if (code != null && code.equals(item.getPowkNm())) {
+                    return item.getStatusNm();
+                }
+            }
+        }
+        return code == null ? "" : code;
+    }
+
+    private boolean isValidPowkCode(String code, List<AttendVO> codeList) {
+        if (code == null || codeList == null) {
+            return false;
+        }
+        for (AttendVO item : codeList) {
+            if (code.equals(item.getPowkNm())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

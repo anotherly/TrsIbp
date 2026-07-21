@@ -21,6 +21,12 @@ public class AttendVO extends BaseVO {
     /** 사용자명 (JOIN 조회용) */
     private String userNm;
 
+    /** 회사ID / 부서ID (대시보드 부서원 조회 조건) */
+    private String coId;
+    private String deptId;
+    private String deptNm;
+    private String jbpsNm;
+
     /** 근무일자 (YYYY-MM-DD) */
     private String workYmd;
 
@@ -51,6 +57,14 @@ public class AttendVO extends BaseVO {
     /** 오늘 퇴근 여부 (Y/N, 조회용) */
     private String todayLvwk;
 
+    /** 일정 또는 근태를 종합한 현재 상태 */
+    private String statusCd;
+    private String statusNm;
+    private String scheduleLinkedYn;
+    private String schdlNm;
+    private Long profileFileSn;
+    private String externalYn;
+
     // ============================================================
     // Getter / Setter
     // ============================================================
@@ -63,6 +77,15 @@ public class AttendVO extends BaseVO {
 
     public String getUserNm() { return userNm; }
     public void setUserNm(String userNm) { this.userNm = userNm; }
+
+    public String getCoId() { return coId; }
+    public void setCoId(String coId) { this.coId = coId; }
+    public String getDeptId() { return deptId; }
+    public void setDeptId(String deptId) { this.deptId = deptId; }
+    public String getDeptNm() { return deptNm; }
+    public void setDeptNm(String deptNm) { this.deptNm = deptNm; }
+    public String getJbpsNm() { return jbpsNm; }
+    public void setJbpsNm(String jbpsNm) { this.jbpsNm = jbpsNm; }
 
     public String getWorkYmd() { return workYmd; }
     public void setWorkYmd(String workYmd) { this.workYmd = workYmd; }
@@ -93,6 +116,19 @@ public class AttendVO extends BaseVO {
 
     public String getTodayLvwk() { return todayLvwk; }
     public void setTodayLvwk(String todayLvwk) { this.todayLvwk = todayLvwk; }
+
+    public String getStatusCd() { return statusCd; }
+    public void setStatusCd(String statusCd) { this.statusCd = statusCd; }
+    public String getStatusNm() { return statusNm; }
+    public void setStatusNm(String statusNm) { this.statusNm = statusNm; }
+    public String getScheduleLinkedYn() { return scheduleLinkedYn; }
+    public void setScheduleLinkedYn(String scheduleLinkedYn) { this.scheduleLinkedYn = scheduleLinkedYn; }
+    public String getSchdlNm() { return schdlNm; }
+    public void setSchdlNm(String schdlNm) { this.schdlNm = schdlNm; }
+    public Long getProfileFileSn() { return profileFileSn; }
+    public void setProfileFileSn(Long profileFileSn) { this.profileFileSn = profileFileSn; }
+    public String getExternalYn() { return externalYn; }
+    public void setExternalYn(String externalYn) { this.externalYn = externalYn; }
 
     @Override
     public String toString() {

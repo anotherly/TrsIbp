@@ -1,6 +1,5 @@
 package kr.co.TRSolution.trsIbp.company.service.impl;
 
-import java.io.File;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Resource;
@@ -10,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import kr.co.TRSolution.trsIbp.comm.file.service.CommonFileService;
+import kr.co.TRSolution.trsIbp.comm.file.vo.CommonFileVO;
 import kr.co.TRSolution.trsIbp.company.mapper.CompanyMapper;
 import kr.co.TRSolution.trsIbp.company.service.CompanyService;
 import kr.co.TRSolution.trsIbp.company.vo.CompanyVO;
@@ -23,6 +24,9 @@ public class CompanyServiceImpl extends EgovAbstractServiceImpl implements Compa
     // 기존 매퍼 연동 보존
     @Resource(name = "companyMapper")
     private CompanyMapper companyMapper;
+
+    @Resource(name = "commonFileService")
+    private CommonFileService commonFileService;
 
     // ====================================================================
     // [기존 메서드들 - 원본 보존 유지]
@@ -61,27 +65,12 @@ public class CompanyServiceImpl extends EgovAbstractServiceImpl implements Compa
         MultipartFile file = vo.getBizFile();
         
         if (file != null && !file.isEmpty()) {
-            String orgName = file.getOriginalFilename();
-            String ext = orgName.substring(orgName.lastIndexOf(".")).toLowerCase();
-            
-            // 요구사항 2.3 명세 반영: 파일명 유일성 확보 및 암호화를 위해 UUID 조합 가공
-            String encName = UUID.randomUUID().toString() + ext;
-            String savePath = "C:/trsStorage/request_biz/"; // 보안을 위해 정식 서류함과 격리된 임시 폴더 배치
-            
-            File targetDir = new File(savePath);
-            if (!targetDir.exists()) {
-                targetDir.mkdirs(); // 폴더가 없으면 자동 생성
-            }
-            
-            // 디스크에 물리적 실제 파일 저장 실행
-            file.transferTo(new File(savePath + encName));
-            
-            // 데이터베이스(co_aply_info)에 적재할 파일 경로 및 암호화 명세 VO에 세팅
-            vo.setOrgnlFileNm(orgName);
-            vo.setEncptFileNm(encName);
-            vo.setFilePathNm(savePath);
-            
-            logger.debug("▶ [도입신청 파일 암호화 완료] 원본명: {}, 암호화 저장명: {}", orgName, encName);
+            CommonFileVO storedFile = commonFileService.storeFileOnly(file, "request_biz", "BIZ_LICENSE");
+            vo.setOrgnlFileNm(storedFile.getOrgnlFileNm());
+            vo.setEncptFileNm(storedFile.getEncptFileNm());
+            vo.setFilePathNm(storedFile.getFilePathNm());
+            logger.debug("▶ [도입신청 공통 파일저장 완료] 원본명: {}, 저장명: {}",
+                    storedFile.getOrgnlFileNm(), storedFile.getEncptFileNm());
         }
         
         // 통합된 기존 companyMapper의 회사 신청 쿼리 구문 호출 실행

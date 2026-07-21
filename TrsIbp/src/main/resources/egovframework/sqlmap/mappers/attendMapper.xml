@@ -26,6 +26,16 @@
         <result property="workMinutes"  column="WORK_MINUTES"   />
         <result property="regDt"        column="REG_DT"         />
         <result property="mdfcnDt"        column="MDFCN_DT"         />
+        <result property="coId" column="CO_ID"/>
+        <result property="deptId" column="DEPT_ID"/>
+        <result property="deptNm" column="DEPT_NM"/>
+        <result property="jbpsNm" column="JBPS_NM"/>
+        <result property="statusCd" column="STATUS_CD"/>
+        <result property="statusNm" column="STATUS_NM"/>
+        <result property="scheduleLinkedYn" column="SCHEDULE_LINKED_YN"/>
+        <result property="schdlNm" column="SCHDL_NM"/>
+        <result property="profileFileSn" column="PROFILE_FILE_SN"/>
+        <result property="externalYn" column="EXTERNAL_YN"/>
     </resultMap>
 
     <!-- ============================================================ -->
@@ -61,6 +71,107 @@
         WHERE A.USER_ID = #{userId}
           AND A.WORK_YMD = CURDATE()
         LIMIT 1
+    </select>
+
+    <select id="selectTodayScheduleStatus" parameterType="attendVO" resultMap="attendResultMap">
+        SELECT S.SCHDL_SE_CD AS STATUS_CD,
+               IFNULL(C.CD_NM, S.SCHDL_SE_CD) AS STATUS_NM,
+               'Y' AS SCHEDULE_LINKED_YN,
+               S.SCHDL_NM
+        FROM schdl_info S
+        JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
+        LEFT JOIN cmn_cd C
+          ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD'
+         AND C.CD = S.SCHDL_SE_CD
+        WHERE S.CO_ID = #{coId}
+          AND R.USER_ID = #{userId}
+          AND S.USE_YN = 'Y'
+          AND S.SCHDL_SE_CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT')
+          AND NOW() BETWEEN S.BGNG_DT AND S.END_DT
+        ORDER BY FIELD(S.SCHDL_SE_CD, 'VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT'), S.BGNG_DT
+        LIMIT 1
+    </select>
+
+    <select id="selectPowkCodeList" resultMap="attendResultMap">
+        SELECT C.CD AS POWK_SE_CD,
+               C.CD_NM AS STATUS_NM
+        FROM cmn_cd C
+        WHERE C.CD_GROUP_ID = 'POWK_SE_CD'
+          AND C.USE_YN = 'Y'
+        ORDER BY C.SORT_SEQ, C.CD
+    </select>
+
+    <select id="selectTeamStatusList" parameterType="attendVO" resultMap="attendResultMap">
+        SELECT T.USER_ID,
+               T.USER_NM,
+               T.CO_ID,
+               T.DEPT_ID,
+               T.DEPT_NM,
+               T.JBPS_NM,
+               T.STATUS_CD,
+               CASE T.STATUS_CD
+                   WHEN 'VAC' THEN '휴가'
+                   WHEN 'BIZTRIP' THEN '출장'
+                   WHEN 'OUTSIDE' THEN '외근'
+                   WHEN 'HOME' THEN '재택'
+                   WHEN 'CLIENT' THEN '상주'
+                   ELSE '본사'
+               END AS STATUS_NM,
+               CASE WHEN T.STATUS_CD = 'OFFICE' THEN 'N' ELSE 'Y' END AS EXTERNAL_YN,
+               T.SCHDL_NM,
+               T.PROFILE_FILE_SN
+        FROM (
+            SELECT U.USER_ID,
+                   U.USER_NM,
+                   U.CO_ID,
+                   U.DEPT_ID,
+                   D.DEPT_NM,
+                   U.JBPS_NM,
+                   COALESCE((
+                       SELECT S.SCHDL_SE_CD
+                       FROM schdl_info S
+                       JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
+                       WHERE R.USER_ID = U.USER_ID
+                         AND S.CO_ID = U.CO_ID
+                         AND S.USE_YN = 'Y'
+                         AND S.SCHDL_SE_CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT')
+                         AND NOW() BETWEEN S.BGNG_DT AND S.END_DT
+                       ORDER BY FIELD(S.SCHDL_SE_CD, 'VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT'), S.BGNG_DT
+                       LIMIT 1
+                   ), W.POWK_SE_CD, 'OFFICE') AS STATUS_CD,
+                   (
+                       SELECT S.SCHDL_NM
+                       FROM schdl_info S
+                       JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
+                       WHERE R.USER_ID = U.USER_ID
+                         AND S.CO_ID = U.CO_ID
+                         AND S.USE_YN = 'Y'
+                         AND S.SCHDL_SE_CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT')
+                         AND NOW() BETWEEN S.BGNG_DT AND S.END_DT
+                       ORDER BY FIELD(S.SCHDL_SE_CD, 'VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT'), S.BGNG_DT
+                       LIMIT 1
+                   ) AS SCHDL_NM,
+                   PF.PROFILE_FILE_SN
+            FROM user_info U
+            LEFT JOIN dept_info D ON D.DEPT_ID = U.DEPT_ID
+            LEFT JOIN work_hstry W ON W.USER_ID = U.USER_ID AND W.WORK_YMD = CURDATE()
+            LEFT JOIN (
+                SELECT F.REF_ID, MAX(F.ATCH_FILE_SN) AS PROFILE_FILE_SN
+                FROM atch_file_info F
+                WHERE F.CO_ID = #{coId}
+                  AND F.REF_SE_CD = 'USER'
+                  AND F.FILE_SE_CD = 'PROFILE'
+                  AND F.USE_YN = 'Y'
+                GROUP BY F.REF_ID
+            ) PF ON PF.REF_ID = U.USER_ID
+            WHERE U.CO_ID = #{coId}
+              AND U.USE_YN = 'Y'
+              <if test="deptId != null and deptId != ''">
+              AND U.DEPT_ID = #{deptId}
+              </if>
+        ) T
+        ORDER BY CASE WHEN T.STATUS_CD = 'OFFICE' THEN 1 ELSE 0 END,
+                 T.USER_NM, T.USER_ID
     </select>
 
     <select id="selectDefaultPowkSeCd" resultType="string">

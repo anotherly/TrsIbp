@@ -47,7 +47,10 @@
                     <div id="scheduleCalendarGrid" class="ds-calendar-grid"></div>
                     <div class="ds-calendar-legend">
                         <span><i class="ds-dot ds-dot-leave"></i>휴가</span>
-                        <span><i class="ds-dot ds-dot-trip"></i>출장/외근</span>
+                        <span><i class="ds-dot ds-dot-biztrip"></i>출장</span>
+                        <span><i class="ds-dot ds-dot-outside"></i>외근</span>
+                        <span><i class="ds-dot ds-dot-home"></i>재택</span>
+                        <span><i class="ds-dot ds-dot-resident"></i>상주</span>
                         <span><i class="ds-dot ds-dot-meeting"></i>회의</span>
                         <span><i class="ds-dot ds-dot-etc"></i>기타</span>
                     </div>
@@ -77,6 +80,7 @@
             <div class="ds-field ds-col-6"><label class="required">일정명</label><input type="text" id="frmCalSchdlNm" class="ds-input" maxlength="100"></div>
             <div class="ds-field ds-col-12"><label>프로젝트 명</label><select id="frmBizId" class="ds-select"><option value="">할당되지 않음</option></select></div>
             <div class="ds-field ds-col-12"><label class="required">대상자</label><div class="ds-input-action-row"><div id="scheduleTargetChips" class="ds-chip-box"></div><button type="button" class="ds-btn ds-btn-outline" onclick="openUserSelectModal('scheduleMulti');">대상자 선택</button></div></div>
+            <div id="scheduleConflictMessage" class="ds-schedule-conflict hidden ds-col-12" role="alert" aria-live="assertive"></div>
             <div class="ds-field ds-col-4"><label>종일여부</label><select id="frmAllDayYn" class="ds-select"><option value="N">시간 지정</option><option value="Y">종일</option></select></div>
             <div class="ds-field ds-col-4"><label class="required">시작일시</label><input type="text" id="frmBgngDt" class="ds-input ds-datetime-picker" readonly autocomplete="off"></div>
             <div class="ds-field ds-col-4"><label class="required">종료일시</label><input type="text" id="frmEndDt" class="ds-input ds-datetime-picker" readonly autocomplete="off"></div>
