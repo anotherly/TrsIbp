@@ -289,10 +289,10 @@ function renderTeamStatus(list) {
     }
     var html = list.map(function(item) {
         var name = item.userNm || item.userId || '-';
-        var initials = name.substring(0, 1);
+        var defaultProfile = ctxPath + '/images/default-profile.svg';
         var profile = item.profileFileSn
-            ? '<img src="' + ctxPath + '/common/fileView.do?atchFileSn=' + encodeURIComponent(item.profileFileSn) + '" alt="' + escapeDashboardHtml(name) + ' 프로필" class="w-9 h-9 rounded-full object-cover border border-slate-500">'
-            : '<span class="ds-team-avatar-fallback">' + escapeDashboardHtml(initials) + '</span>';
+            ? '<img src="' + ctxPath + '/common/fileView.do?atchFileSn=' + encodeURIComponent(item.profileFileSn) + '" onerror="this.onerror=null;this.src=\'' + defaultProfile + '\';" alt="' + escapeDashboardHtml(name) + ' 프로필" class="ds-team-avatar">'
+            : '<img src="' + defaultProfile + '" alt="기본 사용자 프로필" class="ds-team-avatar">';
         var detail = item.deptNm || '-';
         var title = item.schdlNm ? ' title="' + escapeDashboardHtml(item.schdlNm) + '"' : '';
         return '<div class="flex items-center justify-between gap-3 bg-slate-950/40 p-3 rounded-xl border border-brand-border/60">'

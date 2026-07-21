@@ -34,6 +34,24 @@ public class CommonFileController {
         writeFile(atchFileSn, true, request, response);
     }
 
+    /**
+     * 로그인 사용자의 최신 프로필 사진을 조회한다.
+     * 프로필이 없으면 공통 기본 사용자 이미지로 이동한다.
+     */
+    @RequestMapping(value = "/common/loginProfileView.do", method = RequestMethod.GET)
+    public void viewLoginProfile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        UserVO loginUser = requireLoginUser(request);
+        CommonFileVO profileFile = commonFileService.selectUserProfileFile(
+                loginUser.getCoId(), loginUser.getUserId());
+        if (profileFile == null) {
+            response.sendRedirect(request.getContextPath() + "/images/default-profile.svg");
+            return;
+        }
+        writeFile(profileFile.getAtchFileSn(), true, request, response);
+    }
+
     @RequestMapping(value = "/common/fileDownload.do", method = RequestMethod.GET)
     public void downloadFile(@RequestParam("atchFileSn") Long atchFileSn,
             HttpServletRequest request, HttpServletResponse response) throws Exception {

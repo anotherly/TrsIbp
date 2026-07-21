@@ -340,23 +340,27 @@ function saveEmp() {
 function previewEmpProfileFile() {
     var file = this.files && this.files[0];
     if (!file) {
+        $('#empProfileFileName').text('선택된 파일 없음');
         return;
     }
     if (!/^image\/(jpeg|png|gif)$/i.test(file.type) || file.size > 5 * 1000 * 1000) {
         alert('프로필 사진은 JPG, PNG, GIF 형식의 5MB 이하 파일만 등록할 수 있습니다.');
         $(this).val('');
+        $('#empProfileFileName').text('선택된 파일 없음');
         return;
     }
     $('#empProfilePreview').attr('src', URL.createObjectURL(file)).removeClass('hidden');
-    $('#empProfileFallback').addClass('hidden');
+    $('#empProfileFileName').text(file.name);
 }
 
 function renderSelectedEmpFiles() {
     var files = Array.prototype.slice.call(this.files || []);
     if (!files.length) {
         $('#empSelectedFileList').empty();
+        $('#empUserFileSummary').text('선택된 파일 없음');
         return;
     }
+    $('#empUserFileSummary').text(files.length + '개 파일 선택');
     $('#empSelectedFileList').html('<strong class="ds-file-list-title">새로 등록할 파일</strong>' + files.map(function(file) {
         return '<div class="ds-file-row"><span>' + escapeHtml(file.name) + '</span><em>' + formatEmpFileSize(file.size) + '</em></div>';
     }).join(''));
@@ -364,23 +368,25 @@ function renderSelectedEmpFiles() {
 
 function renderEmpProfile(profileFile, detailMode) {
     var fileSn = profileFile && profileFile.atchFileSn;
+    var defaultImage = getContextPath() + '/images/default-profile.svg';
     if (detailMode) {
-        if (!fileSn) {
-            $('#dispProfilePhoto').html('<span class="ds-profile-fallback">사진 없음</span>');
-            return;
-        }
-        $('#dispProfilePhoto').html('<img src="' + getContextPath() + '/common/fileView.do?atchFileSn=' + encodeURIComponent(fileSn)
-            + '" alt="프로필 사진" class="ds-profile-detail-image">');
+        var detailImage = fileSn
+            ? getContextPath() + '/common/fileView.do?atchFileSn=' + encodeURIComponent(fileSn)
+            : defaultImage;
+        $('#dispProfilePhoto').html('<img src="' + detailImage + '" onerror="this.onerror=null;this.src=\''
+            + defaultImage + '\';" alt="프로필 사진" class="ds-profile-detail-image">');
         return;
     }
     $('#btnDeleteProfileFile').data('fileSn', fileSn || '').toggleClass('hidden', !fileSn);
+    $('#empProfileFileName').text('선택된 파일 없음');
     if (!fileSn) {
-        $('#empProfilePreview').attr('src', '').addClass('hidden');
-        $('#empProfileFallback').removeClass('hidden');
+        $('#empProfilePreview').attr('src', defaultImage).removeClass('hidden');
         return;
     }
-    $('#empProfilePreview').attr('src', getContextPath() + '/common/fileView.do?atchFileSn=' + encodeURIComponent(fileSn)).removeClass('hidden');
-    $('#empProfileFallback').addClass('hidden');
+    $('#empProfilePreview')
+        .attr('onerror', "this.onerror=null;this.src='" + defaultImage + "';")
+        .attr('src', getContextPath() + '/common/fileView.do?atchFileSn=' + encodeURIComponent(fileSn))
+        .removeClass('hidden');
 }
 
 function renderEmpAttachmentList(list, detailMode) {

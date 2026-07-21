@@ -32,7 +32,7 @@
 
         <div class="p-4 mx-4 my-3 bg-brand-card/50 rounded-xl border border-brand-border/60 flex items-center gap-3">
             <div class="relative">
-                <img src="<%=request.getContextPath()%>/protoType/photo-1534528741775-53994a69daeb" alt="Profile" class="w-10 h-10 rounded-full border border-cyan-400 object-cover">
+                <img src="<%=request.getContextPath()%>/common/loginProfileView.do" onerror="this.onerror=null;this.src='<%=request.getContextPath()%>/images/default-profile.svg';" alt="로그인 사용자 프로필" class="w-10 h-10 rounded-full border border-cyan-400 object-cover bg-slate-800">
                 <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
             </div>
             <div class="flex-grow overflow-hidden">
