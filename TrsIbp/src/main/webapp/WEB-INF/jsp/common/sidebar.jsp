@@ -12,7 +12,9 @@
     boolean isAccount = uri.equals("/biz/accountList.do");
     boolean isMnpw = uri.equals("/biz/mnpwList.do");
     boolean isSchdl = uri.equals("/biz/schdlList.do");
+    boolean isOrgMgmt = uri.equals("/dept/orgList.do");
     boolean isEmpMgmt = uri.equals("/user/empList.do") || uri.equals("/user/empInsert.do") || uri.equals("/user/empDetail.do") || uri.equals("/user/empUpdate.do");
+    boolean isCompanyMgmt = isOrgMgmt || isEmpMgmt;
     boolean isSchedule = uri.equals("/schedule/scheduleList.do");
     boolean isProject = uri.startsWith("/biz/") && uri.endsWith(".do");
 %>
@@ -95,12 +97,13 @@
 
 
             <div>
-                <button type="button" onclick="toggleSubmenu('sub-user-mgmt')" class="w-full flex items-center justify-between p-3 <%= isEmpMgmt ? "text-white bg-brand-card" : "text-gray-300 hover:text-white hover:bg-brand-card" %> rounded-lg transition duration-200 group">
-                    <span class="flex items-center gap-3"><i class="fa-solid fa-users text-gray-400 group-hover:text-cyan-400 w-5"></i><span class="font-medium text-sm">사용자(직원) 관리</span></span>
-                    <i id="arrow-sub-user-mgmt" class="fa-solid <%= isEmpMgmt ? "fa-chevron-up text-cyan-400" : "fa-chevron-down text-gray-500" %> text-xs transition-transform"></i>
+                <button type="button" onclick="toggleSubmenu('sub-user-mgmt')" class="w-full flex items-center justify-between p-3 <%= isCompanyMgmt ? "text-white bg-brand-card" : "text-gray-300 hover:text-white hover:bg-brand-card" %> rounded-lg transition duration-200 group">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-building text-gray-400 group-hover:text-cyan-400 w-5"></i><span class="font-medium text-sm">회사 관리</span></span>
+                    <i id="arrow-sub-user-mgmt" class="fa-solid <%= isCompanyMgmt ? "fa-chevron-up text-cyan-400" : "fa-chevron-down text-gray-500" %> text-xs transition-transform"></i>
                 </button>
-                <div id="sub-user-mgmt" class="<%= isEmpMgmt ? "" : "hidden" %> pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
-                    <a href="<%=request.getContextPath()%>/user/empList.do" data-menu-path="/user/empList.do,/user/empInsert.do,/user/empDetail.do,/user/empUpdate.do" class="ds-sidebar-link <%= isEmpMgmt ? "is-active" : "" %>">사용자 목록</a>
+                <div id="sub-user-mgmt" class="<%= isCompanyMgmt ? "" : "hidden" %> pl-8 pr-2 py-1 space-y-1 text-xs text-gray-400">
+                    <a href="<%=request.getContextPath()%>/dept/orgList.do" data-menu-path="/dept/orgList.do" class="ds-sidebar-link <%= isOrgMgmt ? "is-active" : "" %>">조직 관리</a>
+                    <a href="<%=request.getContextPath()%>/user/empList.do" data-menu-path="/user/empList.do,/user/empInsert.do,/user/empDetail.do,/user/empUpdate.do" class="ds-sidebar-link <%= isEmpMgmt ? "is-active" : "" %>">사용자 관리</a>
                 </div>
             </div>
 

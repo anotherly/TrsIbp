@@ -131,37 +131,28 @@
     }
 
     /**
-     * 특정 부서 하위의 최하위 부서 목록을 반환한다.
-     * @param {string} parentId 기준 부서ID. 빈 값이면 전체 최하위 부서
-     * @returns {Array} 최하위 부서 목록
+     * 특정 조직 하위에서 사용자 소속으로 지정 가능한 부서·팀 목록을 반환한다.
+     * @param {string} parentId 기준 조직ID. 빈 값이면 전체 조직
+     * @returns {Array} 선택 가능한 부서·팀 목록
      */
     function getLeafDepts(parentId) {
-        var roots = parentId ? getDeptChildren(parentId) : deptSelectList.filter(function(dept) { return dsmNvl(dept.upDeptId, '') === ''; });
+        var roots = parentId ? deptSelectList.filter(function(dept) { return dsmNvl(dept.deptId, '') === parentId; }) : deptSelectList.filter(function(dept) { return dsmNvl(dept.upDeptId, '') === ''; });
         var leaves = [];
         var keyword = ($('#deptSelectKeyword').val() || '').toLowerCase();
         function collect(node) {
             var children = getDeptChildren(dsmNvl(node.deptId, ''));
-            if (children.length === 0) {
+            var type = dsmNvl(node.deptSeCd, '');
+            var selectable = type ? (type === 'DEPT' || type === 'TEAM') : children.length === 0;
+            if (selectable) {
                 var deptName = dsmNvl(node.deptNm, '').toLowerCase();
                 var deptPath = buildDeptPath(node).toLowerCase();
                 if (!keyword || deptName.indexOf(keyword) > -1 || deptPath.indexOf(keyword) > -1) {
                     leaves.push(node);
                 }
-                return;
             }
             children.forEach(collect);
         }
         roots.forEach(collect);
-        if (parentId && roots.length === 0) {
-            var selected = deptSelectList.filter(function(dept) { return dsmNvl(dept.deptId, '') === parentId; })[0];
-            if (selected) {
-                var selectedName = dsmNvl(selected.deptNm, '').toLowerCase();
-                var selectedPath = buildDeptPath(selected).toLowerCase();
-                if (!keyword || selectedName.indexOf(keyword) > -1 || selectedPath.indexOf(keyword) > -1) {
-                    leaves.push(selected);
-                }
-            }
-        }
         return leaves;
     }
 

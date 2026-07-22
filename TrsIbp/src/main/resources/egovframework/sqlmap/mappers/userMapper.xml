@@ -26,6 +26,7 @@
         <result property="upDeptNm"  column="PARENT_DEPT_NM"/>
         <result property="upDeptId"  column="UP_DEPT_ID"/>
         <result property="sortDeptSeq"  column="SORT_SEQ"/>
+        <result property="deptSeCd"  column="DEPT_SE_CD"/>
         <result property="jbpsNm"        column="JBPS_NM"        />
         <result property="authrtId"          column="AUTHRT_ID"         />
         <result property="authrtNm"        column="AUTHRT_NM"       />
@@ -199,6 +200,7 @@
             ,D.CO_ID
             ,D.DEPT_NM
             ,D.UP_DEPT_ID
+            ,D.DEPT_SE_CD
             ,D.SORT_SEQ
         FROM DEPT_INFO D
         WHERE D.USE_YN = 'Y'
@@ -359,6 +361,7 @@
             ,D.CO_ID
             ,D.DEPT_NM
             ,D.UP_DEPT_ID
+            ,D.DEPT_SE_CD
             ,PD.DEPT_NM AS PARENT_DEPT_NM
             ,D.SORT_SEQ
         FROM DEPT_INFO D

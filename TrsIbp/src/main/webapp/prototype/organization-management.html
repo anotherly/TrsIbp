@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSync - 조직 관리 시안</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #080d17;
+            --sidebar: #030818;
+            --panel: #0e1625;
+            --panel-2: #111c2e;
+            --line: #233149;
+            --line-soft: rgba(148, 163, 184, .15);
+            --text: #e7edf7;
+            --muted: #8d9bb0;
+            --blue: #3b82f6;
+            --blue-2: #22d3ee;
+            --green: #34d399;
+            --red: #fb7185;
+            --yellow: #fbbf24;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { min-height: 100%; }
+        body {
+            margin: 0;
+            background: radial-gradient(circle at 70% 0%, rgba(37, 99, 235, .08), transparent 28%), var(--bg);
+            color: var(--text);
+            font-family: Inter, Pretendard, "Noto Sans KR", "Malgun Gothic", sans-serif;
+            font-size: 14px;
+        }
+        button, input, select, textarea { font: inherit; }
+        button { color: inherit; }
+        .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+
+        /* sidebar */
+        .sidebar { position: sticky; top: 0; height: 100vh; background: rgba(3, 8, 24, .97); border-right: 1px solid #1e293b; display: flex; flex-direction: column; }
+        .logo { height: 91px; padding: 25px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1e293b; }
+        .logo-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: linear-gradient(145deg, #22d3ee, #3b82f6); box-shadow: 0 8px 24px rgba(34, 211, 238, .18); font-size: 21px; font-weight: 900; }
+        .logo strong { display: block; color: #fff; font-size: 20px; letter-spacing: .5px; }
+        .logo small { color: #22d3ee; font-size: 10px; font-weight: 800; letter-spacing: 1.6px; }
+        .profile { margin: 18px 13px 12px; padding: 14px; display: flex; align-items: center; gap: 11px; border: 1px solid #1f2b40; border-radius: 13px; background: rgba(15, 23, 42, .55); }
+        .avatar { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid #3b82f6; border-radius: 50%; background: linear-gradient(145deg, #1e3a5f, #172033); color: #bfdbfe; font-size: 13px; font-weight: 900; }
+        .profile strong { display: block; font-size: 13px; }
+        .profile small { color: var(--muted); font-size: 11px; }
+        .nav { flex: 1; padding: 4px 13px 20px; overflow-y: auto; }
+        .nav-group { margin-bottom: 4px; }
+        .nav-main { width: 100%; padding: 12px 13px; display: flex; align-items: center; gap: 11px; border: 0; border-radius: 9px; background: transparent; color: #b7c2d1; text-align: left; cursor: pointer; }
+        .nav-main:hover, .nav-group.open .nav-main { background: #111b2d; color: #fff; }
+        .nav-icon { width: 20px; color: #7f8ca1; text-align: center; }
+        .nav-main span:nth-child(2) { flex: 1; font-size: 13px; font-weight: 750; }
+        .nav-arrow { color: #64748b; font-size: 11px; }
+        .subnav { margin: 2px 8px 6px 34px; padding-left: 0; }
+        .subnav a { display: block; margin: 3px 0; padding: 9px 10px; border-radius: 8px; color: #8e9bb0; font-size: 12px; text-decoration: none; }
+        .subnav a:hover { color: #dbeafe; background: #0d1729; }
+        .subnav a.active { color: #22d3ee; background: #101d32; font-weight: 850; }
+        .sidebar-foot { padding: 17px 18px; border-top: 1px solid #1e293b; color: #64748b; font-size: 10px; }
+
+        /* header / page */
+        .shell { min-width: 0; }
+        .topbar { height: 72px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #1f2937; background: rgba(12, 19, 32, .88); backdrop-filter: blur(18px); }
+        .topbar h2 { margin: 0; font-size: 15px; }
+        .top-search { width: min(390px, 38vw); padding: 10px 14px; border: 1px solid #26344b; border-radius: 10px; background: #0b1424; color: #a9b5c7; font-size: 12px; }
+        .top-user { display: flex; align-items: center; gap: 14px; color: #cbd5e1; }
+        main { padding: 24px 30px 38px; }
+        .breadcrumb { margin-bottom: 16px; color: #6f7f96; font-size: 11px; }
+        .page-head { margin-bottom: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
+        h1 { margin: 0 0 7px; font-size: 25px; letter-spacing: -.5px; }
+        .page-head p { margin: 0; color: var(--muted); font-size: 12px; }
+        .actions { display: flex; align-items: center; gap: 9px; }
+        .btn { min-height: 38px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #334155; border-radius: 9px; background: #172235; color: #d7e2f0; font-size: 12px; font-weight: 800; cursor: pointer; }
+        .btn:hover { border-color: #4f6b91; background: #1b2a41; }
+        .btn.primary { border-color: #3b82f6; background: #2563eb; color: #fff; }
+        .btn.primary:hover { background: #3478e5; }
+        .btn.danger { border-color: rgba(251, 113, 133, .4); background: rgba(127, 29, 29, .22); color: #fda4af; }
+        .btn.ghost { background: transparent; }
+        .btn:disabled { opacity: .4; cursor: not-allowed; }
+        .icon-btn { width: 30px; height: 30px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; }
+        .icon-btn:hover { border-color: #334155; background: #172235; color: #fff; }
+
+        .stats { margin-bottom: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .stat { min-width: 0; padding: 15px 17px; border: 1px solid var(--line); border-radius: 13px; background: rgba(14, 22, 37, .82); }
+        .stat span { display: block; color: var(--muted); font-size: 11px; font-weight: 750; }
+        .stat strong { margin-top: 6px; display: block; font-size: 22px; }
+        .stat em { color: #6ee7b7; font-size: 10px; font-style: normal; }
+
+        .workspace { min-height: 650px; display: grid; grid-template-columns: 290px minmax(470px, 1fr) 320px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: rgba(12, 20, 34, .86); box-shadow: 0 22px 60px rgba(0, 0, 0, .18); }
+        .pane { min-width: 0; }
+        .pane + .pane { border-left: 1px solid var(--line); }
+        .pane-head { min-height: 70px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
+        .pane-head h3 { margin: 0 0 4px; font-size: 14px; }
+        .pane-head p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+        .tree-tools { padding: 13px 14px 9px; }
+        .search { width: 100%; height: 38px; padding: 0 12px; border: 1px solid #293850; border-radius: 9px; outline: 0; background: #0a1322; color: #dbeafe; font-size: 12px; }
+        .search:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, .1); }
+        .tree { height: 520px; padding: 4px 10px 18px; overflow: auto; }
+        .tree-list, .tree-list ul { margin: 0; padding: 0; list-style: none; }
+        .tree-list ul { margin-left: 17px; padding-left: 12px; border-left: 1px solid #27354a; }
+        .tree-item { position: relative; }
+        .tree-row { min-height: 38px; margin: 3px 0; padding: 5px 5px 5px 7px; display: flex; align-items: center; gap: 7px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; }
+        .tree-row:hover { background: #111d30; }
+        .tree-row.selected { border-color: rgba(59, 130, 246, .55); background: rgba(37, 99, 235, .18); }
+        .tree-toggle { width: 17px; flex: 0 0 17px; color: #7e8da3; text-align: center; font-size: 10px; }
+        .tree-type { width: 22px; height: 22px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 6px; background: #17263c; color: #93c5fd; font-size: 10px; font-weight: 900; }
+        .tree-name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; }
+        .tree-count { color: #718096; font-size: 10px; }
+        .tree-add { width: 24px; height: 24px; display: none; border: 0; border-radius: 6px; background: #20324d; color: #93c5fd; cursor: pointer; }
+        .tree-row:hover .tree-add, .tree-row.selected .tree-add { display: block; }
+        .collapsed > ul { display: none; }
+
+        /* chart */
+        .chart-pane { background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, .08), transparent 35%); }
+        .chart-toolbar { padding: 13px 17px; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line-soft); }
+        .view-tabs { padding: 3px; display: inline-flex; gap: 3px; border: 1px solid #293850; border-radius: 9px; background: #0a1322; }
+        .view-tabs button { padding: 6px 10px; border: 0; border-radius: 6px; background: transparent; color: #7f8da3; font-size: 11px; font-weight: 800; cursor: pointer; }
+        .view-tabs button.active { background: #1b2a42; color: #dbeafe; }
+        .chart-scroll { height: 525px; overflow: auto; }
+        .chart { min-width: 760px; padding: 26px 24px 60px; }
+        .root-wrap { position: relative; display: flex; justify-content: center; padding-bottom: 42px; }
+        .root-wrap::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 1px; height: 42px; background: #3e5575; }
+        .org-card { position: relative; border: 1px solid #2a3b55; border-radius: 12px; background: linear-gradient(145deg, #14233a, #101a2b); box-shadow: 0 12px 28px rgba(0, 0, 0, .18); cursor: pointer; }
+        .org-card:hover { border-color: #4a6d9f; transform: translateY(-1px); }
+        .org-card.selected { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, .16), 0 14px 30px rgba(0, 0, 0, .22); }
+        .root-card { width: 210px; padding: 14px 15px; text-align: center; }
+        .org-card strong { display: block; color: #f8fafc; font-size: 13px; }
+        .org-card small { margin-top: 4px; display: block; color: #8493a8; font-size: 10px; }
+        .card-add { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: 0; border-radius: 6px; background: rgba(59, 130, 246, .14); color: #93c5fd; cursor: pointer; }
+        .branches { position: relative; display: grid; grid-template-columns: repeat(3, minmax(210px, 1fr)); gap: 18px; padding-top: 28px; }
+        .branches::before { content: ""; position: absolute; top: 0; left: 16.6%; right: 16.6%; height: 1px; background: #3e5575; }
+        .branch { position: relative; min-width: 0; }
+        .branch::before { content: ""; position: absolute; top: -28px; left: 50%; width: 1px; height: 28px; background: #3e5575; }
+        .branch-head { min-height: 66px; padding: 13px 36px 13px 14px; }
+        .branch-head .type-badge, .detail-type { margin-bottom: 8px; display: inline-flex; padding: 3px 7px; border-radius: 999px; background: rgba(34, 211, 238, .1); color: #67e8f9; font-size: 9px; font-weight: 900; }
+        .child-list { position: relative; margin: 17px 8px 0 18px; padding: 0 0 0 16px; border-left: 1px solid #31425c; }
+        .child-card { position: relative; margin: 9px 0; padding: 11px 34px 11px 12px; border: 1px solid #293950; border-radius: 9px; background: rgba(14, 25, 42, .95); cursor: pointer; }
+        .child-card::before { content: ""; position: absolute; top: 50%; left: -17px; width: 17px; height: 1px; background: #31425c; }
+        .child-card:hover { border-color: #48658c; }
+        .child-card.selected { border-color: #3b82f6; background: rgba(37, 99, 235, .15); }
+        .child-card strong { display: block; font-size: 11px; }
+        .child-card span { margin-top: 4px; display: block; color: #74849a; font-size: 9px; }
+        .child-card .card-add { top: 8px; right: 7px; width: 22px; height: 22px; }
+        .grandchildren { margin: 6px 0 10px 16px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .team-chip { padding: 5px 8px; border: 1px solid #2c3c54; border-radius: 6px; background: #0d1727; color: #9dafc5; font-size: 9px; cursor: pointer; }
+        .team-chip:hover, .team-chip.selected { border-color: #3b82f6; color: #bfdbfe; background: rgba(37, 99, 235, .16); }
+
+        /* detail */
+        .detail { height: 578px; padding: 18px; overflow: auto; }
+        .detail-title { padding-bottom: 17px; border-bottom: 1px solid var(--line-soft); }
+        .detail-title h3 { margin: 0 0 5px; font-size: 18px; }
+        .detail-title p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+        .detail-actions { margin-top: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .kv { margin: 18px 0; display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px 8px; font-size: 11px; }
+        .kv dt { color: #718096; }
+        .kv dd { margin: 0; color: #dce6f3; font-weight: 700; }
+        .section-label { margin: 22px 0 10px; display: flex; align-items: center; justify-content: space-between; color: #cbd5e1; font-size: 11px; font-weight: 850; }
+        .section-label b { color: #60a5fa; }
+        .members { display: flex; flex-direction: column; gap: 7px; }
+        .member { padding: 9px 10px; display: flex; align-items: center; gap: 9px; border: 1px solid var(--line-soft); border-radius: 9px; background: rgba(15, 23, 42, .58); }
+        .member .avatar { width: 31px; height: 31px; border-color: #334155; font-size: 9px; }
+        .member strong { display: block; font-size: 11px; }
+        .member small { color: #7f8da3; font-size: 9px; }
+        .member .leader { margin-left: auto; padding: 3px 6px; border-radius: 999px; background: rgba(251, 191, 36, .1); color: #fbbf24; font-size: 8px; font-weight: 900; }
+        .hint { margin-top: 14px; padding: 11px 12px; border: 1px solid rgba(59, 130, 246, .2); border-radius: 9px; background: rgba(30, 64, 175, .09); color: #91a6c2; font-size: 10px; line-height: 1.6; }
+
+        /* modal */
+        .modal { position: fixed; inset: 0; z-index: 50; padding: 24px; display: none; align-items: center; justify-content: center; background: rgba(2, 6, 23, .76); backdrop-filter: blur(5px); }
+        .modal.open { display: flex; }
+        .modal-panel { width: min(610px, 100%); max-height: calc(100vh - 48px); overflow: auto; border: 1px solid #334155; border-radius: 16px; background: #0e1727; box-shadow: 0 30px 90px rgba(0, 0, 0, .55); }
+        .modal-head { padding: 18px 21px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); }
+        .modal-head h3 { margin: 0 0 5px; font-size: 17px; }
+        .modal-head p { margin: 0; color: var(--muted); font-size: 10px; }
+        .modal-body { padding: 20px 21px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .field { min-width: 0; }
+        .field.full { grid-column: 1 / -1; }
+        .field label { margin-bottom: 7px; display: block; color: #b7c4d5; font-size: 10px; font-weight: 800; }
+        .field label em { color: #60a5fa; font-style: normal; }
+        .input { width: 100%; min-height: 40px; padding: 0 11px; border: 1px solid #30415b; border-radius: 8px; outline: 0; background: #0a1322; color: #e2e8f0; font-size: 11px; }
+        textarea.input { min-height: 75px; padding-top: 10px; resize: vertical; }
+        .input:focus { border-color: #3b82f6; }
+        .form-help { margin-top: 6px; color: #6f8096; font-size: 9px; line-height: 1.5; }
+        .modal-foot { padding: 14px 21px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--line); background: rgba(7, 13, 24, .7); }
+        .toast { position: fixed; right: 24px; bottom: 24px; z-index: 80; min-width: 300px; padding: 13px 15px; display: none; align-items: center; gap: 10px; border: 1px solid #365277; border-radius: 11px; background: #14233a; color: #dbeafe; box-shadow: 0 18px 45px rgba(0, 0, 0, .4); font-size: 11px; font-weight: 750; }
+        .toast.show { display: flex; animation: toast-in .2s ease-out; }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+
+        @media (max-width: 1400px) {
+            .workspace { grid-template-columns: 270px minmax(440px, 1fr) 290px; }
+            .top-search { display: none; }
+        }
+        @media (max-width: 1120px) {
+            .app { grid-template-columns: 88px minmax(0, 1fr); }
+            .logo { justify-content: center; padding: 20px; }
+            .logo > div:last-child, .profile > div:last-child, .nav-main span:nth-child(2), .nav-arrow, .subnav, .sidebar-foot { display: none; }
+            .profile { justify-content: center; padding: 10px; }
+            .nav-main { justify-content: center; }
+            .workspace { grid-template-columns: 255px minmax(470px, 1fr); }
+            .detail-pane { grid-column: 1 / -1; border-top: 1px solid var(--line); border-left: 0 !important; }
+            .detail { height: auto; }
+        }
+        @media (max-width: 820px) {
+            .app { display: block; }
+            .sidebar { display: none; }
+            main { padding: 20px 16px; }
+            .topbar { padding: 0 16px; }
+            .page-head { align-items: flex-start; flex-direction: column; }
+            .stats { grid-template-columns: 1fr 1fr; }
+            .workspace { display: block; }
+            .pane + .pane { border-left: 0; border-top: 1px solid var(--line); }
+            .tree { height: 320px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .field.full { grid-column: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-mark">⌘</div><div><strong>DevSync</strong><small>IT GROUPWARE</small></div></div>
+        <div class="profile"><div class="avatar">정</div><div><strong>정다빈</strong><small>관리자</small></div></div>
+        <nav class="nav">
+            <div class="nav-group"><button class="nav-main"><span class="nav-icon">◷</span><span>근무 관리</span><span class="nav-arrow">⌄</span></button></div>
+            <div class="nav-group"><button class="nav-main"><span class="nav-icon">☂</span><span>휴가 관리</span><span class="nav-arrow">⌄</span></button></div>
+            <div class="nav-group"><button class="nav-main"><span class="nav-icon">▣</span><span>일정/공유</span><span class="nav-arrow">⌄</span></button></div>
+            <div class="nav-group"><button class="nav-main"><span class="nav-icon">▦</span><span>프로젝트/사업</span><span class="nav-arrow">⌄</span></button></div>
+            <div class="nav-group open">
+                <button class="nav-main"><span class="nav-icon">▤</span><span>회사 관리</span><span class="nav-arrow">⌃</span></button>
+                <div class="subnav"><a class="active" href="#">조직 관리</a><a href="#">사용자 관리</a></div>
+            </div>
+            <div class="nav-group"><button class="nav-main"><span class="nav-icon">▱</span><span>인프라/총무</span><span class="nav-arrow">⌄</span></button></div>
+            <div class="nav-group"><button class="nav-main"><span class="nav-icon">₩</span><span>비용/회계</span><span class="nav-arrow">⌄</span></button></div>
+        </nav>
+        <div class="sidebar-foot">Server: <span style="color:#34d399;font-weight:800">Stable</span></div>
+    </aside>
+
+    <section class="shell">
+        <header class="topbar"><h2>조직 관리</h2><div class="top-search">⌕　프로젝트, 마일스톤, 문서 통합 검색</div><div class="top-user"><span>●</span><strong>정다빈</strong><span>↪</span></div></header>
+        <main>
+            <div class="breadcrumb">회사 관리　›　조직 관리</div>
+            <div class="page-head">
+                <div><h1>조직 관리</h1><p>본부·부서·팀 구조를 관리하고 사용자 등록/수정 화면의 부서 선택 항목에 반영합니다.</p></div>
+                <div class="actions">
+                    <button class="btn" id="expandAllBtn">전체 펼치기</button>
+                    <button class="btn primary" id="globalAddBtn">＋ 조직 추가</button>
+                </div>
+            </div>
+
+            <section class="stats">
+                <div class="stat"><span>회사</span><strong>TR솔루션</strong><em>사용 중</em></div>
+                <div class="stat"><span>운영 조직</span><strong id="orgCount">0</strong><em>본부 · 부서 · 팀</em></div>
+                <div class="stat"><span>전체 구성원</span><strong id="memberCount">0명</strong><em>재직 사용자 기준</em></div>
+                <div class="stat"><span>미배정 사용자</span><strong>2명</strong><em style="color:#fbbf24">조직 배정 필요</em></div>
+            </section>
+
+            <section class="workspace">
+                <aside class="pane tree-pane">
+                    <div class="pane-head"><div><h3>조직 계층</h3><p>조직을 선택하거나 ＋로 하위 조직을 추가합니다.</p></div><button class="icon-btn" title="조직 추가" id="treeTopAdd">＋</button></div>
+                    <div class="tree-tools"><input class="search" id="treeSearch" type="search" placeholder="조직명 검색"></div>
+                    <div class="tree" id="tree"></div>
+                </aside>
+
+                <section class="pane chart-pane">
+                    <div class="pane-head"><div><h3>전체 조직도</h3><p>카드를 누르면 상세정보와 소속 구성원을 확인할 수 있습니다.</p></div><span style="color:#64748b;font-size:10px">2026.07.22 기준</span></div>
+                    <div class="chart-toolbar"><div class="view-tabs"><button class="active">조직도</button><button title="구현 단계에서 제공 예정">목록</button></div><button class="btn ghost" id="resetViewBtn">⌂ 전체 보기</button></div>
+                    <div class="chart-scroll"><div class="chart" id="chart"></div></div>
+                </section>
+
+                <aside class="pane detail-pane">
+                    <div class="pane-head"><div><h3>조직 상세</h3><p>선택 조직의 정보와 소속 인원입니다.</p></div></div>
+                    <div class="detail" id="detail"></div>
+                </aside>
+            </section>
+        </main>
+    </section>
+</div>
+
+<div class="modal" id="orgModal" aria-hidden="true">
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <header class="modal-head"><div><h3 id="modalTitle">조직 추가</h3><p id="modalDesc">선택한 조직의 하위 조직을 등록합니다.</p></div><button class="icon-btn" data-close="orgModal">✕</button></header>
+        <form id="orgForm">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="field"><label for="orgType">조직 구분 <em>*</em></label><select class="input" id="orgType" required><option value="HQ">본부</option><option value="DEPT">부서</option><option value="TEAM">팀</option></select></div>
+                    <div class="field"><label for="parentId">상위 조직 <em>*</em></label><select class="input" id="parentId" required></select></div>
+                    <div class="field"><label for="orgName">조직명 <em>*</em></label><input class="input" id="orgName" maxlength="40" placeholder="예: 플랫폼개발팀" required></div>
+                    <div class="field"><label for="orgCode">조직 코드 <em>*</em></label><input class="input" id="orgCode" maxlength="12" placeholder="예: DEV-PLAT" required><div class="form-help">영문 대문자, 숫자, 하이픈 조합</div></div>
+                    <div class="field"><label for="leaderName">조직장</label><input class="input" id="leaderName" placeholder="사용자 선택 기능 연동 예정"></div>
+                    <div class="field"><label for="sortOrder">정렬 순서</label><input class="input" id="sortOrder" type="number" min="1" value="1"></div>
+                    <div class="field full"><label for="orgDesc">설명</label><textarea class="input" id="orgDesc" maxlength="200" placeholder="조직의 역할이나 담당 업무를 입력합니다."></textarea></div>
+                </div>
+            </div>
+            <footer class="modal-foot"><button type="button" class="btn" data-close="orgModal">취소</button><button type="submit" class="btn primary">저장</button></footer>
+        </form>
+    </section>
+</div>
+
+<div class="toast" id="toast"><span style="color:#34d399">●</span><span id="toastText"></span></div>
+
+<script>
+    (function () {
+        const typeLabels = { COMPANY: '회사', HQ: '본부', DEPT: '부서', TEAM: '팀' };
+        const nodes = [
+            { id:'company', parent:null, type:'COMPANY', name:'TR솔루션', code:'TRS', leader:'김대표', members:0, desc:'IT 개발과 스마트 솔루션을 제공하는 회사입니다.' },
+            { id:'hq-mgmt', parent:'company', type:'HQ', name:'경영지원본부', code:'HQ-MGT', leader:'박서현', members:3, desc:'경영기획과 운영 지원 업무를 총괄합니다.' },
+            { id:'d-plan', parent:'hq-mgmt', type:'DEPT', name:'경영기획부', code:'MGT-PLAN', leader:'박서현', members:3, desc:'사업계획과 경영관리 업무를 담당합니다.' },
+            { id:'d-fin', parent:'hq-mgmt', type:'DEPT', name:'재무회계부', code:'MGT-FIN', leader:'이수정', members:4, desc:'회계, 세무, 자금 업무를 담당합니다.' },
+            { id:'d-hr', parent:'hq-mgmt', type:'DEPT', name:'인사총무부', code:'MGT-HR', leader:'최유진', members:5, desc:'인사 운영과 총무 업무를 담당합니다.' },
+            { id:'hq-biz', parent:'company', type:'HQ', name:'사업본부', code:'HQ-BIZ', leader:'강민호', members:2, desc:'공공 및 민간 사업을 기획하고 수행합니다.' },
+            { id:'d-public', parent:'hq-biz', type:'DEPT', name:'공공사업부', code:'BIZ-PUB', leader:'강민호', members:6, desc:'공공기관 SI 및 운영 사업을 담당합니다.' },
+            { id:'t-tbn', parent:'d-public', type:'TEAM', name:'TBN사업팀', code:'PUB-TBN', leader:'정다빈', members:4, desc:'TBN 제보접수 및 연계 시스템을 담당합니다.' },
+            { id:'t-data', parent:'d-public', type:'TEAM', name:'데이터사업팀', code:'PUB-DATA', leader:'한지훈', members:5, desc:'교통 데이터 플랫폼 사업을 담당합니다.' },
+            { id:'d-private', parent:'hq-biz', type:'DEPT', name:'민간사업부', code:'BIZ-PRI', leader:'오세진', members:5, desc:'민간 고객 사업을 담당합니다.' },
+            { id:'hq-dev', parent:'company', type:'HQ', name:'기술개발본부', code:'HQ-DEV', leader:'윤태경', members:2, desc:'서비스 개발과 기술 품질을 총괄합니다.' },
+            { id:'d-web', parent:'hq-dev', type:'DEPT', name:'웹개발부', code:'DEV-WEB', leader:'윤태경', members:8, desc:'전자정부프레임워크 기반 웹 서비스 개발을 담당합니다.' },
+            { id:'t-back', parent:'d-web', type:'TEAM', name:'백엔드팀', code:'WEB-BE', leader:'정다빈', members:4, desc:'Java, Spring, DB 중심의 서버 개발을 담당합니다.' },
+            { id:'t-front', parent:'d-web', type:'TEAM', name:'프론트엔드팀', code:'WEB-FE', leader:'김도윤', members:4, desc:'웹 UI와 사용자 경험 개발을 담당합니다.' },
+            { id:'d-solution', parent:'hq-dev', type:'DEPT', name:'솔루션개발부', code:'DEV-SOL', leader:'서예린', members:7, desc:'사내 제품과 연계 솔루션을 개발합니다.' },
+            { id:'t-platform', parent:'d-solution', type:'TEAM', name:'플랫폼팀', code:'SOL-PLT', leader:'서예린', members:4, desc:'공통 플랫폼과 API를 개발합니다.' },
+            { id:'d-qa', parent:'hq-dev', type:'DEPT', name:'품질관리부', code:'DEV-QA', leader:'문하늘', members:4, desc:'테스트와 개발 품질 기준을 관리합니다.' }
+        ];
+        const members = {
+            'd-web': [['윤태경','부장','조직장'],['정다빈','과장',''],['김도윤','대리',''],['이하린','사원','']],
+            't-back': [['정다빈','과장','조직장'],['박민재','대리',''],['이하린','사원',''],['조현우','사원','']],
+            'hq-dev': [['윤태경','본부장','조직장'],['서예린','부장','']],
+            'd-public': [['강민호','부장','조직장'],['한지훈','과장',''],['정다빈','과장','']],
+            'company': [['김대표','대표이사','조직장']]
+        };
+        let selectedId = 'd-web';
+        let modalMode = 'add';
+        let editingId = null;
+        let expanded = new Set(nodes.map(n => n.id));
+
+        const byId = id => nodes.find(n => n.id === id);
+        const childrenOf = id => nodes.filter(n => n.parent === id);
+        const totalMembers = () => nodes.filter(n => n.type === 'TEAM' || (n.type === 'DEPT' && childrenOf(n.id).length === 0)).reduce((sum, n) => sum + Number(n.members || 0), 0);
+        const escapeHtml = value => String(value == null ? '' : value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+        function renderStats() {
+            document.getElementById('orgCount').textContent = nodes.length - 1;
+            document.getElementById('memberCount').textContent = totalMembers() + '명';
+        }
+
+        function renderTree() {
+            const q = document.getElementById('treeSearch').value.trim().toLowerCase();
+            const visible = id => {
+                const node = byId(id);
+                return !q || node.name.toLowerCase().includes(q) || childrenOf(id).some(child => visible(child.id));
+            };
+            const item = node => {
+                if (!visible(node.id)) return '';
+                const children = childrenOf(node.id);
+                const isOpen = expanded.has(node.id) || !!q;
+                return `<li class="tree-item ${isOpen ? '' : 'collapsed'}" data-id="${node.id}">
+                    <div class="tree-row ${selectedId === node.id ? 'selected' : ''}" data-select="${node.id}">
+                        <span class="tree-toggle" data-toggle="${node.id}">${children.length ? (isOpen ? '▼' : '▶') : '·'}</span>
+                        <span class="tree-type">${node.type === 'COMPANY' ? 'C' : node.type === 'HQ' ? 'H' : node.type === 'DEPT' ? 'D' : 'T'}</span>
+                        <span class="tree-name">${escapeHtml(node.name)}</span><span class="tree-count">${node.members || ''}</span>
+                        ${node.type !== 'TEAM' ? `<button class="tree-add" data-add="${node.id}" title="하위 조직 추가">＋</button>` : ''}
+                    </div>${children.length ? `<ul>${children.map(item).join('')}</ul>` : ''}
+                </li>`;
+            };
+            document.getElementById('tree').innerHTML = `<ul class="tree-list">${item(byId('company'))}</ul>`;
+        }
+
+        function orgCard(node, css) {
+            return `<div class="org-card ${css || ''} ${selectedId === node.id ? 'selected' : ''}" data-select="${node.id}">
+                <span class="type-badge">${typeLabels[node.type]}</span><strong>${escapeHtml(node.name)}</strong><small>${escapeHtml(node.leader || '조직장 미지정')} · ${node.members || 0}명</small>
+                ${node.type !== 'TEAM' ? `<button class="card-add" data-add="${node.id}" title="하위 조직 추가">＋</button>` : ''}
+            </div>`;
+        }
+
+        function renderChart() {
+            const company = byId('company');
+            const top = childrenOf('company');
+            document.getElementById('chart').innerHTML = `
+                <div class="root-wrap">${orgCard(company, 'root-card')}</div>
+                <div class="branches">${top.map(hq => `<section class="branch">
+                    ${orgCard(hq, 'branch-head')}
+                    <div class="child-list">${childrenOf(hq.id).map(dept => `
+                        <div class="child-card ${selectedId === dept.id ? 'selected' : ''}" data-select="${dept.id}">
+                            <strong>${escapeHtml(dept.name)}</strong><span>${escapeHtml(dept.leader || '조직장 미지정')} · ${dept.members || 0}명</span>
+                            <button class="card-add" data-add="${dept.id}" title="하위 팀 추가">＋</button>
+                        </div>
+                        <div class="grandchildren">${childrenOf(dept.id).map(team => `<button class="team-chip ${selectedId === team.id ? 'selected' : ''}" data-select="${team.id}">${escapeHtml(team.name)} · ${team.members || 0}</button>`).join('')}</div>
+                    `).join('')}</div>
+                </section>`).join('')}</div>`;
+        }
+
+        function parentPath(node) {
+            const path = [];
+            let current = node;
+            while (current) { path.unshift(current.name); current = current.parent ? byId(current.parent) : null; }
+            return path.join(' > ');
+        }
+
+        function renderDetail() {
+            const node = byId(selectedId) || byId('company');
+            const list = members[node.id] || [[node.leader || '미지정', node.type === 'TEAM' ? '팀장' : '조직장', '조직장']];
+            document.getElementById('detail').innerHTML = `
+                <div class="detail-title"><span class="detail-type">${typeLabels[node.type]}</span><h3>${escapeHtml(node.name)}</h3><p>${escapeHtml(node.desc || '등록된 조직 설명이 없습니다.')}</p>
+                    <div class="detail-actions"><button class="btn" data-edit="${node.id}" ${node.type === 'COMPANY' ? 'disabled' : ''}>수정</button><button class="btn danger" data-delete="${node.id}" ${node.type === 'COMPANY' ? 'disabled' : ''}>삭제</button></div>
+                </div>
+                <dl class="kv"><dt>조직 코드</dt><dd>${escapeHtml(node.code)}</dd><dt>상위 조직</dt><dd>${node.parent ? escapeHtml(byId(node.parent).name) : '-'}</dd><dt>전체 경로</dt><dd>${escapeHtml(parentPath(node))}</dd><dt>조직장</dt><dd>${escapeHtml(node.leader || '미지정')}</dd><dt>사용 여부</dt><dd style="color:#6ee7b7">사용</dd></dl>
+                <div class="section-label"><span>소속 구성원</span><b>${node.members || list.length}명</b></div>
+                <div class="members">${list.map((m, i) => `<div class="member"><div class="avatar">${escapeHtml(m[0].slice(0,1))}</div><div><strong>${escapeHtml(m[0])}</strong><small>${escapeHtml(m[1])}</small></div>${m[2] ? '<span class="leader">조직장</span>' : ''}</div>`).join('')}</div>
+                <div class="hint">사용자 등록·수정 화면의 <b>부서 선택</b> 모달에서는 이 계층을 그대로 표시하되, 실제 배정 대상인 부서·팀만 선택 가능하게 처리하는 안입니다.</div>`;
+        }
+
+        function renderAll() { renderStats(); renderTree(); renderChart(); renderDetail(); }
+        function selectNode(id) { selectedId = id; renderTree(); renderChart(); renderDetail(); }
+
+        function allowedTypes(parent) {
+            if (!parent) return ['HQ','DEPT','TEAM'];
+            if (parent.type === 'COMPANY') return ['HQ','DEPT'];
+            if (parent.type === 'HQ') return ['DEPT'];
+            if (parent.type === 'DEPT') return ['TEAM'];
+            return [];
+        }
+
+        function fillParentOptions(preferredId) {
+            const type = document.getElementById('orgType').value;
+            const candidates = nodes.filter(n => (type === 'HQ' && n.type === 'COMPANY') || (type === 'DEPT' && ['COMPANY','HQ'].includes(n.type)) || (type === 'TEAM' && n.type === 'DEPT'));
+            const select = document.getElementById('parentId');
+            select.innerHTML = candidates.map(n => `<option value="${n.id}">${escapeHtml(parentPath(n))}</option>`).join('');
+            if (preferredId && candidates.some(n => n.id === preferredId)) select.value = preferredId;
+        }
+
+        function openAdd(parentId) {
+            const parent = byId(parentId || selectedId) || byId('company');
+            const types = allowedTypes(parent);
+            if (!types.length) { showToast('팀 아래에는 하위 조직을 추가할 수 없습니다.'); return; }
+            modalMode = 'add'; editingId = null;
+            document.getElementById('modalTitle').textContent = '하위 조직 추가';
+            document.getElementById('modalDesc').textContent = parent.name + ' 아래에 새 조직을 등록합니다.';
+            document.getElementById('orgForm').reset();
+            const typeSelect = document.getElementById('orgType');
+            [...typeSelect.options].forEach(o => { o.disabled = !types.includes(o.value); });
+            typeSelect.value = types[0];
+            fillParentOptions(parent.id);
+            document.getElementById('sortOrder').value = String(childrenOf(parent.id).length + 1);
+            openModal();
+        }
+
+        function openGlobalAdd() {
+            modalMode = 'add'; editingId = null;
+            document.getElementById('modalTitle').textContent = '조직 추가';
+            document.getElementById('modalDesc').textContent = '조직 구분과 상위 조직을 선택해 등록합니다.';
+            document.getElementById('orgForm').reset();
+            [...document.getElementById('orgType').options].forEach(o => o.disabled = false);
+            document.getElementById('orgType').value = 'HQ';
+            fillParentOptions('company'); openModal();
+        }
+
+        function openEdit(id) {
+            const node = byId(id); if (!node || node.type === 'COMPANY') return;
+            modalMode = 'edit'; editingId = id;
+            document.getElementById('modalTitle').textContent = '조직 수정';
+            document.getElementById('modalDesc').textContent = '조직명, 상위 조직, 조직장 등 기본정보를 수정합니다.';
+            const typeSelect = document.getElementById('orgType');
+            [...typeSelect.options].forEach(o => o.disabled = false); typeSelect.value = node.type; typeSelect.disabled = true;
+            fillParentOptions(node.parent);
+            document.getElementById('orgName').value = node.name;
+            document.getElementById('orgCode').value = node.code;
+            document.getElementById('leaderName').value = node.leader || '';
+            document.getElementById('sortOrder').value = '1';
+            document.getElementById('orgDesc').value = node.desc || '';
+            openModal();
+        }
+
+        function openModal() { document.getElementById('orgModal').classList.add('open'); document.getElementById('orgModal').setAttribute('aria-hidden','false'); setTimeout(() => document.getElementById('orgName').focus(), 30); }
+        function closeModal() { const modal = document.getElementById('orgModal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.getElementById('orgType').disabled = false; }
+
+        function saveOrg(event) {
+            event.preventDefault();
+            const type = document.getElementById('orgType').value;
+            const parent = document.getElementById('parentId').value;
+            const name = document.getElementById('orgName').value.trim();
+            const code = document.getElementById('orgCode').value.trim().toUpperCase();
+            if (!/^[A-Z0-9-]+$/.test(code)) { showToast('조직 코드는 영문 대문자, 숫자, 하이픈만 입력해 주세요.'); return; }
+            if (nodes.some(n => n.code === code && n.id !== editingId)) { showToast('이미 사용 중인 조직 코드입니다.'); return; }
+            if (modalMode === 'edit') {
+                const node = byId(editingId); Object.assign(node, { parent, name, code, leader:document.getElementById('leaderName').value.trim(), desc:document.getElementById('orgDesc').value.trim() });
+                selectedId = node.id; showToast(name + ' 조직 정보를 수정했습니다.');
+            } else {
+                const id = 'org-' + Date.now(); nodes.push({ id, parent, type, name, code, leader:document.getElementById('leaderName').value.trim(), members:0, desc:document.getElementById('orgDesc').value.trim() });
+                expanded.add(parent); expanded.add(id); selectedId = id; showToast(name + ' 조직을 추가했습니다.');
+            }
+            closeModal(); renderAll();
+        }
+
+        function deleteOrg(id) {
+            const node = byId(id); if (!node || node.type === 'COMPANY') return;
+            const childCount = childrenOf(id).length;
+            if (childCount) { showToast('하위 조직 ' + childCount + '개가 있어 삭제할 수 없습니다. 먼저 하위 조직을 이동하거나 삭제해 주세요.'); return; }
+            if (Number(node.members) > 0) { showToast('소속 구성원 ' + node.members + '명이 있어 삭제할 수 없습니다. 사용자를 다른 조직으로 이동해 주세요.'); return; }
+            if (!window.confirm(node.name + ' 조직을 삭제하시겠습니까?')) return;
+            const index = nodes.findIndex(n => n.id === id); nodes.splice(index, 1); selectedId = node.parent || 'company'; showToast(node.name + ' 조직을 삭제했습니다.'); renderAll();
+        }
+
+        let toastTimer;
+        function showToast(message) { const toast = document.getElementById('toast'); document.getElementById('toastText').textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3600); }
+
+        document.addEventListener('click', event => {
+            const add = event.target.closest('[data-add]'); if (add) { event.stopPropagation(); openAdd(add.dataset.add); return; }
+            const toggle = event.target.closest('[data-toggle]'); if (toggle) { event.stopPropagation(); const id = toggle.dataset.toggle; expanded.has(id) ? expanded.delete(id) : expanded.add(id); renderTree(); return; }
+            const select = event.target.closest('[data-select]'); if (select) { selectNode(select.dataset.select); return; }
+            const edit = event.target.closest('[data-edit]'); if (edit) { openEdit(edit.dataset.edit); return; }
+            const del = event.target.closest('[data-delete]'); if (del) { deleteOrg(del.dataset.delete); return; }
+            const close = event.target.closest('[data-close]'); if (close) closeModal();
+        });
+        document.getElementById('treeSearch').addEventListener('input', renderTree);
+        document.getElementById('orgType').addEventListener('change', () => fillParentOptions());
+        document.getElementById('orgForm').addEventListener('submit', saveOrg);
+        document.getElementById('globalAddBtn').addEventListener('click', openGlobalAdd);
+        document.getElementById('treeTopAdd').addEventListener('click', openGlobalAdd);
+        document.getElementById('resetViewBtn').addEventListener('click', () => selectNode('company'));
+        document.getElementById('expandAllBtn').addEventListener('click', event => { const allOpen = nodes.every(n => expanded.has(n.id)); expanded = allOpen ? new Set(['company']) : new Set(nodes.map(n => n.id)); event.currentTarget.textContent = allOpen ? '전체 펼치기' : '전체 접기'; renderTree(); });
+        document.getElementById('orgModal').addEventListener('mousedown', event => { if (event.target.id === 'orgModal') closeModal(); });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
+        renderAll();
+    })();
+</script>
+</body>
+</html>

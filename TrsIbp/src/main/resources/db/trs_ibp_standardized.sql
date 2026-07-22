@@ -265,12 +265,16 @@ CREATE TABLE IF NOT EXISTS `dept_info` (
   `CO_ID` varchar(20) NOT NULL COMMENT '회사ID',
   `DEPT_NM` varchar(100) NOT NULL COMMENT '부서명',
   `UP_DEPT_ID` varchar(20) DEFAULT NULL COMMENT '상위부서ID',
+  `DEPT_SE_CD` varchar(10) NOT NULL DEFAULT 'DEPT' COMMENT '조직구분코드(HQ/DEPT/TEAM)',
+  `DEPT_EXPLN` varchar(500) DEFAULT NULL COMMENT '조직설명',
+  `MNGR_USER_ID` varchar(50) DEFAULT NULL COMMENT '조직장사용자ID',
   `SORT_SEQ` int(11) DEFAULT 0 COMMENT '정렬순서',
   `USE_YN` char(1) NOT NULL DEFAULT 'Y' COMMENT '사용여부',
   `REG_DT` datetime DEFAULT current_timestamp() COMMENT '등록일시',
   PRIMARY KEY (`DEPT_ID`),
   KEY `IDX_DEPT_CO_ID` (`CO_ID`),
   KEY `IDX_DEPT_UP_DEPT_ID` (`UP_DEPT_ID`),
+  KEY `IDX_DEPT_MNGR_USER_ID` (`MNGR_USER_ID`),
   CONSTRAINT `FK_DEPT_CO` FOREIGN KEY (`CO_ID`) REFERENCES `co_info` (`CO_ID`),
   CONSTRAINT `FK_DEPT_UP_DEPT` FOREIGN KEY (`UP_DEPT_ID`) REFERENCES `dept_info` (`DEPT_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='부서정보';
@@ -278,13 +282,13 @@ CREATE TABLE IF NOT EXISTS `dept_info` (
 -- 테이블 데이터 trs_ibp.dept_info:~6 rows (대략적) 내보내기
 DELETE FROM `dept_info`;
 /*!40000 ALTER TABLE `dept_info` DISABLE KEYS */;
-INSERT INTO `dept_info` (`DEPT_ID`, `CO_ID`, `DEPT_NM`, `UP_DEPT_ID`, `SORT_SEQ`, `USE_YN`, `REG_DT`) VALUES
-	('DEPT001', 'COMP001', '경영지원본부', NULL, 1, 'Y', '2026-05-28 16:13:07'),
-	('DEPT002', 'COMP001', '1개발본부', NULL, 2, 'Y', '2026-05-28 16:13:07'),
-	('DEPT003', 'COMP001', '인사팀', 'DEPT001', 1, 'Y', '2026-05-28 16:13:07'),
-	('DEPT004', 'COMP001', '재무팀', 'DEPT001', 2, 'Y', '2026-05-28 16:13:07'),
-	('DEPT005', 'COMP001', 'WEB팀', 'DEPT002', 1, 'Y', '2026-05-28 16:13:07'),
-	('DEPT006', 'COMP001', 'APP팀', 'DEPT002', 2, 'Y', '2026-05-28 16:13:07');
+INSERT INTO `dept_info` (`DEPT_ID`, `CO_ID`, `DEPT_NM`, `UP_DEPT_ID`, `DEPT_SE_CD`, `SORT_SEQ`, `USE_YN`, `REG_DT`) VALUES
+	('DEPT001', 'COMP001', '경영지원본부', NULL, 'HQ', 1, 'Y', '2026-05-28 16:13:07'),
+	('DEPT002', 'COMP001', '1개발본부', NULL, 'HQ', 2, 'Y', '2026-05-28 16:13:07'),
+	('DEPT003', 'COMP001', '인사팀', 'DEPT001', 'TEAM', 1, 'Y', '2026-05-28 16:13:07'),
+	('DEPT004', 'COMP001', '재무팀', 'DEPT001', 'TEAM', 2, 'Y', '2026-05-28 16:13:07'),
+	('DEPT005', 'COMP001', 'WEB팀', 'DEPT002', 'TEAM', 1, 'Y', '2026-05-28 16:13:07'),
+	('DEPT006', 'COMP001', 'APP팀', 'DEPT002', 'TEAM', 2, 'Y', '2026-05-28 16:13:07');
 /*!40000 ALTER TABLE `dept_info` ENABLE KEYS */;
 
 -- 테이블 trs_ibp.insd_eml 구조 내보내기

@@ -3,20 +3,20 @@
 <html lang="ko">
 <head>
     <jsp:include page="/WEB-INF/jsp/common/head.jsp">
-        <jsp:param name="dsTitle" value="DevSync - 사용자(직원) 관리"/>
+        <jsp:param name="dsTitle" value="DevSync - 사용자 관리"/>
     </jsp:include>
 </head>
 <body class="ds-body min-h-screen flex">
 <jsp:include page="/WEB-INF/jsp/common/sidebar.jsp"/>
 <div class="flex-grow flex flex-col min-h-screen">
     <jsp:include page="/WEB-INF/jsp/common/header.jsp">
-        <jsp:param name="dsPageTitle" value="사용자(직원) 관리"/>
+        <jsp:param name="dsPageTitle" value="사용자 관리"/>
     </jsp:include>
     <main class="ds-page">
-        <div class="ds-breadcrumb">사용자(직원) 관리 &gt; 목록</div>
+        <div class="ds-breadcrumb">회사 관리 &gt; 사용자 관리</div>
         <div class="ds-page-head">
             <div>
-                <h1 class="ds-page-title">사용자(직원) 목록</h1>
+                <h1 class="ds-page-title">사용자 관리</h1>
                 <p class="ds-page-desc">로그인 사용자 회사의 직원 계정을 조회하고 등록, 상세, 수정, 삭제 작업을 수행합니다.</p>
             </div>
             <div class="ds-actions">
