@@ -18,6 +18,10 @@
     var conflictSaveConfirmed = false;
     var previousBgngTime = '09:00';
     var previousEndTime = '18:00';
+    var workHourRequestSeq = 0;
+    var WORK_HOUR_START = 9 * 60;
+    var WORK_HOUR_END = 18 * 60;
+    var legendColorTypes = ['leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'etc'];
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -256,8 +260,10 @@
             success: function(res) {
                 monthSummary = buildMonthSummary(res.monthList || []);
                 if (isDashboard) {
+                    renderScheduleLegendCounts(res.dayList || [], '#dashScheduleCalendarLegend');
                     renderDashboardCalendar(res.dayList || []);
                 } else {
+                    renderScheduleLegendCounts(res.dayList || [], '#scheduleCalendarLegend');
                     renderCalendar();
                     renderDayList(res.dayList || []);
                 }
@@ -265,9 +271,11 @@
             error: function() {
                 if (isDashboard) {
                     monthSummary = {};
+                    renderScheduleLegendCounts([], '#dashScheduleCalendarLegend');
                     renderDashboardCalendar([]);
                     $('#dashScheduleDayList').html('<div class="ds-empty">일정 정보를 조회하지 못했습니다.</div>');
                 } else {
+                    renderScheduleLegendCounts([], '#scheduleCalendarLegend');
                     alert('일정 목록을 조회하지 못했습니다.');
                 }
             }
@@ -282,6 +290,26 @@
             if (map[date].indexOf(row.colorType) < 0) map[date].push(row.colorType);
         });
         return map;
+    }
+
+    /**
+     * 현재 선택일자 일정 건수를 구분별 범례에 표시한다.
+     * 조회 탭과 프로젝트 필터가 적용된 일간 목록의 일정 행 수를 기준으로 집계한다.
+     * @param {Array} list 선택일자 일정 목록
+     * @param {string} legendSelector 범례 컨테이너 선택자
+     * @returns {void}
+     */
+    function renderScheduleLegendCounts(list, legendSelector) {
+        var counts = {};
+        legendColorTypes.forEach(function(type) { counts[type] = 0; });
+        (list || []).forEach(function(row) {
+            var type = legendColorTypes.indexOf(row.colorType) >= 0 ? row.colorType : 'etc';
+            counts[type] += 1;
+        });
+        var $legend = $(legendSelector);
+        legendColorTypes.forEach(function(type) {
+            $legend.find('[data-legend-count="' + type + '"]').text(counts[type]);
+        });
     }
 
     function renderCalendar() {
@@ -382,14 +410,96 @@
             previousBgngTime = '09:00';
             previousEndTime = '18:00';
             applyAllDayInputMode(false);
+            loadRecommendedWorkHour(ymd(selectedDate));
         }
     };
+
+    /**
+     * 분 단위 시각을 HH:mm 문자열로 변환한다.
+     * @param {number} minutes 자정 이후 분
+     * @returns {string} HH:mm
+     */
+    function minuteToTime(minutes) {
+        return pad(Math.floor(minutes / 60)) + ':' + pad(minutes % 60);
+    }
+
+    /**
+     * 로그인 작성자의 선택일 일정을 기준으로 09:00~18:00 첫 빈 구간을 계산한다.
+     * 기존 일정의 시작·종료 분은 모두 사용 중인 것으로 보고 앞뒤 1분을 비운다.
+     * @param {Array} busyList 작성자의 선택일 일정 목록
+     * @param {string} dateYmd 선택일자
+     * @returns {{startTime:string,endTime:string}|null} 최초 빈 구간
+     */
+    function findFirstWorkHourGap(busyList, dateYmd) {
+        var dayStart = parseInputDateTime(dateYmd, false);
+        if (!dayStart || isNaN(dayStart.getTime())) return null;
+        var dayStartMs = dayStart.getTime();
+        var intervals = [];
+        (busyList || []).forEach(function(row) {
+            var start = parseInputDateTime(row.bgngDt, false);
+            var end = parseInputDateTime(row.endDt, false);
+            if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return;
+            var startMinute = Math.floor((start.getTime() - dayStartMs) / 60000);
+            var endMinute = Math.floor((end.getTime() - dayStartMs) / 60000);
+            startMinute = Math.max(WORK_HOUR_START, startMinute);
+            endMinute = Math.min(WORK_HOUR_END, endMinute);
+            if (endMinute < WORK_HOUR_START || startMinute > WORK_HOUR_END || endMinute < startMinute) return;
+            intervals.push({ start: startMinute, end: endMinute });
+        });
+        intervals.sort(function(a, b) { return a.start - b.start || a.end - b.end; });
+
+        var cursor = WORK_HOUR_START;
+        for (var i = 0; i < intervals.length; i++) {
+            var interval = intervals[i];
+            var gapEnd = interval.start - 1;
+            if (gapEnd > cursor) {
+                return { startTime: minuteToTime(cursor), endTime: minuteToTime(gapEnd) };
+            }
+            if (interval.end >= cursor) {
+                cursor = interval.end + 1;
+            }
+            if (cursor > WORK_HOUR_END) return null;
+        }
+        return cursor < WORK_HOUR_END
+            ? { startTime: minuteToTime(cursor), endTime: minuteToTime(WORK_HOUR_END) }
+            : null;
+    }
+
+    /**
+     * 로그인 작성자의 선택일 일정을 조회해 신규 일정의 최초 근무시간을 자동 입력한다.
+     * 응답 전에 사용자가 직접 시간을 바꾼 경우에는 입력값을 덮어쓰지 않는다.
+     * @param {string} dateYmd 선택일자
+     * @returns {void}
+     */
+    function loadRecommendedWorkHour(dateYmd) {
+        var requestSeq = ++workHourRequestSeq;
+        var defaultBgng = dateYmd + ' 09:00';
+        var defaultEnd = dateYmd + ' 18:00';
+        $.ajax({
+            url: ctxPath + '/schedule/userWorkHourSchedule.ajax',
+            type: 'GET',
+            dataType: 'json',
+            data: { selectedYmd: dateYmd },
+            success: function(res) {
+                if (requestSeq !== workHourRequestSeq || res.result !== 'OK') return;
+                if ($('#scheduleModal').hasClass('hidden') || $('#frmSchdlSn').val()) return;
+                if ($('#frmBgngDt').val() !== defaultBgng || $('#frmEndDt').val() !== defaultEnd) return;
+                var gap = findFirstWorkHourGap(res.busyList || [], dateYmd);
+                if (!gap) return;
+                $('#frmBgngDt').val(dateYmd + ' ' + gap.startTime);
+                $('#frmEndDt').val(dateYmd + ' ' + gap.endTime);
+                previousBgngTime = gap.startTime;
+                previousEndTime = gap.endTime;
+            }
+        });
+    }
 
     /**
      * 일정 등록·수정 모달과 열려 있는 DateTimePicker를 닫는다.
      * @returns {void}
      */
     window.closeScheduleModal = function() {
+        workHourRequestSeq += 1;
         if (window.DsDateTimePicker) {
             window.DsDateTimePicker.hide('#frmBgngDt,#frmEndDt');
         }

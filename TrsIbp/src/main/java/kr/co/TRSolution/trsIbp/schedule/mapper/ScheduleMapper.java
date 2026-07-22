@@ -13,6 +13,7 @@ public interface ScheduleMapper {
     public List<ScheduleVO> selectScheduleCodeList(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectMonthScheduleSummaryList(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectDayScheduleList(ScheduleVO scheduleVO) throws Exception;
+    public List<ScheduleVO> selectUserDayScheduleList(ScheduleVO scheduleVO) throws Exception;
     public ScheduleVO selectSchedule(ScheduleVO scheduleVO) throws Exception;
     public void insertSchedule(ScheduleVO scheduleVO) throws Exception;
     public void updateSchedule(ScheduleVO scheduleVO) throws Exception;

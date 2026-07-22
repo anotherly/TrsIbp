@@ -111,6 +111,28 @@ public class ScheduleController {
     }
 
     /**
+     * 선택일자에 로그인 작성자가 이미 등록된 일정을 조회한다.
+     * 신규 일정의 09:00~18:00 최초 빈 시간대 계산에 사용한다.
+     * @param scheduleVO 선택일자와 수정 시 제외할 일정 순번
+     * @param request 로그인 사용자 세션 확인용 요청 객체
+     * @return jsonView: result, busyList
+     * @throws Exception 조회 중 예외 발생 시 전달
+     */
+    @RequestMapping(value = "/schedule/userWorkHourSchedule.ajax")
+    public ModelAndView selectUserWorkHourSchedule(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
+        ModelAndView mav = new ModelAndView("jsonView");
+        applyLoginUser(scheduleVO, request, false);
+        if (!isValidYmd(scheduleVO.getSelectedYmd())) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("message", "선택일자 형식이 올바르지 않습니다.");
+            return mav;
+        }
+        mav.addObject("result", "OK");
+        mav.addObject("busyList", scheduleService.selectUserDayScheduleList(scheduleVO));
+        return mav;
+    }
+
+    /**
      * 일정을 등록하거나 수정한다.
      * @param scheduleVO 저장할 일정 정보와 대상자ID 목록
      * @param request 로그인 사용자 세션 확인용 요청 객체
@@ -196,6 +218,18 @@ public class ScheduleController {
         YearMonth ym = YearMonth.from(LocalDate.parse(selectedYmd));
         scheduleVO.setMonthStartYmd(ym.atDay(1).format(DateTimeFormatter.ISO_DATE));
         scheduleVO.setMonthEndYmd(ym.atEndOfMonth().format(DateTimeFormatter.ISO_DATE));
+    }
+
+    private boolean isValidYmd(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            LocalDate.parse(value.trim(), DateTimeFormatter.ISO_DATE);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

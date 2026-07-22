@@ -124,6 +124,25 @@
         ORDER BY S.ALL_DAY_YN DESC, S.BGNG_DT, S.SCHDL_SN
     </select>
 
+    <select id="selectUserDayScheduleList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
+        SELECT S.SCHDL_SN,
+               DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d %H:%i') AS BGNG_DT,
+               DATE_FORMAT(S.END_DT, '%Y-%m-%d %H:%i') AS END_DT,
+               S.ALL_DAY_YN
+        FROM schdl_info S
+        JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
+        WHERE S.CO_ID = #{coId}
+          AND S.USE_YN = 'Y'
+          AND R.USER_ID = #{targetUserId}
+          <if test="schdlSn != null">
+          AND S.SCHDL_SN <![CDATA[<>]]> #{schdlSn}
+          </if>
+          AND S.BGNG_DT <![CDATA[<]]> S.END_DT
+          AND S.BGNG_DT <![CDATA[<]]> DATE_ADD(STR_TO_DATE(#{selectedYmd}, '%Y-%m-%d'), INTERVAL 1 DAY)
+          AND S.END_DT <![CDATA[>]]> STR_TO_DATE(#{selectedYmd}, '%Y-%m-%d')
+        ORDER BY S.BGNG_DT, S.END_DT, S.SCHDL_SN
+    </select>
+
     <select id="selectSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
         SELECT S.SCHDL_SN,
                S.CO_ID,

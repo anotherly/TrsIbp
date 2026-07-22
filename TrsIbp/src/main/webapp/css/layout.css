@@ -1048,6 +1048,18 @@
     font-style: normal;
     font-size: 12px;
 }
+.ds-user-multi-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ds-border);
+}
+.ds-user-multi-actions .ds-modal-summary { margin: 0; }
+.ds-user-multi-actions .ds-btn { margin-left: auto; }
+.ds-user-multi-actions.hidden { display: none; }
 @media (max-width: 760px) {
     .ds-user-picker { grid-template-columns: 1fr; }
     .ds-user-dept-list,
@@ -1108,8 +1120,10 @@
 .ds-calendar-day.is-muted { color: #475569; }
 .ds-calendar-day.is-selected { border-color: #3b82f6; background: rgba(59, 130, 246, .35); color: #fff; }
 .ds-calendar-day em { display: flex; gap: 3px; min-height: 7px; font-style: normal; }
-.ds-calendar-legend { border-top: 1px solid var(--ds-border); margin-top: 18px; padding-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; color: #cbd5e1; font-size: 12px; font-weight: 800; }
-.ds-calendar-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.ds-calendar-legend { border-top: 1px solid var(--ds-border); margin-top: 18px; padding-top: 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; color: #cbd5e1; font-size: 12px; font-weight: 800; }
+.ds-calendar-legend span { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ds-calendar-legend em { min-width: 0; display: inline-flex; align-items: center; gap: 7px; color: #cbd5e1; font-style: normal; white-space: nowrap; }
+.ds-calendar-legend b { color: #facc15; font-size: 18px; line-height: 1; font-weight: 900; font-variant-numeric: tabular-nums; }
 .ds-dot { display: inline-block; width: 7px; height: 7px; border-radius: 999px; }
 .ds-dot-leave { background: #10b981; }
 .ds-dot-biztrip { background: #f97316; }
@@ -1189,6 +1203,7 @@
 .ds-user-row.is-selected em { color: #bfdbfe; font-weight: 900; }
 @media (max-width: 1024px) { .ds-calendar-layout { grid-template-columns: 1fr; } .ds-schedule-section-head { align-items: flex-start; flex-direction: column; } .ds-schedule-toolbar { width: 100%; justify-content: space-between; } }
 @media (max-width: 640px) { .ds-project-filter { min-width: 100%; max-width: none; } .ds-schedule-toolbar .ds-tab-group { width: 100%; } .ds-schedule-toolbar .ds-tab { flex: 1 1 auto; padding-left: 8px; padding-right: 8px; } }
+@media (max-width: 640px) { .ds-calendar-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* =========================================================
    Common jQuery DateTimePicker theme

@@ -11,6 +11,7 @@ public interface ScheduleService {
     public List<ScheduleVO> selectScheduleCodeList(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectMonthScheduleSummaryList(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectDayScheduleList(ScheduleVO scheduleVO) throws Exception;
+    public List<ScheduleVO> selectUserDayScheduleList(ScheduleVO scheduleVO) throws Exception;
     public ScheduleVO selectSchedule(ScheduleVO scheduleVO) throws Exception;
     public void saveSchedule(ScheduleVO scheduleVO) throws Exception;
     public int selectScheduleConflictCount(ScheduleVO scheduleVO) throws Exception;

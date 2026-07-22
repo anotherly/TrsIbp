@@ -35,6 +35,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public List<ScheduleVO> selectUserDayScheduleList(ScheduleVO scheduleVO) throws Exception {
+        return scheduleMapper.selectUserDayScheduleList(scheduleVO);
+    }
+
+    @Override
     public ScheduleVO selectSchedule(ScheduleVO scheduleVO) throws Exception {
         return scheduleMapper.selectSchedule(scheduleVO);
     }

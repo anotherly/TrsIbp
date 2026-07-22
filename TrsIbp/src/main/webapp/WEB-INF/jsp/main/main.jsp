@@ -144,14 +144,14 @@
                             <button type="button" class="ds-icon-btn" onclick="moveDashboardScheduleMonth(1);">›</button>
                         </div>
                         <div id="dashScheduleCalendarGrid" class="ds-calendar-grid"></div>
-                        <div class="ds-calendar-legend">
-                            <span><i class="ds-dot ds-dot-leave"></i>휴가</span>
-                            <span><i class="ds-dot ds-dot-biztrip"></i>출장</span>
-                            <span><i class="ds-dot ds-dot-outside"></i>외근</span>
-                            <span><i class="ds-dot ds-dot-home"></i>재택</span>
-                            <span><i class="ds-dot ds-dot-resident"></i>상주</span>
-                            <span><i class="ds-dot ds-dot-meeting"></i>회의</span>
-                            <span><i class="ds-dot ds-dot-etc"></i>기타</span>
+                        <div id="dashScheduleCalendarLegend" class="ds-calendar-legend">
+                            <span><em><i class="ds-dot ds-dot-leave"></i>휴가</em><b data-legend-count="leave">0</b></span>
+                            <span><em><i class="ds-dot ds-dot-biztrip"></i>출장</em><b data-legend-count="biztrip">0</b></span>
+                            <span><em><i class="ds-dot ds-dot-outside"></i>외근</em><b data-legend-count="outside">0</b></span>
+                            <span><em><i class="ds-dot ds-dot-home"></i>재택</em><b data-legend-count="home">0</b></span>
+                            <span><em><i class="ds-dot ds-dot-resident"></i>상주</em><b data-legend-count="resident">0</b></span>
+                            <span><em><i class="ds-dot ds-dot-meeting"></i>회의</em><b data-legend-count="meeting">0</b></span>
+                            <span><em><i class="ds-dot ds-dot-etc"></i>기타</em><b data-legend-count="etc">0</b></span>
                         </div>
                     </div>
                     <div class="lg:col-span-5 p-6">
