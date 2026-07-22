@@ -14,6 +14,8 @@
     var projectFilterValue = '';
     var unassignedProjectFilterValue = '__UNASSIGNED__';
     var selectedUsers = {};
+    var loginScheduleUser = null;
+    var conflictSaveConfirmed = false;
     var previousBgngTime = '09:00';
     var previousEndTime = '18:00';
 
@@ -72,12 +74,17 @@
         initializeScheduleDateTimePicker();
         $('#frmAllDayYn').on('change', function() {
             applyAllDayInputMode($(this).val() === 'Y');
+            resetScheduleConflictState();
         });
         $('#frmCalSchdlSeCd').on('change', function() {
-            applyScheduleProjectAvailability();
-            clearScheduleConflictMessage();
+            applyScheduleInputType();
+            resetScheduleConflictState();
         });
-        $('#frmBgngDt,#frmEndDt,#frmAllDayYn').on('change', clearScheduleConflictMessage);
+        $('#frmVacSeCd').on('change', function() {
+            applyVacationTypeMode();
+            resetScheduleConflictState();
+        });
+        $('#frmCalSchdlNm,#frmBizId,#frmBgngDt,#frmEndDt,#frmPlaceNm,#frmCalSchdlCn').on('change input', resetScheduleConflictState);
         $('#scheduleProjectFilter').on('change', function() {
             changeScheduleProjectFilter($(this).val(), false);
         });
@@ -136,6 +143,7 @@
             success: function(res) {
                 scheduleCodes = res.codeList || [];
                 scheduleProjects = res.bizList || [];
+                loginScheduleUser = res.loginUserId ? { userId: res.loginUserId, userNm: nvl(res.loginUserNm, res.loginUserId) } : null;
                 renderScheduleCodeOptions();
                 renderScheduleProjectOptions();
                 if (typeof callback === 'function') callback();
@@ -193,6 +201,39 @@
         var isVacation = $('#frmCalSchdlSeCd').val() === 'VAC';
         if (isVacation) $('#frmBizId').val('');
         $('#frmBizId').prop('disabled', isVacation);
+    }
+
+    /**
+     * 일정구분에 따라 일정명/휴가구분 입력란과 종일 선택 가능 여부를 전환한다.
+     * @returns {void}
+     */
+    function applyScheduleInputType() {
+        var isVacation = $('#frmCalSchdlSeCd').val() === 'VAC';
+        var wasVacation = $('#frmAllDayYn').prop('disabled');
+        $('#scheduleNameField').toggleClass('hidden', isVacation);
+        $('#vacationTypeField').toggleClass('hidden', !isVacation);
+        applyScheduleProjectAvailability();
+        if (isVacation) {
+            if (!$('#frmVacSeCd').val()) $('#frmVacSeCd').val('ANNUAL');
+            applyVacationTypeMode();
+        } else {
+            $('#frmAllDayYn').prop('disabled', false);
+            if (wasVacation) {
+                $('#frmAllDayYn').val('N');
+                applyAllDayInputMode(false);
+            }
+        }
+    }
+
+    /**
+     * 휴가구분에 맞춰 연차는 종일, 반차/시간대는 시간 지정으로 고정한다.
+     * @returns {void}
+     */
+    function applyVacationTypeMode() {
+        if ($('#frmCalSchdlSeCd').val() !== 'VAC') return;
+        var allDay = $('#frmVacSeCd').val() === 'ANNUAL';
+        $('#frmAllDayYn').val(allDay ? 'Y' : 'N').prop('disabled', true);
+        applyAllDayInputMode(allDay);
     }
 
     /**
@@ -323,7 +364,7 @@
      * @returns {void}
      */
     window.openScheduleModal = function(schdlSn) {
-        clearScheduleForm();
+        clearScheduleForm(!schdlSn);
         $('#scheduleModal').removeClass('hidden').attr('aria-hidden', 'false');
         if (schdlSn) {
             $('#scheduleModalTitle').text('일정 수정');
@@ -336,8 +377,8 @@
             });
         } else {
             $('#scheduleModalTitle').text('일정 등록');
-            $('#frmBgngDt').val(ymd(selectedDate) + 'T09:00');
-            $('#frmEndDt').val(ymd(selectedDate) + 'T18:00');
+            $('#frmBgngDt').val(ymd(selectedDate) + ' 09:00');
+            $('#frmEndDt').val(ymd(selectedDate) + ' 18:00');
             previousBgngTime = '09:00';
             previousEndTime = '18:00';
             applyAllDayInputMode(false);
@@ -359,18 +400,22 @@
      * 일정 등록·수정 폼과 대상자 선택 상태를 기본값으로 초기화한다.
      * @returns {void}
      */
-    function clearScheduleForm() {
+    function clearScheduleForm(selectLoginUser) {
         $('#frmSchdlSn,#frmCalSchdlNm,#frmPlaceNm,#frmCalSchdlCn,#frmTargetUserIds').val('');
         $('#frmCalSchdlSeCd').val('');
+        $('#frmVacSeCd').val('ANNUAL');
         $('#frmBizId').val('');
-        applyScheduleProjectAvailability();
         $('#frmAllDayYn').val('N');
         previousBgngTime = '09:00';
         previousEndTime = '18:00';
         applyAllDayInputMode(false);
+        applyScheduleInputType();
         selectedUsers = {};
+        if (selectLoginUser && loginScheduleUser) {
+            selectedUsers[loginScheduleUser.userId] = loginScheduleUser;
+        }
         renderScheduleTargetChips();
-        clearScheduleConflictMessage();
+        resetScheduleConflictState();
     }
 
     /**
@@ -381,8 +426,9 @@
     function bindScheduleForm(row) {
         $('#frmSchdlSn').val(nvl(row.schdlSn));
         $('#frmCalSchdlSeCd').val(nvl(row.schdlSeCd));
+        $('#frmVacSeCd').val(nvl(row.vacSeCd, row.allDayYn === 'Y' ? 'ANNUAL' : 'HOURLY'));
         $('#frmBizId').val(nvl(row.bizId));
-        applyScheduleProjectAvailability();
+        applyScheduleInputType();
         $('#frmCalSchdlNm').val(nvl(row.schdlNm));
         $('#frmBgngDt').val(toPickerDateTime(row.bgngDt));
         $('#frmEndDt').val(toPickerDateTime(row.endDt));
@@ -395,7 +441,12 @@
         ids.forEach(function(id, idx) { if (id) selectedUsers[id] = { userId: id, userNm: nms[idx] || id }; });
         renderScheduleTargetChips();
         rememberScheduleTimes(row.bgngDt, row.endDt);
-        applyAllDayInputMode(row.allDayYn === 'Y');
+        if (row.schdlSeCd !== 'VAC') {
+            $('#frmAllDayYn').val(nvl(row.allDayYn, 'N')).prop('disabled', false);
+            applyAllDayInputMode(row.allDayYn === 'Y');
+        } else {
+            applyVacationTypeMode();
+        }
     }
 
     /**
@@ -446,7 +497,7 @@
             if (user.userId) selectedUsers[user.userId] = user;
         });
         renderScheduleTargetChips();
-        clearScheduleConflictMessage();
+        resetScheduleConflictState();
     };
 
     /**
@@ -467,10 +518,20 @@
         $('#scheduleTargetChips').html(ids.map(function(id) { return '<span class="ds-chip ds-chip-selected">' + escapeHtml(selectedUsers[id].userNm || id) + '<button type="button" onclick="removeScheduleTarget(\'' + escapeHtml(id) + '\');">×</button></span>'; }).join(''));
     }
 
-    window.removeScheduleTarget = function(userId) { delete selectedUsers[userId]; renderScheduleTargetChips(); clearScheduleConflictMessage(); };
+    window.removeScheduleTarget = function(userId) { delete selectedUsers[userId]; renderScheduleTargetChips(); resetScheduleConflictState(); };
 
     function clearScheduleConflictMessage() {
         $('#scheduleConflictMessage').addClass('hidden').text('');
+    }
+
+    /**
+     * 입력값 변경 시 앞서 확인한 충돌 승인을 무효화한다.
+     * @returns {void}
+     */
+    function resetScheduleConflictState() {
+        conflictSaveConfirmed = false;
+        clearScheduleConflictMessage();
+        $('#scheduleSaveButton').text('저장');
     }
 
     function showScheduleConflictMessage(message) {
@@ -482,9 +543,10 @@
      * @returns {void}
      */
     window.saveSchedule = function() {
-        clearScheduleConflictMessage();
         if (!$('#frmCalSchdlSeCd').val()) { alert('일정구분을 선택하세요.'); return; }
-        if (!$('#frmCalSchdlNm').val()) { alert('일정명을 입력하세요.'); return; }
+        var isVacation = $('#frmCalSchdlSeCd').val() === 'VAC';
+        if (isVacation && !$('#frmVacSeCd').val()) { alert('휴가구분을 선택하세요.'); return; }
+        if (!isVacation && !$('#frmCalSchdlNm').val()) { alert('일정명을 입력하세요.'); return; }
         if (!$('#frmTargetUserIds').val()) { alert('대상자를 선택하세요.'); return; }
         if (!$('#frmBgngDt').val() || !$('#frmEndDt').val()) { alert('시작일시와 종료일시를 입력하세요.'); return; }
         var allDay = $('#frmAllDayYn').val() === 'Y';
@@ -499,6 +561,7 @@
             data: {
                 schdlSn: $('#frmSchdlSn').val(),
                 schdlSeCd: $('#frmCalSchdlSeCd').val(),
+                vacSeCd: isVacation ? $('#frmVacSeCd').val() : '',
                 bizId: $('#frmBizId').prop('disabled') ? '' : $('#frmBizId').val(),
                 schdlNm: $('#frmCalSchdlNm').val(),
                 targetUserIds: $('#frmTargetUserIds').val(),
@@ -506,11 +569,19 @@
                 endDt: $('#frmEndDt').val(),
                 allDayYn: $('#frmAllDayYn').val(),
                 placeNm: $('#frmPlaceNm').val(),
-                schdlCn: $('#frmCalSchdlCn').val()
+                schdlCn: $('#frmCalSchdlCn').val(),
+                conflictConfirmedYn: conflictSaveConfirmed ? 'Y' : 'N'
             },
             success: function(res) {
                 if (res.result === 'OK') { closeScheduleModal(); loadScheduleList(); }
-                else showScheduleConflictMessage(res.message || '일정 저장에 실패했습니다.');
+                else if (res.result === 'CONFLICT') {
+                    conflictSaveConfirmed = true;
+                    showScheduleConflictMessage(res.message);
+                    $('#scheduleSaveButton').text('겹쳐도 저장');
+                } else {
+                    resetScheduleConflictState();
+                    showScheduleConflictMessage(res.message || '일정 저장에 실패했습니다.');
+                }
             },
             error: function() { showScheduleConflictMessage('일정 저장 중 오류가 발생했습니다.'); }
         });

@@ -13,6 +13,7 @@ public class ScheduleVO extends BaseVO {
     private String bizNm;
     private String schdlSeCd;
     private String schdlSeNm;
+    private String vacSeCd;
     private String schdlNm;
     private String bgngDt;
     private String endDt;
@@ -33,6 +34,7 @@ public class ScheduleVO extends BaseVO {
     private String searchUnassignedYn;
     private String viewType;
     private String colorType;
+    private String conflictConfirmedYn;
     private Integer targetCnt;
 
     public Long getSchdlSn() { return schdlSn; }
@@ -47,6 +49,8 @@ public class ScheduleVO extends BaseVO {
     public void setSchdlSeCd(String schdlSeCd) { this.schdlSeCd = schdlSeCd; }
     public String getSchdlSeNm() { return schdlSeNm; }
     public void setSchdlSeNm(String schdlSeNm) { this.schdlSeNm = schdlSeNm; }
+    public String getVacSeCd() { return vacSeCd; }
+    public void setVacSeCd(String vacSeCd) { this.vacSeCd = vacSeCd; }
     public String getSchdlNm() { return schdlNm; }
     public void setSchdlNm(String schdlNm) { this.schdlNm = schdlNm; }
     public String getBgngDt() { return bgngDt; }
@@ -87,6 +91,8 @@ public class ScheduleVO extends BaseVO {
     public void setViewType(String viewType) { this.viewType = viewType; }
     public String getColorType() { return colorType; }
     public void setColorType(String colorType) { this.colorType = colorType; }
+    public String getConflictConfirmedYn() { return conflictConfirmedYn; }
+    public void setConflictConfirmedYn(String conflictConfirmedYn) { this.conflictConfirmedYn = conflictConfirmedYn; }
     public Integer getTargetCnt() { return targetCnt; }
     public void setTargetCnt(Integer targetCnt) { this.targetCnt = targetCnt; }
 }

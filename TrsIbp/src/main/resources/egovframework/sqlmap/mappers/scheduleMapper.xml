@@ -9,6 +9,7 @@
         <result property="bizNm" column="BIZ_NM"/>
         <result property="schdlSeCd" column="SCHDL_SE_CD"/>
         <result property="schdlSeNm" column="SCHDL_SE_NM"/>
+        <result property="vacSeCd" column="VAC_SE_CD"/>
         <result property="schdlNm" column="SCHDL_NM"/>
         <result property="bgngDt" column="BGNG_DT"/>
         <result property="endDt" column="END_DT"/>
@@ -92,6 +93,7 @@
                B.BIZ_NM,
                S.SCHDL_SE_CD,
                C.CD_NM AS SCHDL_SE_NM,
+               S.VAC_SE_CD,
                S.SCHDL_NM,
                DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d %H:%i') AS BGNG_DT,
                DATE_FORMAT(S.END_DT, '%Y-%m-%d %H:%i') AS END_DT,
@@ -129,6 +131,7 @@
                B.BIZ_NM,
                S.SCHDL_SE_CD,
                C.CD_NM AS SCHDL_SE_NM,
+               S.VAC_SE_CD,
                S.SCHDL_NM,
                DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d %H:%i') AS BGNG_DT,
                DATE_FORMAT(S.END_DT, '%Y-%m-%d %H:%i') AS END_DT,
@@ -150,10 +153,10 @@
 
     <insert id="insertSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" useGeneratedKeys="true" keyProperty="schdlSn">
         INSERT INTO schdl_info (
-            CO_ID, BIZ_ID, SCHDL_SE_CD, SCHDL_NM, BGNG_DT, END_DT, ALL_DAY_YN,
+            CO_ID, BIZ_ID, SCHDL_SE_CD, VAC_SE_CD, SCHDL_NM, BGNG_DT, END_DT, ALL_DAY_YN,
             PLACE_NM, SCHDL_CN, USE_YN, REG_DT, RGTR_ID
         ) VALUES (
-            #{coId}, #{bizId}, #{schdlSeCd}, #{schdlNm}, #{bgngDt}, #{endDt}, IFNULL(#{allDayYn}, 'N'),
+            #{coId}, #{bizId}, #{schdlSeCd}, #{vacSeCd}, #{schdlNm}, #{bgngDt}, #{endDt}, IFNULL(#{allDayYn}, 'N'),
             #{placeNm}, #{schdlCn}, 'Y', NOW(), #{rgtrId}
         )
     </insert>
@@ -161,6 +164,7 @@
     <update id="updateSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">
         UPDATE schdl_info
         SET SCHDL_SE_CD = #{schdlSeCd},
+            VAC_SE_CD = #{vacSeCd},
             BIZ_ID = #{bizId},
             SCHDL_NM = #{schdlNm},
             BGNG_DT = #{bgngDt},

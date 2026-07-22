@@ -70,6 +70,7 @@
                 + '<select class="ds-time-hour" aria-label="시 선택">' + hourOptions + '</select>'
                 + '<i>:</i>'
                 + '<select class="ds-time-minute" aria-label="분 선택">' + minuteOptions + '</select>'
+                + '<button type="button" class="ds-time-confirm">선택</button>'
                 + '</div>');
             $picker.append($selector);
         }
@@ -91,6 +92,13 @@
         });
         $selector.find('select').off('change.dsSplitTime').on('change.dsSplitTime', function() {
             applySplitTime($input, $selector);
+        });
+        $selector.find('.ds-time-confirm').off('click.dsSplitTime').on('click.dsSplitTime', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            applySplitTime($input, $selector);
+            $picker.data('dsSplitTimeInteracting', false);
+            $input.datetimepicker('hide');
         });
     }
 
@@ -131,7 +139,7 @@
             formatTime: 'H:i',
             datepicker: true,
             timepicker: dateTime,
-            closeOnDateSelect: true,
+            closeOnDateSelect: !dateTime,
             closeOnTimeSelect: false,
             closeOnWithoutClick: true,
             dayOfWeekStart: 0,

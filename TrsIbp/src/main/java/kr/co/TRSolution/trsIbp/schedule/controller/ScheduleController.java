@@ -56,6 +56,9 @@ public class ScheduleController {
         mav.addObject("result", "OK");
         mav.addObject("codeList", scheduleService.selectScheduleCodeList(scheduleVO));
         mav.addObject("bizList", selectScheduleProjectList(scheduleVO.getCoId()));
+        UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+        mav.addObject("loginUserId", loginUser.getUserId());
+        mav.addObject("loginUserNm", loginUser.getUserNm());
         return mav;
     }
 
@@ -118,8 +121,14 @@ public class ScheduleController {
     public ModelAndView saveSchedule(@ModelAttribute("scheduleVO") ScheduleVO scheduleVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
         applyLoginUser(scheduleVO, request, true);
+        String validateMsg = normalizeVacation(scheduleVO);
+        if (validateMsg != null) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("message", validateMsg);
+            return mav;
+        }
         normalizeDateTime(scheduleVO);
-        String validateMsg = validateScheduleForSave(scheduleVO);
+        validateMsg = validateScheduleForSave(scheduleVO);
         if (validateMsg != null) {
             mav.addObject("result", "FAIL");
             mav.addObject("message", validateMsg);
@@ -136,7 +145,7 @@ public class ScheduleController {
             mav.addObject("result", "OK");
             mav.addObject("schdlSn", scheduleVO.getSchdlSn());
         } catch (IllegalArgumentException e) {
-            mav.addObject("result", "FAIL");
+            mav.addObject("result", "CONFLICT");
             mav.addObject("message", e.getMessage());
         }
         return mav;
@@ -220,6 +229,33 @@ public class ScheduleController {
             }
         } catch (Exception e) {
             return "시작일시 또는 종료일시 형식이 올바르지 않습니다.";
+        }
+        return null;
+    }
+
+    /**
+     * 휴가구분에 따라 일정명과 종일여부를 일관되게 보정한다.
+     * 연차는 종일, 반차와 시간대 휴가는 시간 지정 일정으로 저장한다.
+     * @param scheduleVO 일정구분과 휴가구분을 포함한 저장 VO
+     * @return 휴가구분 오류 메시지. 정상인 경우 null
+     */
+    private String normalizeVacation(ScheduleVO scheduleVO) {
+        if (!"VAC".equals(scheduleVO.getSchdlSeCd())) {
+            scheduleVO.setVacSeCd(null);
+            return null;
+        }
+        String vacSeCd = scheduleVO.getVacSeCd();
+        if ("ANNUAL".equals(vacSeCd)) {
+            scheduleVO.setSchdlNm("연차");
+            scheduleVO.setAllDayYn("Y");
+        } else if ("HALF".equals(vacSeCd)) {
+            scheduleVO.setSchdlNm("반차");
+            scheduleVO.setAllDayYn("N");
+        } else if ("HOURLY".equals(vacSeCd)) {
+            scheduleVO.setSchdlNm("시간대");
+            scheduleVO.setAllDayYn("N");
+        } else {
+            return "휴가구분을 선택하세요.";
         }
         return null;
     }

@@ -68,7 +68,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             scheduleVO.setTargetUserId(userId);
             conflictList.addAll(scheduleMapper.selectScheduleConflictList(scheduleVO));
         }
-        if (!conflictList.isEmpty()) {
+        if (!conflictList.isEmpty() && !"Y".equals(scheduleVO.getConflictConfirmedYn())) {
             throw new IllegalArgumentException(buildConflictMessage(conflictList));
         }
 
@@ -107,7 +107,7 @@ public class ScheduleServiceImpl implements ScheduleService {
      * 충돌 대상자, 기간, 일정구분과 일정명을 한 번에 확인할 수 있는 안내문을 만든다.
      */
     private String buildConflictMessage(List<ScheduleVO> conflictList) {
-        StringBuilder message = new StringBuilder("다음 일정과 시간이 겹쳐 저장할 수 없습니다.");
+        StringBuilder message = new StringBuilder("해당 기간 내 다른 일정이 있는 사용자가 존재합니다. 확인 후 저장해주세요.");
         for (ScheduleVO conflict : conflictList) {
             message.append("\n- ")
                    .append(conflict.getTargetUserNm() == null ? conflict.getTargetUserId() : conflict.getTargetUserNm())
