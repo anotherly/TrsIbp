@@ -28,7 +28,12 @@
         $('#orgModalCloseBtn, #orgModalCancelBtn').on('click', closeEditModal);
         $('[data-org-detail-close]').on('click', closeDetailModal);
         $('#orgSaveBtn').on('click', saveOrganization);
-        $('#orgDetailEditBtn').on('click', function () { if (detailId) { closeDetailModal(); openEditModal(detailId); } });
+        $('#orgDetailEditBtn').on('click', function () {
+            var editingId = detailId;
+            if (!editingId) return;
+            closeDetailModal();
+            openEditModal(editingId);
+        });
         $('#orgDetailDeleteBtn').on('click', function () { if (detailId) deleteOrganization(detailId); });
 
         $(document).on('click', '[data-org-card]', function (event) {
