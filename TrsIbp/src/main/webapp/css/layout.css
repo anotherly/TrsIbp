@@ -1497,3 +1497,21 @@
 .ds-org-modal-panel .ds-modal-head { margin: 0; padding: 18px 22px; border-bottom: 1px solid var(--ds-border); }
 .ds-org-modal-panel .ds-modal-title { font-size: 19px; }
 .ds-org-modal-panel .ds-modal-close { width: 32px; height: 32px; font-size: 16px; }
+
+/* 폼 안내 문구는 필드 아래가 아닌 라벨 오른쪽에 배치하여 행 높이를 유지한다. */
+.ds-field-label-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ds-label-help {
+    color: var(--ds-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+}

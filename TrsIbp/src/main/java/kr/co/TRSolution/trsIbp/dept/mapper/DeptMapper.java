@@ -16,6 +16,7 @@ public interface DeptMapper {
     DeptVO selectDeptDetail(DeptVO deptVO) throws Exception;
     void updateDept(DeptVO deptVO) throws Exception;
     void deleteDept(DeptVO deptVO) throws Exception;
+    void clearDeptMembers(DeptVO deptVO) throws Exception;
     Map<String, Object> selectOrganizationSummary(DeptVO deptVO) throws Exception;
     List<DeptVO> selectOrganizationList(DeptVO deptVO) throws Exception;
     List<UserVO> selectOrganizationMemberList(DeptVO deptVO) throws Exception;

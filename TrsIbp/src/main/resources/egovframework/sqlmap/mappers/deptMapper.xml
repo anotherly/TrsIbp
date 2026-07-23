@@ -181,6 +181,13 @@
     <!-- ============================================================ -->
     <!--  부서 삭제                                                    -->
     <!-- ============================================================ -->
+    <update id="clearDeptMembers" parameterType="deptVO">
+        UPDATE user_info
+        SET DEPT_ID = NULL
+        WHERE CO_ID = #{coId}
+          AND DEPT_ID = #{deptId}
+    </update>
+
     <update id="deleteDept" parameterType="deptVO">
         UPDATE dept_info
         SET USE_YN = 'N'

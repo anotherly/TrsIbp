@@ -80,6 +80,7 @@
                     if (expanded[item.deptId] == null) expanded[item.deptId] = true;
                 });
                 organizations.sort(compareOrganizations);
+                applyRollupMemberCounts();
                 expanded[COMPANY_ID] = expanded[COMPANY_ID] !== false;
                 selectedId = preferredId && findOrganization(preferredId) ? preferredId : selectedId;
                 renderSummary();
@@ -362,9 +363,20 @@
     function deleteOrganization(id) {
         var node = findOrganization(id);
         if (!node) return;
-        if (childrenOf(id).length) { showToast('하위 조직이 있어 삭제할 수 없습니다. 먼저 하위 조직을 이동하거나 삭제해 주세요.', true); return; }
-        if (node.memberCnt > 0) { showToast('소속 사용자가 있어 삭제할 수 없습니다. 먼저 다른 조직으로 이동해 주세요.', true); return; }
-        if (!window.confirm(node.deptNm + ' 조직을 삭제하시겠습니까?')) return;
+        var deleteIds = descendantIds(id);
+        var affectedMemberCnt = members.filter(function (member) {
+            return deleteIds.indexOf(member.deptId) >= 0;
+        }).length;
+        var childCnt = deleteIds.length - 1;
+        var messages = [];
+        if (affectedMemberCnt > 0) {
+            messages.push('해당 조직과 하위 조직에 소속된 사용자 ' + affectedMemberCnt + '명은 소속 없음으로 변경됩니다.');
+        }
+        if (childCnt > 0) {
+            messages.push('하위 조직 ' + childCnt + '개도 함께 삭제됩니다.');
+        }
+        messages.push(node.deptNm + ' 조직을 삭제하시겠습니까?');
+        if (!window.confirm(messages.join('\n\n'))) return;
         $.ajax({
             url: contextPath() + '/dept/deleteDept.ajax', type: 'POST', dataType: 'json', data: { deptId: id },
             success: function (response) {
@@ -380,6 +392,23 @@
     function companyNode() { return { deptId: COMPANY_ID, deptNm: summaryValue('coNm') || '회사', deptSeCd: 'COMPANY', memberCnt: numberValue(summaryValue('memberCnt')) }; }
     function findOrganization(id) { for (var i = 0; i < organizations.length; i++) if (organizations[i].deptId === id) return organizations[i]; return null; }
     function childrenOf(parentId) { return organizations.filter(function (item) { return parentId === COMPANY_ID ? !item.upDeptId : item.upDeptId === parentId; }).sort(compareOrganizations); }
+    function descendantIds(id) {
+        var result = [id];
+        for (var i = 0; i < result.length; i++) {
+            childrenOf(result[i]).forEach(function (child) {
+                if (result.indexOf(child.deptId) < 0) result.push(child.deptId);
+            });
+        }
+        return result;
+    }
+    function applyRollupMemberCounts() {
+        organizations.forEach(function (organization) {
+            var ids = descendantIds(organization.deptId);
+            organization.memberCnt = members.filter(function (member) {
+                return ids.indexOf(member.deptId) >= 0;
+            }).length;
+        });
+    }
     function compareOrganizations(a, b) { return numberValue(a.sortDeptSeq) - numberValue(b.sortDeptSeq) || String(a.deptNm || '').localeCompare(String(b.deptNm || ''), 'ko'); }
     function allowedChildTypes(type) { return type === 'COMPANY' ? ['HQ', 'DEPT'] : type === 'HQ' ? ['DEPT'] : type === 'DEPT' ? ['TEAM'] : []; }
     function organizationPath(node) {

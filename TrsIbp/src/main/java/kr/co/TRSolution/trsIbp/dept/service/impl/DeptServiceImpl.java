@@ -1,7 +1,11 @@
 package kr.co.TRSolution.trsIbp.dept.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,15 +68,38 @@ public class DeptServiceImpl implements DeptService {
         if (saved == null) {
             throw new IllegalArgumentException("조직 정보를 찾을 수 없습니다.");
         }
-        int childCnt = deptMapper.selectDeptChildCount(deptVO);
-        if (childCnt > 0) {
-            throw new IllegalArgumentException("하위 조직 " + childCnt + "개가 있어 삭제할 수 없습니다.");
+
+        List<DeptVO> organizations = deptMapper.selectOrganizationList(deptVO);
+        Set<String> deleteIds = new HashSet<String>();
+        deleteIds.add(saved.getDeptId());
+
+        boolean added;
+        do {
+            added = false;
+            for (DeptVO organization : organizations) {
+                if (organization.getUpDeptId() != null
+                        && deleteIds.contains(organization.getUpDeptId())
+                        && deleteIds.add(organization.getDeptId())) {
+                    added = true;
+                }
+            }
+        } while (added);
+
+        List<String> orderedIds = new ArrayList<String>(deleteIds);
+        for (String deleteId : orderedIds) {
+            DeptVO target = new DeptVO();
+            target.setCoId(deptVO.getCoId());
+            target.setDeptId(deleteId);
+            deptMapper.clearDeptMembers(target);
         }
-        int memberCnt = deptMapper.selectDeptMemberCount(deptVO);
-        if (memberCnt > 0) {
-            throw new IllegalArgumentException("소속 사용자 " + memberCnt + "명이 있어 삭제할 수 없습니다. 먼저 다른 조직으로 이동해 주세요.");
+
+        Collections.reverse(orderedIds);
+        for (String deleteId : orderedIds) {
+            DeptVO target = new DeptVO();
+            target.setCoId(deptVO.getCoId());
+            target.setDeptId(deleteId);
+            deptMapper.deleteDept(target);
         }
-        deptMapper.deleteDept(deptVO);
     }
 
     @Override

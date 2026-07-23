@@ -130,6 +130,11 @@ function loadEmpMeta(callback) {
  * @param {Array} deptList 부서 목록
  * @returns {void}
  */
+function clearEmpDeptSelection() {
+    $('#frmDeptId').val('');
+    $('#frmDeptNm').val('');
+}
+
 function bindEmpDeptOptions(deptList) {
     var $search = $('#empSearchDeptId');
     if ($search.length) {
