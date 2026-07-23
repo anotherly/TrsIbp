@@ -1309,6 +1309,10 @@
 .ds-file-empty { color: #64748b; font-size: 12px; }
 .ds-profile-detail { min-height: 110px; }
 .ds-profile-detail-image { width: 100px; height: 100px; border: 1px solid #475569; border-radius: 18px; object-fit: cover; }
+.ds-emp-detail-layout .ds-profile-detail { min-height: 0; }
+.ds-emp-detail-layout .ds-profile-detail-image { width: 100%; max-width: 214px; height: 214px; display: block; margin: 0 auto; }
+.ds-emp-detail-layout .ds-input[readonly],
+.ds-emp-detail-layout .ds-textarea[readonly] { cursor: default; color: #e5edf8; }
 @media (max-width: 1180px) { .ds-emp-form-layout { grid-template-columns: 220px minmax(0, 1fr); } .ds-user-id-check-row .ds-id-check-message { flex-basis: 150px; } }
 @media (max-width: 980px) { .ds-emp-form-layout { grid-template-columns: 1fr; } .ds-emp-profile-column .ds-profile-upload-box { display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; } .ds-emp-profile-column .ds-profile-preview-wrap { width: 132px; } }
 @media (max-width: 640px) { .ds-profile-upload-box { align-items: flex-start; flex-direction: column; } .ds-emp-profile-column .ds-profile-upload-box { display: flex; align-items: stretch; } .ds-upload-toolbar { align-items: flex-start; flex-direction: column; } .ds-upload-select-btn { width: 100%; } .ds-file-row { align-items: flex-start; flex-direction: column; } .ds-file-row-actions { width: 100%; justify-content: space-between; } }
