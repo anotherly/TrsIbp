@@ -22,6 +22,7 @@
         $('#orgResetViewBtn').on('click', resetView);
         $('#orgExpandBtn').on('click', toggleAll);
         $('#orgKeyword').on('input', renderChart);
+        $(window).on('resize', scheduleCompanyLines);
         $('#orgDeptSeCd').on('change', function () { fillParentOptions(this.value, modalParentId); });
         $('#orgDeptId').on('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
         $('#orgModalCloseBtn, #orgModalCancelBtn').on('click', closeEditModal);
@@ -92,11 +93,77 @@
             return '<section class="ds-org-branch">' + chartCard(node) + chartChildren(node, keyword) + '</section>';
         }).join('');
         var rootOpen = keyword || expanded[COMPANY_ID] !== false;
-        $('#orgChart').html('<div class="ds-org-root-wrap' + (topNodes.length && rootOpen ? ' has-children' : '') + '">' + chartCard(company) + '</div>'
+        $('#orgChart').html('<svg class="ds-org-company-lines" aria-hidden="true"></svg>'
+            + '<div class="ds-org-root-wrap">' + chartCard(company) + '</div>'
             + (topNodes.length && rootOpen
-                ? '<div class="ds-org-branches" style="--org-edge:' + (50 / topNodes.length) + '%;grid-template-columns:repeat(' + topNodes.length + ',minmax(235px,1fr))">' + branches + '</div>'
+                ? '<div class="ds-org-branches">' + branches + '</div>'
                 : (!topNodes.length && !keyword ? '<div class="ds-empty ds-org-chart-empty">등록된 조직이 없습니다. 상단의 조직 추가 버튼으로 시작해 주세요.</div>' : '')));
         updateExpandButton();
+        scheduleCompanyLines();
+    }
+
+    function scheduleCompanyLines() {
+        window.clearTimeout(scheduleCompanyLines.timer);
+        scheduleCompanyLines.timer = window.setTimeout(drawCompanyLines, 20);
+    }
+
+    function drawCompanyLines() {
+        var chart = document.getElementById('orgChart');
+        if (!chart) return;
+        var svg = chart.querySelector('.ds-org-company-lines');
+        var root = chart.querySelector('.ds-org-root-card');
+        var branches = Array.prototype.slice.call(chart.querySelectorAll('.ds-org-branch'));
+        if (!svg || !root || !branches.length) {
+            if (svg) svg.innerHTML = '';
+            return;
+        }
+
+        var chartRect = chart.getBoundingClientRect();
+        var rootRect = root.getBoundingClientRect();
+        var startX = rootRect.left + rootRect.width / 2 - chartRect.left;
+        var startY = rootRect.bottom - chartRect.top;
+        var rows = [];
+
+        branches.forEach(function (branch) {
+            var card = branch.querySelector(':scope > .ds-org-node-card');
+            if (!card) return;
+            var rect = card.getBoundingClientRect();
+            var top = Math.round(rect.top - chartRect.top);
+            var row = null;
+            for (var i = 0; i < rows.length; i++) {
+                if (Math.abs(rows[i].top - top) < 4) { row = rows[i]; break; }
+            }
+            if (!row) { row = { top: top, points: [] }; rows.push(row); }
+            row.points.push({ x: rect.left + rect.width / 2 - chartRect.left, y: rect.top - chartRect.top });
+        });
+
+        rows.sort(function (a, b) { return a.top - b.top; });
+        svg.setAttribute('viewBox', '0 0 ' + chart.scrollWidth + ' ' + chart.scrollHeight);
+        svg.setAttribute('width', chart.scrollWidth);
+        svg.setAttribute('height', chart.scrollHeight);
+        svg.innerHTML = '';
+
+        rows.forEach(function (row, rowIndex) {
+            row.points.sort(function (a, b) { return a.x - b.x; });
+            var first = row.points[0], last = row.points[row.points.length - 1];
+            var busY = row.top - 24;
+            var pathData;
+            if (rowIndex === 0) {
+                pathData = 'M ' + startX + ' ' + startY + ' V ' + busY
+                    + ' M ' + first.x + ' ' + busY + ' H ' + last.x;
+            } else {
+                var gutterX = 18 + ((rowIndex - 1) * 9);
+                var departY = startY + 14 + ((rowIndex - 1) * 7);
+                pathData = 'M ' + startX + ' ' + startY + ' V ' + departY
+                    + ' H ' + gutterX + ' V ' + busY + ' H ' + last.x;
+            }
+            row.points.forEach(function (point) {
+                pathData += ' M ' + point.x + ' ' + busY + ' V ' + point.y;
+            });
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', pathData);
+            svg.appendChild(path);
+        });
     }
 
     function chartChildren(node, keyword) {
@@ -112,7 +179,7 @@
         var canAdd = node.deptSeCd !== 'TEAM';
         var leader = node.deptSeCd === 'COMPANY' ? '회사 조직도' : (node.mngrUserNm || '조직장 미지정');
         var open = expanded[node.deptId] !== false;
-        return '<article class="ds-org-node-card' + (node.deptSeCd === 'COMPANY' ? ' ds-org-root-card' : '') + (selectedId === node.deptId ? ' is-selected' : '') + '" data-org-card="' + attr(node.deptId) + '">'
+        return '<article class="ds-org-node-card ds-org-node-' + String(node.deptSeCd || 'TEAM').toLowerCase() + (node.deptSeCd === 'COMPANY' ? ' ds-org-root-card' : '') + (selectedId === node.deptId ? ' is-selected' : '') + '" data-org-card="' + attr(node.deptId) + '">'
             + '<span class="ds-org-type-badge">' + html(typeLabels[node.deptSeCd] || '조직') + '</span>'
             + '<strong>' + html(node.deptNm) + '</strong><small>' + html(leader) + ' · ' + numberValue(node.memberCnt) + '명</small>'
             + '<span class="ds-org-card-actions">'
