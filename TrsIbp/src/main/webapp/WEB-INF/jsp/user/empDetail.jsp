@@ -10,20 +10,32 @@
         <div class="ds-breadcrumb">회사 관리 &gt; 사용자 관리 &gt; 상세</div>
         <div class="ds-page-head"><div><h1 class="ds-page-title">사용자 상세</h1><p class="ds-page-desc">직원 계정 정보를 조회합니다.</p></div><div class="ds-actions"><button type="button" class="ds-btn ds-btn-outline" onclick="goEmpList();">목록</button><button type="button" class="ds-btn ds-btn-outline" onclick="deleteEmp('${userId}');">삭제</button><button type="button" class="ds-btn ds-btn-primary" onclick="goEmpUpdate('${userId}');">수정</button></div></div>
         <section class="ds-card ds-card-inner">
-            <div class="ds-section-head"><div><h2 class="ds-section-title">기본 정보</h2><p class="ds-section-desc">사용자 정보는 상세 화면에서 수정되지 않습니다.</p></div></div>
-            <div class="ds-form-12">
-                <div class="ds-field ds-col-12"><label>프로필 사진</label><div id="dispProfilePhoto" class="ds-profile-detail"></div></div>
-                <div class="ds-field ds-col-6"><label>사용자ID</label><p id="dispUserId" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-6"><label>사용자명</label><p id="dispUserNm" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>회사</label><p id="dispCoNm" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>부서</label><p id="dispDeptNm" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>직위</label><p id="dispJbpsNm" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>권한</label><p id="dispAuthrtNm" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>전화번호</label><p id="dispUserTelno" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>사용여부</label><p id="dispUseYn" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-4"><label>등록일</label><p id="dispRegDt" class="ds-display-text"></p></div>
-                <div class="ds-field ds-col-12"><label>메모</label><p id="dispMemoCn" class="ds-display-text ds-display-textarea"></p></div>
-                <div class="ds-field ds-col-12"><label>증빙 첨부파일</label><div id="dispAttachmentList" class="ds-file-list"></div></div>
+            <div class="ds-section-head"><div><h2 class="ds-section-title">기본 정보</h2><p class="ds-section-desc">등록·수정 화면과 같은 배치로 표시되며 상세 화면에서는 변경할 수 없습니다.</p></div></div>
+            <div class="ds-emp-form-layout ds-emp-detail-layout">
+                <aside class="ds-emp-profile-column">
+                    <div class="ds-field">
+                        <label>프로필 사진</label>
+                        <div class="ds-profile-upload-box"><div id="dispProfilePhoto" class="ds-profile-detail"></div></div>
+                    </div>
+                </aside>
+                <div class="ds-emp-form-main">
+                    <div class="ds-form-12">
+                        <div class="ds-field ds-col-6"><label>사용자ID</label><input type="text" id="dispUserId" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-6"><label>사용자명</label><input type="text" id="dispUserNm" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>부서</label><input type="text" id="dispDeptNm" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>직위</label><input type="text" id="dispJbpsNm" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>권한</label><input type="text" id="dispAuthrtNm" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>회사</label><input type="text" id="dispCoNm" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>전화번호</label><input type="text" id="dispUserTelno" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>사용여부</label><input type="text" id="dispUseYn" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>등록일</label><input type="text" id="dispRegDt" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-12"><label>메모</label><textarea id="dispMemoCn" class="ds-textarea" readonly></textarea></div>
+                    </div>
+                    <div class="ds-field ds-emp-attachment-field">
+                        <label>증빙 첨부파일</label>
+                        <div class="ds-file-upload-box"><div id="dispAttachmentList" class="ds-file-list"></div></div>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
