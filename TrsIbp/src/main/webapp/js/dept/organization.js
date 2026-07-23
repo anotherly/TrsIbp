@@ -7,6 +7,7 @@
 
     var COMPANY_ID = '__COMPANY__';
     var typeLabels = { COMPANY: '회사', HQ: '본부', DEPT: '부서', TEAM: '팀' };
+    var managerLabels = { HQ: '본부장', DEPT: '부서장', TEAM: '팀장' };
     var organizations = [], members = [], summary = {}, expanded = {};
     var selectedId = COMPANY_ID, detailId = null, modalParentId = COMPANY_ID, toastTimer = null;
 
@@ -23,11 +24,16 @@
         $('#orgExpandBtn').on('click', toggleAll);
         $('#orgKeyword').on('input', renderChart);
         $(window).on('resize', scheduleCompanyLines);
-        $('#orgDeptSeCd').on('change', function () { fillParentOptions(this.value, modalParentId); });
+        $('#orgDeptSeCd').on('change', function () {
+            fillParentOptions(this.value, modalParentId);
+            updateManagerLabel(this.value);
+        });
         $('#orgDeptId').on('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
         $('#orgModalCloseBtn, #orgModalCancelBtn').on('click', closeEditModal);
         $('[data-org-detail-close]').on('click', closeDetailModal);
         $('#orgSaveBtn').on('click', saveOrganization);
+        $('#orgManagerSelectBtn').on('click', function () { openUserSelectModal('orgManager'); });
+        $('#orgManagerClearBtn').on('click', clearManager);
         $('#orgDetailEditBtn').on('click', function () {
             var editingId = detailId;
             if (!editingId) return;
@@ -182,7 +188,7 @@
     function chartCard(node) {
         var children = childrenOf(node.deptId);
         var canAdd = node.deptSeCd !== 'TEAM';
-        var leader = node.deptSeCd === 'COMPANY' ? '회사 조직도' : (node.mngrUserNm || '조직장 미지정');
+        var leader = node.deptSeCd === 'COMPANY' ? '회사 조직도' : (node.mngrUserNm || (managerLabels[node.deptSeCd] || '조직장') + ' 미지정');
         var open = expanded[node.deptId] !== false;
         return '<article class="ds-org-node-card ds-org-node-' + String(node.deptSeCd || 'TEAM').toLowerCase() + (node.deptSeCd === 'COMPANY' ? ' ds-org-root-card' : '') + (selectedId === node.deptId ? ' is-selected' : '') + '" data-org-card="' + attr(node.deptId) + '">'
             + '<span class="ds-org-type-badge">' + html(typeLabels[node.deptSeCd] || '조직') + '</span>'
@@ -247,12 +253,12 @@
             var manager = node.mngrUserId && node.mngrUserId === member.userId;
             return '<div class="ds-org-member"><span class="ds-org-member-avatar">' + html(String(member.userNm || '?').substring(0, 1)) + '</span>'
                 + '<div><strong>' + html(member.userNm || member.userId) + '</strong><small>' + html(member.jbpsNm || '직위 미지정') + '</small></div>'
-                + (manager ? '<em>조직장</em>' : '') + '</div>';
+                + (manager ? '<em>' + html(managerLabels[node.deptSeCd] || '조직장') + '</em>' : '') + '</div>';
         }).join('') : '<div class="ds-empty ds-org-member-empty">소속 사용자가 없습니다.</div>';
         $('#orgDetailModalTitle').text(typeLabels[node.deptSeCd] + ' 상세');
         $('#orgDetailModalBody').html('<div class="ds-org-detail-title"><span class="ds-org-type-badge">' + html(typeLabels[node.deptSeCd]) + '</span><h3>' + html(node.deptNm) + '</h3><p>' + html(node.deptExpln || '등록된 조직 설명이 없습니다.') + '</p></div>'
             + '<dl class="ds-org-kv"><dt>조직 코드</dt><dd>' + html(node.deptId) + '</dd><dt>상위 조직</dt><dd>' + html(parent ? parent.deptNm : '-') + '</dd>'
-            + '<dt>전체 경로</dt><dd>' + html(organizationPath(node)) + '</dd><dt>조직장</dt><dd>' + html(node.mngrUserNm || '미지정') + '</dd><dt>사용 여부</dt><dd class="is-use">사용</dd></dl>'
+            + '<dt>전체 경로</dt><dd>' + html(organizationPath(node)) + '</dd><dt>' + html(managerLabels[node.deptSeCd] || '조직장') + '</dt><dd>' + html(node.mngrUserNm || '미지정') + '</dd><dt>사용 여부</dt><dd class="is-use">사용</dd></dl>'
             + '<div class="ds-org-member-head"><span>소속 구성원</span><b>' + nodeMembers.length + '명</b></div><div class="ds-org-members">' + memberHtml + '</div>'
             + '<p class="ds-org-detail-hint">저장한 내용은 사용자 등록·수정 화면의 <b>부서 선택</b> 모달에 바로 반영됩니다.</p>');
     }
@@ -275,10 +281,11 @@
         setTypeOptions(globalAdd ? ['HQ', 'DEPT', 'TEAM'] : allowed);
         var type = globalAdd ? 'HQ' : allowed[0];
         $('#orgDeptSeCd').val(type).prop('disabled', false);
+        updateManagerLabel(type);
         $('#orgDeptId').prop('readonly', false);
         fillParentOptions(type, globalAdd ? COMPANY_ID : parent.deptId);
         $('#orgSortDeptSeq').val(childrenOf(parent.deptId).length + 1);
-        fillManagerOptions('');
+        setManager('', '');
         openEditForm();
     }
 
@@ -292,12 +299,13 @@
         $('#orgModalDesc').text('조직명, 상위 조직, 조직장 등 기본정보를 수정합니다.');
         setTypeOptions([node.deptSeCd]);
         $('#orgDeptSeCd').val(node.deptSeCd).prop('disabled', true);
+        updateManagerLabel(node.deptSeCd);
         fillParentOptions(node.deptSeCd, node.upDeptId || COMPANY_ID, node.deptId);
         $('#orgDeptId').val(node.deptId).prop('readonly', true);
         $('#orgDeptNm').val(node.deptNm);
         $('#orgSortDeptSeq').val(node.sortDeptSeq);
         $('#orgDeptExpln').val(node.deptExpln || '');
-        fillManagerOptions(node.mngrUserId || '');
+        setManager(node.mngrUserId || '', node.mngrUserNm || '');
         openEditForm();
     }
 
@@ -320,11 +328,17 @@
         modalParentId = preferredId || COMPANY_ID;
     }
 
-    function fillManagerOptions(selectedUserId) {
-        $('#orgMngrUserId').html('<option value="">미지정</option>' + members.map(function (member) {
-            var label = member.userNm + (member.jbpsNm ? ' · ' + member.jbpsNm : '') + (member.deptNm ? ' (' + member.deptNm + ')' : '');
-            return '<option value="' + attr(member.userId) + '">' + html(label) + '</option>';
-        }).join('')).val(selectedUserId);
+    function updateManagerLabel(type) {
+        $('#orgMngrLabel').text(managerLabels[type] || '조직장');
+    }
+
+    function setManager(userId, userNm) {
+        $('#orgMngrUserId').val(userId || '');
+        $('#orgMngrUserNm').val(userNm || '');
+    }
+
+    function clearManager() {
+        setManager('', '');
     }
 
     function saveOrganization() {
