@@ -285,16 +285,16 @@ function loadEmpDetail(userId) {
                 goEmpList();
                 return;
             }
-            $('#dispUserId').text(user.userId || '');
-            $('#dispUserNm').text(user.userNm || '');
-            $('#dispCoNm').text(user.coNm || '');
-            $('#dispDeptNm').text(formatUserDeptName(user));
-            $('#dispJbpsNm').text(user.jbpsNm || '');
-            $('#dispAuthrtNm').text(user.authrtNm || '');
-            $('#dispUserTelno').text(user.userTelno || '');
-            $('#dispUseYn').text(user.useYn === 'Y' ? '사용' : '미사용');
-            $('#dispRegDt').text(user.regDt || '');
-            $('#dispMemoCn').text(user.memoCn || '');
+            $('#dispUserId').val(user.userId || '');
+            $('#dispUserNm').val(user.userNm || '');
+            $('#dispCoNm').val(user.coNm || '');
+            $('#dispDeptNm').val(formatUserDeptName(user) || '미지정');
+            $('#dispJbpsNm').val(user.jbpsNm || '');
+            $('#dispAuthrtNm').val(user.authrtNm || '');
+            $('#dispUserTelno').val(user.userTelno || '');
+            $('#dispUseYn').val(user.useYn === 'Y' ? '사용' : '미사용');
+            $('#dispRegDt').val(user.regDt || '');
+            $('#dispMemoCn').val(user.memoCn || '');
             renderEmpProfile(res.profileFile, true);
             renderEmpAttachmentList(res.attachmentList || [], true);
         },
@@ -511,11 +511,6 @@ function validateEmpForm() {
             $('#btnEmpIdCheck').focus();
             return false;
         }
-    }
-    if (!$('#frmDeptId').val()) {
-        alert('부서를 선택해 주세요.');
-        $('#frmDeptNm').focus();
-        return false;
     }
     if (!$('#frmAuthrtId').val()) {
         alert('권한을 선택해 주세요.');
