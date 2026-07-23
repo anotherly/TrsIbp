@@ -83,7 +83,7 @@
                     <div class="ds-field ds-col-6"><label for="orgUpDeptId">상위 조직</label><select id="orgUpDeptId" name="upDeptId" class="ds-select"></select></div>
                     <div class="ds-field ds-col-6"><label class="required" for="orgDeptNm">조직명</label><input type="text" id="orgDeptNm" name="deptNm" class="ds-input" maxlength="100" placeholder="예: 플랫폼개발팀"></div>
                     <div class="ds-field ds-col-6"><label class="required" for="orgDeptId">조직 코드</label><input type="text" id="orgDeptId" name="deptId" class="ds-input" maxlength="20" placeholder="예: DEV-PLATFORM"><p class="ds-field-help">영문 대문자, 숫자, 하이픈 2~20자</p></div>
-                    <div class="ds-field ds-col-6"><label for="orgMngrUserId">조직장</label><select id="orgMngrUserId" name="mngrUserId" class="ds-select"><option value="">미지정</option></select></div>
+                    <div class="ds-field ds-col-6"><label id="orgMngrLabel" for="orgMngrUserNm">본부장</label><input type="hidden" id="orgMngrUserId" name="mngrUserId"><div class="ds-input-button"><input type="text" id="orgMngrUserNm" class="ds-input" readonly placeholder="미지정"><button type="button" class="ds-btn ds-btn-outline" id="orgManagerSelectBtn">선택</button><button type="button" class="ds-btn ds-btn-outline" id="orgManagerClearBtn">해제</button></div></div>
                     <div class="ds-field ds-col-6"><label for="orgSortDeptSeq">정렬 순서</label><input type="number" id="orgSortDeptSeq" name="sortDeptSeq" class="ds-input" min="0" max="9999" value="1"></div>
                     <div class="ds-field ds-col-12"><label for="orgDeptExpln">설명</label><textarea id="orgDeptExpln" name="deptExpln" class="ds-textarea" maxlength="500" placeholder="조직의 역할이나 담당 업무를 입력합니다."></textarea></div>
                 </div>
@@ -93,8 +93,11 @@
     </section>
 </div>
 
+<jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
 <div id="orgToast" class="ds-org-toast" role="status" aria-live="polite"><i class="fa-solid fa-circle-check"></i><span></span></div>
 <script>window.dsContextPath = '<%=request.getContextPath()%>';</script>
+<script>var ctxPath='<%=request.getContextPath()%>';</script>
+<script src="<%=request.getContextPath()%>/js/comm/userSelectModal.js"></script>
 <script src="<%=request.getContextPath()%>/js/dept/organization.js"></script>
 <script>$(function(){ initOrganizationPage(); });</script>
 </body>
