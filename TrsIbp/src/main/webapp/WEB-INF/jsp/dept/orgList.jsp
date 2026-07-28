@@ -5,6 +5,7 @@
     <jsp:include page="/WEB-INF/jsp/common/head.jsp">
         <jsp:param name="dsTitle" value="DevSync - 조직 관리"/>
     </jsp:include>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/dept/organization.css">
 </head>
 <body class="ds-body min-h-screen flex">
 <jsp:include page="/WEB-INF/jsp/common/sidebar.jsp"/>
@@ -17,7 +18,7 @@
         <div class="ds-page-head">
             <div>
                 <h1 class="ds-page-title">조직 관리</h1>
-                <p class="ds-page-desc">본부·부서·팀 구조를 관리하고 사용자 등록/수정의 부서 선택 항목에 반영합니다.</p>
+                <p class="ds-page-desc">전체 조직을 한 화면에서 확인하고 카드에서 하위 조직과 상세정보를 관리합니다.</p>
             </div>
             <div class="ds-actions">
                 <button type="button" id="orgExpandBtn" class="ds-btn ds-btn-outline">전체 접기</button>
@@ -32,30 +33,39 @@
             <article class="ds-card ds-org-stat"><span>미배정 사용자</span><strong id="orgUnassignedCount">0명</strong><em class="is-warning">조직 배정 필요</em></article>
         </section>
 
-        <section class="ds-card ds-org-workspace">
-            <aside class="ds-org-pane ds-org-tree-pane">
-                <header class="ds-org-pane-head">
-                    <div><h2>조직 계층</h2><p>조직을 선택하거나 ＋로 하위 조직을 추가합니다.</p></div>
-                    <button type="button" class="ds-org-icon-btn" id="orgTreeAddBtn" title="조직 추가"><i class="fa-solid fa-plus"></i></button>
-                </header>
-                <div class="ds-org-tree-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="orgTreeKeyword" placeholder="조직명 검색"></div>
-                <div id="orgTree" class="ds-org-tree"><div class="ds-empty">조직 정보를 불러오는 중입니다.</div></div>
-            </aside>
-
-            <section class="ds-org-pane ds-org-chart-pane">
-                <header class="ds-org-pane-head">
-                    <div><h2>전체 조직도</h2><p>카드를 선택하면 상세정보와 소속 구성원을 확인할 수 있습니다.</p></div>
+        <section class="ds-card ds-org-chart-workspace">
+            <header class="ds-org-chart-head">
+                <div><h2>전체 조직도</h2><p>카드 또는 화살표로 하위 조직을 접고 펼칠 수 있습니다.</p></div>
+                <div class="ds-org-chart-tools">
+                    <label class="ds-org-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="orgKeyword" placeholder="조직명 또는 코드 검색"></label>
                     <button type="button" id="orgResetViewBtn" class="ds-btn ds-btn-outline ds-btn-sm"><i class="fa-solid fa-house"></i> 전체 보기</button>
-                </header>
-                <div class="ds-org-chart-scroll"><div id="orgChart" class="ds-org-chart"></div></div>
-            </section>
-
-            <aside class="ds-org-pane ds-org-detail-pane">
-                <header class="ds-org-pane-head"><div><h2>조직 상세</h2><p>선택 조직의 정보와 소속 인원입니다.</p></div></header>
-                <div id="orgDetail" class="ds-org-detail"><div class="ds-empty">조직을 선택해 주세요.</div></div>
-            </aside>
+                </div>
+            </header>
+            <div class="ds-org-guide">
+                <span><i></i><b>카드/▼</b> 하위 조직 접기·펼치기</span>
+                <span><i></i><b>＋</b> 하위 조직 추가</span>
+                <span><i></i><b>상세</b> 조직정보·수정·삭제</span>
+            </div>
+            <div class="ds-org-chart-scroll"><div id="orgChart" class="ds-org-chart"></div></div>
         </section>
     </main>
+</div>
+
+<div id="orgDetailModal" class="ds-modal hidden" aria-hidden="true">
+    <div class="ds-modal-dim"></div>
+    <section class="ds-modal-panel ds-org-detail-modal-panel" role="dialog" aria-modal="true" aria-labelledby="orgDetailModalTitle">
+        <header class="ds-modal-head">
+            <div><h3 id="orgDetailModalTitle" class="ds-modal-title">조직 상세</h3><p class="ds-modal-desc">선택한 조직의 기본정보와 소속 구성원입니다.</p></div>
+            <button type="button" class="ds-modal-close" data-org-detail-close aria-label="닫기"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div id="orgDetailModalBody" class="ds-org-detail-modal-body"></div>
+        <footer class="ds-org-detail-modal-foot">
+            <button type="button" id="orgDetailDeleteBtn" class="ds-btn ds-btn-danger">삭제</button>
+            <span></span>
+            <button type="button" class="ds-btn ds-btn-outline" data-org-detail-close>닫기</button>
+            <button type="button" id="orgDetailEditBtn" class="ds-btn ds-btn-primary">수정</button>
+        </footer>
+    </section>
 </div>
 
 <div id="orgEditModal" class="ds-modal hidden" aria-hidden="true">
