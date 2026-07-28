@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="javax.servlet.jsp.SkipPageException" %>
+<%@ page import="java.util.Set" %>
 <%
     if (session.getAttribute("login") == null) {
         response.sendRedirect(request.getContextPath() + "/login/login.do");
@@ -51,3 +52,39 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/comm/layout.js"></script>
+<script>
+    window.dsGrantedMenuCodes = {};
+    window.dsIsAdmin = ${sessionScope.login.authrtId eq 'ADMIN' ? 'true' : 'false'};
+    <%
+        Set<String> dsHeadMenuCodes = (Set<String>) session.getAttribute("grantedMenuCodes");
+        if (dsHeadMenuCodes != null) {
+            for (String dsHeadMenuCode : dsHeadMenuCodes) {
+    %>
+    window.dsGrantedMenuCodes['<%=dsHeadMenuCode%>'] = true;
+    <%
+            }
+        }
+    %>
+    window.hasAuthorityCode = function(code) {
+        return !code || window.dsGrantedMenuCodes[code] === true;
+    };
+    window.hasAnyAuthorityCode = function(codes) {
+        if (!codes) {
+            return true;
+        }
+        return codes.split(',').some(function(code) {
+            return window.hasAuthorityCode(code.trim());
+        });
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        var targets = document.querySelectorAll('[data-authority-code], [data-authority-any]');
+        Array.prototype.forEach.call(targets, function(target) {
+            var allowed = target.hasAttribute('data-authority-any')
+                    ? window.hasAnyAuthorityCode(target.getAttribute('data-authority-any'))
+                    : window.hasAuthorityCode(target.getAttribute('data-authority-code'));
+            if (!allowed) {
+                target.style.display = 'none';
+            }
+        });
+    });
+</script>

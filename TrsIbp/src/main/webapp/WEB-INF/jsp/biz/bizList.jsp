@@ -25,7 +25,7 @@
             </div>
             <div class="ds-actions">
                 <button type="button" class="ds-btn ds-btn-outline" onclick="resetBizSearch();">검색 초기화</button>
-                <button type="button" class="ds-btn ds-btn-primary" onclick="goBizRegist();">+ 사업 등록</button>
+                <button type="button" class="ds-btn ds-btn-primary" data-authority-code="PROJECT_BIZ_REG_SCREEN" onclick="goBizRegist();">+ 사업 등록</button>
             </div>
         </div>
 

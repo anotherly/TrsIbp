@@ -360,7 +360,9 @@ function renderBizList(list) {
 
         rows.push([
             '<span class="ds-code">' + escapeHtml(nvl(row.bizCd, '-')) + '</span>',
-            '<a class="ds-link" href="' + ctxPath + '/biz/bizDetail.do?bizId=' + encodeURIComponent(row.bizId) + '">' + escapeHtml(row.bizNm) + '</a>',
+            hasAuthorityCode('PROJECT_BIZ_DETAIL')
+                ? '<a class="ds-link" href="' + ctxPath + '/biz/bizDetail.do?bizId=' + encodeURIComponent(row.bizId) + '">' + escapeHtml(row.bizNm) + '</a>'
+                : escapeHtml(row.bizNm),
             escapeHtml(nvl(row.instSeNm, getCodeNm('INST_SE_CD', row.instSeCd))),
             escapeHtml(nvl(row.ordplNm, '-')),
             escapeHtml(nvl(row.bizKndNm, getCodeNm('BIZ_KND_CD', row.bizKndCd))),
@@ -370,8 +372,8 @@ function renderBizList(list) {
             escapeHtml(nvl(row.ctrtYmd, '-')),
             period,
             '<div class="ds-row-actions">'
-                + '<button type="button" class="ds-mini-btn" onclick="goBizUpdate(\'' + escapeJs(row.bizId) + '\');">수정</button>'
-                + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizById(\'' + escapeJs(row.bizId) + '\');">삭제</button>'
+                + (hasAuthorityCode('PROJECT_BIZ_MDFCN_SCREEN') ? '<button type="button" class="ds-mini-btn" onclick="goBizUpdate(\'' + escapeJs(row.bizId) + '\');">수정</button>' : '')
+                + (hasAuthorityCode('PROJECT_BIZ_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizById(\'' + escapeJs(row.bizId) + '\');">삭제</button>' : '')
             + '</div>'
         ]);
     });
@@ -1034,8 +1036,8 @@ function renderBizCustRelList(list) {
         html += '<td>' + escapeHtml(nvl(row.relLvl, '-')) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.directCtrtYn, 'N')) + '</td>';
         html += '<td><div class="ds-row-actions">'
-            + '<button type="button" class="ds-mini-btn" onclick="bindCustRelFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
-            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCustRel(\'' + escapeJs(row.bizCustRelSn) + '\');">삭제</button>'
+            + (hasAuthorityCode('PROJECT_CONTRACT_MDFCN') ? '<button type="button" class="ds-mini-btn" onclick="bindCustRelFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>' : '')
+            + (hasAuthorityCode('PROJECT_CONTRACT_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCustRel(\'' + escapeJs(row.bizCustRelSn) + '\');">삭제</button>' : '')
             + '</div></td>';
         html += '</tr>';
     });
@@ -1222,8 +1224,8 @@ function renderBizCstList(list) {
         html += '<td>' + formatAmt(row.ocrnCst) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.ocrnYmd, '-')) + '</td>';
         html += '<td><div class="ds-row-actions">'
-            + '<button type="button" class="ds-mini-btn" onclick="bindCstFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
-            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCst(\'' + escapeJs(row.bizCstSn) + '\');">삭제</button>'
+            + (hasAuthorityCode('PROJECT_ACCOUNT_MDFCN') ? '<button type="button" class="ds-mini-btn" onclick="bindCstFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>' : '')
+            + (hasAuthorityCode('PROJECT_ACCOUNT_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCst(\'' + escapeJs(row.bizCstSn) + '\');">삭제</button>' : '')
             + '</div></td>';
         html += '</tr>';
     });
@@ -1375,8 +1377,8 @@ function renderBizMnpwList(list) {
         html += '<td>' + formatAmt(row.untprc) + '</td>';
         html += '<td>' + formatAmt(labor) + '</td>';
         html += '<td><div class="ds-row-actions">'
-            + '<button type="button" class="ds-mini-btn" onclick="bindMnpwFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
-            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizMnpw(\'' + escapeJs(row.bizMnpwSn) + '\');">삭제</button>'
+            + (hasAuthorityCode('PROJECT_MNPW_MDFCN') ? '<button type="button" class="ds-mini-btn" onclick="bindMnpwFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>' : '')
+            + (hasAuthorityCode('PROJECT_MNPW_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizMnpw(\'' + escapeJs(row.bizMnpwSn) + '\');">삭제</button>' : '')
             + '</div></td>';
         html += '</tr>';
     });
@@ -1534,8 +1536,8 @@ function renderBizSchdlList(list) {
         html += '<td>' + escapeHtml(nvl(row.picNm || row.picId, '-')) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.schdlCn, '-')) + '</td>';
         html += '<td><div class="ds-row-actions">'
-            + '<button type="button" class="ds-mini-btn" onclick="bindSchdlFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>'
-            + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizSchdl(\'' + escapeJs(row.bizSchdlSn) + '\');">삭제</button>'
+            + (hasAuthorityCode('PROJECT_PROCESS_MDFCN') ? '<button type="button" class="ds-mini-btn" onclick="bindSchdlFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>' : '')
+            + (hasAuthorityCode('PROJECT_PROCESS_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizSchdl(\'' + escapeJs(row.bizSchdlSn) + '\');">삭제</button>' : '')
             + '</div></td>';
         html += '</tr>';
     });
@@ -1625,5 +1627,3 @@ function deleteBizSchdl(bizSchdlSn) {
         }
     });
 }
-
-

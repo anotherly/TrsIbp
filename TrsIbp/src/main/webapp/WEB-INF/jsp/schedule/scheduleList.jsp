@@ -19,7 +19,7 @@
                 <h1 class="ds-page-title">종합 일정 캘린더</h1>
                 <p class="ds-page-desc">휴가, 출장, 외근, 회의, 기타 일정을 등록하고 월별로 조회합니다.</p>
             </div>
-            <div class="ds-actions"><button type="button" class="ds-btn ds-btn-primary" onclick="openScheduleModal();">+ 새 일정 등록</button></div>
+            <div class="ds-actions"><button type="button" class="ds-btn ds-btn-primary" data-authority-code="WORK_SCHEDULE_REG" onclick="openScheduleModal();">+ 새 일정 등록</button></div>
         </div>
 
         <section class="ds-card ds-card-inner">
@@ -90,7 +90,7 @@
                 <div class="ds-field ds-col-12"><label>상세내용</label><textarea id="frmCalSchdlCn" class="ds-textarea" maxlength="1000"></textarea></div>
             </div>
         </div>
-        <div class="ds-modal-actions ds-schedule-modal-actions"><button type="button" class="ds-btn ds-btn-outline" onclick="deleteScheduleFromModal();">삭제</button><button type="button" id="scheduleSaveButton" class="ds-btn ds-btn-primary" onclick="saveSchedule();">저장</button></div>
+        <div class="ds-modal-actions ds-schedule-modal-actions"><button type="button" id="scheduleDeleteButton" class="ds-btn ds-btn-outline" data-authority-code="WORK_SCHEDULE_DEL" onclick="deleteScheduleFromModal();">삭제</button><button type="button" id="scheduleSaveButton" class="ds-btn ds-btn-primary" data-authority-any="WORK_SCHEDULE_REG,WORK_SCHEDULE_MDFCN" onclick="saveSchedule();">저장</button></div>
     </div>
 </div>
 <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>

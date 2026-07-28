@@ -22,7 +22,7 @@
             </div>
             <div class="ds-actions">
                 <button type="button" id="orgExpandBtn" class="ds-btn ds-btn-outline">전체 접기</button>
-                <button type="button" id="orgAddBtn" class="ds-btn ds-btn-primary"><i class="fa-solid fa-plus"></i> 조직 추가</button>
+                <button type="button" id="orgAddBtn" class="ds-btn ds-btn-primary" data-authority-code="MANAGEMENT_ORG_REG"><i class="fa-solid fa-plus"></i> 조직 추가</button>
             </div>
         </div>
 
@@ -60,10 +60,10 @@
         </header>
         <div id="orgDetailModalBody" class="ds-org-detail-modal-body"></div>
         <footer class="ds-org-detail-modal-foot">
-            <button type="button" id="orgDetailDeleteBtn" class="ds-btn ds-btn-danger">삭제</button>
+            <button type="button" id="orgDetailDeleteBtn" class="ds-btn ds-btn-danger" data-authority-code="MANAGEMENT_ORG_DEL">삭제</button>
             <span></span>
             <button type="button" class="ds-btn ds-btn-outline" data-org-detail-close>닫기</button>
-            <button type="button" id="orgDetailEditBtn" class="ds-btn ds-btn-primary">수정</button>
+            <button type="button" id="orgDetailEditBtn" class="ds-btn ds-btn-primary" data-authority-code="MANAGEMENT_ORG_MDFCN">수정</button>
         </footer>
     </section>
 </div>
@@ -88,7 +88,7 @@
                     <div class="ds-field ds-col-12"><label for="orgDeptExpln">설명</label><textarea id="orgDeptExpln" name="deptExpln" class="ds-textarea" maxlength="500" placeholder="조직의 역할이나 담당 업무를 입력합니다."></textarea></div>
                 </div>
             </div>
-            <footer class="ds-org-modal-foot"><button type="button" class="ds-btn ds-btn-outline" id="orgModalCancelBtn">취소</button><button type="button" class="ds-btn ds-btn-primary" id="orgSaveBtn">저장</button></footer>
+            <footer class="ds-org-modal-foot"><button type="button" class="ds-btn ds-btn-outline" id="orgModalCancelBtn">취소</button><button type="button" class="ds-btn ds-btn-primary" id="orgSaveBtn" data-authority-any="MANAGEMENT_ORG_REG,MANAGEMENT_ORG_MDFCN">저장</button></footer>
         </form>
     </section>
 </div>

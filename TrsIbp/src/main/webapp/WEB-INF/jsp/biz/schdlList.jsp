@@ -12,7 +12,7 @@
         <section class="ds-card ds-card-inner ds-mb-20"><div class="ds-form-grid"><div class="ds-field ds-col-span-2"><label for="manageBizId">사업 선택</label><select id="manageBizId" class="ds-select" onchange="changeManagedBiz('schdl');"><option value="">사업을 선택하십시오.</option></select></div></div></section>
         <section class="ds-card ds-card-inner">
             <div class="ds-section-head"><div><h2 class="ds-section-title">일정 등록/수정/삭제</h2><p class="ds-section-desc">사전작업, 수주, 종료, 유지보수 등 사업 프로세스 일정을 관리합니다.</p></div>
-                <div class="ds-form-actions ds-form-actions-top"><button type="button" class="ds-btn ds-btn-outline" onclick="resetSchdlForm();">초기화</button><button type="button" class="ds-btn ds-btn-primary" onclick="saveBizSchdl();">저장</button></div>
+                <div class="ds-form-actions ds-form-actions-top"><button type="button" class="ds-btn ds-btn-outline" onclick="resetSchdlForm();">초기화</button><button type="button" class="ds-btn ds-btn-primary" data-authority-any="PROJECT_PROCESS_REG,PROJECT_PROCESS_MDFCN" onclick="saveBizSchdl();">저장</button></div>
             </div>
             <div class="ds-form-12 ds-mb-20">
                 <input type="hidden" id="frmBizSchdlSn">

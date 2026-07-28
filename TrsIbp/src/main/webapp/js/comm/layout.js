@@ -51,3 +51,30 @@ function toggleSubmenu(id) {
         }
     });
 })();
+
+/**
+ * 현재 화면의 업무공간을 로그인 사용자의 기본값으로 저장한다.
+ */
+function setDefaultWorkspace(workspace) {
+    var contextPath = typeof ctxPath !== 'undefined' ? ctxPath : '';
+    if (!contextPath) {
+        var pathParts = window.location.pathname.split('/');
+        contextPath = pathParts.length > 2 ? '/' + pathParts[1] : '';
+    }
+    jQuery.ajax({
+        url: contextPath + '/main/defaultWorkspace.ajax',
+        type: 'POST',
+        dataType: 'json',
+        data: { workspace: workspace }
+    }).done(function(data) {
+        if (data.result === 'OK') {
+            window.location.reload();
+            return;
+        }
+        window.alert(data.msg || '기본 업무공간을 저장하지 못했습니다.');
+    }).fail(function(xhr) {
+        var message = xhr.responseJSON && xhr.responseJSON.msg
+            ? xhr.responseJSON.msg : '기본 업무공간 저장 중 통신 오류가 발생했습니다.';
+        window.alert(message);
+    });
+}

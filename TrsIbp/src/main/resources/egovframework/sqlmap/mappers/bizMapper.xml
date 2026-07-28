@@ -113,6 +113,15 @@
     <sql id="bizSearchWhere">
         WHERE 1 = 1
         <if test="coId != null and coId != ''">AND B.CO_ID = #{coId}</if>
+        <if test="scopeUserId != null and scopeUserId != ''">
+            AND EXISTS (
+                SELECT 1
+                FROM biz_mnpw SCOPE_M
+                WHERE SCOPE_M.BIZ_ID = B.BIZ_ID
+                  AND SCOPE_M.USER_ID = #{scopeUserId}
+                  AND SCOPE_M.USE_YN = 'Y'
+            )
+        </if>
         <if test="searchKeyword != null and searchKeyword != ''">
             AND (B.BIZ_NM LIKE CONCAT('%', #{searchKeyword}, '%')
               OR B.BIZ_CD LIKE CONCAT('%', #{searchKeyword}, '%')

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -67,9 +68,19 @@ public class BizController {
 
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         bizVO.setCoId(reqLoginVo.getCoId());
+        if (!"ADMIN".equals(reqLoginVo.getAuthrtId())) {
+            bizVO.setScopeUserId(reqLoginVo.getUserId());
+        }
 
         List<BizVO> list = bizService.selectBizList(bizVO);
         int totalCnt = bizService.selectBizListCnt(bizVO);
+        if (!hasMenuCode(request, "PROJECT_CONTRACT_LIST")) {
+            for (BizVO item : list) {
+                item.setCtrtAmt(null);
+                item.setGiveMthdCd(null);
+                item.setGiveMthdCn(null);
+            }
+        }
 
         mav.addObject("result", "OK");
         mav.addObject("list", list);
@@ -88,6 +99,17 @@ public class BizController {
         BizVO detail = bizService.selectBizDetail(bizVO);
         BizVO summary = bizService.selectBizProfitSummary(bizVO);
         List<BizVO> giveMthdList = bizService.selectBizGiveMthdList(bizVO);
+        if (!hasMenuCode(request, "PROJECT_CONTRACT_LIST")) {
+            if (detail != null) {
+                detail.setCtrtAmt(null);
+                detail.setGiveMthdCd(null);
+                detail.setGiveMthdCn(null);
+            }
+            giveMthdList = new ArrayList<BizVO>();
+        }
+        if (!hasMenuCode(request, "PROJECT_ACCOUNT_LIST")) {
+            clearProfitSummary(summary);
+        }
 
         mav.addObject("result", detail == null ? "NO_DATA" : "OK");
         mav.addObject("detail", detail);
@@ -457,6 +479,23 @@ public class BizController {
         mav.addObject("summary", summary);
 
         return mav;
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean hasMenuCode(HttpServletRequest request, String menuCode) {
+        Object menuCodes = request.getSession().getAttribute("grantedMenuCodes");
+        return menuCodes instanceof Set && ((Set<String>) menuCodes).contains(menuCode);
+    }
+
+    private void clearProfitSummary(BizVO summary) {
+        if (summary == null) {
+            return;
+        }
+        summary.setDirectCstSum(null);
+        summary.setLaborCstSum(null);
+        summary.setTotalCstSum(null);
+        summary.setProfitAmt(null);
+        summary.setProfitRate(null);
     }
 
 

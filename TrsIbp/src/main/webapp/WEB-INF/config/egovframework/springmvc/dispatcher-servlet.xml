@@ -39,6 +39,7 @@
          - 로그인/로그아웃/정적 리소스 URL은 제외
     -->
     <bean id="sessionCheckInterceptor" class="kr.co.TRSolution.trsIbp.comm.SessionCheckInterceptor"/>
+    <bean id="authInterceptor" class="kr.co.TRSolution.trsIbp.comm.AuthInterceptor"/>
 
     <mvc:interceptors>
         <!-- 로케일 변경 인터셉터 (eGov 표준) -->
@@ -68,6 +69,16 @@
             <mvc:exclude-mapping path="/login/**/*.ajax"/>
             <mvc:exclude-mapping path="/cmmn/**"/>
             <ref bean="sessionCheckInterceptor"/>
+        </mvc:interceptor>
+
+        <!-- DB 메뉴 권한: 화면 숨김과 별도로 .do/.ajax 직접 접근을 차단 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/**/*.do"/>
+            <mvc:mapping path="/**/*.ajax"/>
+            <mvc:exclude-mapping path="/login/**"/>
+            <mvc:exclude-mapping path="/company/registerCompany.ajax"/>
+            <mvc:exclude-mapping path="/cmmn/**"/>
+            <ref bean="authInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 

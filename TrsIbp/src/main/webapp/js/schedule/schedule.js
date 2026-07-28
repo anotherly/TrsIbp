@@ -342,12 +342,26 @@
         }
         var html = '';
         list.forEach(function(row) {
+            var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
+            var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) {
+                return userId === loginUserId;
+            });
+            var canModify = window.dsIsAdmin === true
+                    || (loginUserId && String(row.rgtrId || '') === loginUserId);
+            var canOpenDetail = (window.dsIsAdmin === true || isTargetUser || canModify)
+                    && (hasAuthorityCode('WORK_SCHEDULE_DETAIL')
+                        || hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
+            var detailButton = canOpenDetail
+                    ? '<button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal('
+                        + row.schdlSn + ');">'
+                        + (canModify && hasAuthorityCode('WORK_SCHEDULE_MDFCN') ? '수정' : '상세') + '</button>'
+                    : '';
             html += '<div class="ds-schedule-card ' + colorClass(row.colorType) + '">'
                 + '<div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>[' + escapeHtml(row.schdlSeNm || row.schdlSeCd) + '] ' + escapeHtml(row.schdlNm) + '</strong></div>'
                 + renderProjectBadge(row)
                 + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + (row.placeNm ? ' · ' + escapeHtml(row.placeNm) : '') + '</p>'
                 + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p>'
-                + '</div><button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal(' + row.schdlSn + ');">수정</button></div>';
+                + '</div>' + detailButton + '</div>';
         });
         $('#scheduleDayList').html(html);
     }
@@ -393,6 +407,7 @@
      */
     window.openScheduleModal = function(schdlSn) {
         clearScheduleForm(!schdlSn);
+        $('#scheduleSaveButton, #scheduleDeleteButton').hide();
         $('#scheduleModal').removeClass('hidden').attr('aria-hidden', 'false');
         if (schdlSn) {
             $('#scheduleModalTitle').text('일정 수정');
@@ -405,6 +420,7 @@
             });
         } else {
             $('#scheduleModalTitle').text('일정 등록');
+            $('#scheduleSaveButton').toggle(hasAuthorityCode('WORK_SCHEDULE_REG'));
             $('#frmBgngDt').val(ymd(selectedDate) + ' 09:00');
             $('#frmEndDt').val(ymd(selectedDate) + ' 18:00');
             previousBgngTime = '09:00';
@@ -535,6 +551,13 @@
      */
     function bindScheduleForm(row) {
         $('#frmSchdlSn').val(nvl(row.schdlSn));
+        var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
+        var canModify = window.dsIsAdmin === true
+                || (loginUserId && String(row.rgtrId || '') === loginUserId);
+        $('#scheduleSaveButton').toggle(canModify
+                && hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
+        $('#scheduleDeleteButton').toggle(canModify
+                && hasAuthorityCode('WORK_SCHEDULE_DEL'));
         $('#frmCalSchdlSeCd').val(nvl(row.schdlSeCd));
         $('#frmVacSeCd').val(nvl(row.vacSeCd, row.allDayYn === 'Y' ? 'ANNUAL' : 'HOURLY'));
         $('#frmBizId').val(nvl(row.bizId));

@@ -200,7 +200,9 @@ function renderEmpTable(list) {
             userId: userId,
             row: [
                 escapeHtml(userId),
-                '<a class="ds-link" href="' + getContextPath() + '/user/empDetail.do?userId=' + encodeURIComponent(userId) + '">' + escapeHtml(item.userNm) + '</a>',
+                hasAuthorityCode('MANAGEMENT_USER_DETAIL')
+                    ? '<a class="ds-link" href="' + getContextPath() + '/user/empDetail.do?userId=' + encodeURIComponent(userId) + '">' + escapeHtml(item.userNm) + '</a>'
+                    : escapeHtml(item.userNm),
                 escapeHtml(item.deptNm),
                 escapeHtml(item.jbpsNm),
                 escapeHtml(item.authrtNm),
@@ -208,8 +210,8 @@ function renderEmpTable(list) {
                 useYnNm,
                 escapeHtml(item.regDt),
                 '<div class="ds-row-actions">'
-                + '<button type="button" class="ds-mini-btn" onclick="goEmpUpdate(\'' + escapeJs(userId) + '\');">수정</button>'
-                + '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteEmp(\'' + escapeJs(userId) + '\');">삭제</button>'
+                + (hasAuthorityCode('MANAGEMENT_USER_MDFCN_SCREEN') ? '<button type="button" class="ds-mini-btn" onclick="goEmpUpdate(\'' + escapeJs(userId) + '\');">수정</button>' : '')
+                + (hasAuthorityCode('MANAGEMENT_USER_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteEmp(\'' + escapeJs(userId) + '\');">삭제</button>' : '')
                 + '</div>'
             ]
         };

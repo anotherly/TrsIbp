@@ -21,7 +21,7 @@
             </div>
             <div class="ds-actions">
                 <button type="button" class="ds-btn ds-btn-outline" onclick="resetEmpSearch();">검색 초기화</button>
-                <button type="button" class="ds-btn ds-btn-primary" onclick="goEmpInsert();">+ 사용자 등록</button>
+                <button type="button" class="ds-btn ds-btn-primary" data-authority-code="MANAGEMENT_USER_REG_SCREEN" onclick="goEmpInsert();">+ 사용자 등록</button>
             </div>
         </div>
 

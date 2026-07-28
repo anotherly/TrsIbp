@@ -23,7 +23,7 @@
         </section>
         <section class="ds-card ds-card-inner">
             <div class="ds-section-head"><div><h2 class="ds-section-title">직접비 및 손익</h2><p class="ds-section-desc">직접비는 별도 입력하고 인건비는 투입인력 M/M와 단가로 계산합니다.</p></div>
-                <div class="ds-form-actions ds-form-actions-top"><button type="button" class="ds-btn ds-btn-outline" onclick="resetCstForm();">초기화</button><button type="button" class="ds-btn ds-btn-primary" onclick="saveBizCst();">저장</button></div>
+                <div class="ds-form-actions ds-form-actions-top"><button type="button" class="ds-btn ds-btn-outline" onclick="resetCstForm();">초기화</button><button type="button" class="ds-btn ds-btn-primary" data-authority-any="PROJECT_ACCOUNT_REG,PROJECT_ACCOUNT_MDFCN" onclick="saveBizCst();">저장</button></div>
             </div>
             <section class="ds-summary-grid">
                 <div class="ds-summary-card"><div class="ds-summary-label">계약금액</div><div id="profitCtrtAmt" class="ds-summary-value">0</div></div>

@@ -22,6 +22,7 @@
         <result property="targetUserNms" column="TARGET_USER_NMS"/>
         <result property="targetCnt" column="TARGET_CNT"/>
         <result property="colorType" column="COLOR_TYPE"/>
+        <result property="rgtrId" column="RGTR_ID"/>
         <result property="regDt" column="REG_DT"/>
     </resultMap>
 
@@ -100,6 +101,7 @@
                S.ALL_DAY_YN,
                S.PLACE_NM,
                S.SCHDL_CN,
+               S.RGTR_ID,
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS,
                COUNT(U.USER_ID) AS TARGET_CNT,
@@ -157,6 +159,7 @@
                S.ALL_DAY_YN,
                S.PLACE_NM,
                S.SCHDL_CN,
+               S.RGTR_ID,
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS
         FROM schdl_info S

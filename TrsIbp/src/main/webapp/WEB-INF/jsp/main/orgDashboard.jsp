@@ -1,57 +1,56 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <div class="ds-dashboard-stack">
     <section class="ds-dashboard-hero">
         <div>
             <p class="ds-dashboard-eyebrow">DevSync Workspace</p>
             <h1>조직 관리 대시보드</h1>
-            <p>하위 조직원의 근무, 휴가, 프로젝트 투입률과 업무 진행 상황을 확인합니다.</p>
+            <p>현재 조직도, 사용자, 근태, 일정과 투입인력 데이터를 집계합니다.</p>
         </div>
         <div class="ds-dashboard-scope">
             <strong><i class="fa-solid fa-shield-halved"></i> 조회 범위</strong>
-            <span>현재 직책에 연결된 하위 본부·부서·팀 범위만 표시</span>
+            <span>최고관리자는 회사 전체, 조직장은 본인 부서와 하위 조직 기준</span>
         </div>
     </section>
 
     <section class="ds-dashboard-kpis">
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">하위 조직원</div><div class="ds-kpi-value">32명</div><div class="ds-kpi-sub">개발1팀 11 · 개발2팀 10 · 기술지원 11</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">오늘 근무</div><div class="ds-kpi-value is-green">27명</div><div class="ds-kpi-sub">휴가 3 · 출장 1 · 재택 1</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">평균 투입률</div><div class="ds-kpi-value is-cyan">84%</div><div class="ds-kpi-sub"><span class="ds-text-danger">과투입 3명</span> · 미투입 2명</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">승인 대기</div><div class="ds-kpi-value">6건</div><div class="ds-kpi-sub">휴가 4 · 출장 2</div></article>
+        <article class="ds-dashboard-card"><div class="ds-kpi-label">조직원</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.orgUserCount ? 0 : dashboardSummary.orgUserCount}"/>명</div><div class="ds-kpi-sub">사용 중인 사용자 기준</div></article>
+        <article class="ds-dashboard-card"><div class="ds-kpi-label">오늘 출근 기록</div><div class="ds-kpi-value is-green"><fmt:formatNumber value="${empty dashboardSummary.todayAttendCount ? 0 : dashboardSummary.todayAttendCount}"/>명</div><div class="ds-kpi-sub">출근시간이 기록된 인원</div></article>
+        <article class="ds-dashboard-card"><div class="ds-kpi-label">외부·부재 일정</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.externalUserCount ? 0 : dashboardSummary.externalUserCount}"/>명</div><div class="ds-kpi-sub">휴가·출장·외근·재택·상주</div></article>
+        <article class="ds-dashboard-card"><div class="ds-kpi-label">평균 투입률</div><div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.avgInputRate ? 0 : dashboardSummary.avgInputRate}"/>%</div><div class="ds-kpi-sub">과투입 ${empty dashboardSummary.overInputUserCount ? 0 : dashboardSummary.overInputUserCount}명</div></article>
     </section>
 
     <section class="ds-dashboard-columns">
         <article class="ds-dashboard-card">
-            <div class="ds-dashboard-card-head"><div class="ds-dashboard-card-title">조직별 근무·투입 현황</div><span class="ds-dashboard-link">조직원 현황</span></div>
-            <div class="ds-dashboard-row"><strong>개발1팀</strong><span class="ds-dashboard-muted">근무 9 / 11명</span><span class="ds-dashboard-badge is-warn">투입 94%</span></div>
-            <div class="ds-dashboard-row"><strong>개발2팀</strong><span class="ds-dashboard-muted">근무 9 / 10명</span><span class="ds-dashboard-badge is-ok">투입 81%</span></div>
-            <div class="ds-dashboard-row"><strong>기술지원팀</strong><span class="ds-dashboard-muted">근무 9 / 11명</span><span class="ds-dashboard-badge">투입 76%</span></div>
+            <div class="ds-dashboard-card-head"><div class="ds-dashboard-card-title">조직별 근무·투입 현황</div></div>
+            <c:choose>
+                <c:when test="${empty dashboardPrimaryList}"><div class="ds-empty">조회할 조직이 없습니다.</div></c:when>
+                <c:otherwise>
+                    <c:forEach var="item" items="${dashboardPrimaryList}">
+                        <div class="ds-dashboard-row">
+                            <strong><c:out value="${item.deptNm}"/></strong>
+                            <span class="ds-dashboard-muted">출근 ${item.attendCount} / ${item.userCount}명</span>
+                            <span class="ds-dashboard-badge ${item.avgInputRate gt 100 ? 'is-danger' : 'is-ok'}">투입 ${item.avgInputRate}%</span>
+                        </div>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
         </article>
         <article class="ds-dashboard-card">
-            <div class="ds-dashboard-card-head"><div class="ds-dashboard-card-title">조직장 빠른 실행</div></div>
-            <div class="ds-dashboard-quick">
-                <a href="#"><strong><i class="fa-solid fa-circle-check"></i> 승인 대기</strong><span>휴가 · 출장 6건</span></a>
-                <a href="#"><strong><i class="fa-solid fa-users"></i> 조직원 조회</strong><span>근무 · 일정 현황</span></a>
-                <a href="#"><strong><i class="fa-solid fa-chart-pie"></i> 투입률 확인</strong><span>가용 · 과투입 인력</span></a>
-                <a href="#"><strong><i class="fa-solid fa-chart-column"></i> 조직 보고</strong><span>주간 · 월간 현황</span></a>
-            </div>
-        </article>
-    </section>
-
-    <section class="ds-dashboard-thirds">
-        <article class="ds-dashboard-card">
-            <div class="ds-dashboard-card-title">과투입 인원</div>
-            <div class="ds-dashboard-notice"><strong>김대리 · 120%</strong><small class="ds-text-danger">확인 필요</small><p>3개 프로젝트 동시 참여</p></div>
-            <div class="ds-dashboard-notice"><strong>박과장 · 110%</strong><small class="ds-text-warning">주의</small><p>8월 투입계획 조정 필요</p></div>
-        </article>
-        <article class="ds-dashboard-card">
-            <div class="ds-dashboard-card-title">오늘 주요 일정</div>
-            <div class="ds-dashboard-notice"><strong>개발본부 월간회의</strong><small>15:00</small><p>대회의실</p></div>
-            <div class="ds-dashboard-notice"><strong>신규입사자 온보딩</strong><small>16:30</small><p>개발1팀</p></div>
-        </article>
-        <article class="ds-dashboard-card">
-            <div class="ds-dashboard-card-title">지연 작업</div>
-            <div class="ds-dashboard-notice"><strong>권한 메뉴 검토</strong><small class="ds-text-danger">2일 지연</small><p>담당 정다빈 · DevSync</p></div>
-            <div class="ds-dashboard-notice"><strong>API 명세 승인</strong><small class="ds-text-warning">1일 지연</small><p>담당 이사원 · TBN</p></div>
+            <div class="ds-dashboard-card-head"><div class="ds-dashboard-card-title">오늘 조직 일정</div></div>
+            <c:choose>
+                <c:when test="${empty dashboardSecondaryList}"><div class="ds-empty">오늘 조직 일정이 없습니다.</div></c:when>
+                <c:otherwise>
+                    <c:forEach var="item" items="${dashboardSecondaryList}">
+                        <div class="ds-dashboard-row">
+                            <div><strong><c:out value="${item.schdlNm}"/></strong><small class="ds-dashboard-muted"><c:out value="${item.userNm}"/> · <c:out value="${item.deptNm}"/></small></div>
+                            <span class="ds-dashboard-muted">${item.bgngTm} ~ ${item.endTm}</span>
+                            <span class="ds-dashboard-badge"><c:out value="${item.schdlSeNm}"/></span>
+                        </div>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
         </article>
     </section>
 </div>

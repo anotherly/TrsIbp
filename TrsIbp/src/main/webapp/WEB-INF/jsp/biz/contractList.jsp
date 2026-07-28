@@ -45,7 +45,7 @@
                 </div>
                 <div class="ds-form-actions ds-form-actions-top">
                     <button type="button" class="ds-btn ds-btn-outline" onclick="resetCustRelForm();">초기화</button>
-                    <button type="button" class="ds-btn ds-btn-primary" onclick="saveCustAndRel();">저장</button>
+                    <button type="button" class="ds-btn ds-btn-primary" data-authority-any="PROJECT_CONTRACT_REG,PROJECT_CONTRACT_MDFCN" onclick="saveCustAndRel();">저장</button>
                 </div>
             </div>
             <div class="ds-form-12 ds-mb-20">

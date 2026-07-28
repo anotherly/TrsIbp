@@ -23,8 +23,8 @@
             </div>
             <div class="ds-actions">
                 <a href="${pageContext.request.contextPath}/biz/bizList.do" class="ds-btn ds-btn-outline">목록</a>
-                <a href="${pageContext.request.contextPath}/biz/bizUpdate.do?bizId=${param.bizId}" class="ds-btn ds-btn-primary">수정</a>
-                <button type="button" class="ds-btn ds-btn-danger" onclick="deleteBiz();">삭제</button>
+                <a href="${pageContext.request.contextPath}/biz/bizUpdate.do?bizId=${param.bizId}" class="ds-btn ds-btn-primary" data-authority-code="PROJECT_BIZ_MDFCN_SCREEN">수정</a>
+                <button type="button" class="ds-btn ds-btn-danger" data-authority-code="PROJECT_BIZ_DEL" onclick="deleteBiz();">삭제</button>
             </div>
         </div>
 
