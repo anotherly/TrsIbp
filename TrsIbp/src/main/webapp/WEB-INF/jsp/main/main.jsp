@@ -19,17 +19,21 @@
 
         <!-- DASHBOARD CONTAINER (콘텐츠 스크롤 구역) -->
         <main class="flex-grow p-8 space-y-6 max-w-7xl mx-auto w-full">
+            <c:choose>
+                <c:when test="${workspace eq 'project'}">
+                    <jsp:include page="/WEB-INF/jsp/main/projectDashboard.jsp"/>
+                </c:when>
+                <c:when test="${workspace eq 'org'}">
+                    <jsp:include page="/WEB-INF/jsp/main/orgDashboard.jsp"/>
+                </c:when>
+                <c:when test="${workspace eq 'management'}">
+                    <jsp:include page="/WEB-INF/jsp/main/managementDashboard.jsp"/>
+                </c:when>
+                <c:otherwise>
             <section class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-cyan-400 tracking-widest uppercase">DevSync Workspace</p>
-                    <h1 class="text-2xl font-black text-white mt-1">
-                        <c:choose>
-                            <c:when test="${workspace eq 'project'}">프로젝트 관리 대시보드</c:when>
-                            <c:when test="${workspace eq 'org'}">조직 관리 대시보드</c:when>
-                            <c:when test="${workspace eq 'management'}">경영 관리 대시보드</c:when>
-                            <c:otherwise>내 업무 대시보드</c:otherwise>
-                        </c:choose>
-                    </h1>
+                    <h1 class="text-2xl font-black text-white mt-1">내 업무 대시보드</h1>
                 </div>
                 <span class="px-3 py-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold">
                     권한 범위 내 정보만 표시
@@ -244,6 +248,8 @@
                 </div>
             </section>
 
+                </c:otherwise>
+            </c:choose>
         </main>
     </div>
 
@@ -315,8 +321,9 @@
         var ctxPath = '<%=request.getContextPath()%>';
     </script>
 
-    <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
-    <script src="<%=request.getContextPath()%>/js/schedule/schedule.js"></script>
-
-<script>$(function(){ if (typeof initDashboardScheduleWidget === 'function') { initDashboardScheduleWidget(); } });</script>
+    <c:if test="${workspace eq 'work'}">
+        <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
+        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js"></script>
+        <script>$(function(){ if (typeof initDashboardScheduleWidget === 'function') { initDashboardScheduleWidget(); } });</script>
+    </c:if>
 </body></html>

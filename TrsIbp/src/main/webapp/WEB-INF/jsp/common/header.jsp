@@ -11,6 +11,22 @@
     String dsAuthrtId = dsLoginObject instanceof kr.co.TRSolution.trsIbp.user.vo.UserVO
             ? ((kr.co.TRSolution.trsIbp.user.vo.UserVO) dsLoginObject).getAuthrtId() : "USER";
     boolean dsHasMultipleWorkspaces = "ADMIN".equals(dsAuthrtId) || "MANAGER".equals(dsAuthrtId);
+    String dsWorkspaceName = "내 업무";
+    String dsWorkspaceDescription = "일정 · 근태 · 개인 업무";
+    String dsWorkspaceIcon = "fa-briefcase";
+    if ("project".equals(dsWorkspace)) {
+        dsWorkspaceName = "프로젝트 관리";
+        dsWorkspaceDescription = "사업 · 계약 · 원가 · 인력";
+        dsWorkspaceIcon = "fa-diagram-project";
+    } else if ("org".equals(dsWorkspace)) {
+        dsWorkspaceName = "조직 관리";
+        dsWorkspaceDescription = "조직원 · 근태 · 투입 현황";
+        dsWorkspaceIcon = "fa-sitemap";
+    } else if ("management".equals(dsWorkspace)) {
+        dsWorkspaceName = "경영 관리";
+        dsWorkspaceDescription = "인사 · 계약 · 회계 · 자산";
+        dsWorkspaceIcon = "fa-chart-line";
+    }
 %>
 <header class="h-16 border-b border-brand-border bg-brand-card/30 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20">
     <div class="flex items-center gap-2 text-sm text-gray-400">
@@ -20,16 +36,39 @@
     </div>
 
     <% if (dsHasMultipleWorkspaces) { %>
-    <div class="ds-workspace-switcher">
-        <i class="fa-solid fa-layer-group"></i>
-        <select aria-label="업무공간 전환" onchange="location.href='<%=request.getContextPath()%>/main/main.do?workspace='+this.value;">
-            <option value="work" <%="work".equals(dsWorkspace) ? "selected" : ""%>>내 업무</option>
-            <option value="project" <%="project".equals(dsWorkspace) ? "selected" : ""%>>프로젝트 관리</option>
-            <option value="org" <%="org".equals(dsWorkspace) ? "selected" : ""%>>조직 관리</option>
-            <option value="management" <%="management".equals(dsWorkspace) ? "selected" : ""%>>경영 관리</option>
-        </select>
-        <i class="fa-solid fa-chevron-down text-[10px]"></i>
-    </div>
+    <details class="ds-workspace-switcher">
+        <summary aria-label="업무공간 전환 메뉴 열기">
+            <span class="ds-workspace-switcher-icon"><i class="fa-solid <%=dsWorkspaceIcon%>"></i></span>
+            <span class="ds-workspace-switcher-copy">
+                <strong><%=dsWorkspaceName%></strong>
+                <small><%=dsWorkspaceDescription%></small>
+            </span>
+            <i class="fa-solid fa-chevron-down ds-workspace-switcher-arrow"></i>
+        </summary>
+        <div class="ds-workspace-switcher-menu">
+            <p>업무공간 전환</p>
+            <a href="<%=request.getContextPath()%>/main/main.do?workspace=work" class="<%="work".equals(dsWorkspace) ? "is-current" : ""%>">
+                <span class="ds-workspace-option-icon"><i class="fa-solid fa-briefcase"></i></span>
+                <span><strong>내 업무</strong><small>일정 · 근태 · 개인 업무</small></span>
+                <% if ("work".equals(dsWorkspace)) { %><i class="fa-solid fa-check"></i><% } %>
+            </a>
+            <a href="<%=request.getContextPath()%>/main/main.do?workspace=project" class="<%="project".equals(dsWorkspace) ? "is-current" : ""%>">
+                <span class="ds-workspace-option-icon"><i class="fa-solid fa-diagram-project"></i></span>
+                <span><strong>프로젝트 관리</strong><small>사업 · 계약 · 원가 · 인력</small></span>
+                <% if ("project".equals(dsWorkspace)) { %><i class="fa-solid fa-check"></i><% } %>
+            </a>
+            <a href="<%=request.getContextPath()%>/main/main.do?workspace=org" class="<%="org".equals(dsWorkspace) ? "is-current" : ""%>">
+                <span class="ds-workspace-option-icon"><i class="fa-solid fa-sitemap"></i></span>
+                <span><strong>조직 관리</strong><small>조직원 · 근태 · 투입 현황</small></span>
+                <% if ("org".equals(dsWorkspace)) { %><i class="fa-solid fa-check"></i><% } %>
+            </a>
+            <a href="<%=request.getContextPath()%>/main/main.do?workspace=management" class="<%="management".equals(dsWorkspace) ? "is-current" : ""%>">
+                <span class="ds-workspace-option-icon"><i class="fa-solid fa-chart-line"></i></span>
+                <span><strong>경영 관리</strong><small>인사 · 계약 · 회계 · 자산</small></span>
+                <% if ("management".equals(dsWorkspace)) { %><i class="fa-solid fa-check"></i><% } %>
+            </a>
+        </div>
+    </details>
     <% } %>
 
     <div class="flex items-center gap-6">

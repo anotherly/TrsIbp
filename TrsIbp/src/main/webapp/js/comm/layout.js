@@ -25,3 +25,29 @@ function toggleSubmenu(id) {
         arrow.classList.toggle('text-cyan-400');
     }
 }
+
+/**
+ * 헤더 업무공간 전환 메뉴를 바깥 영역 클릭 또는 ESC 입력 시 닫는다.
+ */
+(function initWorkspaceSwitcher() {
+    document.addEventListener('click', function(event) {
+        var switcher = document.querySelector('.ds-workspace-switcher[open]');
+        if (switcher && !switcher.contains(event.target)) {
+            switcher.removeAttribute('open');
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+        var switcher = document.querySelector('.ds-workspace-switcher[open]');
+        if (switcher) {
+            switcher.removeAttribute('open');
+            var summary = switcher.querySelector('summary');
+            if (summary) {
+                summary.focus();
+            }
+        }
+    });
+})();
