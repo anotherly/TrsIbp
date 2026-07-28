@@ -213,6 +213,28 @@
     <!-- ============================================================ -->
     <select id="selectUserSelectUserList" parameterType="userVO" resultMap="userResultMap">
         <choose>
+            <when test="deptId == '__UNASSIGNED__'">
+                SELECT
+                     U.USER_ID
+                    ,U.USER_NM
+                    ,U.CO_ID
+                    ,U.DEPT_ID
+                    ,NULL AS DEPT_NM
+                    ,NULL AS UP_DEPT_ID
+                    ,9999 AS SORT_SEQ
+                    ,U.JBPS_NM
+                    ,U.USER_TELNO
+                FROM USER_INFO U
+                WHERE U.USE_YN = 'Y'
+                  AND U.CO_ID = #{coId}
+                  AND (U.DEPT_ID IS NULL OR U.DEPT_ID = '')
+                  <if test="searchKeyword != null and searchKeyword != ''">
+                  AND (U.USER_NM LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR U.USER_ID LIKE CONCAT('%', #{searchKeyword}, '%')
+                    OR IFNULL(U.JBPS_NM, '') LIKE CONCAT('%', #{searchKeyword}, '%'))
+                  </if>
+                ORDER BY U.USER_NM ASC, U.USER_ID ASC
+            </when>
             <when test="deptId != null and deptId != ''">
                 WITH RECURSIVE DEPT_TREE AS (
                     SELECT D.DEPT_ID

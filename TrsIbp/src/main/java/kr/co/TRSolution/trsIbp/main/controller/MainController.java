@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.co.TRSolution.trsIbp.user.vo.UserVO;
 
 /**
  * 메인 화면 컨트롤러.
@@ -36,8 +39,38 @@ public class MainController {
      * @throws Exception 화면 이동 중 예외 발생 시 상위로 전달한다.
      */
     @RequestMapping(value = "/main/main.do")
-    public String main(HttpSession session, HttpServletRequest request) throws Exception {
+    public String main(@RequestParam(value = "workspace", required = false) String workspace,
+            HttpSession session, HttpServletRequest request) throws Exception {
+        UserVO loginUser = (UserVO) session.getAttribute("login");
+        String selectedWorkspace = resolveWorkspace(loginUser, workspace,
+                (String) session.getAttribute("selectedWorkspace"));
+        session.setAttribute("selectedWorkspace", selectedWorkspace);
+        request.setAttribute("selectedWorkspace", selectedWorkspace);
         logger.debug("▶▶▶▶▶▶▶.메인 대시보드 화면 이동 : {}", request.getRequestURI());
         return "/main/main";
+    }
+
+    private String resolveWorkspace(UserVO loginUser, String requestedWorkspace, String currentWorkspace) {
+        String candidate = requestedWorkspace == null || requestedWorkspace.trim().isEmpty()
+                ? currentWorkspace : requestedWorkspace.trim().toLowerCase();
+        if (candidate == null || candidate.isEmpty()) {
+            return "work";
+        }
+
+        String authrtId = loginUser == null ? "USER" : loginUser.getAuthrtId();
+        if ("USER".equals(authrtId)) {
+            return "work";
+        }
+        if ("ADMIN".equals(authrtId)
+                && ("work".equals(candidate) || "project".equals(candidate)
+                        || "org".equals(candidate) || "management".equals(candidate))) {
+            return candidate;
+        }
+        if ("MANAGER".equals(authrtId)
+                && ("work".equals(candidate) || "project".equals(candidate)
+                        || "org".equals(candidate) || "management".equals(candidate))) {
+            return candidate;
+        }
+        return "work";
     }
 }

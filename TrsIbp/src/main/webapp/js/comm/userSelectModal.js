@@ -11,6 +11,7 @@
     var userSelectDeptList = [];
     var userDeptExpandedMap = {};
     var userMultiSelectedMap = {};
+    var UNASSIGNED_DEPT_ID = '__UNASSIGNED__';
 
     /**
      * null/undefined 값을 기본 문자열로 치환한다.
@@ -141,6 +142,12 @@
     function getUserDeptChildren(parentId) {
         var normalizedParentId = parentId || '';
         return userSelectDeptList.filter(function(dept) {
+            if (!normalizedParentId) {
+                var deptParentId = usmNvl(dept.upDeptId, '');
+                return !deptParentId || !userSelectDeptList.some(function(candidate) {
+                    return usmNvl(candidate.deptId, '') === deptParentId;
+                });
+            }
             return usmNvl(dept.upDeptId, '') === normalizedParentId;
         });
     }
@@ -151,7 +158,8 @@
      * @returns {void}
      */
     function renderUserSelectDeptList(deptList) {
-        var html = '<button type="button" class="ds-user-dept-item ' + (userSelectDeptId === '' ? 'is-active' : '') + '" onclick="selectUserDept(\'\');">전체</button>';
+        var html = '<button type="button" class="ds-user-dept-item ' + (userSelectDeptId === '' ? 'is-active' : '') + '" onclick="selectUserDept(\'\');">전체</button>'
+            + '<button type="button" class="ds-user-dept-item ' + (userSelectDeptId === UNASSIGNED_DEPT_ID ? 'is-active' : '') + '" onclick="selectUserDept(\'' + UNASSIGNED_DEPT_ID + '\');"><span class="ds-user-dept-toggle is-empty"></span><span class="ds-user-dept-name">소속 없음</span></button>';
         if (deptList.length === 0) {
             $('#userSelectDeptList').html(html);
             return;
@@ -177,7 +185,7 @@
             var padding = Math.min(depth * 18, 72);
             html += '<div class="ds-user-dept-node">'
                 + '<button type="button" class="ds-user-dept-item ' + (active ? 'is-active ' : '') + (hasChildren ? 'has-children' : '') + '" style="--dept-depth:' + padding + 'px" onclick="selectUserDept(\'' + usmEscapeJs(deptId) + '\');">'
-                + (hasChildren ? '<span class="ds-user-dept-toggle" onclick="toggleUserDeptNode(event,\'' + usmEscapeJs(deptId) + '\');">' + (expanded ? '▾' : '▸') + '</span>' : '<span class="ds-user-dept-toggle is-empty">└</span>')
+                + (hasChildren ? '<span class="ds-user-dept-toggle" onclick="toggleUserDeptNode(event,\'' + usmEscapeJs(deptId) + '\');">' + (expanded ? '▾' : '▸') + '</span>' : '<span class="ds-user-dept-toggle is-empty">' + (depth > 0 ? '└' : '') + '</span>')
                 + '<span class="ds-user-dept-name">' + usmEscapeHtml(usmNvl(dept.deptNm, deptId)) + '</span>'
                 + '</button>';
             if (hasChildren && expanded) {
@@ -232,7 +240,7 @@
             var selected = userSelectTarget === 'scheduleMulti' && userMultiSelectedMap[user.userId];
             html += '<button type="button" class="ds-user-row ' + (selected ? 'is-selected' : '') + '" aria-pressed="' + (selected ? 'true' : 'false') + '" onclick="applySelectedUserFromEncoded(\'' + usmEncodeRowData(user) + '\');">'
                 + '<span><strong>' + usmEscapeHtml(usmNvl(user.userNm, '-')) + '</strong>'
-                + '<span>' + usmEscapeHtml(usmNvl(user.deptNm, '-')) + ' / ' + usmEscapeHtml(usmNvl(user.jbpsNm, '-')) + ' / ' + usmEscapeHtml(usmNvl(user.userId, '-')) + '</span></span>'
+                + '<span>' + usmEscapeHtml(usmNvl(user.deptNm, '소속 없음')) + ' / ' + usmEscapeHtml(usmNvl(user.jbpsNm, '-')) + ' / ' + usmEscapeHtml(usmNvl(user.userId, '-')) + '</span></span>'
                 + '<em>' + (selected ? '선택됨' : '선택') + '</em>'
                 + '</button>';
         });
@@ -277,6 +285,9 @@
         } else if (userSelectTarget === 'schdl') {
             $('#frmPicId').val(usmNvl(user.userId, ''));
             $('#frmPicDispNm').val(usmNvl(user.userNm, ''));
+        } else if (userSelectTarget === 'orgManager') {
+            $('#orgMngrUserId').val(usmNvl(user.userId, ''));
+            $('#orgMngrUserNm').val(usmNvl(user.userNm, ''));
         }
         window.closeUserSelectModal();
     };

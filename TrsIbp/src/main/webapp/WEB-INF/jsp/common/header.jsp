@@ -5,6 +5,12 @@
     if (dsPageTitle == null || dsPageTitle.trim().isEmpty()) {
         dsPageTitle = "대시보드 홈";
     }
+    String dsWorkspace = (String) session.getAttribute("selectedWorkspace");
+    if (dsWorkspace == null || dsWorkspace.trim().isEmpty()) dsWorkspace = "work";
+    Object dsLoginObject = session.getAttribute("login");
+    String dsAuthrtId = dsLoginObject instanceof kr.co.TRSolution.trsIbp.user.vo.UserVO
+            ? ((kr.co.TRSolution.trsIbp.user.vo.UserVO) dsLoginObject).getAuthrtId() : "USER";
+    boolean dsHasMultipleWorkspaces = "ADMIN".equals(dsAuthrtId) || "MANAGER".equals(dsAuthrtId);
 %>
 <header class="h-16 border-b border-brand-border bg-brand-card/30 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20">
     <div class="flex items-center gap-2 text-sm text-gray-400">
@@ -12,6 +18,19 @@
         <i class="fa-solid fa-angle-right text-xs"></i>
         <span class="text-gray-100 font-semibold"><%=dsPageTitle%></span>
     </div>
+
+    <% if (dsHasMultipleWorkspaces) { %>
+    <div class="ds-workspace-switcher">
+        <i class="fa-solid fa-layer-group"></i>
+        <select aria-label="업무공간 전환" onchange="location.href='<%=request.getContextPath()%>/main/main.do?workspace='+this.value;">
+            <option value="work" <%="work".equals(dsWorkspace) ? "selected" : ""%>>내 업무</option>
+            <option value="project" <%="project".equals(dsWorkspace) ? "selected" : ""%>>프로젝트 관리</option>
+            <option value="org" <%="org".equals(dsWorkspace) ? "selected" : ""%>>조직 관리</option>
+            <option value="management" <%="management".equals(dsWorkspace) ? "selected" : ""%>>경영 관리</option>
+        </select>
+        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+    </div>
+    <% } %>
 
     <div class="flex items-center gap-6">
         <!-- <div class="hidden lg:flex items-center gap-3 text-xs bg-slate-900 border border-brand-border px-3 py-1.5 rounded-full">
@@ -33,11 +52,6 @@
                 <i class="fa-solid fa-magnifying-glass text-gray-500 text-xs"></i>
             </span>
             <input type="text" class="w-full bg-slate-900 border border-brand-border text-xs text-gray-100 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-brand-accent transition" placeholder="프로젝트, 마일스톤, 문서 통합 검색">
-        </div>
-
-        <div class="relative cursor-pointer hover:text-white text-gray-400">
-            <i class="fa-solid fa-bell text-lg"></i>
-            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-brand-dark animate-pulse"></span>
         </div>
 
         <div class="flex items-center gap-2 pl-4 border-l border-brand-border/60">

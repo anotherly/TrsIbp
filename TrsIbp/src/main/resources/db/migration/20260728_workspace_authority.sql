@@ -1,0 +1,49 @@
+/* DevSync 다중 업무공간 권한 확장안
+ * 기준: trs_ibp(8).sql, 공공데이터 공통표준(2025.11월)
+ * 기존 USER_INFO.AUTHRT_ID는 하위 호환을 위해 유지한다.
+ */
+
+CREATE TABLE IF NOT EXISTS `WORKSPC_INFO` (
+  `WORKSPC_ID` varchar(20) NOT NULL COMMENT '업무공간ID',
+  `WORKSPC_NM` varchar(50) NOT NULL COMMENT '업무공간명',
+  `WORKSPC_EXPLN` varchar(200) DEFAULT NULL COMMENT '업무공간설명',
+  `SORT_SEQ` int(11) NOT NULL DEFAULT 0 COMMENT '정렬순서',
+  `USE_YN` char(1) NOT NULL DEFAULT 'Y' COMMENT '사용여부',
+  `REG_DT` datetime NOT NULL DEFAULT current_timestamp() COMMENT '등록일시',
+  PRIMARY KEY (`WORKSPC_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='업무공간정보';
+
+INSERT INTO `WORKSPC_INFO`
+  (`WORKSPC_ID`, `WORKSPC_NM`, `WORKSPC_EXPLN`, `SORT_SEQ`, `USE_YN`)
+VALUES
+  ('WORK', '내 업무', '전 직원 공통 개인 업무공간', 1, 'Y'),
+  ('PROJECT', '프로젝트 관리', 'PM·PL 담당 프로젝트 관리 업무공간', 2, 'Y'),
+  ('ORG', '조직 관리', '조직장 하위 조직 관리 업무공간', 3, 'Y'),
+  ('MANAGEMENT', '경영 관리', '인사·회계·계약·구매 관리 업무공간', 4, 'Y')
+ON DUPLICATE KEY UPDATE
+  `WORKSPC_NM` = VALUES(`WORKSPC_NM`),
+  `WORKSPC_EXPLN` = VALUES(`WORKSPC_EXPLN`),
+  `SORT_SEQ` = VALUES(`SORT_SEQ`),
+  `USE_YN` = VALUES(`USE_YN`);
+
+CREATE TABLE IF NOT EXISTS `USER_WORKSPC_REL` (
+  `USER_ID` varchar(50) NOT NULL COMMENT '사용자아이디',
+  `WORKSPC_ID` varchar(20) NOT NULL COMMENT '업무공간ID',
+  `DFLT_YN` char(1) NOT NULL DEFAULT 'N' COMMENT '기본여부',
+  `USE_YN` char(1) NOT NULL DEFAULT 'Y' COMMENT '사용여부',
+  `REG_DT` datetime NOT NULL DEFAULT current_timestamp() COMMENT '등록일시',
+  `RGTR_ID` varchar(50) DEFAULT NULL COMMENT '등록자아이디',
+  PRIMARY KEY (`USER_ID`, `WORKSPC_ID`),
+  KEY `IDX_USER_WORKSPC_REL_WORKSPC_ID` (`WORKSPC_ID`),
+  CONSTRAINT `FK_USER_WORKSPC_REL_USER`
+    FOREIGN KEY (`USER_ID`) REFERENCES `USER_INFO` (`USER_ID`),
+  CONSTRAINT `FK_USER_WORKSPC_REL_WORKSPC`
+    FOREIGN KEY (`WORKSPC_ID`) REFERENCES `WORKSPC_INFO` (`WORKSPC_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사용자업무공간관계';
+
+INSERT INTO `USER_WORKSPC_REL`
+  (`USER_ID`, `WORKSPC_ID`, `DFLT_YN`, `USE_YN`, `RGTR_ID`)
+SELECT `USER_ID`, 'WORK', 'Y', 'Y', 'SYSTEM'
+FROM `USER_INFO`
+WHERE `USE_YN` = 'Y'
+ON DUPLICATE KEY UPDATE `USE_YN` = 'Y';

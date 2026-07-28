@@ -9,6 +9,7 @@
 </head>
 <body class="ds-body min-h-screen flex">
     <jsp:include page="/WEB-INF/jsp/common/sidebar.jsp"/>
+    <c:set var="workspace" value="${empty sessionScope.selectedWorkspace ? 'work' : sessionScope.selectedWorkspace}"/>
 
     <!-- 2. MAIN LAYOUT (메인 대시보드 영역) -->
     <div class="flex-grow flex flex-col min-h-screen">
@@ -18,6 +19,22 @@
 
         <!-- DASHBOARD CONTAINER (콘텐츠 스크롤 구역) -->
         <main class="flex-grow p-8 space-y-6 max-w-7xl mx-auto w-full">
+            <section class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-cyan-400 tracking-widest uppercase">DevSync Workspace</p>
+                    <h1 class="text-2xl font-black text-white mt-1">
+                        <c:choose>
+                            <c:when test="${workspace eq 'project'}">프로젝트 관리 대시보드</c:when>
+                            <c:when test="${workspace eq 'org'}">조직 관리 대시보드</c:when>
+                            <c:when test="${workspace eq 'management'}">경영 관리 대시보드</c:when>
+                            <c:otherwise>내 업무 대시보드</c:otherwise>
+                        </c:choose>
+                    </h1>
+                </div>
+                <span class="px-3 py-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/10 text-cyan-300 text-xs font-bold">
+                    권한 범위 내 정보만 표시
+                </span>
+            </section>
             
             <!-- ROW 1: QUICK ACTIONS & STATUS (상단 근태/휴가 요약 그리드) -->
             <section class="grid grid-cols-1 md:grid-cols-3 gap-6">

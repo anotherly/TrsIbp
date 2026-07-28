@@ -485,6 +485,9 @@ public class UserController {
         ModelAndView mav = new ModelAndView("jsonView");
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         userVO.setCoId(reqLoginVo.getCoId());
+        if (userVO.getDeptId() == null || userVO.getDeptId().trim().isEmpty()) {
+            userVO.setDeptId(null);
+        }
 
         try {
             logger.info("사용자 저장 요청: mode=" + userVO.getSaveMode()
