@@ -40,8 +40,9 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         }
         if (requestUrl.startsWith("/biz/") && !"ADMIN".equals(loginUser.getAuthrtId())
                 && !authorityService.isBizAccessAllowed(loginUser, request.getParameter("bizId"))) {
-            logger.warn("사업 접근 범위 거부 userId={}, bizId={}, url={}",
-                    loginUser.getUserId(), request.getParameter("bizId"), requestUrl);
+            logger.warn("사업 접근 범위 거부 userId=" + loginUser.getUserId()
+                    + ", bizId=" + request.getParameter("bizId")
+                    + ", url=" + requestUrl);
             if (requestUrl.endsWith(".ajax")) {
                 writeDeniedJson(response);
             } else {
@@ -52,8 +53,9 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         if (requiresScheduleScope(requestUrl, request)
                 && !authorityService.isScheduleAccessAllowed(loginUser,
                         request.getParameter("schdlSn"), isScheduleWriteRequest(requestUrl))) {
-            logger.warn("일정 접근 범위 거부 userId={}, schdlSn={}, url={}",
-                    loginUser.getUserId(), request.getParameter("schdlSn"), requestUrl);
+            logger.warn("일정 접근 범위 거부 userId=" + loginUser.getUserId()
+                    + ", schdlSn=" + request.getParameter("schdlSn")
+                    + ", url=" + requestUrl);
             if (requestUrl.endsWith(".ajax")) {
                 writeDeniedJson(response);
             } else {
@@ -67,12 +69,14 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
                 return true;
             }
         } catch (DataAccessException ex) {
-            logger.warn("권한 migration 적용 전 요청을 기존 방식으로 허용합니다. url={}", requestUrl);
+            logger.warn("권한 migration 적용 전 요청을 기존 방식으로 허용합니다. url=" + requestUrl);
             return true;
         }
 
-        logger.warn("메뉴 권한 거부 userId={}, authrtId={}, url={}, type={}",
-                loginUser.getUserId(), loginUser.getAuthrtId(), requestUrl, menuTypeNm);
+        logger.warn("메뉴 권한 거부 userId=" + loginUser.getUserId()
+                + ", authrtId=" + loginUser.getAuthrtId()
+                + ", url=" + requestUrl
+                + ", type=" + menuTypeNm);
         if (requestUrl.endsWith(".ajax")) {
             writeDeniedJson(response);
         } else {
