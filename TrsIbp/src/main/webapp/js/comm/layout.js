@@ -56,11 +56,9 @@ function toggleSubmenu(id) {
  * 현재 화면의 업무공간을 로그인 사용자의 기본값으로 저장한다.
  */
 function setDefaultWorkspace(workspace) {
-    var contextPath = typeof ctxPath !== 'undefined' ? ctxPath : '';
-    if (!contextPath) {
-        var pathParts = window.location.pathname.split('/');
-        contextPath = pathParts.length > 2 ? '/' + pathParts[1] : '';
-    }
+    var contextPath = typeof window.dsContextPath === 'string'
+        ? window.dsContextPath
+        : (typeof ctxPath !== 'undefined' ? ctxPath : '');
     jQuery.ajax({
         url: contextPath + '/main/defaultWorkspace.ajax',
         type: 'POST',

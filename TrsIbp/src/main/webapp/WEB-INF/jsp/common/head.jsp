@@ -51,6 +51,9 @@
 <script src="<%=request.getContextPath()%>/js/comm/dateTimePicker.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    window.dsContextPath = '<%=request.getContextPath()%>';
+</script>
 <script src="<%=request.getContextPath()%>/js/comm/layout.js"></script>
 <script>
     window.dsGrantedMenuCodes = {};
