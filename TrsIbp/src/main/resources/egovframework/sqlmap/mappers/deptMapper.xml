@@ -180,13 +180,32 @@
 
 
     <!-- ============================================================ -->
-    <!--  부서 삭제                                                    -->
+    <!--  조직 삭제 범위의 사용자 소속 해제                            -->
     <!-- ============================================================ -->
-    <update id="deleteDept" parameterType="deptVO">
+    <update id="clearDeptMemberAssignments" parameterType="deptVO">
+        UPDATE user_info
+        SET
+             DEPT_ID = NULL
+            ,CO_DRCT_YN = 'N'
+        WHERE CO_ID = #{coId}
+          AND DEPT_ID IN
+          <foreach collection="deleteDeptIds" item="deleteDeptId" open="(" separator="," close=")">
+              #{deleteDeptId}
+          </foreach>
+    </update>
+
+    <!-- ============================================================ -->
+    <!--  선택 조직과 모든 하위 조직 비활성화                          -->
+    <!-- ============================================================ -->
+    <update id="deleteDeptHierarchy" parameterType="deptVO">
         UPDATE dept_info
         SET USE_YN = 'N'
-        WHERE DEPT_ID = #{deptId}
-          AND CO_ID = #{coId}
+        WHERE CO_ID = #{coId}
+          AND USE_YN = 'Y'
+          AND DEPT_ID IN
+          <foreach collection="deleteDeptIds" item="deleteDeptId" open="(" separator="," close=")">
+              #{deleteDeptId}
+          </foreach>
     </update>
 
     <!-- 조직 관리 화면 상단 요약 -->
@@ -277,22 +296,6 @@
         SELECT COUNT(1)
         FROM dept_info
         WHERE DEPT_ID = #{deptId}
-    </select>
-
-    <select id="selectDeptChildCount" parameterType="deptVO" resultType="int">
-        SELECT COUNT(1)
-        FROM dept_info
-        WHERE CO_ID = #{coId}
-          AND UP_DEPT_ID = #{deptId}
-          AND USE_YN = 'Y'
-    </select>
-
-    <select id="selectDeptMemberCount" parameterType="deptVO" resultType="int">
-        SELECT COUNT(1)
-        FROM user_info
-        WHERE CO_ID = #{coId}
-          AND DEPT_ID = #{deptId}
-          AND USE_YN = 'Y'
     </select>
 
     <select id="selectManagerCount" parameterType="deptVO" resultType="int">

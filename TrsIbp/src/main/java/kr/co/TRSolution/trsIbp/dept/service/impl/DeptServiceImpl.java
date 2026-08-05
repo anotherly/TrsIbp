@@ -1,7 +1,10 @@
 package kr.co.TRSolution.trsIbp.dept.service.impl;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,15 +67,13 @@ public class DeptServiceImpl implements DeptService {
         if (saved == null) {
             throw new IllegalArgumentException("조직 정보를 찾을 수 없습니다.");
         }
-        int childCnt = deptMapper.selectDeptChildCount(deptVO);
-        if (childCnt > 0) {
-            throw new IllegalArgumentException("하위 조직 " + childCnt + "개가 있어 삭제할 수 없습니다.");
+        List<String> deleteDeptIds = resolveDeleteDeptIds(deptVO);
+        deptVO.setDeleteDeptIds(deleteDeptIds);
+        deptMapper.clearDeptMemberAssignments(deptVO);
+        int deletedCnt = deptMapper.deleteDeptHierarchy(deptVO);
+        if (deletedCnt != deleteDeptIds.size()) {
+            throw new IllegalStateException("조직 삭제 범위가 변경되었습니다. 다시 시도해 주세요.");
         }
-        int memberCnt = deptMapper.selectDeptMemberCount(deptVO);
-        if (memberCnt > 0) {
-            throw new IllegalArgumentException("소속 사용자 " + memberCnt + "명이 있어 삭제할 수 없습니다. 먼저 다른 조직으로 이동해 주세요.");
-        }
-        deptMapper.deleteDept(deptVO);
     }
 
     @Override
@@ -88,6 +89,26 @@ public class DeptServiceImpl implements DeptService {
     @Override
     public List<UserVO> selectOrganizationMemberList(DeptVO deptVO) throws Exception {
         return deptMapper.selectOrganizationMemberList(deptVO);
+    }
+
+    private List<String> resolveDeleteDeptIds(DeptVO deptVO) throws Exception {
+        List<DeptVO> organizations = deptMapper.selectOrganizationList(deptVO);
+        Set<String> deleteDeptIds = new LinkedHashSet<String>();
+        deleteDeptIds.add(deptVO.getDeptId());
+
+        boolean added;
+        do {
+            added = false;
+            for (DeptVO organization : organizations) {
+                if (organization.getUpDeptId() != null
+                        && deleteDeptIds.contains(organization.getUpDeptId())
+                        && deleteDeptIds.add(organization.getDeptId())) {
+                    added = true;
+                }
+            }
+        } while (added);
+
+        return new ArrayList<String>(deleteDeptIds);
     }
 
     private void normalizeAndValidate(DeptVO deptVO, boolean insert) throws Exception {

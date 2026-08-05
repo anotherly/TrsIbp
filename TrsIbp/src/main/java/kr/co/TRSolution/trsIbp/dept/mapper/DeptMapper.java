@@ -15,12 +15,11 @@ public interface DeptMapper {
     List<Map<String, Object>> selectDeptTreeList(DeptVO deptVO) throws Exception;
     DeptVO selectDeptDetail(DeptVO deptVO) throws Exception;
     void updateDept(DeptVO deptVO) throws Exception;
-    void deleteDept(DeptVO deptVO) throws Exception;
+    int clearDeptMemberAssignments(DeptVO deptVO) throws Exception;
+    int deleteDeptHierarchy(DeptVO deptVO) throws Exception;
     Map<String, Object> selectOrganizationSummary(DeptVO deptVO) throws Exception;
     List<DeptVO> selectOrganizationList(DeptVO deptVO) throws Exception;
     List<UserVO> selectOrganizationMemberList(DeptVO deptVO) throws Exception;
     int selectDeptIdCount(DeptVO deptVO) throws Exception;
-    int selectDeptChildCount(DeptVO deptVO) throws Exception;
-    int selectDeptMemberCount(DeptVO deptVO) throws Exception;
     int selectManagerCount(DeptVO deptVO) throws Exception;
 }

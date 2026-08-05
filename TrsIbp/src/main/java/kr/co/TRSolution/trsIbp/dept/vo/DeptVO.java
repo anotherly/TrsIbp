@@ -1,5 +1,6 @@
 package kr.co.TRSolution.trsIbp.dept.vo;
 
+import java.util.List;
 import kr.co.TRSolution.trsIbp.company.vo.CompanyVO;
 
 /**
@@ -26,6 +27,7 @@ public class DeptVO extends CompanyVO {
     private String mngrJbpsNm;
     private int memberCnt;
     private int childCnt;
+    private List<String> deleteDeptIds;
 
     // ===================================================
     // Getter & Setter
@@ -65,6 +67,9 @@ public class DeptVO extends CompanyVO {
 
     public int getChildCnt() { return childCnt; }
     public void setChildCnt(int childCnt) { this.childCnt = childCnt; }
+
+    public List<String> getDeleteDeptIds() { return deleteDeptIds; }
+    public void setDeleteDeptIds(List<String> deleteDeptIds) { this.deleteDeptIds = deleteDeptIds; }
 
     @Override
     public String toString() {
