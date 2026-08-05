@@ -22,6 +22,7 @@
     var WORK_HOUR_START = 9 * 60;
     var WORK_HOUR_END = 18 * 60;
     var legendColorTypes = ['leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'etc'];
+    var calendarClickTimer = null;
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -75,6 +76,7 @@
      * @returns {void}
      */
     window.initSchedulePage = function() {
+        bindCalendarDateEvents('#scheduleCalendarGrid', false);
         initializeScheduleDateTimePicker();
         $('#frmAllDayYn').on('change', function() {
             applyAllDayInputMode($(this).val() === 'Y');
@@ -93,9 +95,27 @@
             changeScheduleProjectFilter($(this).val(), false);
         });
         loadScheduleMeta(function() {
+            var requestedYmd = getRequestedNewScheduleYmd();
+            if (requestedYmd) {
+                selectedDate = new Date(requestedYmd + 'T00:00:00');
+                currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+            }
             loadScheduleList();
+            if (requestedYmd && hasAuthorityCode('WORK_SCHEDULE_REG')) {
+                openScheduleModal();
+            }
         });
     };
+
+    /**
+     * 대시보드 달력에서 전달한 신규 일정 날짜를 검증해 반환한다.
+     * @returns {string} yyyy-MM-dd 또는 빈 문자열
+     */
+    function getRequestedNewScheduleYmd() {
+        var match = window.location.search.match(/[?&]newScheduleYmd=([^&]+)/);
+        var value = match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : '';
+        return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : '';
+    }
 
     /**
      * 일정관리 시작·종료 입력란에 로컬 jQuery DateTimePicker를 초기화한다.
@@ -126,6 +146,7 @@
      */
     window.initDashboardScheduleWidget = function() {
         viewType = 'all';
+        bindCalendarDateEvents('#dashScheduleCalendarGrid', true);
         $('#dashScheduleProjectFilter').on('change', function() {
             changeScheduleProjectFilter($(this).val(), true);
         });
@@ -324,7 +345,8 @@
             d.setDate(start.getDate() + i);
             var key = ymd(d);
             var dots = monthSummary[key] || [];
-            html += '<button type="button" class="ds-calendar-day ' + (d.getMonth() !== currentDate.getMonth() ? 'is-muted ' : '') + (key === ymd(selectedDate) ? 'is-selected ' : '') + '" onclick="selectScheduleDate(\'' + key + '\');">'
+            var registerAttrs = hasAuthorityCode('WORK_SCHEDULE_REG') ? ' title="더블클릭하여 일정 등록"' : '';
+            html += '<button type="button" data-schedule-ymd="' + key + '" class="ds-calendar-day ' + (d.getMonth() !== currentDate.getMonth() ? 'is-muted ' : '') + (key === ymd(selectedDate) ? 'is-selected ' : '') + '"' + registerAttrs + '>'
                 + '<span>' + d.getDate() + '</span><em>' + dots.map(function(c) { return '<i class="ds-dot ds-dot-' + escapeHtml(c || 'etc') + '"></i>'; }).join('') + '</em></button>';
         }
         $('#scheduleCalendarGrid').html(html);
@@ -395,10 +417,48 @@
      * @returns {void}
      */
     window.selectScheduleDate = function(dateYmd) {
-        selectedDate = new Date(dateYmd);
+        selectedDate = new Date(dateYmd + 'T00:00:00');
         currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
         loadScheduleList();
     };
+
+    /**
+     * 달력의 날짜를 더블클릭하면 해당 날짜로 신규 일정 모달을 연다.
+     * @param {string} dateYmd 선택일자 yyyy-MM-dd
+     * @returns {void}
+     */
+    window.openScheduleModalForDate = function(dateYmd) {
+        if (!hasAuthorityCode('WORK_SCHEDULE_REG')) return;
+        selectedDate = new Date(dateYmd + 'T00:00:00');
+        currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+        openScheduleModal();
+    };
+
+    /**
+     * 단일클릭 조회와 더블클릭 등록이 서로 간섭하지 않도록 달력 이벤트를 위임한다.
+     * @param {string} selector 달력 그리드 선택자
+     * @param {boolean} isDashboard 대시보드 위젯 여부
+     * @returns {void}
+     */
+    function bindCalendarDateEvents(selector, isDashboard) {
+        var namespace = isDashboard ? '.dsDashboardCalendar' : '.dsScheduleCalendar';
+        var daySelector = selector + ' .ds-calendar-day';
+        $(document).off('click' + namespace, daySelector).on('click' + namespace, daySelector, function() {
+            var dateYmd = $(this).attr('data-schedule-ymd');
+            window.clearTimeout(calendarClickTimer);
+            calendarClickTimer = window.setTimeout(function() {
+                if (isDashboard) selectDashboardScheduleDate(dateYmd);
+                else selectScheduleDate(dateYmd);
+            }, 220);
+        });
+        $(document).off('dblclick' + namespace, daySelector).on('dblclick' + namespace, daySelector, function() {
+            if (!hasAuthorityCode('WORK_SCHEDULE_REG')) return;
+            window.clearTimeout(calendarClickTimer);
+            var dateYmd = $(this).attr('data-schedule-ymd');
+            if (isDashboard) openDashboardScheduleDate(dateYmd);
+            else openScheduleModalForDate(dateYmd);
+        });
+    }
 
     /**
      * 일정 등록/수정 모달을 연다.
@@ -735,18 +795,19 @@
         if ($month.length === 0) return;
         $month.text(ymLabel(currentDate));
         $('#dashScheduleSelectedTitle').text(ymd(selectedDate) + ' 일정');
-        renderCalendarTo('#dashScheduleCalendarGrid', 'selectDashboardScheduleDate');
+        renderCalendarTo('#dashScheduleCalendarGrid');
         renderDashboardDayList(dayList);
     }
 
-    function renderCalendarTo(selector, clickFn) {
+    function renderCalendarTo(selector) {
         var first = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         var start = new Date(first); start.setDate(first.getDate() - first.getDay());
         var html = '<span class="ds-weekday sun">일</span><span class="ds-weekday">월</span><span class="ds-weekday">화</span><span class="ds-weekday">수</span><span class="ds-weekday">목</span><span class="ds-weekday">금</span><span class="ds-weekday">토</span>';
         for (var i=0; i<42; i++) {
             var d = new Date(start); d.setDate(start.getDate()+i);
             var key = ymd(d); var dots = monthSummary[key] || [];
-            html += '<button type="button" class="ds-calendar-day ' + (d.getMonth() !== currentDate.getMonth() ? 'is-muted ' : '') + (key === ymd(selectedDate) ? 'is-selected ' : '') + '" onclick="' + clickFn + '(\'' + key + '\');"><span>' + d.getDate() + '</span><em>' + dots.map(function(c){return '<i class="ds-dot ds-dot-' + c + '"></i>';}).join('') + '</em></button>';
+            var registerAttrs = hasAuthorityCode('WORK_SCHEDULE_REG') ? ' title="더블클릭하여 일정 등록"' : '';
+            html += '<button type="button" data-schedule-ymd="' + key + '" class="ds-calendar-day ' + (d.getMonth() !== currentDate.getMonth() ? 'is-muted ' : '') + (key === ymd(selectedDate) ? 'is-selected ' : '') + '"' + registerAttrs + '><span>' + d.getDate() + '</span><em>' + dots.map(function(c){return '<i class="ds-dot ds-dot-' + c + '"></i>';}).join('') + '</em></button>';
         }
         $(selector).html(html);
     }
@@ -777,7 +838,11 @@
         return '<div class="ds-project-badge-row"><span class="ds-project-badge" title="' + escapeHtml(row.bizNm) + '">' + escapeHtml(row.bizNm) + '</span></div>';
     }
 
-    window.selectDashboardScheduleDate = function(dateYmd) { selectedDate = new Date(dateYmd); currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1); loadScheduleList(true); };
+    window.selectDashboardScheduleDate = function(dateYmd) { selectedDate = new Date(dateYmd + 'T00:00:00'); currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1); loadScheduleList(true); };
+    window.openDashboardScheduleDate = function(dateYmd) {
+        if (!hasAuthorityCode('WORK_SCHEDULE_REG')) return;
+        window.location.href = ctxPath + '/schedule/scheduleList.do?newScheduleYmd=' + encodeURIComponent(dateYmd);
+    };
     window.moveDashboardScheduleMonth = function(diff) { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+diff, 1); selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); loadScheduleList(true); };
     window.changeDashboardScheduleView = function(type) { viewType = type || 'all'; $('.dash-schedule-tab').removeClass('is-active'); $('.dash-schedule-tab[data-view-type="'+viewType+'"]').addClass('is-active'); loadScheduleList(true); };
 })(window, jQuery);

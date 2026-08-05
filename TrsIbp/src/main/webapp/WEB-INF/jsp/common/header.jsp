@@ -79,10 +79,12 @@
     <% } %>
 
     <div class="flex items-center gap-6">
+        <%-- 통합검색은 기능 구현 시 다시 활성화한다.
         <div class="relative w-64">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-gray-500 text-xs"></i></span>
             <input type="text" class="w-full bg-slate-900 border border-brand-border text-xs text-gray-100 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:border-brand-accent transition" placeholder="프로젝트, 일정, 사용자 통합 검색">
         </div>
+        --%>
         <div class="flex items-center gap-2 pl-4 border-l border-brand-border/60">
             <span class="text-xs text-gray-400"><i class="fa-solid fa-user-circle text-brand-accent mr-1"></i><strong class="text-gray-200">${not empty sessionScope.login ? sessionScope.login.userNm : '게스트'}</strong></span>
             <a href="<%=request.getContextPath()%>/login/logout.do" class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-500/10" onclick="return confirm('로그아웃 하시겠습니까?')"><i class="fa-solid fa-right-from-bracket"></i></a>

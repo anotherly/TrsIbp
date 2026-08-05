@@ -248,19 +248,22 @@
     }
 
     function renderDetailModal(node) {
-        var nodeMembers = members.filter(function (member) { return member.deptId === node.deptId; });
+        var scopeIds = descendantIds(node.deptId);
+        var nodeMembers = members.filter(function (member) { return scopeIds.indexOf(member.deptId) >= 0; });
         var parent = node.upDeptId ? findOrganization(node.upDeptId) : companyNode();
         var memberHtml = nodeMembers.length ? nodeMembers.map(function (member) {
             var manager = node.mngrUserId && node.mngrUserId === member.userId;
+            var memberDept = findOrganization(member.deptId);
+            var memberDetail = (memberDept ? memberDept.deptNm + ' · ' : '') + (member.jbpsNm || '직위 미지정');
             return '<div class="ds-org-member"><span class="ds-org-member-avatar">' + html(String(member.userNm || '?').substring(0, 1)) + '</span>'
-                + '<div><strong>' + html(member.userNm || member.userId) + '</strong><small>' + html(member.jbpsNm || '직위 미지정') + '</small></div>'
+                + '<div><strong>' + html(member.userNm || member.userId) + '</strong><small>' + html(memberDetail) + '</small></div>'
                 + (manager ? '<em>' + html(managerLabels[node.deptSeCd] || '조직장') + '</em>' : '') + '</div>';
         }).join('') : '<div class="ds-empty ds-org-member-empty">소속 사용자가 없습니다.</div>';
         $('#orgDetailModalTitle').text(typeLabels[node.deptSeCd] + ' 상세');
         $('#orgDetailModalBody').html('<div class="ds-org-detail-title"><span class="ds-org-type-badge">' + html(typeLabels[node.deptSeCd]) + '</span><h3>' + html(node.deptNm) + '</h3><p>' + html(node.deptExpln || '등록된 조직 설명이 없습니다.') + '</p></div>'
             + '<dl class="ds-org-kv"><dt>조직 코드</dt><dd>' + html(node.deptId) + '</dd><dt>상위 조직</dt><dd>' + html(parent ? parent.deptNm : '-') + '</dd>'
             + '<dt>전체 경로</dt><dd>' + html(organizationPath(node)) + '</dd><dt>' + html(managerLabels[node.deptSeCd] || '조직장') + '</dt><dd>' + html(node.mngrUserNm || '미지정') + '</dd><dt>사용 여부</dt><dd class="is-use">사용</dd></dl>'
-            + '<div class="ds-org-member-head"><span>소속 구성원</span><b>' + nodeMembers.length + '명</b></div><div class="ds-org-members">' + memberHtml + '</div>'
+            + '<div class="ds-org-member-head"><span>' + (node.deptSeCd === 'TEAM' ? '소속 구성원' : '소속 구성원 (하위 조직 포함)') + '</span><b>' + nodeMembers.length + '명</b></div><div class="ds-org-members">' + memberHtml + '</div>'
             + '<p class="ds-org-detail-hint">저장한 내용은 사용자 등록·수정 화면의 <b>부서 선택</b> 모달에 바로 반영됩니다.</p>');
     }
 

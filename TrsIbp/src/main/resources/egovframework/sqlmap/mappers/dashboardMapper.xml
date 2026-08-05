@@ -135,12 +135,37 @@
     </select>
 
     <sql id="orgScopeCte">
-        WITH RECURSIVE dept_scope AS (
+        WITH RECURSIVE dept_ancestor AS (
+            SELECT D.DEPT_ID, D.UP_DEPT_ID, D.DEPT_SE_CD, 0 AS DEPTH
+            FROM dept_info D
+            WHERE D.CO_ID = #{coId}
+              AND D.DEPT_ID = #{deptId}
+              AND D.USE_YN = 'Y'
+            UNION ALL
+            SELECT P.DEPT_ID, P.UP_DEPT_ID, P.DEPT_SE_CD, A.DEPTH + 1
+            FROM dept_info P
+            JOIN dept_ancestor A ON A.UP_DEPT_ID = P.DEPT_ID
+            WHERE P.CO_ID = #{coId}
+              AND P.USE_YN = 'Y'
+              AND A.DEPTH &lt; 10
+        ),
+        scope_root AS (
+            SELECT COALESCE(
+                (SELECT A.DEPT_ID
+                   FROM dept_ancestor A
+                  WHERE A.DEPT_SE_CD = 'HQ'
+                  ORDER BY A.DEPTH DESC
+                  LIMIT 1),
+                #{deptId}
+            ) AS DEPT_ID
+        ),
+        dept_scope AS (
             SELECT D.DEPT_ID
             FROM dept_info D
             WHERE D.CO_ID = #{coId}
               AND D.USE_YN = 'Y'
-              AND (#{allCompanyYn} = 'Y' OR D.DEPT_ID = #{deptId})
+              AND (#{allCompanyYn} = 'Y'
+                   OR D.DEPT_ID = (SELECT R.DEPT_ID FROM scope_root R))
             UNION
             SELECT C.DEPT_ID
             FROM dept_info C

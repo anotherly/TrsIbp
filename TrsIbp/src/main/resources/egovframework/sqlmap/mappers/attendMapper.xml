@@ -102,6 +102,43 @@
     </select>
 
     <select id="selectTeamStatusList" parameterType="attendVO" resultMap="attendResultMap">
+        WITH RECURSIVE dept_ancestor AS (
+            SELECT D.DEPT_ID, D.UP_DEPT_ID, D.DEPT_SE_CD, 0 AS DEPTH
+            FROM dept_info D
+            WHERE D.CO_ID = #{coId}
+              AND D.DEPT_ID = #{deptId}
+              AND D.USE_YN = 'Y'
+            UNION ALL
+            SELECT P.DEPT_ID, P.UP_DEPT_ID, P.DEPT_SE_CD, A.DEPTH + 1
+            FROM dept_info P
+            JOIN dept_ancestor A ON A.UP_DEPT_ID = P.DEPT_ID
+            WHERE P.CO_ID = #{coId}
+              AND P.USE_YN = 'Y'
+              AND A.DEPTH &lt; 10
+        ),
+        scope_root AS (
+            SELECT COALESCE(
+                (SELECT A.DEPT_ID
+                   FROM dept_ancestor A
+                  WHERE A.DEPT_SE_CD = 'HQ'
+                  ORDER BY A.DEPTH DESC
+                  LIMIT 1),
+                #{deptId}
+            ) AS DEPT_ID
+        ),
+        dept_scope AS (
+            SELECT D.DEPT_ID
+            FROM dept_info D
+            JOIN scope_root R ON R.DEPT_ID = D.DEPT_ID
+            WHERE D.CO_ID = #{coId}
+              AND D.USE_YN = 'Y'
+            UNION
+            SELECT C.DEPT_ID
+            FROM dept_info C
+            JOIN dept_scope P ON C.UP_DEPT_ID = P.DEPT_ID
+            WHERE C.CO_ID = #{coId}
+              AND C.USE_YN = 'Y'
+        )
         SELECT T.USER_ID,
                T.USER_NM,
                T.CO_ID,
@@ -166,9 +203,7 @@
             ) PF ON PF.REF_ID = U.USER_ID
             WHERE U.CO_ID = #{coId}
               AND U.USE_YN = 'Y'
-              <if test="deptId != null and deptId != ''">
-              AND U.DEPT_ID = #{deptId}
-              </if>
+              AND U.DEPT_ID IN (SELECT DEPT_ID FROM dept_scope)
         ) T
         ORDER BY CASE WHEN T.STATUS_CD = 'OFFICE' THEN 1 ELSE 0 END,
                  T.USER_NM, T.USER_ID

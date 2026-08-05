@@ -172,19 +172,17 @@
 
     <update id="clearDefaultWorkspace" parameterType="string">
         UPDATE user_workspc_rel
-        SET DFLT_YN = 'N', MDFCN_DT = NOW(), MDFR_ID = #{value}
+        SET DFLT_YN = 'N'
         WHERE USER_ID = #{value}
     </update>
 
     <insert id="upsertDefaultWorkspace" parameterType="map">
         INSERT INTO user_workspc_rel
-            (USER_ID, WORKSPC_ID, DFLT_YN, USE_YN, REG_DT, RGTR_ID)
+            (USER_ID, WORKSPC_ID, DFLT_YN, USE_YN)
         VALUES
-            (#{userId}, #{workspaceId}, 'Y', 'Y', NOW(), #{userId})
+            (#{userId}, #{workspaceId}, 'Y', 'Y')
         ON DUPLICATE KEY UPDATE
             DFLT_YN = 'Y',
-            USE_YN = 'Y',
-            MDFCN_DT = NOW(),
-            MDFR_ID = #{userId}
+            USE_YN = 'Y'
     </insert>
 </mapper>

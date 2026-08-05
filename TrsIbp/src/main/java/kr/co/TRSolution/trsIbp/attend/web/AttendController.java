@@ -97,7 +97,7 @@ public class AttendController {
     }
 
     /**
-     * 로그인 사용자와 같은 부서의 현재 근무/일정 상태를 조회한다.
+     * 로그인 사용자가 소속된 상위 본부 범위의 현재 근무/일정 상태를 조회한다.
      */
     @RequestMapping(value = "/attend/teamStatus.ajax", method = RequestMethod.GET)
     @ResponseBody
