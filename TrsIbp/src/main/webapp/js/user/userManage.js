@@ -1,5 +1,6 @@
 var empTable = null;
 var empIdCheckedValue = '';
+var empCompanyName = '';
 
 /**
  * 사용자ID 중복확인 결과 문구와 상태 색상을 갱신한다.
@@ -113,6 +114,7 @@ function loadEmpMeta(callback) {
         type: 'GET',
         dataType: 'json',
         success: function (res) {
+            empCompanyName = res.coNm || empCompanyName || '회사';
             bindEmpDeptOptions(res.deptList || []);
             bindEmpAuthOptions(res.authList || []);
             if (typeof callback === 'function') {
@@ -133,12 +135,22 @@ function loadEmpMeta(callback) {
 function clearEmpDeptSelection() {
     $('#frmDeptId').val('');
     $('#frmDeptNm').val('');
+    $('#frmCoDrctYn').val('N');
+}
+
+/** 대표·임원 등 전사 직속 사용자의 소속을 회사로 지정한다. */
+function selectEmpCompanyDirect() {
+    $('#frmDeptId').val('');
+    $('#frmDeptNm').val((empCompanyName || '회사') + ' > 회사 직속');
+    $('#frmCoDrctYn').val('Y');
 }
 
 function bindEmpDeptOptions(deptList) {
     var $search = $('#empSearchDeptId');
     if ($search.length) {
-        $search.empty().append('<option value="">전체</option>');
+        $search.empty()
+            .append('<option value="">전체</option>')
+            .append('<option value="__COMPANY_DIRECT__">회사 직속</option>');
     }
     deptList.forEach(function (dept) {
         var label = dept.deptNm || '';
@@ -203,7 +215,7 @@ function renderEmpTable(list) {
                 hasAuthorityCode('MANAGEMENT_USER_DETAIL')
                     ? '<a class="ds-link" href="' + getContextPath() + '/user/empDetail.do?userId=' + encodeURIComponent(userId) + '">' + escapeHtml(item.userNm) + '</a>'
                     : escapeHtml(item.userNm),
-                escapeHtml(item.deptNm),
+                escapeHtml(formatUserDeptName(item)),
                 escapeHtml(item.jbpsNm),
                 escapeHtml(item.authrtNm),
                 escapeHtml(item.userTelno),
@@ -259,6 +271,7 @@ function loadEmpForm(userId) {
             $('#frmUserId').val(user.userId);
             $('#frmUserNm').val(user.userNm);
             $('#frmDeptId').val(user.deptId);
+            $('#frmCoDrctYn').val(user.coDrctYn === 'Y' ? 'Y' : 'N');
             $('#frmDeptNm').val(formatUserDeptName(user));
             $('#frmJbpsNm').val(user.jbpsNm);
             $('#frmAuthrtId').val(user.authrtId);
@@ -487,7 +500,16 @@ function openEmpDeptSelectModal() {
         url: getContextPath() + '/common/deptSelectList.ajax',
         type: 'GET',
         targetId: '#frmDeptId',
-        targetName: '#frmDeptNm'
+        targetName: '#frmDeptNm',
+        includeCompany: true,
+        companyName: function () { return empCompanyName || '회사'; },
+        onSelect: function (dept) {
+            if (dept && dept.deptSeCd === 'COMPANY') {
+                selectEmpCompanyDirect();
+                return;
+            }
+            $('#frmCoDrctYn').val('N');
+        }
     });
 }
 
@@ -634,6 +656,9 @@ function formatUserDeptName(user) {
     user = user || {};
     var deptNm = user.deptNm || '';
     var upDeptNm = user.upDeptNm || '';
+    if (user.coDrctYn === 'Y' && user.coNm) {
+        return user.coNm + ' > 회사 직속';
+    }
     if (upDeptNm && deptNm && upDeptNm !== deptNm) {
         return upDeptNm + ' > ' + deptNm;
     }

@@ -34,6 +34,7 @@
         <result property="userNm" column="USER_NM"/>
         <result property="coId" column="CO_ID"/>
         <result property="deptId" column="DEPT_ID"/>
+        <result property="coDrctYn" column="CO_DRCT_YN"/>
         <result property="deptNm" column="DEPT_NM"/>
         <result property="jbpsNm" column="JBPS_NM"/>
     </resultMap>
@@ -203,13 +204,9 @@
                  AND U.USE_YN = 'Y') AS memberCnt
             ,(SELECT COUNT(1)
                 FROM user_info U
-                LEFT JOIN dept_info D
-                       ON U.DEPT_ID = D.DEPT_ID
-                      AND D.CO_ID = U.CO_ID
-                      AND D.USE_YN = 'Y'
                WHERE U.CO_ID = C.CO_ID
                  AND U.USE_YN = 'Y'
-                 AND D.DEPT_ID IS NULL) AS unassignedCnt
+                 AND U.CO_DRCT_YN = 'Y') AS companyDirectCnt
         FROM co_info C
         WHERE C.CO_ID = #{coId}
           AND C.USE_YN = 'Y'
@@ -263,6 +260,7 @@
             ,U.USER_NM
             ,U.CO_ID
             ,U.DEPT_ID
+            ,U.CO_DRCT_YN
             ,D.DEPT_NM
             ,U.JBPS_NM
         FROM user_info U

@@ -30,7 +30,7 @@
             <article class="ds-card ds-org-stat"><span>회사</span><strong id="orgCompanyName">-</strong><em>사용 중</em></article>
             <article class="ds-card ds-org-stat"><span>운영 조직</span><strong id="orgCount">0</strong><em>본부 · 부서 · 팀</em></article>
             <article class="ds-card ds-org-stat"><span>전체 구성원</span><strong id="orgMemberCount">0명</strong><em>재직 사용자 기준</em></article>
-            <article class="ds-card ds-org-stat"><span>미배정 사용자</span><strong id="orgUnassignedCount">0명</strong><em class="is-warning">조직 배정 필요</em></article>
+            <article class="ds-card ds-org-stat"><span>회사 직속</span><strong id="orgCompanyDirectCount">0명</strong><em>대표 · 임원 · 전사 직속</em></article>
         </section>
 
         <section class="ds-card ds-org-chart-workspace">

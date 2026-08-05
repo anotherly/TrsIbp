@@ -29,7 +29,7 @@
             <div class="ds-section-head">
                 <div>
                     <h2 class="ds-section-title">검색 조건</h2>
-                    <p class="ds-section-desc">사용자ID, 사용자명, 부서, 직위, 전화번호 기준으로 검색합니다.</p>
+                    <p class="ds-section-desc">사용자ID, 사용자명, 소속 조직, 직위, 전화번호 기준으로 검색합니다.</p>
                 </div>
             </div>
             <form id="empSearchForm" onsubmit="loadEmpList(); return false;">
@@ -39,7 +39,7 @@
                         <input type="text" id="empSearchKeyword" name="searchKeyword" class="ds-input" placeholder="사용자ID, 사용자명, 부서, 직위, 전화번호">
                     </div>
                     <div class="ds-field ds-col-3">
-                        <label for="empSearchDeptId">부서</label>
+                        <label for="empSearchDeptId">소속 조직</label>
                         <select id="empSearchDeptId" name="deptId" class="ds-select"><option value="">전체</option></select>
                     </div>
                     <div class="ds-field ds-col-2">
@@ -70,7 +70,7 @@
                     <tr>
                         <th>사용자ID</th>
                         <th>사용자명</th>
-                        <th>부서</th>
+                        <th>소속 조직</th>
                         <th>직위</th>
                         <th>권한</th>
                         <th>전화번호</th>

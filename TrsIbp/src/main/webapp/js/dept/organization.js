@@ -94,7 +94,7 @@
         $('#orgCompanyName').text(summaryValue('coNm') || '-');
         $('#orgCount').text(numberValue(summaryValue('orgCnt')));
         $('#orgMemberCount').text(numberValue(summaryValue('memberCnt')) + '명');
-        $('#orgUnassignedCount').text(numberValue(summaryValue('unassignedCnt')) + '명');
+        $('#orgCompanyDirectCount').text(numberValue(summaryValue('companyDirectCnt')) + '명');
     }
 
     function renderChart() {
@@ -198,7 +198,7 @@
             + (canAdd ? '<button type="button" class="ds-org-card-btn" data-org-add="' + attr(node.deptId) + '" title="하위 조직 추가"><i class="fa-solid fa-plus"></i></button>' : '')
             + (children.length ? '<button type="button" class="ds-org-card-btn is-toggle" data-org-toggle="' + attr(node.deptId) + '" aria-expanded="' + open + '" title="하위 조직 접기/펼치기"><i class="fa-solid fa-chevron-down"></i></button>' : '')
             + '</span>'
-            + (node.deptSeCd !== 'COMPANY' ? '<button type="button" class="ds-org-card-detail" data-org-detail="' + attr(node.deptId) + '">상세 <i class="fa-solid fa-chevron-right"></i></button>' : '')
+            + '<button type="button" class="ds-org-card-detail" data-org-detail="' + attr(node.deptId) + '">상세 <i class="fa-solid fa-chevron-right"></i></button>'
             + '</article>';
     }
 
@@ -238,16 +238,21 @@
     }
 
     function openDetailModal(id) {
-        var node = findOrganization(id);
+        var node = id === COMPANY_ID ? companyNode() : findOrganization(id);
         if (!node) return;
         detailId = id;
         selectedId = id;
         renderChart();
         renderDetailModal(node);
+        $('#orgDetailDeleteBtn, #orgDetailEditBtn').toggleClass('hidden', node.deptSeCd === 'COMPANY');
         $('#orgDetailModal').removeClass('hidden').attr('aria-hidden', 'false');
     }
 
     function renderDetailModal(node) {
+        if (node.deptSeCd === 'COMPANY') {
+            renderCompanyDetailModal(node);
+            return;
+        }
         var scopeIds = descendantIds(node.deptId);
         var nodeMembers = members.filter(function (member) { return scopeIds.indexOf(member.deptId) >= 0; });
         var parent = node.upDeptId ? findOrganization(node.upDeptId) : companyNode();
@@ -264,7 +269,21 @@
             + '<dl class="ds-org-kv"><dt>조직 코드</dt><dd>' + html(node.deptId) + '</dd><dt>상위 조직</dt><dd>' + html(parent ? parent.deptNm : '-') + '</dd>'
             + '<dt>전체 경로</dt><dd>' + html(organizationPath(node)) + '</dd><dt>' + html(managerLabels[node.deptSeCd] || '조직장') + '</dt><dd>' + html(node.mngrUserNm || '미지정') + '</dd><dt>사용 여부</dt><dd class="is-use">사용</dd></dl>'
             + '<div class="ds-org-member-head"><span>' + (node.deptSeCd === 'TEAM' ? '소속 구성원' : '소속 구성원 (하위 조직 포함)') + '</span><b>' + nodeMembers.length + '명</b></div><div class="ds-org-members">' + memberHtml + '</div>'
-            + '<p class="ds-org-detail-hint">저장한 내용은 사용자 등록·수정 화면의 <b>부서 선택</b> 모달에 바로 반영됩니다.</p>');
+            + '<p class="ds-org-detail-hint">저장한 내용은 사용자 등록·수정 화면의 <b>소속 조직 선택</b> 모달에 바로 반영됩니다.</p>');
+    }
+
+    function renderCompanyDetailModal(node) {
+        var directMembers = members.filter(function (member) { return member.coDrctYn === 'Y'; });
+        var memberHtml = directMembers.length ? directMembers.map(function (member) {
+            return '<div class="ds-org-member"><span class="ds-org-member-avatar">' + html(String(member.userNm || '?').substring(0, 1)) + '</span>'
+                + '<div><strong>' + html(member.userNm || member.userId) + '</strong><small>회사 직속 · ' + html(member.jbpsNm || '직위 미지정') + '</small></div></div>';
+        }).join('') : '<div class="ds-empty ds-org-member-empty">회사 직속 사용자가 없습니다.</div>';
+        $('#orgDetailModalTitle').text('회사 상세');
+        $('#orgDetailModalBody').html('<div class="ds-org-detail-title"><span class="ds-org-type-badge">회사</span><h3>' + html(node.deptNm) + '</h3><p>대표·임원 등 본부나 부서에 속하지 않는 전사 직속 구성원입니다.</p></div>'
+            + '<dl class="ds-org-kv"><dt>회사명</dt><dd>' + html(node.deptNm) + '</dd><dt>전체 구성원</dt><dd>' + numberValue(summaryValue('memberCnt')) + '명</dd>'
+            + '<dt>회사 직속</dt><dd>' + directMembers.length + '명</dd><dt>운영 조직</dt><dd>' + numberValue(summaryValue('orgCnt')) + '개</dd></dl>'
+            + '<div class="ds-org-member-head"><span>회사 직속 구성원</span><b>' + directMembers.length + '명</b></div><div class="ds-org-members">' + memberHtml + '</div>'
+            + '<p class="ds-org-detail-hint">대표·임원은 사용자 등록·수정 화면에서 <b>회사 직속</b>을 선택합니다.</p>');
     }
 
     function closeDetailModal() {

@@ -5,12 +5,15 @@
 ## Git 기준
 
 - 작업 브랜치: `agent/workspace-dashboard-authority`
-- 이번 작업 시작 기준 HEAD: `f995b216e26bacce9922fa9dceaef0593b602bd6`
-- 기준 커밋 메시지: `업무공간·캡린더·조직 계층 조회 오류 수정`
+- 이번 작업 시작 기준 HEAD: `f8baf89e7f340bf1a938160a6653e2b62c2afd81`
+- 기준 커밋 메시지: `사업 등록자 자동 투입 및 대시보드 레이아웃 개선`
 - 보존 필수 기능: 확장형 조직도, 조직 상세 모달, 조직 접기·펼치기, 부서 해제, 사용자 폼 행·열 정렬
 
 ## 이번 변경 범위
 
+- 사용자 소속 조직 선택 범위를 회사 직속·본부·부서·팀 전체 단계로 확대
+- 대표·임원은 회사 직속(`CO_DRCT_YN='Y'`, `DEPT_ID` 없음), 본부장은 해당 본부에 직접 소속되도록 화면 의미 통일
+- 조직도 회사 상세에서 대표·임원 등 회사 직속 구성원 명단 표시
 - 신규 사업 등록 시 등록자를 해당 사업의 투입인력으로 트랜잭션 내 자동 등록
 - 사업 등록 안내문구에 등록자 자동 투입 정책 명시
 - 프로젝트 대시보드 다가오는 사업 일정의 일정명·사업명 간격 및 반응형 배치 개선
@@ -37,9 +40,12 @@
 - 기준 스키마: 사용자 제공 `trs_ibp(9).sql`
 - 용어 기준: 사용자 제공 `공공데이터 공통표준(2025.11월)(3).xlsx`
 - 신규 migration: `TrsIbp/src/main/resources/db/migration/20260728_workspace_authority.sql`
+- 회사 직속 구분 migration: `TrsIbp/src/main/resources/db/migration/20260805_company_direct_assignment.sql`
 - 적용 DB: MariaDB 10.6
 
-배포 전 신규 migration을 먼저 적용해야 합니다. 이 migration은 다음을 수행합니다.
+배포 전 `20260728_workspace_authority.sql`, `20260805_company_direct_assignment.sql` 순서로 적용해야 합니다. 두 번째 migration은 사용자 회사 직속 여부 컬럼을 재실행 가능한 방식으로 보강합니다.
+
+첫 번째 migration은 다음을 수행합니다.
 
 1. 기존 `authrt_info`의 하위 호환을 유지하며 관리 컬럼을 보강합니다.
 2. `workspc_info`, `menu_info`, `authrt_menu_rel`, `user_workspc_rel`을 생성합니다.

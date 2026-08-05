@@ -24,7 +24,7 @@
                     <div class="ds-form-12">
                         <div class="ds-field ds-col-6"><label>사용자ID</label><input type="text" id="dispUserId" class="ds-input" readonly></div>
                         <div class="ds-field ds-col-6"><label>사용자명</label><input type="text" id="dispUserNm" class="ds-input" readonly></div>
-                        <div class="ds-field ds-col-4"><label>부서</label><input type="text" id="dispDeptNm" class="ds-input" readonly></div>
+                        <div class="ds-field ds-col-4"><label>소속 조직</label><input type="text" id="dispDeptNm" class="ds-input" readonly></div>
                         <div class="ds-field ds-col-4"><label>직위</label><input type="text" id="dispJbpsNm" class="ds-input" readonly></div>
                         <div class="ds-field ds-col-4"><label>권한</label><input type="text" id="dispAuthrtNm" class="ds-input" readonly></div>
                         <div class="ds-field ds-col-4"><label>회사</label><input type="text" id="dispCoNm" class="ds-input" readonly></div>

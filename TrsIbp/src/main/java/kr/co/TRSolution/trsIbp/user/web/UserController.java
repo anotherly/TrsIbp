@@ -415,6 +415,7 @@ public class UserController {
         ModelAndView mav = new ModelAndView("jsonView");
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         userVO.setCoId(reqLoginVo.getCoId());
+        mav.addObject("coNm", reqLoginVo.getCoNm());
         mav.addObject("deptList", userService.selectDeptListByCoId(userVO));
         mav.addObject("authList", userService.selectAuthList());
         return mav;
@@ -485,6 +486,12 @@ public class UserController {
         ModelAndView mav = new ModelAndView("jsonView");
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         userVO.setCoId(reqLoginVo.getCoId());
+        if ("Y".equalsIgnoreCase(userVO.getCoDrctYn())) {
+            userVO.setCoDrctYn("Y");
+            userVO.setDeptId(null);
+        } else {
+            userVO.setCoDrctYn("N");
+        }
         if (userVO.getDeptId() == null || userVO.getDeptId().trim().isEmpty()) {
             userVO.setDeptId(null);
         }

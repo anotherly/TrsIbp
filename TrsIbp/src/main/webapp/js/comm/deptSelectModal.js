@@ -1,7 +1,7 @@
 /* =========================================================
- * 공통 단일 부서 선택 모달
- * - 좌측에는 상위 조직 트리, 우측에는 선택한 조직 하위의 최하위 부서를 표시한다.
- * - 사용자 등록/수정, 회원가입 등 부서 1개를 선택하는 화면에서 재사용한다.
+ * 공통 단일 소속 조직 선택 모달
+ * - 좌측에는 조직 트리, 우측에는 선택한 조직과 모든 하위 조직을 표시한다.
+ * - 사용자 등록/수정에서는 회사 직속·본부·부서·팀을, 회원가입에서는 실제 조직을 선택한다.
  * ========================================================= */
 (function(window, $) {
     'use strict';
@@ -10,6 +10,7 @@
     var deptSelectList = [];
     var deptSelectActiveId = '';
     var deptExpandedMap = {};
+    var COMPANY_DIRECT_ID = '__COMPANY_DIRECT__';
 
     /**
      * null/undefined 값을 기본 문자열로 치환한다.
@@ -112,8 +113,8 @@
                 renderDeptSelectLeafList('');
             },
             error: function() {
-                $('#deptSelectTreeList').html('<div class="ds-empty">부서 조회 중 오류가 발생했습니다.</div>');
-                $('#deptSelectLeafList').html('<div class="ds-empty">부서 조회 중 오류가 발생했습니다.</div>');
+                $('#deptSelectTreeList').html('<div class="ds-empty">조직 조회 중 오류가 발생했습니다.</div>');
+                $('#deptSelectLeafList').html('<div class="ds-empty">조직 조회 중 오류가 발생했습니다.</div>');
             }
         });
     };
@@ -130,30 +131,49 @@
         });
     }
 
+    function getCompanyDirectDept() {
+        if (!deptSelectOptions.includeCompany) {
+            return null;
+        }
+        var companyName = typeof deptSelectOptions.companyName === 'function'
+            ? deptSelectOptions.companyName()
+            : deptSelectOptions.companyName;
+        companyName = dsmNvl(companyName, '회사');
+        return {
+            deptId: COMPANY_DIRECT_ID,
+            deptNm: companyName,
+            deptSeCd: 'COMPANY',
+            upDeptId: ''
+        };
+    }
+
     /**
-     * 특정 조직 하위에서 사용자 소속으로 지정 가능한 부서·팀 목록을 반환한다.
-     * @param {string} parentId 기준 조직ID. 빈 값이면 전체 조직
-     * @returns {Array} 선택 가능한 부서·팀 목록
+     * 특정 조직과 모든 하위 조직 중 사용자 소속으로 지정 가능한 목록을 반환한다.
+     * @param {string} parentId 기준 조직ID. 빈 값이면 회사 직속과 전체 조직
+     * @returns {Array} 선택 가능한 회사·본부·부서·팀 목록
      */
-    function getLeafDepts(parentId) {
+    function getSelectableDepts(parentId) {
         var roots = parentId ? deptSelectList.filter(function(dept) { return dsmNvl(dept.deptId, '') === parentId; }) : deptSelectList.filter(function(dept) { return dsmNvl(dept.upDeptId, '') === ''; });
-        var leaves = [];
+        var selectableList = [];
         var keyword = ($('#deptSelectKeyword').val() || '').toLowerCase();
+        var companyDirect = !parentId ? getCompanyDirectDept() : null;
+        if (companyDirect) {
+            var companyText = (companyDirect.deptNm + ' 회사 직속').toLowerCase();
+            if (!keyword || companyText.indexOf(keyword) > -1) {
+                selectableList.push(companyDirect);
+            }
+        }
         function collect(node) {
             var children = getDeptChildren(dsmNvl(node.deptId, ''));
-            var type = dsmNvl(node.deptSeCd, '');
-            var selectable = type ? (type === 'DEPT' || type === 'TEAM') : children.length === 0;
-            if (selectable) {
-                var deptName = dsmNvl(node.deptNm, '').toLowerCase();
-                var deptPath = buildDeptPath(node).toLowerCase();
-                if (!keyword || deptName.indexOf(keyword) > -1 || deptPath.indexOf(keyword) > -1) {
-                    leaves.push(node);
-                }
+            var deptName = dsmNvl(node.deptNm, '').toLowerCase();
+            var deptPath = buildDeptPath(node).toLowerCase();
+            if (!keyword || deptName.indexOf(keyword) > -1 || deptPath.indexOf(keyword) > -1) {
+                selectableList.push(node);
             }
             children.forEach(collect);
         }
         roots.forEach(collect);
-        return leaves;
+        return selectableList;
     }
 
     /**
@@ -162,8 +182,8 @@
      */
     function renderDeptSelectTreeList() {
         if (deptSelectList.length === 0) {
-            $('#deptSelectTreeList').html('<div class="ds-empty">조회된 부서가 없습니다.</div>');
-            $('#deptSelectLeafList').html('<div class="ds-empty">조회된 부서가 없습니다.</div>');
+            $('#deptSelectTreeList').html('<div class="ds-empty">조회된 조직이 없습니다.</div>');
+            $('#deptSelectLeafList').html('<div class="ds-empty">조회된 조직이 없습니다.</div>');
             return;
         }
         $('#deptSelectTreeList').html(renderDeptNodes('', 0));
@@ -213,7 +233,7 @@
     };
 
     /**
-     * 좌측 조직을 선택하고 우측 최하위 부서 목록을 갱신한다.
+     * 좌측 조직을 선택하고 우측 선택 가능 조직 목록을 갱신한다.
      * @param {string} deptId 기준 부서ID
      * @returns {void}
      */
@@ -227,21 +247,22 @@
     };
 
     /**
-     * 부서 선택 모달 우측 최하위 부서 목록을 렌더링한다.
+     * 부서 선택 모달 우측 선택 가능 조직 목록을 렌더링한다.
      * @param {string} parentId 기준 부서ID
      * @returns {void}
      */
     function renderDeptSelectLeafList(parentId) {
-        var leafList = getLeafDepts(parentId);
-        if (leafList.length === 0) {
-            $('#deptSelectLeafList').html('<div class="ds-empty">선택 가능한 하위 부서가 없습니다.</div>');
+        var selectableList = getSelectableDepts(parentId);
+        if (selectableList.length === 0) {
+            $('#deptSelectLeafList').html('<div class="ds-empty">선택 가능한 조직이 없습니다.</div>');
             return;
         }
         var html = '';
-        leafList.forEach(function(dept) {
+        selectableList.forEach(function(dept) {
+            var typeLabel = getDeptTypeLabel(dept);
             html += '<button type="button" class="ds-user-row" onclick="applySelectedDeptFromEncoded(\'' + dsmEncodeRowData(dept) + '\');">'
                 + '<span><strong>' + dsmEscapeHtml(dsmNvl(dept.deptNm, '-')) + '</strong>'
-                + '<span>' + dsmEscapeHtml(buildDeptPath(dept)) + '</span></span>'
+                + '<span>[' + dsmEscapeHtml(typeLabel) + '] ' + dsmEscapeHtml(buildDeptPath(dept)) + '</span></span>'
                 + '<em>선택</em>'
                 + '</button>';
         });
@@ -254,6 +275,9 @@
      * @returns {Object|null} 부서 객체
      */
     function findDept(deptId) {
+        if (deptId === COMPANY_DIRECT_ID) {
+            return getCompanyDirectDept();
+        }
         for (var i = 0; i < deptSelectList.length; i++) {
             if (dsmNvl(deptSelectList[i].deptId, '') === deptId) {
                 return deptSelectList[i];
@@ -268,6 +292,9 @@
      * @returns {string} 부서 경로명
      */
     function buildDeptPath(dept) {
+        if (dsmNvl(dept.deptId, '') === COMPANY_DIRECT_ID) {
+            return dsmNvl(dept.deptNm, '회사') + ' > 회사 직속';
+        }
         var names = [];
         var current = dept;
         var guard = 0;
@@ -279,6 +306,11 @@
         return names.join(' > ');
     }
 
+    function getDeptTypeLabel(dept) {
+        var labels = { COMPANY: '회사 직속', HQ: '본부', DEPT: '부서', TEAM: '팀' };
+        return labels[dsmNvl(dept.deptSeCd, '')] || '조직';
+    }
+
     /**
      * 인코딩된 부서 행 데이터를 복원해 현재 대상 입력폼에 반영한다.
      * @param {string} encodedDept URI 인코딩된 부서 JSON 문자열
@@ -288,6 +320,9 @@
         var dept = dsmDecodeRowData(encodedDept);
         var deptId = dsmNvl(dept.deptId, '');
         var deptPath = buildDeptPath(dept);
+        if (deptId === COMPANY_DIRECT_ID) {
+            deptId = '';
+        }
         $(deptSelectOptions.targetId || '#deptId').val(deptId);
         $(deptSelectOptions.targetName || '#deptNm').val(deptPath);
         if (typeof deptSelectOptions.onSelect === 'function') {

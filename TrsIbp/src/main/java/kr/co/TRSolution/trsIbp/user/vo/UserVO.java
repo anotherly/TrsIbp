@@ -35,6 +35,9 @@ public class UserVO extends DeptVO {
     /** 소속부서ID (DEPT_INFO.DEPT_ID FK) */
     private String deptId;
 
+    /** 회사직속여부 (Y: 대표·임원 등 회사 직속, N: 조직 소속 또는 미배정) */
+    private String coDrctYn;
+
     /** 직급/직책 (대표/본부장/팀장/팀원 등 자유입력) */
     private String jbpsNm;
 
@@ -110,6 +113,9 @@ public class UserVO extends DeptVO {
     public String getDeptId() { return deptId; }
     public void setDeptId(String deptId) { this.deptId = deptId; }
 
+    public String getCoDrctYn() { return coDrctYn; }
+    public void setCoDrctYn(String coDrctYn) { this.coDrctYn = coDrctYn; }
+
     public String getJbpsNm() { return jbpsNm; }
     public void setJbpsNm(String jbpsNm) { this.jbpsNm = jbpsNm; }
 
@@ -159,6 +165,7 @@ public class UserVO extends DeptVO {
     public String toString() {
         return "UserVO [userId=" + userId + ", userNm=" + userNm
                 + ", coId=" + coId + ", coCd=" + coCd + ", deptId=" + deptId
+                + ", coDrctYn=" + coDrctYn
                 + ", jbpsNm=" + jbpsNm + ", authrtId=" + authrtId
                 + ", useYn=" + useYn + "]";
     }

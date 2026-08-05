@@ -4,8 +4,8 @@
     <div class="ds-modal-panel ds-user-modal-panel" role="dialog" aria-modal="true" aria-labelledby="deptSelectModalTitle">
         <div class="ds-modal-head">
             <div>
-                <h3 id="deptSelectModalTitle" class="ds-modal-title">부서 선택</h3>
-                <p class="ds-modal-desc">회사 조직 구조에서 실제 소속 부서를 선택합니다.</p>
+                <h3 id="deptSelectModalTitle" class="ds-modal-title">소속 조직 선택</h3>
+                <p class="ds-modal-desc">회사 조직 구조에서 실제 소속 조직을 선택합니다.</p>
             </div>
             <button type="button" class="ds-modal-close" onclick="closeDeptSelectModal();" title="닫기">×</button>
         </div>
@@ -19,7 +19,7 @@
                 <div id="deptSelectTreeList" class="ds-user-dept-list"></div>
             </div>
             <div class="ds-user-list-box">
-                <div class="ds-user-box-title">선택 가능 부서</div>
+                <div class="ds-user-box-title">선택 가능 조직</div>
                 <div id="deptSelectLeafList" class="ds-user-list"></div>
             </div>
         </div>
