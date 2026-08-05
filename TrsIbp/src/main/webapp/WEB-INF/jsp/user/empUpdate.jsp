@@ -17,7 +17,7 @@
 </div>
 <jsp:include page="/WEB-INF/jsp/common/deptSelectModal.jsp"/>
 <script>var ctxPath='<%=request.getContextPath()%>';</script>
-<script src="<%=request.getContextPath()%>/js/comm/deptSelectModal.js"></script>
+<script src="<%=request.getContextPath()%>/js/comm/deptSelectModal.js?v=20260805.2"></script>
 <script src="<%=request.getContextPath()%>/js/user/userManage.js"></script>
 <script>$(function(){ initEmpFormPage('update', '${userId}'); });</script>
 </body>

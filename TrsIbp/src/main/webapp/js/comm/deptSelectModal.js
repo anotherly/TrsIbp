@@ -77,6 +77,12 @@
         deptSelectActiveId = '';
         deptExpandedMap = {};
         $('#deptSelectKeyword').val('');
+        $('#deptSelectModalDesc').text(deptSelectOptions.includeCompany
+            ? '대표·임원 등 전사 직속은 회사를, 본부장은 해당 본부를 선택합니다.'
+            : '회사 조직 구조에서 실제 소속 조직을 선택합니다.');
+        $('#deptSelectKeyword').attr('placeholder', deptSelectOptions.includeCompany
+            ? '회사, 본부, 부서, 팀명 검색'
+            : '본부, 부서, 팀명 검색');
         $('#deptSelectModal').removeClass('hidden').attr('aria-hidden', 'false');
         window.loadDeptSelectList();
         setTimeout(function() { $('#deptSelectKeyword').focus(); }, 50);
@@ -96,7 +102,7 @@
      */
     window.loadDeptSelectList = function() {
         var requestUrl = deptSelectOptions.url || ((window.ctxPath || '') + '/common/deptSelectList.ajax');
-        var data = { searchKeyword: $('#deptSelectKeyword').val() };
+        var data = {};
         if (deptSelectOptions.coId) {
             data.coId = typeof deptSelectOptions.coId === 'function' ? deptSelectOptions.coId() : deptSelectOptions.coId;
         }
@@ -153,10 +159,13 @@
      * @returns {Array} 선택 가능한 회사·본부·부서·팀 목록
      */
     function getSelectableDepts(parentId) {
-        var roots = parentId ? deptSelectList.filter(function(dept) { return dsmNvl(dept.deptId, '') === parentId; }) : deptSelectList.filter(function(dept) { return dsmNvl(dept.upDeptId, '') === ''; });
+        var companyDirectSelected = parentId === COMPANY_DIRECT_ID;
+        var roots = parentId && !companyDirectSelected
+            ? deptSelectList.filter(function(dept) { return dsmNvl(dept.deptId, '') === parentId; })
+            : (!parentId ? deptSelectList.filter(function(dept) { return dsmNvl(dept.upDeptId, '') === ''; }) : []);
         var selectableList = [];
         var keyword = ($('#deptSelectKeyword').val() || '').toLowerCase();
-        var companyDirect = !parentId ? getCompanyDirectDept() : null;
+        var companyDirect = (!parentId || companyDirectSelected) ? getCompanyDirectDept() : null;
         if (companyDirect) {
             var companyText = (companyDirect.deptNm + ' 회사 직속').toLowerCase();
             if (!keyword || companyText.indexOf(keyword) > -1) {
@@ -181,12 +190,33 @@
      * @returns {void}
      */
     function renderDeptSelectTreeList() {
-        if (deptSelectList.length === 0) {
+        var companyDirect = getCompanyDirectDept();
+        if (deptSelectList.length === 0 && !companyDirect) {
             $('#deptSelectTreeList').html('<div class="ds-empty">조회된 조직이 없습니다.</div>');
             $('#deptSelectLeafList').html('<div class="ds-empty">조회된 조직이 없습니다.</div>');
             return;
         }
-        $('#deptSelectTreeList').html(renderDeptNodes('', 0));
+        var html = '';
+        if (companyDirect) {
+            html += renderCompanyDirectNode(companyDirect);
+        }
+        html += renderDeptNodes('', 0);
+        $('#deptSelectTreeList').html(html);
+    }
+
+    /**
+     * 대표·임원 등 전사 직속 사용자가 선택할 회사 최상위 노드를 렌더링한다.
+     * @param {Object} companyDirect 회사 직속 선택용 가상 조직
+     * @returns {string} 렌더링 HTML
+     */
+    function renderCompanyDirectNode(companyDirect) {
+        var active = deptSelectActiveId === COMPANY_DIRECT_ID;
+        return '<div class="ds-user-dept-node ds-user-company-node">'
+            + '<button type="button" class="ds-user-dept-item ' + (active ? 'is-active' : '') + '" style="--dept-depth:0px" onclick="selectDeptBranch(\'' + COMPANY_DIRECT_ID + '\');">'
+            + '<span class="ds-user-dept-toggle is-empty">◆</span>'
+            + '<span class="ds-user-dept-name">' + dsmEscapeHtml(dsmNvl(companyDirect.deptNm, '회사')) + '</span>'
+            + '<span class="ds-user-dept-kind">회사 직속</span>'
+            + '</button></div>';
     }
 
     /**
@@ -253,6 +283,14 @@
      */
     function renderDeptSelectLeafList(parentId) {
         var selectableList = getSelectableDepts(parentId);
+        var selectedDept = parentId && parentId !== COMPANY_DIRECT_ID ? findDept(parentId) : null;
+        if (selectedDept) {
+            var selectedDeptId = dsmNvl(selectedDept.deptId, '');
+            selectableList = selectableList.filter(function(dept) {
+                return dsmNvl(dept.deptId, '') !== selectedDeptId;
+            });
+            selectableList.unshift(selectedDept);
+        }
         if (selectableList.length === 0) {
             $('#deptSelectLeafList').html('<div class="ds-empty">선택 가능한 조직이 없습니다.</div>');
             return;

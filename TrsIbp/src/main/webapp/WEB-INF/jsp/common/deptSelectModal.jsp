@@ -5,7 +5,7 @@
         <div class="ds-modal-head">
             <div>
                 <h3 id="deptSelectModalTitle" class="ds-modal-title">소속 조직 선택</h3>
-                <p class="ds-modal-desc">회사 조직 구조에서 실제 소속 조직을 선택합니다.</p>
+                <p id="deptSelectModalDesc" class="ds-modal-desc">회사 조직 구조에서 실제 소속 조직을 선택합니다.</p>
             </div>
             <button type="button" class="ds-modal-close" onclick="closeDeptSelectModal();" title="닫기">×</button>
         </div>
