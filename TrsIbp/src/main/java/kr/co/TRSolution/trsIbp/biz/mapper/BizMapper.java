@@ -20,6 +20,7 @@ public interface BizMapper {
      */
     int selectNextBizCdSeq(BizVO vo) throws Exception;
     int insertBiz(BizVO vo) throws Exception;
+    int insertBizRgtrMnpw(BizVO vo) throws Exception;
     int updateBiz(BizVO vo) throws Exception;
     int deleteBiz(BizVO vo) throws Exception;
 

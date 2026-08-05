@@ -41,7 +41,17 @@ public class BizServiceImpl implements BizService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertBiz(BizVO vo) throws Exception {
-        return bizMapper.insertBiz(vo);
+        int insertCnt = bizMapper.insertBiz(vo);
+        if (insertCnt < 1) {
+            return insertCnt;
+        }
+
+        int rgtrMnpwCnt = bizMapper.insertBizRgtrMnpw(vo);
+        if (rgtrMnpwCnt != 1) {
+            throw new IllegalStateException("사업 등록자를 투입인력으로 등록하지 못했습니다.");
+        }
+
+        return insertCnt;
     }
 
     @Override

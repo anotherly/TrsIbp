@@ -17,14 +17,14 @@
     <section class="ds-dashboard-kpis">
         <article class="ds-dashboard-card"><div class="ds-kpi-label">재직 인원</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.employeeCount ? 0 : dashboardSummary.employeeCount}"/>명</div><div class="ds-kpi-sub">사용 중인 사용자 기준</div></article>
         <article class="ds-dashboard-card"><div class="ds-kpi-label">진행 사업</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.activeProjectCount ? 0 : dashboardSummary.activeProjectCount}"/>개</div><div class="ds-kpi-sub">사업상태 `진행` 기준</div></article>
-        <article class="ds-dashboard-card">
+        <article class="ds-dashboard-card ds-dashboard-money-card">
             <div class="ds-kpi-label">진행 사업 계약금액</div>
             <c:choose>
                 <c:when test="${canViewContractAmount}"><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.activeContractAmount ? 0 : dashboardSummary.activeContractAmount}"/>원</div><div class="ds-kpi-sub">진행 사업 계약금액 합계</div></c:when>
                 <c:otherwise><div class="ds-kpi-value is-locked">권한 없음</div><div class="ds-kpi-sub">계약 조회권한 필요</div></c:otherwise>
             </c:choose>
         </article>
-        <article class="ds-dashboard-card">
+        <article class="ds-dashboard-card ds-dashboard-money-card">
             <div class="ds-kpi-label">이번 달 발생비용</div>
             <c:choose>
                 <c:when test="${canViewCostAmount}"><div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.monthCostAmount ? 0 : dashboardSummary.monthCostAmount}"/>원</div><div class="ds-kpi-sub">발생일자 기준 직접비 합계</div></c:when>
@@ -43,8 +43,8 @@
                 <c:when test="${empty dashboardPrimaryList}"><div class="ds-empty">진행 중인 사업이 없습니다.</div></c:when>
                 <c:otherwise>
                     <c:forEach var="item" items="${dashboardPrimaryList}">
-                        <div class="ds-dashboard-row">
-                            <div><strong><c:out value="${item.bizNm}"/></strong><small class="ds-dashboard-muted">종료일 <c:out value="${item.bizEndYmd}"/></small></div>
+                        <div class="ds-dashboard-row ds-dashboard-finance-row">
+                            <div class="ds-dashboard-item-copy"><strong><c:out value="${item.bizNm}"/></strong><small class="ds-dashboard-muted">종료일 <c:out value="${item.bizEndYmd}"/></small></div>
                             <c:choose>
                                 <c:when test="${canViewContractAmount}"><span class="ds-dashboard-muted">계약 <fmt:formatNumber value="${item.ctrtAmt}"/>원</span></c:when>
                                 <c:otherwise><span class="ds-dashboard-muted">계약금액 비공개</span></c:otherwise>

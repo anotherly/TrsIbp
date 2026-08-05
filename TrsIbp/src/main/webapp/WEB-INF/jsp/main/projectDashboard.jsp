@@ -60,8 +60,8 @@
             <c:when test="${empty dashboardSecondaryList}"><div class="ds-empty">오늘 이후 등록된 사업 일정이 없습니다.</div></c:when>
             <c:otherwise>
                 <c:forEach var="item" items="${dashboardSecondaryList}">
-                    <div class="ds-dashboard-row">
-                        <div><strong><c:out value="${item.schdlNm}"/></strong><small class="ds-dashboard-muted"><c:out value="${item.bizNm}"/></small></div>
+                    <div class="ds-dashboard-row ds-dashboard-schedule-row">
+                        <div class="ds-dashboard-item-copy"><strong><c:out value="${item.schdlNm}"/></strong><small class="ds-dashboard-muted"><c:out value="${item.bizNm}"/></small></div>
                         <span class="ds-dashboard-muted"><c:out value="${empty item.picNm ? '담당자 미지정' : item.picNm}"/></span>
                         <span class="ds-dashboard-badge ${item.remainDay le 7 ? 'is-warn' : ''}">D-${item.remainDay}</span>
                     </div>

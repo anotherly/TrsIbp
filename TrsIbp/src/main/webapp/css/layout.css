@@ -1045,14 +1045,22 @@
 .ds-dashboard-card-title { color:#e5edf8; font-size:13px; font-weight:900; }
 .ds-dashboard-link { color:#22d3ee; font-size:10px; font-weight:800; text-decoration:none; }
 .ds-kpi-label { color:#8b99ad; font-size:11px; }
-.ds-kpi-value { margin-top:7px; color:#f8fafc; font-size:28px; font-weight:950; letter-spacing:-.03em; }
+.ds-kpi-value { max-width:100%; margin-top:7px; color:#f8fafc; font-size:28px; font-weight:950; line-height:1.15; letter-spacing:-.03em; overflow-wrap:anywhere; }
 .ds-kpi-value.is-cyan { color:#22d3ee; }.ds-kpi-value.is-green { color:#34d399; }.ds-kpi-value.is-amber { color:#fbbf24; }
 .ds-kpi-value.is-locked { color:#64748b; font-size:18px; letter-spacing:0; }
 .ds-kpi-sub { margin-top:5px; color:#77869b; font-size:10px; }
 .ds-text-danger { color:#fb7185; }.ds-text-warning { color:#fbbf24; }.ds-text-success { color:#34d399; }
 .ds-dashboard-row { display:grid; grid-template-columns:minmax(150px,1.4fr) minmax(110px,.7fr) 86px; align-items:center; gap:12px; min-height:53px; padding:10px 2px; border-top:1px solid rgba(51,65,85,.58); font-size:11px; }
 .ds-dashboard-row:first-child { border-top:0; }
+.ds-dashboard-row>* { min-width:0; }
 .ds-dashboard-row strong { color:#dce5f2; font-weight:800; }
+.ds-dashboard-item-copy strong,.ds-dashboard-item-copy small { display:block; }
+.ds-dashboard-item-copy strong { line-height:1.4; overflow-wrap:anywhere; }
+.ds-dashboard-item-copy small { margin-top:5px; line-height:1.45; }
+.ds-dashboard-schedule-row { grid-template-columns:minmax(180px,1.6fr) minmax(110px,.55fr) 86px; }
+.ds-dashboard-finance-row { grid-template-columns:minmax(220px,1.4fr) minmax(135px,.65fr) minmax(165px,auto); }
+.ds-dashboard-finance-row .ds-dashboard-badge { justify-self:end; max-width:100%; box-sizing:border-box; }
+.ds-dashboard-money-card .ds-kpi-value { font-size:clamp(20px,1.65vw,28px); }
 .ds-dashboard-muted { color:#8290a4; }
 .ds-dashboard-badge { justify-self:start; padding:4px 8px; border:1px solid rgba(59,130,246,.36); border-radius:999px; color:#7dd3fc; background:rgba(30,64,175,.18); font-size:9px; font-weight:850; white-space:nowrap; }
 .ds-dashboard-badge.is-ok { border-color:rgba(16,185,129,.34); color:#6ee7b7; background:rgba(6,78,59,.28); }
@@ -1084,6 +1092,8 @@
     .ds-dashboard-hero { flex-direction:column; }
     .ds-dashboard-scope { width:100%; min-width:0; }
     .ds-dashboard-kpis { grid-template-columns:1fr; }
+    .ds-dashboard-schedule-row,.ds-dashboard-finance-row { grid-template-columns:1fr; gap:7px; }
+    .ds-dashboard-finance-row .ds-dashboard-badge { justify-self:start; }
 }
 
 /* 폼 안내 문구는 필드 아래가 아닌 라벨 오른쪽에 배치하여 행 높이를 유지한다. */

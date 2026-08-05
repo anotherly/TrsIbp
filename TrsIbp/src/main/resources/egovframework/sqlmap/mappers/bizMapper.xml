@@ -211,6 +211,39 @@
         )
     </insert>
 
+    <insert id="insertBizRgtrMnpw" parameterType="bizVO">
+        INSERT INTO biz_mnpw (
+             BIZ_ID, USER_ID, INPUT_MNPW_NM, INPUT_SE_CD, ROLE_NM, JBPS_NM
+            ,INPUT_BGNG_YMD, INPUT_END_YMD, INPUT_MCNT, UNTPRC, INPUT_RT
+            ,RMRK_CN, USE_YN, RGTR_ID, REG_DT
+        )
+        SELECT
+             B.BIZ_ID, U.USER_ID, U.USER_NM, 'MAIN', '사업 등록자', U.JBPS_NM
+            ,B.BIZ_BGNG_YMD, B.BIZ_END_YMD
+            ,CASE
+                WHEN B.BIZ_BGNG_YMD IS NOT NULL
+                 AND B.BIZ_END_YMD IS NOT NULL
+                 AND B.BIZ_END_YMD &gt;= B.BIZ_BGNG_YMD
+                THEN ROUND(((DATEDIFF(B.BIZ_END_YMD, B.BIZ_BGNG_YMD) + 1) * 100) / 3000, 2)
+                ELSE NULL
+             END
+            ,0, 100, '사업 등록 시 자동 추가', 'Y', #{rgtrId}, NOW()
+        FROM biz_info B
+        INNER JOIN user_info U
+                ON U.USER_ID = #{rgtrId}
+               AND U.CO_ID = B.CO_ID
+               AND U.USE_YN = 'Y'
+        WHERE B.BIZ_ID = #{bizId}
+          AND B.CO_ID = #{coId}
+          AND NOT EXISTS (
+              SELECT 1
+              FROM biz_mnpw M
+              WHERE M.BIZ_ID = B.BIZ_ID
+                AND M.USER_ID = U.USER_ID
+                AND M.USE_YN = 'Y'
+          )
+    </insert>
+
     <update id="updateBiz" parameterType="bizVO">
         UPDATE biz_info
         SET
