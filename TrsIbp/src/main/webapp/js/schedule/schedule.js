@@ -23,6 +23,8 @@
     var WORK_HOUR_END = 18 * 60;
     var legendColorTypes = ['leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'etc'];
     var calendarClickTimer = null;
+    var dashboardMode = false;
+    var previousBgngValue = '';
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -71,26 +73,19 @@
         return new Date(normalized);
     }
 
+    /** Date 객체를 일정 입력 형식(yyyy-MM-dd HH:mm)으로 변환한다. */
+    function formatPickerDateTime(date) {
+        return ymd(date) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+    }
+
     /**
      * 종합 일정 캘린더 화면을 초기화한다.
      * @returns {void}
      */
     window.initSchedulePage = function() {
+        dashboardMode = false;
         bindCalendarDateEvents('#scheduleCalendarGrid', false);
-        initializeScheduleDateTimePicker();
-        $('#frmAllDayYn').on('change', function() {
-            applyAllDayInputMode($(this).val() === 'Y');
-            resetScheduleConflictState();
-        });
-        $('#frmCalSchdlSeCd').on('change', function() {
-            applyScheduleInputType();
-            resetScheduleConflictState();
-        });
-        $('#frmVacSeCd').on('change', function() {
-            applyVacationTypeMode();
-            resetScheduleConflictState();
-        });
-        $('#frmCalSchdlNm,#frmBizId,#frmBgngDt,#frmEndDt,#frmPlaceNm,#frmCalSchdlCn').on('change input', resetScheduleConflictState);
+        initializeScheduleForm();
         $('#scheduleProjectFilter').on('change', function() {
             changeScheduleProjectFilter($(this).val(), false);
         });
@@ -106,6 +101,29 @@
             }
         });
     };
+
+    /** 일정 등록·수정 모달의 공통 입력 이벤트와 DateTimePicker를 초기화한다. */
+    function initializeScheduleForm() {
+        initializeScheduleDateTimePicker();
+        $('#frmAllDayYn').off('.dsScheduleForm').on('change.dsScheduleForm', function() {
+            applyAllDayInputMode($(this).val() === 'Y');
+            synchronizeScheduleEndDateTime();
+            resetScheduleConflictState();
+        });
+        $('#frmCalSchdlSeCd').off('.dsScheduleForm').on('change.dsScheduleForm', function() {
+            applyScheduleInputType();
+            resetScheduleConflictState();
+        });
+        $('#frmVacSeCd').off('.dsScheduleForm').on('change.dsScheduleForm', function() {
+            applyVacationTypeMode();
+            resetScheduleConflictState();
+        });
+        $('#frmBgngDt').off('.dsScheduleForm').on('change.dsScheduleForm', function() {
+            synchronizeScheduleEndDateTime();
+            resetScheduleConflictState();
+        });
+        $('#frmCalSchdlNm,#frmBizId,#frmEndDt,#frmPlaceNm,#frmCalSchdlCn').off('.dsScheduleForm').on('change.dsScheduleForm input.dsScheduleForm', resetScheduleConflictState);
+    }
 
     /**
      * 대시보드 달력에서 전달한 신규 일정 날짜를 검증해 반환한다.
@@ -136,7 +154,7 @@
         }
         window.DsDateTimePicker.configure('#frmBgngDt,#frmEndDt', {
             dateTime: !allDay,
-            step: 1
+            step: 10
         });
     }
 
@@ -145,8 +163,10 @@
      * @returns {void}
      */
     window.initDashboardScheduleWidget = function() {
+        dashboardMode = true;
         viewType = 'all';
         bindCalendarDateEvents('#dashScheduleCalendarGrid', true);
+        initializeScheduleForm();
         $('#dashScheduleProjectFilter').on('change', function() {
             changeScheduleProjectFilter($(this).val(), true);
         });
@@ -368,7 +388,7 @@
             var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) {
                 return userId === loginUserId;
             });
-            var canModify = window.dsIsAdmin === true
+            var canModify = window.dsIsAdmin === true || isTargetUser
                     || (loginUserId && String(row.rgtrId || '') === loginUserId);
             var canOpenDetail = (window.dsIsAdmin === true || isTargetUser || canModify)
                     && (hasAuthorityCode('WORK_SCHEDULE_DETAIL')
@@ -470,21 +490,30 @@
         $('#scheduleSaveButton, #scheduleDeleteButton').hide();
         $('#scheduleModal').removeClass('hidden').attr('aria-hidden', 'false');
         if (schdlSn) {
-            $('#scheduleModalTitle').text('일정 수정');
+            $('#scheduleModalTitle').text('일정 상세');
             $.ajax({
                 url: ctxPath + '/schedule/scheduleDetail.ajax',
                 type: 'GET',
                 dataType: 'json',
                 data: { schdlSn: schdlSn },
-                success: function(res) { bindScheduleForm(res.schedule || {}); }
+                success: function(res) {
+                    bindScheduleForm(res.schedule || {});
+                    renderScheduleHistory(res.historyList || []);
+                },
+                error: function() {
+                    closeScheduleModal();
+                    alert('일정 상세정보를 조회하지 못했습니다.');
+                }
             });
         } else {
             $('#scheduleModalTitle').text('일정 등록');
+            setScheduleFormReadOnly(false);
             $('#scheduleSaveButton').toggle(hasAuthorityCode('WORK_SCHEDULE_REG'));
             $('#frmBgngDt').val(ymd(selectedDate) + ' 09:00');
             $('#frmEndDt').val(ymd(selectedDate) + ' 18:00');
             previousBgngTime = '09:00';
             previousEndTime = '18:00';
+            previousBgngValue = $('#frmBgngDt').val();
             applyAllDayInputMode(false);
             loadRecommendedWorkHour(ymd(selectedDate));
         }
@@ -566,6 +595,7 @@
                 $('#frmEndDt').val(dateYmd + ' ' + gap.endTime);
                 previousBgngTime = gap.startTime;
                 previousEndTime = gap.endTime;
+                previousBgngValue = $('#frmBgngDt').val();
             }
         });
     }
@@ -597,6 +627,9 @@
         applyAllDayInputMode(false);
         applyScheduleInputType();
         selectedUsers = {};
+        previousBgngValue = '';
+        renderScheduleHistory([]);
+        setScheduleFormReadOnly(false);
         if (selectLoginUser && loginScheduleUser) {
             selectedUsers[loginScheduleUser.userId] = loginScheduleUser;
         }
@@ -612,12 +645,19 @@
     function bindScheduleForm(row) {
         $('#frmSchdlSn').val(nvl(row.schdlSn));
         var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
-        var canModify = window.dsIsAdmin === true
+        var isTargetUser = nvl(row.targetUserIds).split(',').some(function(userId) {
+            return userId === loginUserId;
+        });
+        var canModifyScope = window.dsIsAdmin === true || isTargetUser
                 || (loginUserId && String(row.rgtrId || '') === loginUserId);
+        var canModify = canModifyScope && hasAuthorityCode('WORK_SCHEDULE_MDFCN');
+        var canDelete = (window.dsIsAdmin === true
+                || (loginUserId && String(row.rgtrId || '') === loginUserId))
+                && hasAuthorityCode('WORK_SCHEDULE_DEL');
+        $('#scheduleModalTitle').text(canModify ? '일정 수정' : '일정 상세');
         $('#scheduleSaveButton').toggle(canModify
                 && hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
-        $('#scheduleDeleteButton').toggle(canModify
-                && hasAuthorityCode('WORK_SCHEDULE_DEL'));
+        $('#scheduleDeleteButton').toggle(canDelete);
         $('#frmCalSchdlSeCd').val(nvl(row.schdlSeCd));
         $('#frmVacSeCd').val(nvl(row.vacSeCd, row.allDayYn === 'Y' ? 'ANNUAL' : 'HOURLY'));
         $('#frmBizId').val(nvl(row.bizId));
@@ -640,6 +680,42 @@
         } else {
             applyVacationTypeMode();
         }
+        previousBgngValue = $('#frmBgngDt').val();
+        setScheduleFormReadOnly(!canModify);
+    }
+
+    /** 상세 전용 사용자는 일정 입력값을 변경할 수 없도록 제어한다. */
+    function setScheduleFormReadOnly(readOnly) {
+        $('#scheduleModal').find('input:not([type="hidden"]), select, textarea').prop('disabled', readOnly);
+        $('#scheduleTargetSelectButton').prop('disabled', readOnly).toggle(!readOnly);
+        $('#scheduleTargetChips button').prop('disabled', readOnly).toggle(!readOnly);
+        if (!readOnly) applyScheduleInputType();
+    }
+
+    /** 시작일시가 종료일시 이상으로 변경되면 기존 일정 길이를 유지해 종료일시를 자동 보정한다. */
+    function synchronizeScheduleEndDateTime() {
+        var bgngValue = $('#frmBgngDt').val();
+        var endValue = $('#frmEndDt').val();
+        if (!bgngValue || !endValue) {
+            previousBgngValue = bgngValue;
+            return;
+        }
+        if ($('#frmAllDayYn').val() === 'Y') {
+            if (endValue.substring(0, 10) < bgngValue.substring(0, 10)) {
+                $('#frmEndDt').val(bgngValue.substring(0, 10)).trigger('change');
+            }
+            previousBgngValue = bgngValue;
+            return;
+        }
+        var newStart = parseInputDateTime(bgngValue, false);
+        var currentEnd = parseInputDateTime(endValue, false);
+        if (newStart && currentEnd && !isNaN(newStart.getTime()) && !isNaN(currentEnd.getTime()) && currentEnd <= newStart) {
+            var oldStart = parseInputDateTime(previousBgngValue, false);
+            var duration = oldStart && !isNaN(oldStart.getTime()) ? currentEnd.getTime() - oldStart.getTime() : 0;
+            if (duration <= 0) duration = 10 * 60 * 1000;
+            $('#frmEndDt').val(formatPickerDateTime(new Date(newStart.getTime() + duration))).trigger('change');
+        }
+        previousBgngValue = bgngValue;
     }
 
     /**
@@ -677,6 +753,7 @@
         $bgng.val(bgngYmd + ' ' + (previousBgngTime || '09:00'));
         $end.val(endYmd + ' ' + (previousEndTime || '18:00'));
         configureScheduleDateTimePicker(false);
+        previousBgngValue = $bgng.val();
     }
 
     /**
@@ -766,7 +843,7 @@
                 conflictConfirmedYn: conflictSaveConfirmed ? 'Y' : 'N'
             },
             success: function(res) {
-                if (res.result === 'OK') { closeScheduleModal(); loadScheduleList(); }
+                if (res.result === 'OK') { closeScheduleModal(); loadScheduleList(dashboardMode); }
                 else if (res.result === 'CONFLICT') {
                     conflictSaveConfirmed = true;
                     showScheduleConflictMessage(res.message);
@@ -786,7 +863,7 @@
         if (!confirm('일정을 삭제하시겠습니까?')) return;
         $.ajax({
             url: ctxPath + '/schedule/scheduleDelete.ajax', type: 'POST', dataType: 'json', data: { schdlSn: sn },
-            success: function(res) { if (res.result === 'OK') { closeScheduleModal(); loadScheduleList(); } }
+            success: function(res) { if (res.result === 'OK') { closeScheduleModal(); loadScheduleList(dashboardMode); } }
         });
     };
 
@@ -820,13 +897,46 @@
     function renderDashboardDayList(list) {
         if (list.length === 0) { $('#dashScheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>'); return; }
         $('#dashScheduleDayList').html(list.map(function(row) {
+            var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
+            var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) { return userId === loginUserId; });
+            var canModify = window.dsIsAdmin === true || isTargetUser || (loginUserId && String(row.rgtrId || '') === loginUserId);
+            var canOpenDetail = (window.dsIsAdmin === true || isTargetUser || canModify)
+                    && (hasAuthorityCode('WORK_SCHEDULE_DETAIL') || hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
+            var detailButton = canOpenDetail
+                    ? '<button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal(' + row.schdlSn + ');">'
+                        + (canModify && hasAuthorityCode('WORK_SCHEDULE_MDFCN') ? '수정' : '상세') + '</button>'
+                    : '';
             return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div class="ds-schedule-card-main">'
                 + '<div class="ds-schedule-card-title"><strong>[' + escapeHtml(row.schdlSeNm || row.schdlSeCd) + '] ' + escapeHtml(row.schdlNm) + '</strong></div>'
                 + renderProjectBadge(row)
                 + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + '</p>'
-                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
+                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p></div>' + detailButton + '</div>';
         }).join(''));
     }
+
+    /** 일정 변경 이력을 기본 접힘 상태로 렌더링한다. */
+    function renderScheduleHistory(historyList) {
+        var list = historyList || [];
+        $('#scheduleHistoryToggle').attr('aria-expanded', 'false').find('i').text('▽');
+        $('#scheduleHistoryList').addClass('hidden');
+        $('#scheduleHistorySection').toggleClass('hidden', !$('#frmSchdlSn').val() || !list.length);
+        if (!list.length) {
+            $('#scheduleHistoryList').html('<div class="ds-empty">등록된 일정 변경 이력이 없습니다.</div>');
+            return;
+        }
+        $('#scheduleHistoryList').html(list.map(function(row) {
+            return '<article class="ds-schedule-history-item"><div><strong>' + escapeHtml(row.chgItemNm || '변경') + '</strong>'
+                + '<span>' + escapeHtml(row.mdfrNm || row.mdfrId || '-') + ' · ' + escapeHtml(row.mdfcnDt || '') + '</span></div>'
+                + '<p><del>' + escapeHtml(nvl(row.bfrChgCn, '(없음)')) + '</del><i>→</i><ins>' + escapeHtml(nvl(row.aftrChgCn, '(없음)')) + '</ins></p></article>';
+        }).join(''));
+    }
+
+    /** 일정 변경 이력 영역을 접거나 펼친다. */
+    window.toggleScheduleHistory = function() {
+        var expanded = $('#scheduleHistoryToggle').attr('aria-expanded') === 'true';
+        $('#scheduleHistoryToggle').attr('aria-expanded', expanded ? 'false' : 'true').find('i').text(expanded ? '▽' : '△');
+        $('#scheduleHistoryList').toggleClass('hidden', expanded);
+    };
 
     /**
      * 프로젝트가 연결된 일정에만 우측 목록용 프로젝트 배지를 생성한다.
@@ -841,7 +951,9 @@
     window.selectDashboardScheduleDate = function(dateYmd) { selectedDate = new Date(dateYmd + 'T00:00:00'); currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1); loadScheduleList(true); };
     window.openDashboardScheduleDate = function(dateYmd) {
         if (!hasAuthorityCode('WORK_SCHEDULE_REG')) return;
-        window.location.href = ctxPath + '/schedule/scheduleList.do?newScheduleYmd=' + encodeURIComponent(dateYmd);
+        selectedDate = new Date(dateYmd + 'T00:00:00');
+        currentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+        openScheduleModal();
     };
     window.moveDashboardScheduleMonth = function(diff) { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+diff, 1); selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); loadScheduleList(true); };
     window.changeDashboardScheduleView = function(type) { viewType = type || 'all'; $('.dash-schedule-tab').removeClass('is-active'); $('.dash-schedule-tab[data-view-type="'+viewType+'"]').addClass('is-active'); loadScheduleList(true); };

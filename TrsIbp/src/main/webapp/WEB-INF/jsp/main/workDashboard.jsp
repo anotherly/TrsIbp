@@ -92,8 +92,7 @@
                 <p class="text-xs text-gray-400">등록된 휴가, 출장, 외근, 회의와 프로젝트 일정을 표시합니다.</p>
             </div>
             <div class="ds-schedule-toolbar">
-                <label class="ds-project-filter">프로젝트 필터
-                    <select id="dashScheduleProjectFilter" class="ds-select"><option value="">전체 프로젝트</option></select>
+                <label class="ds-project-filter"><select id="dashScheduleProjectFilter" class="ds-select" aria-label="프로젝트 선택"><option value="">전체 프로젝트</option></select>
                 </label>
                 <div class="ds-tab-group">
                     <button type="button" data-view-type="all" onclick="changeDashboardScheduleView('all')" class="dash-schedule-tab ds-tab is-active">전체 일정</button>
@@ -123,12 +122,14 @@
             <div class="lg:col-span-5 p-6">
                 <div class="ds-schedule-list-head">
                     <h3 id="dashScheduleSelectedTitle" class="font-bold text-sm text-gray-300"></h3>
-                    <a href="${pageContext.request.contextPath}/schedule/scheduleList.do" class="ds-btn ds-btn-outline">캘린더 크게보기</a>
+                    <button type="button" class="ds-btn ds-btn-primary" data-authority-code="WORK_SCHEDULE_REG" onclick="openScheduleModal();">+ 새 일정 등록</button>
                 </div>
                 <div id="dashScheduleDayList" class="ds-schedule-list"></div>
             </div>
         </div>
     </section>
+    <jsp:include page="/WEB-INF/jsp/common/scheduleModal.jsp"/>
+    <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
     </c:if>
 
     <section class="bg-brand-card p-6 rounded-2xl border border-brand-border shadow-xl">

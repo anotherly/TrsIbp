@@ -107,6 +107,7 @@ public class ScheduleController {
         applyLoginUser(scheduleVO, request, false);
         mav.addObject("result", "OK");
         mav.addObject("schedule", scheduleService.selectSchedule(scheduleVO));
+        mav.addObject("historyList", scheduleService.selectScheduleHistoryList(scheduleVO));
         return mav;
     }
 
@@ -168,6 +169,9 @@ public class ScheduleController {
             mav.addObject("schdlSn", scheduleVO.getSchdlSn());
         } catch (IllegalArgumentException e) {
             mav.addObject("result", "CONFLICT");
+            mav.addObject("message", e.getMessage());
+        } catch (IllegalStateException e) {
+            mav.addObject("result", "FAIL");
             mav.addObject("message", e.getMessage());
         }
         return mav;

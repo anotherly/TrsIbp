@@ -35,7 +35,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         authorityService.refreshSessionAuthority(request.getSession(), loginUser);
 
         String requestUrl = request.getRequestURI().substring(request.getContextPath().length());
-        if (isOwnUserDetail(requestUrl, request, loginUser)) {
+        if (isOwnUserRequest(requestUrl, request, loginUser)) {
             return true;
         }
         if (requestUrl.startsWith("/biz/") && !"ADMIN".equals(loginUser.getAuthrtId())
@@ -52,7 +52,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         }
         if (requiresScheduleScope(requestUrl, request)
                 && !authorityService.isScheduleAccessAllowed(loginUser,
-                        request.getParameter("schdlSn"), isScheduleWriteRequest(requestUrl))) {
+                        request.getParameter("schdlSn"), isScheduleOwnerOnlyRequest(requestUrl))) {
             logger.warn("일정 접근 범위 거부 userId=" + loginUser.getUserId()
                     + ", schdlSn=" + request.getParameter("schdlSn")
                     + ", url=" + requestUrl);
@@ -148,8 +148,13 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
                 ? "MDFCN" : "REG";
     }
 
-    private boolean isOwnUserDetail(String requestUrl, HttpServletRequest request, UserVO loginUser) {
-        if (!"/user/empDetail.do".equals(requestUrl) && !"/user/empDetail.ajax".equals(requestUrl)) {
+    private boolean isOwnUserRequest(String requestUrl, HttpServletRequest request, UserVO loginUser) {
+        boolean ownTargetUrl = "/user/empDetail.do".equals(requestUrl)
+                || "/user/empDetail.ajax".equals(requestUrl)
+                || "/user/empUpdate.do".equals(requestUrl)
+                || ("/user/empSave.ajax".equals(requestUrl)
+                        && "update".equalsIgnoreCase(request.getParameter("saveMode")));
+        if (!ownTargetUrl) {
             return false;
         }
         String targetUserId = request.getParameter("userId");
@@ -166,9 +171,8 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
                 || requestUrl.endsWith("/schedule/scheduleDelete.ajax");
     }
 
-    private boolean isScheduleWriteRequest(String requestUrl) {
-        return requestUrl.endsWith("/schedule/scheduleSave.ajax")
-                || requestUrl.endsWith("/schedule/scheduleDelete.ajax");
+    private boolean isScheduleOwnerOnlyRequest(String requestUrl) {
+        return requestUrl.endsWith("/schedule/scheduleDelete.ajax");
     }
 
     private void writeDeniedJson(HttpServletResponse response) throws IOException {

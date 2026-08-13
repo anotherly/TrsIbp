@@ -382,6 +382,8 @@ public class UserController {
         ModelAndView mav = new ModelAndView("/user/empUpdate");
         mav.addObject("userId", userVO.getUserId());
         mav.addObject("updateToken", createEmpUpdateToken(request, userVO.getUserId()));
+        UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+        mav.addObject("selfEdit", loginUser != null && loginUser.getUserId().equals(userVO.getUserId()));
         mav.addObject("mode", "update");
         return mav;
     }
@@ -566,6 +568,21 @@ public class UserController {
                         + ", loginUserId=" + reqLoginVo.getUserId()
                         + ", coId=" + userVO.getCoId());
                 userVO.setUserId(updateUserId);
+                if (reqLoginVo.getUserId().equals(updateUserId)) {
+                    UserVO existingSearch = new UserVO();
+                    existingSearch.setCoId(reqLoginVo.getCoId());
+                    existingSearch.setUserId(updateUserId);
+                    UserVO existingUser = userService.selectUserManage(existingSearch);
+                    if (existingUser == null) {
+                        mav.addObject("result", "FAIL");
+                        mav.addObject("msg", "수정할 사용자 정보를 찾을 수 없습니다.");
+                        return mav;
+                    }
+                    userVO.setDeptId(existingUser.getDeptId());
+                    userVO.setCoDrctYn(existingUser.getCoDrctYn());
+                    userVO.setAuthrtId(existingUser.getAuthrtId());
+                    userVO.setUseYn(existingUser.getUseYn());
+                }
                 if (userVO.getUserEnpswd() != null && !"".equals(userVO.getUserEnpswd().trim())) {
                     userVO.setUserEnpswd(BCrypt.hashpw(userVO.getUserEnpswd(), BCrypt.gensalt()));
                 }

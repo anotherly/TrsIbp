@@ -13,6 +13,7 @@ public interface ScheduleService {
     public List<ScheduleVO> selectDayScheduleList(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectUserDayScheduleList(ScheduleVO scheduleVO) throws Exception;
     public ScheduleVO selectSchedule(ScheduleVO scheduleVO) throws Exception;
+    public List<ScheduleVO> selectScheduleHistoryList(ScheduleVO scheduleVO) throws Exception;
     public void saveSchedule(ScheduleVO scheduleVO) throws Exception;
     public int selectScheduleConflictCount(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectScheduleConflictList(ScheduleVO scheduleVO) throws Exception;

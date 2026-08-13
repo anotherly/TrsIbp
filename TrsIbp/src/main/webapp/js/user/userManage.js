@@ -1,6 +1,7 @@
 var empTable = null;
 var empIdCheckedValue = '';
 var empCompanyName = '';
+var empSelfEdit = false;
 
 /**
  * 사용자ID 중복확인 결과 문구와 상태 색상을 갱신한다.
@@ -30,9 +31,11 @@ function initEmpListPage() {
  * 사용자 등록/수정 화면을 초기화한다.
  * @param {string} mode 저장 모드(insert/update)
  * @param {string} userId 수정 대상 사용자ID
+ * @param {boolean=} selfEdit 본인 개인정보 수정 화면 여부
  * @returns {void}
  */
-function initEmpFormPage(mode, userId) {
+function initEmpFormPage(mode, userId, selfEdit) {
+    empSelfEdit = selfEdit === true;
     if (mode === 'insert') {
         $('#frmUserId').on('input', function () {
             empIdCheckedValue = '';
@@ -41,10 +44,12 @@ function initEmpFormPage(mode, userId) {
     }
     $('#frmProfileFile').on('change', previewEmpProfileFile);
     $('#frmUserFiles').on('change', renderSelectedEmpFiles);
+    if (empSelfEdit && mode === 'update' && userId) {
+        loadEmpForm(userId);
+        return;
+    }
     loadEmpMeta(function () {
-        if (mode === 'update' && userId) {
-            loadEmpForm(userId);
-        }
+        if (mode === 'update' && userId) loadEmpForm(userId);
     });
 }
 
@@ -274,6 +279,9 @@ function loadEmpForm(userId) {
             $('#frmCoDrctYn').val(user.coDrctYn === 'Y' ? 'Y' : 'N');
             $('#frmDeptNm').val(formatUserDeptName(user));
             $('#frmJbpsNm').val(user.jbpsNm);
+            if (empSelfEdit) {
+                $('#frmAuthrtId').html('<option value="' + escapeHtml(user.authrtId || '') + '">' + escapeHtml(user.authrtNm || user.authrtId || '') + '</option>');
+            }
             $('#frmAuthrtId').val(user.authrtId);
             $('#frmUserTelno').val(user.userTelno);
             $('#frmUseYn').val(user.useYn || 'Y');

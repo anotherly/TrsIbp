@@ -15,10 +15,12 @@ public interface ScheduleMapper {
     public List<ScheduleVO> selectDayScheduleList(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectUserDayScheduleList(ScheduleVO scheduleVO) throws Exception;
     public ScheduleVO selectSchedule(ScheduleVO scheduleVO) throws Exception;
+    public List<ScheduleVO> selectScheduleHistoryList(ScheduleVO scheduleVO) throws Exception;
     public void insertSchedule(ScheduleVO scheduleVO) throws Exception;
     public void updateSchedule(ScheduleVO scheduleVO) throws Exception;
     public void deleteScheduleUserRel(ScheduleVO scheduleVO) throws Exception;
     public void insertScheduleUserRel(ScheduleVO scheduleVO) throws Exception;
+    public void insertScheduleHistory(ScheduleVO scheduleVO) throws Exception;
     public int selectScheduleConflictCount(ScheduleVO scheduleVO) throws Exception;
     public List<ScheduleVO> selectScheduleConflictList(ScheduleVO scheduleVO) throws Exception;
     public void deleteSchedule(ScheduleVO scheduleVO) throws Exception;

@@ -32,6 +32,7 @@
     /**
      * 분리된 시·분 선택값을 입력 요소의 날짜·시간 값에 즉시 반영한다.
      * @param {jQuery} $input DateTimePicker 대상 입력 요소
+     * @param {number} minuteStep 분 선택 간격
      * @param {jQuery} $selector 시·분 선택 영역
      * @returns {void}
      */
@@ -49,23 +50,28 @@
      * @param {jQuery} $input DateTimePicker 대상 입력 요소
      * @returns {void}
      */
-    function renderSplitTimeSelector($input) {
+    function renderSplitTimeSelector($input, minuteStep) {
         var $picker = $input.data('xdsoft_datetimepicker');
         if (!$picker || !$picker.length) {
             return;
         }
         $picker.addClass('ds-xdsoft-picker ds-xdsoft-datetime-picker');
+        minuteStep = Math.max(1, Number(minuteStep || 1));
         var $selector = $picker.children('.ds-split-time-selector');
+        if ($selector.length && Number($selector.attr('data-minute-step') || 1) !== minuteStep) {
+            $selector.remove();
+            $selector = $();
+        }
         if (!$selector.length) {
             var hourOptions = '';
             var minuteOptions = '';
             for (var hour = 0; hour < 24; hour++) {
                 hourOptions += '<option value="' + pad(hour) + '">' + pad(hour) + '</option>';
             }
-            for (var minute = 0; minute < 60; minute++) {
+            for (var minute = 0; minute < 60; minute += minuteStep) {
                 minuteOptions += '<option value="' + pad(minute) + '">' + pad(minute) + '</option>';
             }
-            $selector = $('<div class="ds-split-time-selector">'
+            $selector = $('<div class="ds-split-time-selector" data-minute-step="' + minuteStep + '">'
                 + '<strong>시간 선택</strong>'
                 + '<select class="ds-time-hour" aria-label="시 선택">' + hourOptions + '</select>'
                 + '<i>:</i>'
@@ -77,7 +83,8 @@
 
         var time = extractTime($input.val());
         $selector.find('.ds-time-hour').val(time.hour);
-        $selector.find('.ds-time-minute').val(time.minute);
+        var selectedMinute = Math.floor(Number(time.minute || 0) / minuteStep) * minuteStep;
+        $selector.find('.ds-time-minute').val(pad(selectedMinute));
         $selector.off('.dsSplitTime').on('mousedown.dsSplitTime focusin.dsSplitTime', function(event) {
             $picker.data('dsSplitTimeInteracting', true);
             event.stopPropagation();
@@ -160,7 +167,7 @@
                         $picker.addClass('ds-xdsoft-picker');
                     }
                     if (dateTime) {
-                        renderSplitTimeSelector(selectedInput);
+                        renderSplitTimeSelector(selectedInput, pickerOptions.step);
                     }
                     if (typeof originalOnShow === 'function') {
                         return originalOnShow.call(this, currentTime, selectedInput, event);
@@ -172,7 +179,7 @@
                         $picker.addClass('ds-xdsoft-picker');
                     }
                     if (dateTime) {
-                        renderSplitTimeSelector(selectedInput);
+                        renderSplitTimeSelector(selectedInput, pickerOptions.step);
                     }
                     if (typeof originalOnGenerate === 'function') {
                         originalOnGenerate.call(this, currentTime, selectedInput);

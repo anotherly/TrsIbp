@@ -24,6 +24,13 @@
         <result property="colorType" column="COLOR_TYPE"/>
         <result property="rgtrId" column="RGTR_ID"/>
         <result property="regDt" column="REG_DT"/>
+        <result property="schdlMdfcnHstrySn" column="SCHDL_MDFCN_HSTRY_SN"/>
+        <result property="chgItemNm" column="CHG_ITM_NM"/>
+        <result property="bfrChgCn" column="BFR_CHG_CN"/>
+        <result property="aftrChgCn" column="AFTR_CHG_CN"/>
+        <result property="mdfrId" column="MDFR_ID"/>
+        <result property="mdfrNm" column="MDFR_NM"/>
+        <result property="mdfcnDt" column="MDFCN_DT"/>
     </resultMap>
 
     <select id="selectScheduleCodeList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
@@ -34,6 +41,22 @@
           AND USE_YN = 'Y'
           AND CD IN ('VAC', 'BIZTRIP', 'OUTSIDE', 'HOME', 'CLIENT', 'MEETING', 'ETC')
         ORDER BY SORT_SEQ, CD
+    </select>
+
+    <select id="selectScheduleHistoryList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
+        SELECT H.SCHDL_MDFCN_HSTRY_SN,
+               H.SCHDL_SN,
+               H.CHG_ITM_NM,
+               H.BFR_CHG_CN,
+               H.AFTR_CHG_CN,
+               H.MDFR_ID,
+               COALESCE(U.USER_NM, H.MDFR_ID) AS MDFR_NM,
+               DATE_FORMAT(H.MDFCN_DT, '%Y-%m-%d %H:%i') AS MDFCN_DT
+        FROM schdl_mdfcn_hstry H
+        JOIN schdl_info S ON S.SCHDL_SN = H.SCHDL_SN AND S.CO_ID = #{coId}
+        LEFT JOIN user_info U ON U.USER_ID = H.MDFR_ID AND U.CO_ID = S.CO_ID
+        WHERE H.SCHDL_SN = #{schdlSn}
+        ORDER BY H.MDFCN_DT DESC, H.SCHDL_MDFCN_HSTRY_SN DESC
     </select>
 
     <sql id="scheduleFilter">
@@ -213,6 +236,13 @@
         WHERE U.USER_ID = #{targetUserId}
           AND U.CO_ID = #{coId}
           AND U.USE_YN = 'Y'
+    </insert>
+
+    <insert id="insertScheduleHistory" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">
+        INSERT INTO schdl_mdfcn_hstry
+            (SCHDL_SN, CHG_ITM_NM, BFR_CHG_CN, AFTR_CHG_CN, MDFCN_DT, MDFR_ID)
+        VALUES
+            (#{schdlSn}, #{chgItemNm}, #{bfrChgCn}, #{aftrChgCn}, NOW(), #{mdfrId})
     </insert>
 
     <update id="deleteSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">

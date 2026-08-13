@@ -36,6 +36,12 @@ public class ScheduleVO extends BaseVO {
     private String colorType;
     private String conflictConfirmedYn;
     private Integer targetCnt;
+    private Long schdlMdfcnHstrySn;
+    private String chgItemNm;
+    private String bfrChgCn;
+    private String aftrChgCn;
+    private String mdfrNm;
+    private String mdfcnDt;
 
     public Long getSchdlSn() { return schdlSn; }
     public void setSchdlSn(Long schdlSn) { this.schdlSn = schdlSn; }
@@ -95,4 +101,16 @@ public class ScheduleVO extends BaseVO {
     public void setConflictConfirmedYn(String conflictConfirmedYn) { this.conflictConfirmedYn = conflictConfirmedYn; }
     public Integer getTargetCnt() { return targetCnt; }
     public void setTargetCnt(Integer targetCnt) { this.targetCnt = targetCnt; }
+    public Long getSchdlMdfcnHstrySn() { return schdlMdfcnHstrySn; }
+    public void setSchdlMdfcnHstrySn(Long schdlMdfcnHstrySn) { this.schdlMdfcnHstrySn = schdlMdfcnHstrySn; }
+    public String getChgItemNm() { return chgItemNm; }
+    public void setChgItemNm(String chgItemNm) { this.chgItemNm = chgItemNm; }
+    public String getBfrChgCn() { return bfrChgCn; }
+    public void setBfrChgCn(String bfrChgCn) { this.bfrChgCn = bfrChgCn; }
+    public String getAftrChgCn() { return aftrChgCn; }
+    public void setAftrChgCn(String aftrChgCn) { this.aftrChgCn = aftrChgCn; }
+    public String getMdfrNm() { return mdfrNm; }
+    public void setMdfrNm(String mdfrNm) { this.mdfrNm = mdfrNm; }
+    public String getMdfcnDt() { return mdfcnDt; }
+    public void setMdfcnDt(String mdfcnDt) { this.mdfcnDt = mdfcnDt; }
 }

@@ -10,6 +10,9 @@
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
+	<!-- 서비스 구현체에 선언된 @Transactional이 실제 트랜잭션으로 적용되도록 활성화한다. -->
+	<tx:annotation-driven transaction-manager="txManager"/>
+
 	<tx:advice id="txAdvice" transaction-manager="txManager">
 		<tx:attributes>
 			<tx:method name="*" rollback-for="Exception"/>
