@@ -80,7 +80,7 @@
 </div>
 
 <script>var ctxPath='${pageContext.request.contextPath}'; var currentBizId='${param.bizId}'; var bizPageMode='detail';</script>
-<script src="${pageContext.request.contextPath}/js/biz/biz.js"></script>
+<script src="${pageContext.request.contextPath}/js/biz/biz.js?v=20260813.2"></script>
 <script>$(function(){initBizDetailPage();});</script>
 </body>
 </html>

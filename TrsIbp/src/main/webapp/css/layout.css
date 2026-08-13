@@ -700,6 +700,18 @@
 /* =========================================================
    Biz basic form/detail layout
    ========================================================= */
+.ds-form-12.biz-basic-form > .ds-col-6 {
+    grid-column: span 6;
+}
+
+.ds-form-12.biz-basic-form > .ds-col-4 {
+    grid-column: span 4;
+}
+
+.ds-form-12.biz-basic-form > .ds-col-12 {
+    grid-column: span 12;
+}
+
 .ds-form-grid-4.biz-basic-form {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: end;
@@ -761,6 +773,11 @@
 
 
 @media (max-width: 900px) {
+    .ds-form-12.biz-basic-form > .ds-col-4,
+    .ds-form-12.biz-basic-form > .ds-col-6 {
+        grid-column: span 6;
+    }
+
     .ds-form-12 .ds-col-2,
     .ds-form-12 .ds-col-3,
     .ds-form-12 .ds-col-4,
@@ -771,6 +788,12 @@
 }
 
 @media (max-width: 640px) {
+    .ds-form-12.biz-basic-form > .ds-col-4,
+    .ds-form-12.biz-basic-form > .ds-col-6,
+    .ds-form-12.biz-basic-form > .ds-col-12 {
+        grid-column: span 12;
+    }
+
     .ds-form-12 .ds-col-2,
     .ds-form-12 .ds-col-3,
     .ds-form-12 .ds-col-4,

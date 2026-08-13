@@ -17,7 +17,11 @@
 
     boolean isMain = uri.equals("/main/main.do") || uri.equals("/");
     boolean isSchedule = uri.equals("/schedule/scheduleList.do");
-    boolean isBiz = uri.startsWith("/biz/");
+    boolean isBiz = uri.matches("/biz/biz(List|Insert|Detail|Update)\\.do");
+    boolean isContract = uri.equals("/biz/contractList.do");
+    boolean isAccount = uri.equals("/biz/accountList.do");
+    boolean isMnpw = uri.equals("/biz/mnpwList.do");
+    boolean isProcess = uri.equals("/biz/schdlList.do");
     boolean isOrgMgmt = uri.equals("/dept/orgList.do");
     boolean isEmpMgmt = uri.startsWith("/user/emp");
     boolean isAuthorityMgmt = uri.startsWith("/authority/");
@@ -62,16 +66,16 @@
                 <% if (showSchedule) { %><a href="<%=ctx%>/schedule/scheduleList.do" class="ds-menu-item <%=isSchedule ? "is-active" : ""%>"><i class="fa-solid fa-calendar-days w-5"></i><span>일정 관리</span></a><% } %>
                 <a href="<%=ctx%>/main/main.do?workspace=work" class="ds-menu-item"><i class="fa-solid fa-clock-rotate-left w-5"></i><span>내 근태</span></a>
             <% } else if ("project".equals(workspace)) { %>
-                <% if (showBiz) { %><a href="<%=ctx%>/biz/bizList.do" class="ds-menu-item <%=isBiz && uri.contains("biz") ? "is-active" : ""%>"><i class="fa-solid fa-diagram-project w-5"></i><span>사업 관리</span></a><% } %>
-                <% if (showContract) { %><a href="<%=ctx%>/biz/contractList.do" class="ds-menu-item"><i class="fa-solid fa-file-signature w-5"></i><span>계약 관리</span></a><% } %>
-                <% if (showAccount) { %><a href="<%=ctx%>/biz/accountList.do" class="ds-menu-item"><i class="fa-solid fa-coins w-5"></i><span>회계 관리</span></a><% } %>
-                <% if (showMnpw) { %><a href="<%=ctx%>/biz/mnpwList.do" class="ds-menu-item"><i class="fa-solid fa-people-group w-5"></i><span>투입인력 관리</span></a><% } %>
-                <% if (showProcess) { %><a href="<%=ctx%>/biz/schdlList.do" class="ds-menu-item"><i class="fa-solid fa-list-check w-5"></i><span>프로세스 관리</span></a><% } %>
+                <% if (showBiz) { %><a href="<%=ctx%>/biz/bizList.do" class="ds-menu-item <%=isBiz ? "is-active" : ""%>"><i class="fa-solid fa-diagram-project w-5"></i><span>사업 관리</span></a><% } %>
+                <% if (showContract) { %><a href="<%=ctx%>/biz/contractList.do" class="ds-menu-item <%=isContract ? "is-active" : ""%>"><i class="fa-solid fa-file-signature w-5"></i><span>계약 관리</span></a><% } %>
+                <% if (showAccount) { %><a href="<%=ctx%>/biz/accountList.do" class="ds-menu-item <%=isAccount ? "is-active" : ""%>"><i class="fa-solid fa-coins w-5"></i><span>회계 관리</span></a><% } %>
+                <% if (showMnpw) { %><a href="<%=ctx%>/biz/mnpwList.do" class="ds-menu-item <%=isMnpw ? "is-active" : ""%>"><i class="fa-solid fa-people-group w-5"></i><span>투입인력 관리</span></a><% } %>
+                <% if (showProcess) { %><a href="<%=ctx%>/biz/schdlList.do" class="ds-menu-item <%=isProcess ? "is-active" : ""%>"><i class="fa-solid fa-list-check w-5"></i><span>프로세스 관리</span></a><% } %>
             <% } else if ("org".equals(workspace)) { %>
                 <a href="<%=ctx%>/main/main.do?workspace=org" class="ds-menu-item"><i class="fa-solid fa-users w-5"></i><span>조직원·근태 현황</span></a>
             <% } else if ("management".equals(workspace)) { %>
-                <% if (showContract) { %><a href="<%=ctx%>/biz/contractList.do" class="ds-menu-item"><i class="fa-solid fa-file-signature w-5"></i><span>계약 관리</span></a><% } %>
-                <% if (showAccount) { %><a href="<%=ctx%>/biz/accountList.do" class="ds-menu-item"><i class="fa-solid fa-coins w-5"></i><span>회계·손익 관리</span></a><% } %>
+                <% if (showContract) { %><a href="<%=ctx%>/biz/contractList.do" class="ds-menu-item <%=isContract ? "is-active" : ""%>"><i class="fa-solid fa-file-signature w-5"></i><span>계약 관리</span></a><% } %>
+                <% if (showAccount) { %><a href="<%=ctx%>/biz/accountList.do" class="ds-menu-item <%=isAccount ? "is-active" : ""%>"><i class="fa-solid fa-coins w-5"></i><span>회계·손익 관리</span></a><% } %>
                 <% if (showOrgMgmt || showEmpMgmt || showAuthorityMgmt) { %><div class="ds-menu-divider"><span>회사 설정</span></div><% } %>
                 <% if (showOrgMgmt) { %><a href="<%=ctx%>/dept/orgList.do" class="ds-menu-item <%=isOrgMgmt ? "is-active" : ""%>"><i class="fa-solid fa-sitemap w-5"></i><span>조직 관리</span></a><% } %>
                 <% if (showEmpMgmt) { %><a href="<%=ctx%>/user/empList.do" class="ds-menu-item <%=isEmpMgmt ? "is-active" : ""%>"><i class="fa-solid fa-user-gear w-5"></i><span>사용자 관리</span></a><% } %>

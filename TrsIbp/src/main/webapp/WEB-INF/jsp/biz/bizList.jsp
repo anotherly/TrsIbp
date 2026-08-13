@@ -142,7 +142,7 @@
 <script>
     var ctxPath = '${pageContext.request.contextPath}';
 </script>
-<script src="${pageContext.request.contextPath}/js/biz/biz.js"></script>
+<script src="${pageContext.request.contextPath}/js/biz/biz.js?v=20260813.2"></script>
 <script>
     $(function() {
         initBizListPage();

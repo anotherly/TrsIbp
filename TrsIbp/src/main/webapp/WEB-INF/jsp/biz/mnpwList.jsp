@@ -34,7 +34,7 @@
 </div>
 <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
 <script>var ctxPath='${pageContext.request.contextPath}'; var currentBizId=''; var bizPageMode='mnpw';</script>
-<script src="${pageContext.request.contextPath}/js/biz/biz.js"></script>
+<script src="${pageContext.request.contextPath}/js/biz/biz.js?v=20260813.2"></script>
 <script src="${pageContext.request.contextPath}/js/comm/userSelectModal.js"></script>
 <script>$(function(){ initBizManagePage('mnpw'); });</script>
 </body>

@@ -12,6 +12,6 @@
 <section class="ds-card ds-card-inner"><jsp:include page="/WEB-INF/jsp/biz/bizForm.jsp"><jsp:param name="mode" value="insert"/></jsp:include></section>
 </main></div>
 <script>var ctxPath='${pageContext.request.contextPath}'; var currentBizId=''; var bizPageMode='insert';</script>
-<script src="${pageContext.request.contextPath}/js/biz/biz.js"></script>
+<script src="${pageContext.request.contextPath}/js/biz/biz.js?v=20260813.2"></script>
 <script>$(function(){initBizInsertPage();});</script>
 </body></html>
