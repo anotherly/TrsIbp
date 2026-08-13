@@ -48,9 +48,7 @@
     <select id="selectScheduleHistoryList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
         SELECT H.SCHDL_MDFCN_HSTRY_SN,
                H.SCHDL_SN,
-               COALESCE(H.MDFCN_GROUP_ID,
-                   CONCAT('legacy-', H.MDFR_ID, '-', DATE_FORMAT(H.MDFCN_DT, '%Y%m%d%H%i%s'))
-               ) AS MDFCN_GROUP_ID,
+               H.MDFCN_GROUP_ID,
                H.CHG_ITM_NM,
                H.BFR_CHG_CN,
                H.AFTR_CHG_CN,
@@ -130,7 +128,7 @@
                S.PLACE_NM,
                S.SCHDL_CN,
                S.RGTR_ID,
-               COALESCE(RG.USER_NM, S.RGTR_ID) AS RGTR_NM,
+               RG.USER_NM AS RGTR_NM,
                DATE_FORMAT(S.REG_DT, '%Y-%m-%d %H:%i') AS REG_DT,
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS,
@@ -147,7 +145,7 @@
         FROM schdl_info S
         LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID AND B.CO_ID = S.CO_ID
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD
-        LEFT JOIN user_info RG ON RG.USER_ID = S.RGTR_ID AND RG.CO_ID = S.CO_ID
+        LEFT JOIN user_info RG ON RG.USER_ID = S.RGTR_ID
         LEFT JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
         LEFT JOIN user_info U ON U.USER_ID = R.USER_ID
         WHERE <include refid="scheduleFilter"/>
@@ -191,14 +189,14 @@
                S.PLACE_NM,
                S.SCHDL_CN,
                S.RGTR_ID,
-               COALESCE(RG.USER_NM, S.RGTR_ID) AS RGTR_NM,
+               RG.USER_NM AS RGTR_NM,
                DATE_FORMAT(S.REG_DT, '%Y-%m-%d %H:%i') AS REG_DT,
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS
         FROM schdl_info S
         LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID AND B.CO_ID = S.CO_ID
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD
-        LEFT JOIN user_info RG ON RG.USER_ID = S.RGTR_ID AND RG.CO_ID = S.CO_ID
+        LEFT JOIN user_info RG ON RG.USER_ID = S.RGTR_ID
         LEFT JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
         LEFT JOIN user_info U ON U.USER_ID = R.USER_ID
         WHERE S.SCHDL_SN = #{schdlSn}

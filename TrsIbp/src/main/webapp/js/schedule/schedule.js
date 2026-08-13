@@ -671,9 +671,8 @@
         $('#frmAllDayYn').val(nvl(row.allDayYn, 'N'));
         $('#frmPlaceNm').val(nvl(row.placeNm));
         $('#frmCalSchdlCn').val(nvl(row.schdlCn));
-        $('#scheduleCreatorName').text(nvl(row.rgtrNm, row.rgtrId || '-'));
-        $('#scheduleCreatorMeta').text((row.rgtrId ? row.rgtrId : '')
-                + (row.regDt ? (row.rgtrId ? ' · ' : '') + '최초 등록 ' + row.regDt : ''));
+        $('#scheduleCreatorName').text(nvl(row.rgtrNm, '알 수 없음'));
+        $('#scheduleCreatorMeta').text(row.regDt ? '최초 등록 ' + row.regDt : '');
         $('#scheduleCreatorField').removeClass('hidden');
         selectedUsers = {};
         var ids = nvl(row.targetUserIds).split(',');
@@ -934,7 +933,9 @@
         var groupMap = {};
         var groups = [];
         list.forEach(function(row) {
-            var groupId = nvl(row.mdfcnGroupId, 'legacy-' + nvl(row.schdlMdfcnHstrySn));
+            /* 수정그룹ID 도입 전 이력은 수정자와 화면 표시 수정시각(분)을 기준으로 한 저장 건으로 묶는다. */
+            var groupId = nvl(row.mdfcnGroupId,
+                    'legacy-' + nvl(row.mdfrId, row.mdfrNm || '-') + '-' + nvl(row.mdfcnDt));
             if (!groupMap[groupId]) {
                 groupMap[groupId] = {
                     modifier: nvl(row.mdfrNm, row.mdfrId || '-'),

@@ -36,7 +36,7 @@
     <c:if test="${workspace eq 'work'}">
         <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
         <script src="<%=request.getContextPath()%>/js/comm/userSelectModal.js"></script>
-        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js?v=20260813.2"></script>
+        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js?v=20260813.4"></script>
         <script>
             $(function() {
                 if (${canViewScheduleWidget ? 'true' : 'false'} && typeof initDashboardScheduleWidget === 'function') {
