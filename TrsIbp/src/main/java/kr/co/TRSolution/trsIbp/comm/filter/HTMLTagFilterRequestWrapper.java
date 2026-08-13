@@ -14,6 +14,11 @@ public class HTMLTagFilterRequestWrapper extends HttpServletRequestWrapper {
     // MEMO_CN에서만 허용할 “토큰” (태그 전체 허용이 아님)
     private static final String[] memoCnAllowedTokens = { "<긴급>", "<재난>" };
 
+    // textarea 원문은 저장 단계에서 HTML entity로 바꾸지 않고 출력 문맥에서 escape한다.
+    private static final String[] plainTextParamNames = {
+        "authrtExpln", "rmrkCn", "schdlCn", "deptExpln", "memoCn"
+    };
+
     private final HttpServletRequest originalRequest;
 
     // sanitize된 parameterMap 캐시(한 요청에서 반복 처리 방지)
@@ -81,8 +86,36 @@ public class HTMLTagFilterRequestWrapper extends HttpServletRequestWrapper {
             return escapeExceptTokens(value, memoCnAllowedTokens);
         }
 
+        if (isPlainTextParam(paramName)) {
+            return sanitizePlainText(value);
+        }
+
         // 기본: 기존 화이트리스트 태그(p, br)만 허용 + 나머지는 전부 escape
         return getSafeParamData(value);
+    }
+
+    private boolean isPlainTextParam(String paramName) {
+        if (paramName == null) return false;
+        for (String plainTextParamName : plainTextParamNames) {
+            if (plainTextParamName.equalsIgnoreCase(paramName)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * textarea의 꺾쇠와 앰퍼샌드는 원문 그대로 보존한다.
+     * 브라우저 제어에 사용될 수 있는 NUL 및 불필요한 C0 제어문자만 제거하며,
+     * 실제 XSS 방지는 화면의 text/value 바인딩 또는 HTML escape에서 수행한다.
+     */
+    private String sanitizePlainText(String value) {
+        StringBuilder sanitized = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (c == '\t' || c == '\n' || c == '\r' || c >= 0x20) {
+                sanitized.append(c);
+            }
+        }
+        return sanitized.toString();
     }
 
     private boolean isReceiptMemoCnAllowed(String paramName) {

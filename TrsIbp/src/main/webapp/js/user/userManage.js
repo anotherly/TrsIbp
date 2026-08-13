@@ -285,7 +285,7 @@ function loadEmpForm(userId) {
             $('#frmAuthrtId').val(user.authrtId);
             $('#frmUserTelno').val(user.userTelno);
             $('#frmUseYn').val(user.useYn || 'Y');
-            $('#frmMemoCn').val(user.memoCn);
+            $('#frmMemoCn').val(window.decodeStoredText(user.memoCn));
             renderEmpProfile(res.profileFile, false);
             renderEmpAttachmentList(res.attachmentList || [], false);
         },
@@ -322,7 +322,7 @@ function loadEmpDetail(userId) {
             $('#dispUserTelno').val(user.userTelno || '');
             $('#dispUseYn').val(user.useYn === 'Y' ? '사용' : '미사용');
             $('#dispRegDt').val(user.regDt || '');
-            $('#dispMemoCn').val(user.memoCn || '');
+            $('#dispMemoCn').val(window.decodeStoredText(user.memoCn || ''));
             renderEmpProfile(res.profileFile, true);
             renderEmpAttachmentList(res.attachmentList || [], true);
         },

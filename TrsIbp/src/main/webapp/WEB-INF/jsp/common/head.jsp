@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/style.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/vendor/jquery-datetimepicker/jquery.datetimepicker.min.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/layout.css?v=20260813.2">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/layout.css?v=20260813.3">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     window.jQuery || document.write('<script src="<%=request.getContextPath()%>/js/vendor/jquery/jquery-3.7.1.min.js"><\/script>');
@@ -54,7 +54,7 @@
 <script>
     window.dsContextPath = '<%=request.getContextPath()%>';
 </script>
-<script src="<%=request.getContextPath()%>/js/comm/layout.js"></script>
+<script src="<%=request.getContextPath()%>/js/comm/layout.js?v=20260813.1"></script>
 <script>
     window.dsGrantedMenuCodes = {};
     window.dsIsAdmin = ${sessionScope.login.authrtId eq 'ADMIN' ? 'true' : 'false'};

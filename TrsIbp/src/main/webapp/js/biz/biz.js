@@ -363,8 +363,7 @@ function renderBizList(list) {
             hasAuthorityCode('PROJECT_BIZ_DETAIL')
                 ? '<a class="ds-link" href="' + ctxPath + '/biz/bizDetail.do?bizId=' + encodeURIComponent(row.bizId) + '">' + escapeHtml(row.bizNm) + '</a>'
                 : escapeHtml(row.bizNm),
-            escapeHtml(nvl(row.instSeNm, getCodeNm('INST_SE_CD', row.instSeCd))),
-            escapeHtml(nvl(row.ordplNm, '-')),
+            escapeHtml(nvl(row.bizAbrvNm, '-')),
             escapeHtml(nvl(row.bizKndNm, getCodeNm('BIZ_KND_CD', row.bizKndCd))),
             escapeHtml(nvl(row.bizSeNm, getCodeNm('BIZ_SE_CD', row.bizSeCd))),
             '<span class="ds-badge ' + getBizSttsBadgeClass(sttsCd) + '">' + escapeHtml(nvl(row.bizSttsNm, getCodeNm('BIZ_STTS_CD', sttsCd))) + '</span>',
@@ -387,7 +386,7 @@ function renderBizList(list) {
 
     var html = '';
     if (rows.length === 0) {
-        html = '<tr><td colspan="12" class="ds-empty">조회된 사업 데이터가 없습니다.</td></tr>';
+        html = '<tr><td colspan="10" class="ds-empty">조회된 사업 데이터가 없습니다.</td></tr>';
     } else {
         $.each(rows, function(_, cols) {
             html += '<tr>';
@@ -716,7 +715,7 @@ function bindBizForm(data) {
     $('#frmGiveDdtYmd').val(nvl(data.giveDdtYmd, ''));
     $('#frmDfrpGrnteBgngYmd').val(nvl(data.dfrpGrnteBgngYmd, ''));
     $('#frmDfrpGrnteEndYmd').val(nvl(data.dfrpGrnteEndYmd, ''));
-    $('#frmRmrkCn').val(nvl(data.rmrkCn, ''));
+    $('#frmRmrkCn').val(window.decodeStoredText(nvl(data.rmrkCn, '')));
     toggleReadyContractFields();
 }
 
@@ -744,7 +743,7 @@ function bindBizDetailText(data) {
     $('#dispGiveDdtYmd').text(nvl(data.giveDdtYmd, '-'));
     $('#dispDfrpGrnteBgngYmd').text(nvl(data.dfrpGrnteBgngYmd, '-'));
     $('#dispDfrpGrnteEndYmd').text(nvl(data.dfrpGrnteEndYmd, '-'));
-    $('#dispRmrkCn').text(nvl(data.rmrkCn, '-'));
+    $('#dispRmrkCn').text(window.decodeStoredText(nvl(data.rmrkCn, '-')));
 }
 
 
@@ -1534,7 +1533,7 @@ function renderBizSchdlList(list) {
         html += '<td>' + escapeHtml(row.schdlNm) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.schdlBgngYmd, '-')) + ' ~ ' + escapeHtml(nvl(row.schdlEndYmd, '-')) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.picNm || row.picId, '-')) + '</td>';
-        html += '<td>' + escapeHtml(nvl(row.schdlCn, '-')) + '</td>';
+        html += '<td>' + escapeHtml(window.decodeStoredText(nvl(row.schdlCn, '-'))) + '</td>';
         html += '<td><div class="ds-row-actions">'
             + (hasAuthorityCode('PROJECT_PROCESS_MDFCN') ? '<button type="button" class="ds-mini-btn" onclick="bindSchdlFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>' : '')
             + (hasAuthorityCode('PROJECT_PROCESS_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizSchdl(\'' + escapeJs(row.bizSchdlSn) + '\');">삭제</button>' : '')
@@ -1553,7 +1552,7 @@ function bindSchdlFormFromRow(row) {
     $('#frmBizSchdlSn').val(nvl(row.bizSchdlSn, ''));
     $('#frmSchdlSeCd').val(nvl(row.schdlSeCd, ''));
     $('#frmSchdlNm').val(nvl(row.schdlNm, ''));
-    $('#frmSchdlCn').val(nvl(row.schdlCn, ''));
+    $('#frmSchdlCn').val(window.decodeStoredText(nvl(row.schdlCn, '')));
     $('#frmSchdlBgngYmd').val(nvl(row.schdlBgngYmd, ''));
     $('#frmSchdlEndYmd').val(nvl(row.schdlEndYmd, ''));
     $('#frmPicId').val(nvl(row.picId, ''));

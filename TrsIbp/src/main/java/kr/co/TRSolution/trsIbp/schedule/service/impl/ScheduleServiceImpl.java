@@ -116,8 +116,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "휴가구분", vacationTypeName(before.getVacSeCd()), vacationTypeName(after.getVacSeCd()), before.getVacSeCd(), after.getVacSeCd(), modifierId);
         addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "프로젝트", defaultText(before.getBizNm(), "할당되지 않음"), defaultText(after.getBizNm(), "할당되지 않음"), before.getBizId(), after.getBizId(), modifierId);
         addScheduleHistory(after.getSchdlSn(), modificationGroupId, "일정명", before.getSchdlNm(), after.getSchdlNm(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "시작일시", before.getBgngDt(), after.getBgngDt(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "종료일시", before.getEndDt(), after.getEndDt(), modifierId);
+        boolean allDayChanged = !defaultText(before.getAllDayYn(), "N").equals(defaultText(after.getAllDayYn(), "N"));
+        if (!isAutomaticAllDayDateTimeChange(before.getBgngDt(), after.getBgngDt(), before.getAllDayYn(), after.getAllDayYn(), true, allDayChanged)) {
+            addScheduleHistory(after.getSchdlSn(), modificationGroupId, "시작일시", before.getBgngDt(), after.getBgngDt(), modifierId);
+        }
+        if (!isAutomaticAllDayDateTimeChange(before.getEndDt(), after.getEndDt(), before.getAllDayYn(), after.getAllDayYn(), false, allDayChanged)) {
+            addScheduleHistory(after.getSchdlSn(), modificationGroupId, "종료일시", before.getEndDt(), after.getEndDt(), modifierId);
+        }
         addScheduleHistory(after.getSchdlSn(), modificationGroupId, "종일여부", yesNoName(before.getAllDayYn()), yesNoName(after.getAllDayYn()), modifierId);
         addScheduleHistory(after.getSchdlSn(), modificationGroupId, "장소", before.getPlaceNm(), after.getPlaceNm(), modifierId);
         addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "대상자", before.getTargetUserNms(), after.getTargetUserNms(), before.getTargetUserIds(), after.getTargetUserIds(), modifierId);
@@ -143,6 +148,37 @@ public class ScheduleServiceImpl implements ScheduleService {
         history.setAftrChgCn(normalizedAfter);
         history.setMdfrId(modifierId);
         scheduleMapper.insertScheduleHistory(history);
+    }
+
+    /**
+     * 종일 여부 전환 과정에서 같은 날짜의 시각만 기본값으로 자동 보정된 경우인지 확인한다.
+     * 날짜까지 직접 바뀌었거나 기본 시각과 다른 값이 지정된 경우에는 실제 변경으로 기록한다.
+     */
+    private boolean isAutomaticAllDayDateTimeChange(String beforeDateTime, String afterDateTime,
+            String beforeAllDayYn, String afterAllDayYn, boolean startDateTime, boolean allDayChanged) {
+        if (!allDayChanged || !datePart(beforeDateTime).equals(datePart(afterDateTime))) {
+            return false;
+        }
+        if ("Y".equals(afterAllDayYn)) {
+            return (startDateTime ? "00:00" : "23:59").equals(timePart(afterDateTime));
+        }
+        if ("Y".equals(beforeAllDayYn)) {
+            String beforeAutomaticTime = startDateTime ? "00:00" : "23:59";
+            String afterAutomaticTime = startDateTime ? "09:00" : "18:00";
+            return beforeAutomaticTime.equals(timePart(beforeDateTime))
+                    && afterAutomaticTime.equals(timePart(afterDateTime));
+        }
+        return false;
+    }
+
+    private String datePart(String dateTime) {
+        String value = defaultText(dateTime, "");
+        return value.length() >= 10 ? value.substring(0, 10) : value;
+    }
+
+    private String timePart(String dateTime) {
+        String value = defaultText(dateTime, "");
+        return value.length() >= 16 ? value.substring(11, 16) : "";
     }
 
     private String defaultText(String value, String defaultValue) {

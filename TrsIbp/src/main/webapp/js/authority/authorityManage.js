@@ -168,7 +168,7 @@
         $('#authorityId').val(mode === 'insert' ? '' : selected.authrtId)
             .prop('readonly', mode === 'update');
         $('#authorityName').val(mode === 'insert' ? '' : selected.authrtNm);
-        $('#authorityDescription').val(mode === 'insert' ? '' : (selected.authrtExpln || ''));
+        $('#authorityDescription').val(mode === 'insert' ? '' : window.decodeStoredText(selected.authrtExpln || ''));
         $('#authorityModal').removeClass('hidden');
     }
 

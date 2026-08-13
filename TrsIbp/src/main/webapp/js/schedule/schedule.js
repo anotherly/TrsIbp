@@ -670,7 +670,7 @@
         $('#frmEndDt').val(toPickerDateTime(row.endDt));
         $('#frmAllDayYn').val(nvl(row.allDayYn, 'N'));
         $('#frmPlaceNm').val(nvl(row.placeNm));
-        $('#frmCalSchdlCn').val(nvl(row.schdlCn));
+        $('#frmCalSchdlCn').val(window.decodeStoredText(nvl(row.schdlCn)));
         $('#scheduleCreatorName').text(nvl(row.rgtrNm, '알 수 없음'));
         $('#scheduleCreatorMeta').text(row.regDt ? '최초 등록 ' + row.regDt : '');
         $('#scheduleCreatorField').removeClass('hidden');
@@ -946,15 +946,57 @@
             }
             groupMap[groupId].items.push(row);
         });
+        groups.forEach(function(group) {
+            group.items = filterAutomaticAllDayHistoryItems(group.items);
+        });
+        groups = groups.filter(function(group) { return group.items.length > 0; });
         $('#scheduleHistoryList').html(groups.map(function(group) {
             var changes = group.items.map(function(row) {
                 return '<div class="ds-schedule-history-change"><strong>' + escapeHtml(row.chgItemNm || '변경') + '</strong>'
-                    + '<p><del>' + escapeHtml(nvl(row.bfrChgCn, '(없음)')) + '</del><i>→</i><ins>' + escapeHtml(nvl(row.aftrChgCn, '(없음)')) + '</ins></p></div>';
+                    + '<p><del>' + escapeHtml(window.decodeStoredText(nvl(row.bfrChgCn, '(없음)'))) + '</del><i>→</i><ins>'
+                    + escapeHtml(window.decodeStoredText(nvl(row.aftrChgCn, '(없음)'))) + '</ins></p></div>';
             }).join('');
             return '<article class="ds-schedule-history-group"><div class="ds-schedule-history-group-head"><div><strong>'
                 + escapeHtml(group.modifier) + '</strong><em>' + group.items.length + '개 항목 변경</em></div><span>'
                 + escapeHtml(group.modifiedAt) + '</span></div><div class="ds-schedule-history-group-body">' + changes + '</div></article>';
         }).join(''));
+    }
+
+    /** 기존 이력에도 종일 전환으로 자동 보정된 시작·종료 시각 숨김 규칙을 적용한다. */
+    function filterAutomaticAllDayHistoryItems(items) {
+        var allDayChange = items.filter(function(item) {
+            return item.chgItemNm === '종일여부';
+        })[0];
+        if (!allDayChange) return items;
+
+        var beforeAllDay = historyAllDayValue(allDayChange.bfrChgCn);
+        var afterAllDay = historyAllDayValue(allDayChange.aftrChgCn);
+        if (!beforeAllDay || !afterAllDay || beforeAllDay === afterAllDay) return items;
+
+        return items.filter(function(item) {
+            var isStart = item.chgItemNm === '시작일시';
+            var isEnd = item.chgItemNm === '종료일시';
+            if (!isStart && !isEnd) return true;
+
+            var beforeValue = window.decodeStoredText(nvl(item.bfrChgCn));
+            var afterValue = window.decodeStoredText(nvl(item.aftrChgCn));
+            if (beforeValue.substring(0, 10) !== afterValue.substring(0, 10)) return true;
+
+            var beforeTime = beforeValue.substring(11, 16);
+            var afterTime = afterValue.substring(11, 16);
+            if (afterAllDay === 'Y') {
+                return afterTime !== (isStart ? '00:00' : '23:59');
+            }
+            return beforeTime !== (isStart ? '00:00' : '23:59')
+                || afterTime !== (isStart ? '09:00' : '18:00');
+        });
+    }
+
+    function historyAllDayValue(value) {
+        var normalized = $.trim(window.decodeStoredText(nvl(value)));
+        if (normalized === '종일' || normalized === 'Y') return 'Y';
+        if (normalized === '시간 지정' || normalized === '시간지정' || normalized === 'N') return 'N';
+        return '';
     }
 
     /** 일정 변경 이력 영역을 접거나 펼친다. */

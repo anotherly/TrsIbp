@@ -76,3 +76,80 @@ function setDefaultWorkspace(workspace) {
         window.alert(message);
     });
 }
+
+/**
+ * 기존 데이터에 한 번 이상 HTML entity로 저장된 일반 텍스트를 원문으로 복원한다.
+ * 반환값은 반드시 textContent, value 또는 HTML escape를 거쳐 화면에 출력해야 한다.
+ * @param {*} value 저장된 일반 텍스트
+ * @returns {string} 최대 세 단계까지 entity를 해제한 텍스트
+ */
+window.decodeStoredText = function(value) {
+    var decoded = value == null ? '' : String(value);
+    var encodedEntityPattern = /&(?:amp;)*(?:amp|lt|gt|quot|apos|#39|#x27);/i;
+
+    for (var i = 0; i < 3 && encodedEntityPattern.test(decoded); i++) {
+        var decoder = document.createElement('textarea');
+        decoder.innerHTML = decoded;
+        var nextValue = decoder.value;
+        if (nextValue === decoded) {
+            break;
+        }
+        decoded = nextValue;
+    }
+    return decoded;
+};
+
+/** maxlength가 지정된 textarea에 공통 글자 수 표시를 붙인다. */
+(function initTextareaCounters() {
+    function findFieldLabel(textarea) {
+        var container = textarea.closest
+            ? textarea.closest('.ds-field, .ds-form-row')
+            : textarea.parentElement;
+        return container ? container.querySelector('label') : null;
+    }
+
+    function updateTextareaCounter(textarea) {
+        if (!textarea || textarea.tagName !== 'TEXTAREA') {
+            return;
+        }
+        var maxLength = parseInt(textarea.getAttribute('maxlength'), 10);
+        if (!maxLength || maxLength < 1) {
+            return;
+        }
+
+        var label = findFieldLabel(textarea);
+        if (!label) {
+            return;
+        }
+        var counter = label.querySelector('.ds-textarea-counter');
+        if (!counter) {
+            counter = document.createElement('span');
+            counter.className = 'ds-textarea-counter';
+            counter.setAttribute('aria-live', 'polite');
+            label.classList.add('ds-textarea-label-row');
+            label.appendChild(counter);
+        }
+        counter.textContent = textarea.value.length + '/' + maxLength + '자';
+    }
+
+    function refreshTextareaCounters() {
+        var textareas = document.querySelectorAll('textarea[maxlength]');
+        Array.prototype.forEach.call(textareas, updateTextareaCounter);
+    }
+
+    window.refreshTextareaCounters = refreshTextareaCounters;
+    document.addEventListener('DOMContentLoaded', refreshTextareaCounters);
+    document.addEventListener('input', function(event) {
+        updateTextareaCounter(event.target);
+    });
+    document.addEventListener('change', function(event) {
+        updateTextareaCounter(event.target);
+    });
+    document.addEventListener('click', function() {
+        window.setTimeout(refreshTextareaCounters, 0);
+    });
+
+    if (window.jQuery) {
+        window.jQuery(document).ajaxComplete(refreshTextareaCounters);
+    }
+})();
