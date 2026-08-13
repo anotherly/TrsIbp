@@ -1,6 +1,7 @@
 package kr.co.TRSolution.trsIbp.schedule.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -110,29 +111,33 @@ public class ScheduleServiceImpl implements ScheduleService {
         if (after == null) {
             throw new IllegalStateException("수정된 일정 정보를 다시 조회하지 못했습니다.");
         }
-        addScheduleHistoryByKey(after.getSchdlSn(), "일정구분", before.getSchdlSeNm(), after.getSchdlSeNm(), before.getSchdlSeCd(), after.getSchdlSeCd(), modifierId);
-        addScheduleHistoryByKey(after.getSchdlSn(), "휴가구분", vacationTypeName(before.getVacSeCd()), vacationTypeName(after.getVacSeCd()), before.getVacSeCd(), after.getVacSeCd(), modifierId);
-        addScheduleHistoryByKey(after.getSchdlSn(), "프로젝트", defaultText(before.getBizNm(), "할당되지 않음"), defaultText(after.getBizNm(), "할당되지 않음"), before.getBizId(), after.getBizId(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), "일정명", before.getSchdlNm(), after.getSchdlNm(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), "시작일시", before.getBgngDt(), after.getBgngDt(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), "종료일시", before.getEndDt(), after.getEndDt(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), "종일여부", yesNoName(before.getAllDayYn()), yesNoName(after.getAllDayYn()), modifierId);
-        addScheduleHistory(after.getSchdlSn(), "장소", before.getPlaceNm(), after.getPlaceNm(), modifierId);
-        addScheduleHistoryByKey(after.getSchdlSn(), "대상자", before.getTargetUserNms(), after.getTargetUserNms(), before.getTargetUserIds(), after.getTargetUserIds(), modifierId);
-        addScheduleHistory(after.getSchdlSn(), "상세내용", before.getSchdlCn(), after.getSchdlCn(), modifierId);
+        String modificationGroupId = UUID.randomUUID().toString();
+        addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "일정구분", before.getSchdlSeNm(), after.getSchdlSeNm(), before.getSchdlSeCd(), after.getSchdlSeCd(), modifierId);
+        addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "휴가구분", vacationTypeName(before.getVacSeCd()), vacationTypeName(after.getVacSeCd()), before.getVacSeCd(), after.getVacSeCd(), modifierId);
+        addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "프로젝트", defaultText(before.getBizNm(), "할당되지 않음"), defaultText(after.getBizNm(), "할당되지 않음"), before.getBizId(), after.getBizId(), modifierId);
+        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "일정명", before.getSchdlNm(), after.getSchdlNm(), modifierId);
+        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "시작일시", before.getBgngDt(), after.getBgngDt(), modifierId);
+        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "종료일시", before.getEndDt(), after.getEndDt(), modifierId);
+        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "종일여부", yesNoName(before.getAllDayYn()), yesNoName(after.getAllDayYn()), modifierId);
+        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "장소", before.getPlaceNm(), after.getPlaceNm(), modifierId);
+        addScheduleHistoryByKey(after.getSchdlSn(), modificationGroupId, "대상자", before.getTargetUserNms(), after.getTargetUserNms(), before.getTargetUserIds(), after.getTargetUserIds(), modifierId);
+        addScheduleHistory(after.getSchdlSn(), modificationGroupId, "상세내용", before.getSchdlCn(), after.getSchdlCn(), modifierId);
     }
 
-    private void addScheduleHistory(Long schdlSn, String itemName, String beforeValue, String afterValue, String modifierId) throws Exception {
-        addScheduleHistoryByKey(schdlSn, itemName, beforeValue, afterValue, beforeValue, afterValue, modifierId);
+    private void addScheduleHistory(Long schdlSn, String modificationGroupId, String itemName,
+            String beforeValue, String afterValue, String modifierId) throws Exception {
+        addScheduleHistoryByKey(schdlSn, modificationGroupId, itemName,
+                beforeValue, afterValue, beforeValue, afterValue, modifierId);
     }
 
-    private void addScheduleHistoryByKey(Long schdlSn, String itemName, String beforeValue, String afterValue,
-            String beforeKey, String afterKey, String modifierId) throws Exception {
+    private void addScheduleHistoryByKey(Long schdlSn, String modificationGroupId, String itemName,
+            String beforeValue, String afterValue, String beforeKey, String afterKey, String modifierId) throws Exception {
         String normalizedBefore = defaultText(beforeValue, "");
         String normalizedAfter = defaultText(afterValue, "");
         if (defaultText(beforeKey, "").equals(defaultText(afterKey, ""))) return;
         ScheduleVO history = new ScheduleVO();
         history.setSchdlSn(schdlSn);
+        history.setMdfcnGroupId(modificationGroupId);
         history.setChgItemNm(itemName);
         history.setBfrChgCn(normalizedBefore);
         history.setAftrChgCn(normalizedAfter);

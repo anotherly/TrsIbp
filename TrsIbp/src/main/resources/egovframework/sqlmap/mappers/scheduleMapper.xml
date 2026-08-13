@@ -23,8 +23,10 @@
         <result property="targetCnt" column="TARGET_CNT"/>
         <result property="colorType" column="COLOR_TYPE"/>
         <result property="rgtrId" column="RGTR_ID"/>
+        <result property="rgtrNm" column="RGTR_NM"/>
         <result property="regDt" column="REG_DT"/>
         <result property="schdlMdfcnHstrySn" column="SCHDL_MDFCN_HSTRY_SN"/>
+        <result property="mdfcnGroupId" column="MDFCN_GROUP_ID"/>
         <result property="chgItemNm" column="CHG_ITM_NM"/>
         <result property="bfrChgCn" column="BFR_CHG_CN"/>
         <result property="aftrChgCn" column="AFTR_CHG_CN"/>
@@ -46,6 +48,9 @@
     <select id="selectScheduleHistoryList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
         SELECT H.SCHDL_MDFCN_HSTRY_SN,
                H.SCHDL_SN,
+               COALESCE(H.MDFCN_GROUP_ID,
+                   CONCAT('legacy-', H.MDFR_ID, '-', DATE_FORMAT(H.MDFCN_DT, '%Y%m%d%H%i%s'))
+               ) AS MDFCN_GROUP_ID,
                H.CHG_ITM_NM,
                H.BFR_CHG_CN,
                H.AFTR_CHG_CN,
@@ -56,7 +61,7 @@
         JOIN schdl_info S ON S.SCHDL_SN = H.SCHDL_SN AND S.CO_ID = #{coId}
         LEFT JOIN user_info U ON U.USER_ID = H.MDFR_ID AND U.CO_ID = S.CO_ID
         WHERE H.SCHDL_SN = #{schdlSn}
-        ORDER BY H.MDFCN_DT DESC, H.SCHDL_MDFCN_HSTRY_SN DESC
+        ORDER BY H.MDFCN_DT DESC, H.MDFCN_GROUP_ID, H.SCHDL_MDFCN_HSTRY_SN
     </select>
 
     <sql id="scheduleFilter">
@@ -125,6 +130,8 @@
                S.PLACE_NM,
                S.SCHDL_CN,
                S.RGTR_ID,
+               COALESCE(RG.USER_NM, S.RGTR_ID) AS RGTR_NM,
+               DATE_FORMAT(S.REG_DT, '%Y-%m-%d %H:%i') AS REG_DT,
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS,
                COUNT(U.USER_ID) AS TARGET_CNT,
@@ -140,6 +147,7 @@
         FROM schdl_info S
         LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID AND B.CO_ID = S.CO_ID
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD
+        LEFT JOIN user_info RG ON RG.USER_ID = S.RGTR_ID AND RG.CO_ID = S.CO_ID
         LEFT JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
         LEFT JOIN user_info U ON U.USER_ID = R.USER_ID
         WHERE <include refid="scheduleFilter"/>
@@ -183,11 +191,14 @@
                S.PLACE_NM,
                S.SCHDL_CN,
                S.RGTR_ID,
+               COALESCE(RG.USER_NM, S.RGTR_ID) AS RGTR_NM,
+               DATE_FORMAT(S.REG_DT, '%Y-%m-%d %H:%i') AS REG_DT,
                GROUP_CONCAT(U.USER_ID ORDER BY U.USER_NM SEPARATOR ',') AS TARGET_USER_IDS,
                GROUP_CONCAT(U.USER_NM ORDER BY U.USER_NM SEPARATOR ', ') AS TARGET_USER_NMS
         FROM schdl_info S
         LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID AND B.CO_ID = S.CO_ID
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD
+        LEFT JOIN user_info RG ON RG.USER_ID = S.RGTR_ID AND RG.CO_ID = S.CO_ID
         LEFT JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
         LEFT JOIN user_info U ON U.USER_ID = R.USER_ID
         WHERE S.SCHDL_SN = #{schdlSn}
@@ -240,9 +251,9 @@
 
     <insert id="insertScheduleHistory" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">
         INSERT INTO schdl_mdfcn_hstry
-            (SCHDL_SN, CHG_ITM_NM, BFR_CHG_CN, AFTR_CHG_CN, MDFCN_DT, MDFR_ID)
+            (SCHDL_SN, MDFCN_GROUP_ID, CHG_ITM_NM, BFR_CHG_CN, AFTR_CHG_CN, MDFCN_DT, MDFR_ID)
         VALUES
-            (#{schdlSn}, #{chgItemNm}, #{bfrChgCn}, #{aftrChgCn}, NOW(), #{mdfrId})
+            (#{schdlSn}, #{mdfcnGroupId}, #{chgItemNm}, #{bfrChgCn}, #{aftrChgCn}, NOW(), #{mdfrId})
     </insert>
 
     <update id="deleteSchedule" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO">

@@ -618,6 +618,9 @@
      */
     function clearScheduleForm(selectLoginUser) {
         $('#frmSchdlSn,#frmCalSchdlNm,#frmPlaceNm,#frmCalSchdlCn,#frmTargetUserIds').val('');
+        $('#scheduleCreatorField').addClass('hidden');
+        $('#scheduleCreatorName').text('-');
+        $('#scheduleCreatorMeta').text('');
         $('#frmCalSchdlSeCd').val('');
         $('#frmVacSeCd').val('ANNUAL');
         $('#frmBizId').val('');
@@ -668,6 +671,10 @@
         $('#frmAllDayYn').val(nvl(row.allDayYn, 'N'));
         $('#frmPlaceNm').val(nvl(row.placeNm));
         $('#frmCalSchdlCn').val(nvl(row.schdlCn));
+        $('#scheduleCreatorName').text(nvl(row.rgtrNm, row.rgtrId || '-'));
+        $('#scheduleCreatorMeta').text((row.rgtrId ? row.rgtrId : '')
+                + (row.regDt ? (row.rgtrId ? ' · ' : '') + '최초 등록 ' + row.regDt : ''));
+        $('#scheduleCreatorField').removeClass('hidden');
         selectedUsers = {};
         var ids = nvl(row.targetUserIds).split(',');
         var nms = nvl(row.targetUserNms).split(', ');
@@ -924,10 +931,28 @@
             $('#scheduleHistoryList').html('<div class="ds-empty">등록된 일정 변경 이력이 없습니다.</div>');
             return;
         }
-        $('#scheduleHistoryList').html(list.map(function(row) {
-            return '<article class="ds-schedule-history-item"><div><strong>' + escapeHtml(row.chgItemNm || '변경') + '</strong>'
-                + '<span>' + escapeHtml(row.mdfrNm || row.mdfrId || '-') + ' · ' + escapeHtml(row.mdfcnDt || '') + '</span></div>'
-                + '<p><del>' + escapeHtml(nvl(row.bfrChgCn, '(없음)')) + '</del><i>→</i><ins>' + escapeHtml(nvl(row.aftrChgCn, '(없음)')) + '</ins></p></article>';
+        var groupMap = {};
+        var groups = [];
+        list.forEach(function(row) {
+            var groupId = nvl(row.mdfcnGroupId, 'legacy-' + nvl(row.schdlMdfcnHstrySn));
+            if (!groupMap[groupId]) {
+                groupMap[groupId] = {
+                    modifier: nvl(row.mdfrNm, row.mdfrId || '-'),
+                    modifiedAt: nvl(row.mdfcnDt),
+                    items: []
+                };
+                groups.push(groupMap[groupId]);
+            }
+            groupMap[groupId].items.push(row);
+        });
+        $('#scheduleHistoryList').html(groups.map(function(group) {
+            var changes = group.items.map(function(row) {
+                return '<div class="ds-schedule-history-change"><strong>' + escapeHtml(row.chgItemNm || '변경') + '</strong>'
+                    + '<p><del>' + escapeHtml(nvl(row.bfrChgCn, '(없음)')) + '</del><i>→</i><ins>' + escapeHtml(nvl(row.aftrChgCn, '(없음)')) + '</ins></p></div>';
+            }).join('');
+            return '<article class="ds-schedule-history-group"><div class="ds-schedule-history-group-head"><div><strong>'
+                + escapeHtml(group.modifier) + '</strong><em>' + group.items.length + '개 항목 변경</em></div><span>'
+                + escapeHtml(group.modifiedAt) + '</span></div><div class="ds-schedule-history-group-body">' + changes + '</div></article>';
         }).join(''));
     }
 

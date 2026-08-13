@@ -22,6 +22,7 @@ public class ScheduleVO extends BaseVO {
     private String schdlCn;
     private String useYn;
     private String rgtrId;
+    private String rgtrNm;
     private String mdfrId;
     private String targetUserId;
     private String targetUserIds;
@@ -37,6 +38,7 @@ public class ScheduleVO extends BaseVO {
     private String conflictConfirmedYn;
     private Integer targetCnt;
     private Long schdlMdfcnHstrySn;
+    private String mdfcnGroupId;
     private String chgItemNm;
     private String bfrChgCn;
     private String aftrChgCn;
@@ -73,6 +75,8 @@ public class ScheduleVO extends BaseVO {
     public void setUseYn(String useYn) { this.useYn = useYn; }
     public String getRgtrId() { return rgtrId; }
     public void setRgtrId(String rgtrId) { this.rgtrId = rgtrId; }
+    public String getRgtrNm() { return rgtrNm; }
+    public void setRgtrNm(String rgtrNm) { this.rgtrNm = rgtrNm; }
     public String getMdfrId() { return mdfrId; }
     public void setMdfrId(String mdfrId) { this.mdfrId = mdfrId; }
     public String getTargetUserId() { return targetUserId; }
@@ -103,6 +107,8 @@ public class ScheduleVO extends BaseVO {
     public void setTargetCnt(Integer targetCnt) { this.targetCnt = targetCnt; }
     public Long getSchdlMdfcnHstrySn() { return schdlMdfcnHstrySn; }
     public void setSchdlMdfcnHstrySn(Long schdlMdfcnHstrySn) { this.schdlMdfcnHstrySn = schdlMdfcnHstrySn; }
+    public String getMdfcnGroupId() { return mdfcnGroupId; }
+    public void setMdfcnGroupId(String mdfcnGroupId) { this.mdfcnGroupId = mdfcnGroupId; }
     public String getChgItemNm() { return chgItemNm; }
     public void setChgItemNm(String chgItemNm) { this.chgItemNm = chgItemNm; }
     public String getBfrChgCn() { return bfrChgCn; }

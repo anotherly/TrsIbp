@@ -70,7 +70,7 @@
 <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
 <script>var ctxPath='${pageContext.request.contextPath}';</script>
 <script src="${pageContext.request.contextPath}/js/comm/userSelectModal.js"></script>
-<script src="${pageContext.request.contextPath}/js/schedule/schedule.js?v=20260813.1"></script>
+<script src="${pageContext.request.contextPath}/js/schedule/schedule.js?v=20260813.2"></script>
 <script>$(function(){ initSchedulePage(); });</script>
 </body>
 </html>

@@ -1416,23 +1416,53 @@
 .ds-schedule-conflict { max-height: 150px; overflow-y: auto; padding: 12px 14px; border: 1px solid rgba(248,113,113,.45); border-radius: 12px; background: rgba(127,29,29,.22); color: #fecaca; font-size: 12px; font-weight: 800; line-height: 1.65; white-space: pre-line; }
 .ds-schedule-modal-panel { display: flex; flex-direction: column; }
 .ds-schedule-modal-panel .ds-modal-head { flex: 0 0 auto; }
-.ds-schedule-modal-body { min-height: 0; overflow-y: auto; padding: 2px 6px 8px 2px; scrollbar-gutter: stable; }
+.ds-schedule-modal-body {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 10px 8px 2px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 rgba(8,13,24,.35);
+}
+.ds-schedule-modal-body::-webkit-scrollbar { width: 9px; }
+.ds-schedule-modal-body::-webkit-scrollbar-track { border-radius: 999px; background: rgba(8,13,24,.35); }
+.ds-schedule-modal-body::-webkit-scrollbar-thumb {
+    min-height: 48px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #475569;
+    background-clip: padding-box;
+}
+.ds-schedule-modal-body::-webkit-scrollbar-thumb:hover { background: #3b82f6; background-clip: padding-box; }
+.ds-schedule-modal-body::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 .ds-schedule-modal-actions { display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(148,163,184,.16); background: rgba(11,15,25,.98); }
 .ds-schedule-modal-panel .ds-textarea { min-height: 92px; }
+.ds-schedule-field-help { margin-left: 6px; color: #64748b; font-size: 11px; font-weight: 700; }
+.ds-schedule-creator { min-height: 44px; padding: 9px 13px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px solid rgba(59,130,246,.24); border-radius: 12px; background: rgba(30,64,175,.09); }
+.ds-schedule-creator strong { color: #dbeafe; font-size: 13px; font-weight: 900; }
+.ds-schedule-creator span { color: #7f8da3; font-size: 11px; }
 .ds-schedule-history { margin-top: 18px; border: 1px solid rgba(148,163,184,.18); border-radius: 14px; background: rgba(8,13,24,.52); overflow: hidden; }
 .ds-schedule-history-toggle { width: 100%; border: 0; padding: 13px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(15,23,42,.72); color: #dbeafe; font-size: 13px; font-weight: 900; cursor: pointer; text-align: left; }
 .ds-schedule-history-toggle:hover { background: rgba(30,41,59,.9); }
 .ds-schedule-history-toggle i { color: #60a5fa; font-style: normal; }
-.ds-schedule-history-list { max-height: 260px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
-.ds-schedule-history-item { padding: 11px 12px; border: 1px solid rgba(148,163,184,.15); border-radius: 11px; background: rgba(15,23,42,.62); }
-.ds-schedule-history-item > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.ds-schedule-history-item strong { color: #e2e8f0; font-size: 12px; }
-.ds-schedule-history-item span { color: #64748b; font-size: 11px; white-space: nowrap; }
-.ds-schedule-history-item p { margin-top: 8px; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: start; gap: 9px; color: #cbd5e1; font-size: 12px; line-height: 1.5; }
-.ds-schedule-history-item del, .ds-schedule-history-item ins { min-width: 0; padding: 7px 8px; border-radius: 8px; overflow-wrap: anywhere; text-decoration: none; }
-.ds-schedule-history-item del { background: rgba(127,29,29,.22); color: #fecaca; }
-.ds-schedule-history-item ins { background: rgba(6,78,59,.24); color: #a7f3d0; }
-.ds-schedule-history-item p > i { padding-top: 7px; color: #60a5fa; font-style: normal; font-weight: 900; }
+.ds-schedule-history-list { padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+.ds-schedule-history-group { border: 1px solid rgba(148,163,184,.16); border-radius: 12px; overflow: hidden; background: rgba(15,23,42,.62); }
+.ds-schedule-history-group-head { padding: 11px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(148,163,184,.13); background: rgba(30,41,59,.48); }
+.ds-schedule-history-group-head > div { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ds-schedule-history-group-head strong { color: #dbeafe; font-size: 12px; }
+.ds-schedule-history-group-head em { padding: 3px 7px; border-radius: 999px; background: rgba(59,130,246,.16); color: #93c5fd; font-size: 10px; font-style: normal; font-weight: 800; white-space: nowrap; }
+.ds-schedule-history-group-head span { color: #64748b; font-size: 11px; white-space: nowrap; }
+.ds-schedule-history-group-body { padding: 2px 12px; }
+.ds-schedule-history-change { padding: 10px 0; border-bottom: 1px solid rgba(148,163,184,.1); }
+.ds-schedule-history-change:last-child { border-bottom: 0; }
+.ds-schedule-history-change > strong { color: #e2e8f0; font-size: 12px; }
+.ds-schedule-history-change p { margin-top: 7px; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: start; gap: 9px; color: #cbd5e1; font-size: 12px; line-height: 1.5; }
+.ds-schedule-history-change del, .ds-schedule-history-change ins { min-width: 0; padding: 7px 8px; border-radius: 8px; overflow-wrap: anywhere; text-decoration: none; }
+.ds-schedule-history-change del { background: rgba(127,29,29,.22); color: #fecaca; }
+.ds-schedule-history-change ins { background: rgba(6,78,59,.24); color: #a7f3d0; }
+.ds-schedule-history-change p > i { padding-top: 7px; color: #60a5fa; font-style: normal; font-weight: 900; }
 .ds-team-avatar { width: 36px; height: 36px; flex: 0 0 36px; border: 1px solid #475569; border-radius: 999px; object-fit: cover; background: #1e293b; }
 .ds-emp-form-layout { display: grid; grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); gap: 24px; align-items: start; }
 .ds-emp-profile-column, .ds-emp-form-main { min-width: 0; }
@@ -1645,6 +1675,9 @@
 @media (max-width: 640px) {
     .ds-schedule-modal-body .ds-col-6,
     .ds-schedule-modal-body .ds-col-4 { grid-column: span 12; }
+    .ds-schedule-history-group-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+    .ds-schedule-history-change p { grid-template-columns: minmax(0,1fr); }
+    .ds-schedule-history-change p > i { justify-self: center; padding-top: 0; transform: rotate(90deg); }
 }
 
 /* 공통 모달 규칙보다 뒤에서 조직 관리 모달 크기와 내부 여백을 확정한다. */
