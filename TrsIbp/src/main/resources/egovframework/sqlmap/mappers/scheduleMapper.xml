@@ -93,6 +93,7 @@
                    WHEN S.SCHDL_SE_CD = 'HOME' THEN 'home'
                    WHEN S.SCHDL_SE_CD = 'CLIENT' THEN 'resident'
                    WHEN S.SCHDL_SE_CD = 'MEETING' THEN 'meeting'
+                   WHEN S.SCHDL_SE_CD = 'RESOURCE' THEN 'resource'
                    ELSE 'etc'
                END AS COLOR_TYPE,
                COUNT(*) AS TARGET_CNT
@@ -110,7 +111,7 @@
           AND DATE(S.BGNG_DT) <![CDATA[<=]]> STR_TO_DATE(#{monthEndYmd}, '%Y-%m-%d')
           AND DATE(S.END_DT) <![CDATA[>=]]> STR_TO_DATE(#{monthStartYmd}, '%Y-%m-%d')
         GROUP BY DT.CAL_YMD, S.SCHDL_SE_CD, COLOR_TYPE
-        ORDER BY DT.CAL_YMD, FIELD(COLOR_TYPE, 'leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'etc')
+        ORDER BY DT.CAL_YMD, FIELD(COLOR_TYPE, 'leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'resource', 'etc')
     </select>
 
     <select id="selectDayScheduleList" parameterType="kr.co.TRSolution.trsIbp.schedule.vo.ScheduleVO" resultMap="scheduleMap">
@@ -140,6 +141,7 @@
                    WHEN S.SCHDL_SE_CD = 'HOME' THEN 'home'
                    WHEN S.SCHDL_SE_CD = 'CLIENT' THEN 'resident'
                    WHEN S.SCHDL_SE_CD = 'MEETING' THEN 'meeting'
+                   WHEN S.SCHDL_SE_CD = 'RESOURCE' THEN 'resource'
                    ELSE 'etc'
                END AS COLOR_TYPE
         FROM schdl_info S

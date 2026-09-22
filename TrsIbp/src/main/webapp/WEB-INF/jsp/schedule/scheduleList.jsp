@@ -52,6 +52,7 @@
                         <span><em><i class="ds-dot ds-dot-home"></i>재택</em><b data-legend-count="home">0</b></span>
                         <span><em><i class="ds-dot ds-dot-resident"></i>상주</em><b data-legend-count="resident">0</b></span>
                         <span><em><i class="ds-dot ds-dot-meeting"></i>회의</em><b data-legend-count="meeting">0</b></span>
+                        <span><em><i class="ds-dot ds-dot-resource"></i>자원예약</em><b data-legend-count="resource">0</b></span>
                         <span><em><i class="ds-dot ds-dot-etc"></i>기타</em><b data-legend-count="etc">0</b></span>
                     </div>
                 </div>

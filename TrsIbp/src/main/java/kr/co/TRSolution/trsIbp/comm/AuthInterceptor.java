@@ -35,6 +35,18 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         authorityService.refreshSessionAuthority(request.getSession(), loginUser);
 
         String requestUrl = request.getRequestURI().substring(request.getContextPath().length());
+        if ("/main/dashboardDetail.ajax".equals(requestUrl)) {
+            return true;
+        }
+        /*
+         * 메인 대시보드의 스마트 캘린더는 메뉴 권한 대상이 아니다.
+         * 일정관리 화면의 등록/수정/삭제 권한과 분리하여 로그인 사용자라면 조회 가능하게 한다.
+         */
+        if ("/schedule/dashboardSchedule.ajax".equals(requestUrl)
+                || ("/schedule/scheduleMeta.ajax".equals(requestUrl)
+                        && "Y".equalsIgnoreCase(request.getParameter("dashboardYn")))) {
+            return true;
+        }
         if (isOwnUserRequest(requestUrl, request, loginUser)) {
             return true;
         }

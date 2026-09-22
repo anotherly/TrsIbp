@@ -86,7 +86,7 @@
         </div>
         --%>
         <div class="flex items-center gap-2 pl-4 border-l border-brand-border/60">
-            <a href="<%=request.getContextPath()%>/user/empDetail.do?userId=${sessionScope.login.userId}" class="ds-header-user-link" title="내 개인정보·비밀번호 보기"><i class="fa-solid fa-user-circle text-brand-accent mr-1"></i><strong>${not empty sessionScope.login ? sessionScope.login.userNm : '게스트'}</strong></a>
+            <a href="<%=request.getContextPath()%>/user/empDetail.do?userId=${sessionScope.login.userId}&selfEdit=true" class="ds-header-user-link" title="내 개인정보·비밀번호 보기"><i class="fa-solid fa-user-circle text-brand-accent mr-1"></i><strong>${not empty sessionScope.login ? sessionScope.login.userNm : '게스트'}</strong></a>
             <a href="<%=request.getContextPath()%>/login/logout.do" class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded hover:bg-red-500/10" onclick="return confirm('로그아웃 하시겠습니까?')"><i class="fa-solid fa-right-from-bracket"></i></a>
         </div>
     </div>

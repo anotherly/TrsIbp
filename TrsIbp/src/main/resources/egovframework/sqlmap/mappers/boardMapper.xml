@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.TRSolution.trsIbp.board.mapper.BoardMapper">
+    <resultMap id="boardMap" type="kr.co.TRSolution.trsIbp.board.vo.BoardVO">
+        <id property="boardSn" column="BOARD_SN"/>
+        <result property="coId" column="CO_ID"/>
+        <result property="boardTitle" column="BOARD_TITLE"/>
+        <result property="boardCn" column="BOARD_CN"/>
+        <result property="useYn" column="USE_YN"/>
+        <result property="rgtrId" column="RGTR_ID"/>
+        <result property="rgtrNm" column="RGTR_NM"/>
+        <result property="mdfrId" column="MDFR_ID"/>
+        <result property="regDt" column="REG_DT"/>
+        <result property="mdFcnDt" column="MDFCN_DT"/>
+        <result property="fileCnt" column="FILE_CNT"/>
+    </resultMap>
+
+    <select id="selectBoardList" parameterType="kr.co.TRSolution.trsIbp.board.vo.BoardVO" resultMap="boardMap">
+        SELECT B.BOARD_SN, B.CO_ID, B.BOARD_TITLE, B.BOARD_CN, B.USE_YN,
+               B.RGTR_ID, U.USER_NM AS RGTR_NM, B.MDFR_ID,
+               DATE_FORMAT(B.REG_DT,'%Y-%m-%d %H:%i') AS REG_DT,
+               DATE_FORMAT(B.MDFCN_DT,'%Y-%m-%d %H:%i') AS MDFCN_DT,
+               (SELECT COUNT(*) FROM atch_file_info F
+                 WHERE F.CO_ID=B.CO_ID AND F.REF_SE_CD='BOARD'
+                   AND F.REF_ID=CAST(B.BOARD_SN AS CHAR) AND F.FILE_SE_CD='ATTACH' AND F.USE_YN='Y') AS FILE_CNT
+        FROM board_info B
+        LEFT JOIN user_info U ON U.CO_ID=B.CO_ID AND U.USER_ID=B.RGTR_ID
+        WHERE B.CO_ID=#{coId} AND B.USE_YN='Y'
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND (B.BOARD_TITLE LIKE CONCAT('%',#{searchKeyword},'%')
+              OR B.BOARD_CN LIKE CONCAT('%',#{searchKeyword},'%')
+              OR U.USER_NM LIKE CONCAT('%',#{searchKeyword},'%'))
+        </if>
+        ORDER BY B.BOARD_SN DESC
+    </select>
+
+    <select id="selectBoard" parameterType="kr.co.TRSolution.trsIbp.board.vo.BoardVO" resultMap="boardMap">
+        SELECT B.BOARD_SN, B.CO_ID, B.BOARD_TITLE, B.BOARD_CN, B.USE_YN,
+               B.RGTR_ID, U.USER_NM AS RGTR_NM, B.MDFR_ID,
+               DATE_FORMAT(B.REG_DT,'%Y-%m-%d %H:%i') AS REG_DT,
+               DATE_FORMAT(B.MDFCN_DT,'%Y-%m-%d %H:%i') AS MDFCN_DT,
+               (SELECT COUNT(*) FROM atch_file_info F
+                 WHERE F.CO_ID=B.CO_ID AND F.REF_SE_CD='BOARD'
+                   AND F.REF_ID=CAST(B.BOARD_SN AS CHAR) AND F.FILE_SE_CD='ATTACH' AND F.USE_YN='Y') AS FILE_CNT
+        FROM board_info B
+        LEFT JOIN user_info U ON U.CO_ID=B.CO_ID AND U.USER_ID=B.RGTR_ID
+        WHERE B.CO_ID=#{coId} AND B.BOARD_SN=#{boardSn} AND B.USE_YN='Y'
+    </select>
+
+    <insert id="insertBoard" parameterType="kr.co.TRSolution.trsIbp.board.vo.BoardVO" useGeneratedKeys="true" keyProperty="boardSn">
+        INSERT INTO board_info(CO_ID,BOARD_TITLE,BOARD_CN,USE_YN,REG_DT,RGTR_ID)
+        VALUES(#{coId},#{boardTitle},#{boardCn},'Y',NOW(),#{rgtrId})
+    </insert>
+
+    <update id="updateBoard" parameterType="kr.co.TRSolution.trsIbp.board.vo.BoardVO">
+        UPDATE board_info
+           SET BOARD_TITLE=#{boardTitle}, BOARD_CN=#{boardCn}, MDFCN_DT=NOW(), MDFR_ID=#{mdfrId}
+         WHERE CO_ID=#{coId} AND BOARD_SN=#{boardSn} AND USE_YN='Y'
+    </update>
+
+    <update id="deleteBoard" parameterType="kr.co.TRSolution.trsIbp.board.vo.BoardVO">
+        UPDATE board_info SET USE_YN='N', MDFCN_DT=NOW(), MDFR_ID=#{mdfrId}
+         WHERE CO_ID=#{coId} AND BOARD_SN=#{boardSn} AND USE_YN='Y'
+    </update>
+
+    <update id="deactivateBoardFile" parameterType="kr.co.TRSolution.trsIbp.board.vo.BoardVO">
+        UPDATE atch_file_info
+           SET USE_YN='N', MDFCN_DT=NOW()
+         WHERE ATCH_FILE_SN=#{atchFileSn}
+           AND CO_ID=#{coId} AND REF_SE_CD='BOARD'
+           AND REF_ID=CAST(#{boardSn} AS CHAR) AND FILE_SE_CD='ATTACH' AND USE_YN='Y'
+    </update>
+</mapper>

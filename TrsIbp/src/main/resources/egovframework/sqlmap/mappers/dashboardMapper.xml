@@ -29,10 +29,13 @@
               AND S.BGNG_DT &lt; DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)
               AND S.END_DT &gt;= DATE_FORMAT(CURDATE(), '%Y-%m-01')) AS monthScheduleCount,
           (SELECT COUNT(*)
-             FROM work_hstry H
-            WHERE H.USER_ID = #{userId}
-              AND H.WORK_YMD = CURDATE()
-              AND H.GTWK_DT IS NOT NULL) AS todayAttendCount
+             FROM daily_work_item W
+            WHERE W.CO_ID = #{coId}
+              AND W.USER_ID = #{userId}
+              AND W.USE_YN = 'Y'
+              AND W.WORK_YMD &lt;= CURDATE()
+              AND (W.DONE_YMD IS NULL OR W.DONE_YMD &gt;= CURDATE())
+              AND IFNULL(W.PRGRS_STTS_CD, 'WAIT') &lt;&gt; 'DONE') AS activeDailyPlanCount
     </select>
 
     <select id="selectWorkTodayScheduleList" parameterType="map" resultType="hashmap">
@@ -40,6 +43,7 @@
                S.SCHDL_NM AS schdlNm,
                S.SCHDL_SE_CD AS schdlSeCd,
                IFNULL(C.CD_NM, S.SCHDL_SE_CD) AS schdlSeNm,
+               DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d') AS bgngYmd,
                DATE_FORMAT(S.BGNG_DT, '%H:%i') AS bgngTm,
                DATE_FORMAT(S.END_DT, '%H:%i') AS endTm,
                S.ALL_DAY_YN AS allDayYn,
@@ -273,4 +277,238 @@
         ORDER BY B.BIZ_END_YMD, B.BIZ_NM
         LIMIT 8
     </select>
+
+
+    <select id="selectWorkPlanList" parameterType="map" resultType="hashmap">
+        SELECT W.WORK_ITEM_SN AS workItemSn,
+               W.WORK_CN AS workCn,
+               W.WORK_YMD AS taskBgngYmd,
+               W.EXPT_END_YMD AS exptEndYmd,
+               W.PRIORITY_NO AS priorityNo,
+               COALESCE(P.PRGRS_STTS_CD, W.PRGRS_STTS_CD, 'WAIT') AS prgrsSttsCd,
+               COALESCE(P.PRGRS_RT, W.PRGRS_RT, 0) AS prgrsRt,
+               B.BIZ_NM AS bizNm,
+               B.BIZ_ABRV_NM AS bizAbrvNm,
+               DATEDIFF(W.EXPT_END_YMD, CURDATE()) AS remainDay
+        FROM daily_work_item W
+        LEFT JOIN daily_work_progress P
+          ON P.WORK_ITEM_SN = W.WORK_ITEM_SN
+         AND P.USE_YN = 'Y'
+         AND P.PRGRS_YMD = (
+             SELECT MAX(P2.PRGRS_YMD)
+             FROM daily_work_progress P2
+             WHERE P2.WORK_ITEM_SN = W.WORK_ITEM_SN
+               AND P2.USE_YN = 'Y'
+               AND P2.PRGRS_YMD &lt;= CURDATE()
+         )
+        LEFT JOIN biz_info B ON B.BIZ_ID = W.BIZ_ID
+        WHERE W.CO_ID = #{coId}
+          AND W.USER_ID = #{userId}
+          AND W.USE_YN = 'Y'
+          AND W.WORK_YMD &lt;= CURDATE()
+          AND (W.DONE_YMD IS NULL OR W.DONE_YMD &gt;= CURDATE())
+          AND COALESCE(P.PRGRS_STTS_CD, W.PRGRS_STTS_CD, 'WAIT') &lt;&gt; 'DONE'
+        ORDER BY IFNULL(W.PRIORITY_NO, 3), W.EXPT_END_YMD, W.WORK_ITEM_SN
+        LIMIT 8
+    </select>
+
+    <select id="selectWorkNoticeList" parameterType="map" resultType="hashmap">
+        SELECT N.NOTICE_SN AS noticeSn,
+               N.NOTICE_SCOPE_CD AS noticeScopeCd,
+               N.NOTICE_TITLE AS noticeTitle,
+               U.USER_NM AS rgtrNm,
+               DATE_FORMAT(N.REG_DT, '%Y-%m-%d') AS regYmd
+        FROM notice_info N
+        LEFT JOIN user_info U ON U.USER_ID = N.RGTR_ID
+        WHERE N.USE_YN = 'Y'
+          AND (N.NOTICE_SCOPE_CD = 'SYSTEM'
+               OR (N.NOTICE_SCOPE_CD = 'COMPANY' AND N.CO_ID = #{coId}))
+          AND (N.BGNG_DT IS NULL OR N.BGNG_DT &lt;= NOW())
+          AND (N.END_DT IS NULL OR N.END_DT &gt;= NOW())
+        ORDER BY CASE WHEN N.NOTICE_SCOPE_CD = 'SYSTEM' THEN 0 ELSE 1 END,
+                 N.NOTICE_SN DESC
+        LIMIT 6
+    </select>
+
+    <select id="selectDashboardDetailList" parameterType="map" resultType="hashmap">
+        <choose>
+            <when test="workspace == 'work' and detailType == 'todaySchedule'">
+                SELECT S.SCHDL_SN AS itemId, S.SCHDL_NM AS title,
+                       CONCAT(CASE WHEN S.ALL_DAY_YN='Y' THEN '종일' ELSE CONCAT(DATE_FORMAT(S.BGNG_DT,'%H:%i'),' ~ ',DATE_FORMAT(S.END_DT,'%H:%i')) END) AS subTitle,
+                       IFNULL(B.BIZ_NM,S.PLACE_NM) AS meta, IFNULL(C.CD_NM,S.SCHDL_SE_CD) AS badge,
+                       'SCHEDULE' AS actionType, DATE_FORMAT(S.BGNG_DT,'%Y-%m-%d') AS actionDate, S.SCHDL_SN AS actionValue
+                FROM schdl_info S JOIN schdl_user_rel R ON R.SCHDL_SN=S.SCHDL_SN AND R.USER_ID=#{userId}
+                LEFT JOIN biz_info B ON B.BIZ_ID=S.BIZ_ID
+                LEFT JOIN cmn_cd C ON C.CD_GROUP_ID='CAL_SCHDL_SE_CD' AND C.CD=S.SCHDL_SE_CD AND C.USE_YN='Y'
+                WHERE S.CO_ID=#{coId} AND S.USE_YN='Y' AND CURDATE() BETWEEN DATE(S.BGNG_DT) AND DATE(S.END_DT)
+                ORDER BY S.ALL_DAY_YN DESC,S.BGNG_DT,S.SCHDL_SN LIMIT 30
+            </when>
+            <when test="workspace == 'work' and detailType == 'myProject'">
+                SELECT B.BIZ_ID AS itemId,
+                       B.BIZ_NM AS title,
+                       CONCAT(IFNULL(DATE_FORMAT(M.INPUT_BGNG_YMD, '%Y-%m-%d'), '-'), ' ~ ', IFNULL(DATE_FORMAT(M.INPUT_END_YMD, '%Y-%m-%d'), '-')) AS subTitle,
+                       CONCAT('투입률 ', IFNULL(M.INPUT_RT, 0), '%', CASE WHEN M.ROLE_NM IS NULL OR M.ROLE_NM = '' THEN '' ELSE CONCAT(' · ', M.ROLE_NM) END) AS meta,
+                       IFNULL(C.CD_NM, B.BIZ_STTS_CD) AS badge,
+                       'BIZ' AS actionType,
+                       CONCAT('/biz/bizDetail.do?bizId=', B.BIZ_ID) AS href
+                FROM biz_mnpw M
+                JOIN biz_info B ON B.BIZ_ID = M.BIZ_ID AND B.CO_ID = #{coId}
+                LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'BIZ_STTS_CD' AND C.CD = B.BIZ_STTS_CD AND C.USE_YN = 'Y'
+                WHERE M.USER_ID = #{userId}
+                  AND M.USE_YN = 'Y'
+                  AND B.BIZ_STTS_CD = 'PRGRS'
+                  AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD &lt;= CURDATE())
+                  AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD &gt;= CURDATE())
+                ORDER BY B.BIZ_END_YMD, B.BIZ_NM
+                LIMIT 20
+            </when>
+            <when test="workspace == 'work' and detailType == 'monthSchedule'">
+                SELECT S.SCHDL_SN AS itemId,
+                       S.SCHDL_NM AS title,
+                       CONCAT(DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d %H:%i'), ' ~ ', DATE_FORMAT(S.END_DT, '%m-%d %H:%i')) AS subTitle,
+                       IFNULL(B.BIZ_NM, S.PLACE_NM) AS meta,
+                       IFNULL(C.CD_NM, S.SCHDL_SE_CD) AS badge,
+                       'SCHEDULE' AS actionType,
+                       DATE_FORMAT(S.BGNG_DT, '%Y-%m-%d') AS actionDate,
+                       S.SCHDL_SN AS actionValue
+                FROM schdl_info S
+                JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN AND R.USER_ID = #{userId}
+                LEFT JOIN biz_info B ON B.BIZ_ID = S.BIZ_ID
+                LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'CAL_SCHDL_SE_CD' AND C.CD = S.SCHDL_SE_CD AND C.USE_YN = 'Y'
+                WHERE S.CO_ID = #{coId}
+                  AND S.USE_YN = 'Y'
+                  AND S.BGNG_DT &lt; DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)
+                  AND S.END_DT &gt;= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                ORDER BY S.BGNG_DT, S.SCHDL_SN
+                LIMIT 30
+            </when>
+            <when test="workspace == 'work' and detailType == 'dailyPlan'">
+                SELECT W.WORK_ITEM_SN AS itemId,
+                       W.WORK_CN AS title,
+                       CONCAT('시작 ', DATE_FORMAT(W.WORK_YMD, '%Y-%m-%d'), ' · 예상완료 ', IFNULL(DATE_FORMAT(W.EXPT_END_YMD, '%Y-%m-%d'), '-')) AS subTitle,
+                       CONCAT('진행률 ', COALESCE(P.PRGRS_RT, W.PRGRS_RT, 0), '% · ', IFNULL(B.BIZ_ABRV_NM, IFNULL(B.BIZ_NM, '공통/기타'))) AS meta,
+                       CONCAT('P', IFNULL(W.PRIORITY_NO, 3)) AS badge,
+                       'WORKLOG' AS actionType,
+                       '/worklog/dailyList.do' AS href
+                FROM daily_work_item W
+                LEFT JOIN daily_work_progress P
+                  ON P.WORK_ITEM_SN = W.WORK_ITEM_SN
+                 AND P.USE_YN = 'Y'
+                 AND P.PRGRS_YMD = (SELECT MAX(P2.PRGRS_YMD) FROM daily_work_progress P2 WHERE P2.WORK_ITEM_SN=W.WORK_ITEM_SN AND P2.USE_YN='Y' AND P2.PRGRS_YMD&lt;=CURDATE())
+                LEFT JOIN biz_info B ON B.BIZ_ID = W.BIZ_ID
+                WHERE W.CO_ID = #{coId} AND W.USER_ID = #{userId} AND W.USE_YN='Y'
+                  AND W.WORK_YMD &lt;= CURDATE() AND (W.DONE_YMD IS NULL OR W.DONE_YMD &gt;= CURDATE())
+                  AND COALESCE(P.PRGRS_STTS_CD, W.PRGRS_STTS_CD, 'WAIT') &lt;&gt; 'DONE'
+                ORDER BY IFNULL(W.PRIORITY_NO,3), W.EXPT_END_YMD, W.WORK_ITEM_SN
+                LIMIT 20
+            </when>
+            <when test="workspace == 'project' and (detailType == 'allProject' or detailType == 'activeProject')">
+                SELECT B.BIZ_ID AS itemId,
+                       B.BIZ_NM AS title,
+                       CONCAT(IFNULL(DATE_FORMAT(B.BIZ_BGNG_YMD,'%Y-%m-%d'),'-'),' ~ ',IFNULL(DATE_FORMAT(B.BIZ_END_YMD,'%Y-%m-%d'),'-')) AS subTitle,
+                       CASE WHEN EXISTS(SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y') THEN '내가 참여 중인 프로젝트' ELSE IFNULL(B.BIZ_ABRV_NM,'') END AS meta,
+                       IFNULL(C.CD_NM,B.BIZ_STTS_CD) AS badge,
+                       'BIZ' AS actionType,
+                       CONCAT('/biz/bizDetail.do?bizId=',B.BIZ_ID) AS href
+                FROM biz_info B
+                LEFT JOIN cmn_cd C ON C.CD_GROUP_ID='BIZ_STTS_CD' AND C.CD=B.BIZ_STTS_CD AND C.USE_YN='Y'
+                WHERE B.CO_ID=#{coId}
+                <if test="detailType == 'activeProject'">AND B.BIZ_STTS_CD='PRGRS'</if>
+                ORDER BY B.BIZ_END_YMD, B.BIZ_NM
+                LIMIT 30
+            </when>
+            <when test="workspace == 'project' and detailType == 'inputMnpw'">
+                SELECT COALESCE(U.USER_ID, CONCAT('EXT-',M.BIZ_MNPW_SN)) AS itemId,
+                       COALESCE(U.USER_NM, M.INPUT_MNPW_NM, '외부인력') AS title,
+                       B.BIZ_NM AS subTitle,
+                       CONCAT('투입률 ',IFNULL(M.INPUT_RT,0),'% · ',IFNULL(M.ROLE_NM,'역할 미지정')) AS meta,
+                       CASE WHEN U.USER_ID=#{userId} THEN '본인' ELSE '투입중' END AS badge,
+                       'MNPW' AS actionType,
+                       '/biz/mnpwList.do' AS href
+                FROM biz_mnpw M
+                JOIN biz_info B ON B.BIZ_ID=M.BIZ_ID AND B.CO_ID=#{coId}
+                LEFT JOIN user_info U ON U.USER_ID=M.USER_ID
+                WHERE M.USE_YN='Y'
+                  AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD&lt;=CURDATE())
+                  AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD&gt;=CURDATE())
+                ORDER BY B.BIZ_NM, title
+                LIMIT 30
+            </when>
+            <when test="workspace == 'project' and detailType == 'dueSchedule'">
+                SELECT S.BIZ_SCHDL_SN AS itemId,
+                       S.SCHDL_NM AS title,
+                       B.BIZ_NM AS subTitle,
+                       CONCAT('종료 ',DATE_FORMAT(S.SCHDL_END_YMD,'%Y-%m-%d'),' · D-',DATEDIFF(S.SCHDL_END_YMD,CURDATE())) AS meta,
+                       '30일 내 종료' AS badge,
+                       'PROJECT_SCHEDULE' AS actionType,
+                       '/biz/schdlList.do' AS href
+                FROM biz_schdl S JOIN biz_info B ON B.BIZ_ID=S.BIZ_ID
+                WHERE B.CO_ID=#{coId} AND S.USE_YN='Y'
+                  AND S.SCHDL_END_YMD BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                ORDER BY S.SCHDL_END_YMD, S.BIZ_SCHDL_SN
+                LIMIT 30
+            </when>
+            <when test="workspace == 'org' and detailType == 'orgUser'">
+                <include refid="orgScopeCte"/>
+                SELECT U.USER_ID AS itemId, U.USER_NM AS title, IFNULL(D.DEPT_NM,'소속 없음') AS subTitle,
+                       IFNULL(U.JBPS_NM,'직급 미지정') AS meta, '재직' AS badge, 'USER' AS actionType,
+                       '/attend/orgStatus.do' AS href
+                FROM scope_user S JOIN user_info U ON U.USER_ID=S.USER_ID LEFT JOIN dept_info D ON D.DEPT_ID=U.DEPT_ID
+                ORDER BY D.SORT_SEQ,U.USER_NM LIMIT 30
+            </when>
+            <when test="workspace == 'org' and detailType == 'todayAttend'">
+                <include refid="orgScopeCte"/>
+                SELECT U.USER_ID AS itemId,U.USER_NM AS title,IFNULL(D.DEPT_NM,'소속 없음') AS subTitle,
+                       CONCAT('출근 ',DATE_FORMAT(H.GTWK_DT,'%H:%i'),CASE WHEN H.LVWK_DT IS NULL THEN '' ELSE CONCAT(' · 퇴근 ',DATE_FORMAT(H.LVWK_DT,'%H:%i')) END) AS meta,
+                       '출근' AS badge,'ORG_STATUS' AS actionType,'/attend/orgStatus.do' AS href
+                FROM scope_user S JOIN user_info U ON U.USER_ID=S.USER_ID JOIN work_hstry H ON H.USER_ID=U.USER_ID AND H.WORK_YMD=CURDATE() AND H.GTWK_DT IS NOT NULL
+                LEFT JOIN dept_info D ON D.DEPT_ID=U.DEPT_ID ORDER BY H.GTWK_DT,U.USER_NM LIMIT 30
+            </when>
+            <when test="workspace == 'org' and detailType == 'externalUser'">
+                <include refid="orgScopeCte"/>
+                SELECT U.USER_ID AS itemId,U.USER_NM AS title,IFNULL(D.DEPT_NM,'소속 없음') AS subTitle,
+                       S.SCHDL_NM AS meta,IFNULL(C.CD_NM,S.SCHDL_SE_CD) AS badge,'ORG_STATUS' AS actionType,
+                       '/attend/orgStatus.do' AS href
+                FROM schdl_info S JOIN schdl_user_rel R ON R.SCHDL_SN=S.SCHDL_SN JOIN scope_user SU ON SU.USER_ID=R.USER_ID
+                JOIN user_info U ON U.USER_ID=SU.USER_ID LEFT JOIN dept_info D ON D.DEPT_ID=U.DEPT_ID
+                LEFT JOIN cmn_cd C ON C.CD_GROUP_ID='CAL_SCHDL_SE_CD' AND C.CD=S.SCHDL_SE_CD AND C.USE_YN='Y'
+                WHERE S.USE_YN='Y' AND S.SCHDL_SE_CD IN('VAC','BIZTRIP','OUTSIDE','HOME','CLIENT') AND NOW() BETWEEN S.BGNG_DT AND S.END_DT
+                ORDER BY U.USER_NM LIMIT 30
+            </when>
+            <when test="workspace == 'org' and detailType == 'inputRate'">
+                <include refid="orgScopeCte"/>
+                SELECT U.USER_ID AS itemId,U.USER_NM AS title,IFNULL(D.DEPT_NM,'소속 없음') AS subTitle,
+                       CONCAT('현재 총 투입률 ',IFNULL(SUM(M.INPUT_RT),0),'%') AS meta,
+                       CASE WHEN IFNULL(SUM(M.INPUT_RT),0)&gt;100 THEN '과투입' ELSE '정상' END AS badge,'ORG_STATUS' AS actionType,
+                       '/attend/orgStatus.do' AS href
+                FROM scope_user SU JOIN user_info U ON U.USER_ID=SU.USER_ID LEFT JOIN dept_info D ON D.DEPT_ID=U.DEPT_ID
+                LEFT JOIN biz_mnpw M ON M.USER_ID=U.USER_ID AND M.USE_YN='Y' AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD&lt;=CURDATE()) AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD&gt;=CURDATE())
+                GROUP BY U.USER_ID,U.USER_NM,D.DEPT_NM,D.SORT_SEQ ORDER BY SUM(M.INPUT_RT) DESC,U.USER_NM LIMIT 30
+            </when>
+            <when test="workspace == 'management' and detailType == 'employee'">
+                SELECT U.USER_ID AS itemId,U.USER_NM AS title,IFNULL(D.DEPT_NM,'소속 없음') AS subTitle,IFNULL(U.JBPS_NM,'직급 미지정') AS meta,
+                       '재직' AS badge,'USER' AS actionType,CONCAT('/user/empDetail.do?userId=',U.USER_ID) AS href
+                FROM user_info U LEFT JOIN dept_info D ON D.DEPT_ID=U.DEPT_ID WHERE U.CO_ID=#{coId} AND U.USE_YN='Y'
+                ORDER BY D.SORT_SEQ,U.USER_NM LIMIT 30
+            </when>
+            <when test="workspace == 'management' and (detailType == 'activeProject' or detailType == 'contractAmount')">
+                SELECT B.BIZ_ID AS itemId,B.BIZ_NM AS title,CONCAT('계약 ',FORMAT(IFNULL(B.CTRT_AMT,0),0),'원') AS subTitle,
+                       CONCAT('종료 ',IFNULL(DATE_FORMAT(B.BIZ_END_YMD,'%Y-%m-%d'),'-')) AS meta,'진행' AS badge,'BIZ' AS actionType,
+                       CONCAT('/biz/bizDetail.do?bizId=',B.BIZ_ID) AS href
+                FROM biz_info B WHERE B.CO_ID=#{coId} AND B.BIZ_STTS_CD='PRGRS' ORDER BY B.BIZ_END_YMD,B.BIZ_NM LIMIT 30
+            </when>
+            <when test="workspace == 'management' and detailType == 'monthCost'">
+                SELECT C.BIZ_CST_SN AS itemId,IFNULL(C.CST_NM,'비용') AS title,B.BIZ_NM AS subTitle,
+                       CONCAT(DATE_FORMAT(C.OCRN_YMD,'%Y-%m-%d'),' · ',FORMAT(IFNULL(C.OCRN_CST,0),0),'원') AS meta,
+                       IFNULL(U.USER_NM,'작성자 미상') AS badge,'ACCOUNT' AS actionType,'/biz/accountList.do' AS href
+                FROM biz_cst C JOIN biz_info B ON B.BIZ_ID=C.BIZ_ID LEFT JOIN user_info U ON U.USER_ID=C.RGTR_ID
+                WHERE B.CO_ID=#{coId} AND C.USE_YN='Y' AND C.OCRN_YMD BETWEEN DATE_FORMAT(CURDATE(),'%Y-%m-01') AND LAST_DAY(CURDATE())
+                ORDER BY C.OCRN_YMD DESC,C.BIZ_CST_SN DESC LIMIT 30
+            </when>
+            <otherwise>
+                SELECT NULL AS itemId,NULL AS title,NULL AS subTitle,NULL AS meta,NULL AS badge,NULL AS actionType,NULL AS href WHERE 1=0
+            </otherwise>
+        </choose>
+    </select>
+
 </mapper>

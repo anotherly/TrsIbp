@@ -42,13 +42,13 @@
     </div>
 
     <script>var ctxPath = '<%=request.getContextPath()%>';</script>
+    <script src="<%=request.getContextPath()%>/js/dashboard.js?v=20260922.1"></script>
     <c:if test="${workspace eq 'work'}">
-        <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
         <script src="<%=request.getContextPath()%>/js/comm/userSelectModal.js"></script>
-        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js?v=20260921.5"></script>
+        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js?v=20260922.1"></script>
         <script>
             $(function() {
-                if (${canViewScheduleWidget ? 'true' : 'false'} && typeof initDashboardScheduleWidget === 'function') {
+                if (typeof initDashboardScheduleWidget === 'function') {
                     initDashboardScheduleWidget();
                 }
             });

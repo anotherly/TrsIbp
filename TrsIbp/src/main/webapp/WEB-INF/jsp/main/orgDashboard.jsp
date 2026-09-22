@@ -15,11 +15,13 @@
     </section>
 
     <section class="ds-dashboard-kpis">
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">조직원</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.orgUserCount ? 0 : dashboardSummary.orgUserCount}"/>명</div><div class="ds-kpi-sub">사용 중인 사용자 기준</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">오늘 출근 기록</div><div class="ds-kpi-value is-green"><fmt:formatNumber value="${empty dashboardSummary.todayAttendCount ? 0 : dashboardSummary.todayAttendCount}"/>명</div><div class="ds-kpi-sub">출근시간이 기록된 인원</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">외부·부재 일정</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.externalUserCount ? 0 : dashboardSummary.externalUserCount}"/>명</div><div class="ds-kpi-sub">휴가·출장·외근·재택·상주</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">평균 투입률</div><div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.avgInputRate ? 0 : dashboardSummary.avgInputRate}"/>%</div><div class="ds-kpi-sub">과투입 ${empty dashboardSummary.overInputUserCount ? 0 : dashboardSummary.overInputUserCount}명</div></article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('org','orgUser',this,'조직원');"><div class="ds-kpi-label">조직원</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.orgUserCount ? 0 : dashboardSummary.orgUserCount}"/>명</div><div class="ds-kpi-sub">사용 중인 사용자 기준</div></article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('org','todayAttend',this,'오늘 출근 기록');"><div class="ds-kpi-label">오늘 출근 기록</div><div class="ds-kpi-value is-green"><fmt:formatNumber value="${empty dashboardSummary.todayAttendCount ? 0 : dashboardSummary.todayAttendCount}"/>명</div><div class="ds-kpi-sub">출근시간이 기록된 인원</div></article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('org','externalUser',this,'외부·부재 일정');"><div class="ds-kpi-label">외부·부재 일정</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.externalUserCount ? 0 : dashboardSummary.externalUserCount}"/>명</div><div class="ds-kpi-sub">휴가·출장·외근·재택·상주</div></article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('org','inputRate',this,'조직원 투입률');"><div class="ds-kpi-label">평균 투입률</div><div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.avgInputRate ? 0 : dashboardSummary.avgInputRate}"/>%</div><div class="ds-kpi-sub">과투입 ${empty dashboardSummary.overInputUserCount ? 0 : dashboardSummary.overInputUserCount}명</div></article>
     </section>
+
+    <section id="dashboardSummaryDetail" class="ds-dashboard-card ds-dashboard-summary-detail hidden" aria-live="polite"></section>
 
     <section class="ds-dashboard-columns">
         <article class="ds-dashboard-card">

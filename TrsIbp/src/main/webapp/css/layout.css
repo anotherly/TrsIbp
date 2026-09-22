@@ -1790,3 +1790,32 @@
 .ds-btn-sm { min-height:34px; padding:7px 11px; font-size:11px; }
 @media (max-width:900px){ .ds-resource-primary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.ds-resource-secondary-grid{grid-template-columns:1fr;} }
 @media (max-width:600px){ .ds-resource-primary-grid{grid-template-columns:1fr;} }
+
+/* 2026-09-22 게시판 */
+.ds-clickable-row{cursor:pointer;transition:background .15s ease}
+.ds-clickable-row:hover{background:rgba(56,189,248,.06)}
+.ds-board-table .ds-board-title{color:#e5eefb;font-weight:700}
+.ds-board-view-meta{display:flex;flex-wrap:wrap;gap:14px;padding:0 0 14px;color:#94a3b8;font-size:13px;border-bottom:1px solid var(--ds-border,#243047)}
+.ds-board-view-content{min-height:180px;padding:20px 4px;white-space:pre-wrap;word-break:break-word;line-height:1.75;color:#e2e8f0}
+.ds-file-row.is-delete-pending{opacity:.55;text-decoration:line-through}
+
+/* 2026-09-22 dashboard drill-down / gantt / resource calendar */
+.ds-kpi-clickable{cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;position:relative}
+.ds-kpi-clickable:after{content:'›';position:absolute;right:14px;top:12px;color:#475569;font-size:18px;font-weight:900;transition:.18s ease}
+.ds-kpi-clickable:hover,.ds-kpi-clickable:focus-visible,.ds-kpi-clickable.is-selected{outline:none;border-color:rgba(34,211,238,.46);background:linear-gradient(145deg,rgba(17,31,49,.98),rgba(8,24,40,.98));box-shadow:0 18px 42px rgba(8,145,178,.10);transform:translateY(-1px)}
+.ds-kpi-clickable:hover:after,.ds-kpi-clickable.is-selected:after{color:#67e8f9;transform:translateX(2px)}
+.ds-dashboard-summary-detail{padding:0;overflow:hidden;border-color:rgba(34,211,238,.22)}
+.ds-summary-detail-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 18px;border-bottom:1px solid rgba(51,65,85,.65);background:linear-gradient(90deg,rgba(8,145,178,.08),rgba(15,23,42,.12))}
+.ds-summary-detail-head span{display:block;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.06em}.ds-summary-detail-head strong{display:block;margin-top:3px;color:#e5eefb;font-size:14px;font-weight:900}
+.ds-summary-detail-loading{padding:28px;text-align:center;color:#7f8da3;font-size:12px}.ds-summary-detail-loading i{margin-right:7px;color:#22d3ee}
+.ds-summary-detail-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;padding:8px 16px 14px}
+.ds-summary-detail-row{width:100%;min-width:0;min-height:72px;display:grid;grid-template-columns:minmax(0,1fr) auto 14px;align-items:center;gap:12px;padding:12px 6px;border:0;border-bottom:1px solid rgba(51,65,85,.5);background:transparent;color:inherit;text-align:left;text-decoration:none;cursor:pointer;transition:.15s ease}
+.ds-summary-detail-row:hover{padding-left:10px;background:rgba(8,145,178,.06)}
+.ds-summary-detail-copy{min-width:0}.ds-summary-detail-copy strong{display:block;color:#dce7f5;font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-summary-detail-copy small,.ds-summary-detail-copy span{display:block;margin-top:4px;color:#7f8da3;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-summary-detail-copy span{color:#94a3b8}.ds-summary-detail-arrow{color:#475569;font-size:10px}
+.ds-gantt-card{padding:18px}.ds-gantt-list{display:grid;gap:8px}.ds-gantt-row{display:grid;grid-template-columns:minmax(230px,.95fr) minmax(320px,1.7fr) 100px;align-items:center;gap:18px;min-height:66px;padding:11px 12px;border:1px solid rgba(51,65,85,.52);border-radius:13px;background:rgba(2,6,23,.22);text-decoration:none;transition:.16s ease}.ds-gantt-row:hover{border-color:rgba(34,211,238,.32);background:rgba(8,145,178,.055);transform:translateY(-1px)}
+.ds-gantt-task{min-width:0}.ds-gantt-task-title{display:flex;align-items:center;gap:8px;min-width:0}.ds-gantt-task-title strong{min-width:0;color:#e2e8f0;font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-gantt-task small{display:block;margin-top:5px;padding-left:16px;color:#718096;font-size:10px}.ds-priority-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#64748b}.ds-priority-dot.is-p1{background:#fb7185}.ds-priority-dot.is-p2{background:#f59e0b}.ds-priority-dot.is-p3{background:#38bdf8}.ds-priority-dot.is-p4{background:#a78bfa}.ds-priority-dot.is-p5{background:#64748b}
+.ds-gantt-visual{min-width:0}.ds-gantt-dates{display:flex;justify-content:space-between;margin-bottom:6px;color:#6f7f95;font-size:9px}.ds-gantt-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg,rgba(30,41,59,.9),rgba(15,23,42,.9));overflow:visible}.ds-gantt-track>i{display:block;height:100%;max-width:100%;border-radius:999px;background:linear-gradient(90deg,#06b6d4,#3b82f6)}.ds-gantt-track>b{position:absolute;top:-3px;width:2px;height:16px;margin-left:-1px;background:#e2e8f0;box-shadow:0 0 8px rgba(226,232,240,.35);border-radius:2px}
+.ds-gantt-status{text-align:right}.ds-gantt-status strong{display:block;color:#67e8f9;font-size:15px;font-weight:950}.ds-gantt-status span{display:block;margin-top:4px;color:#94a3b8;font-size:10px}.ds-gantt-status .is-overdue{color:#fb7185}.ds-gantt-status .is-today{color:#fbbf24}
+.ds-dashboard-bottom-grid{margin-top:2px}.ds-dashboard-notice-list{display:grid}.ds-dashboard-notice-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:48px;padding:9px 2px;border-top:1px solid rgba(51,65,85,.52);text-decoration:none}.ds-dashboard-notice-row:first-child{border-top:0}.ds-dashboard-notice-row strong{min-width:0;color:#dce5f2;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-dashboard-notice-row small{color:#64748b;font-size:9px}.ds-dashboard-row-button{width:100%;border-left:0;border-right:0;border-bottom:0;background:transparent;text-align:left;cursor:pointer}.ds-dashboard-row-button:hover{background:rgba(8,145,178,.045)}
+.ds-dot-resource{background:#60a5fa}.ds-schedule-resource{border-left-color:#60a5fa}
+@media(max-width:1000px){.ds-summary-detail-list{grid-template-columns:1fr}.ds-gantt-row{grid-template-columns:1fr;gap:10px}.ds-gantt-status{text-align:left;display:flex;gap:10px;align-items:center}.ds-gantt-status span{margin-top:0}}

@@ -15,6 +15,7 @@
     <form id="empForm" enctype="multipart/form-data" onsubmit="saveEmp(); return false;">
         <input type="hidden" id="frmSaveMode" name="saveMode" value="<%=mode%>">
         <input type="hidden" id="frmUpdateToken" name="updateToken" value="<%=updateToken%>">
+        <input type="hidden" id="frmSelfEdit" name="selfEdit" value="<%=selfEdit ? "true" : "false"%>">
         <input type="hidden" id="frmCoDrctYn" name="coDrctYn" value="N">
         <div class="ds-emp-form-layout">
             <aside class="ds-emp-profile-column">

@@ -12,6 +12,12 @@ public interface DashboardMapper {
 
     List<Map<String, Object>> selectWorkTodayScheduleList(Map<String, Object> param);
 
+    List<Map<String, Object>> selectWorkPlanList(Map<String, Object> param);
+
+    List<Map<String, Object>> selectWorkNoticeList(Map<String, Object> param);
+
+    List<Map<String, Object>> selectDashboardDetailList(Map<String, Object> param);
+
     Map<String, Object> selectProjectSummary(Map<String, Object> param);
 
     List<Map<String, Object>> selectProjectStatusList(Map<String, Object> param);

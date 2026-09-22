@@ -354,7 +354,7 @@ function saveEmp() {
         success: function (res) {
             if (res.result === 'OK') {
                 alert('저장되었습니다.');
-                goEmpDetail($('#frmUserId').val());
+                goEmpDetail($('#frmUserId').val(), empSelfEdit);
                 return;
             }
             alert(res.msg || '저장에 실패했습니다.');
@@ -605,9 +605,9 @@ function goEmpList() { location.href = getContextPath() + '/user/empList.do'; }
 /** 사용자 등록 화면으로 이동한다. */
 function goEmpInsert() { location.href = getContextPath() + '/user/empInsert.do'; }
 /** 사용자 상세 화면으로 이동한다. @param {string} userId 사용자ID */
-function goEmpDetail(userId) { location.href = getContextPath() + '/user/empDetail.do?userId=' + encodeURIComponent(userId); }
+function goEmpDetail(userId, selfEdit) { location.href = getContextPath() + '/user/empDetail.do?userId=' + encodeURIComponent(userId) + (selfEdit ? '&selfEdit=true' : ''); }
 /** 사용자 수정 화면으로 이동한다. @param {string} userId 사용자ID */
-function goEmpUpdate(userId) { location.href = getContextPath() + '/user/empUpdate.do?userId=' + encodeURIComponent(userId); }
+function goEmpUpdate(userId, selfEdit) { location.href = getContextPath() + '/user/empUpdate.do?userId=' + encodeURIComponent(userId) + (selfEdit ? '&selfEdit=true' : ''); }
 
 /**
  * 현재 애플리케이션 컨텍스트 경로를 반환한다.

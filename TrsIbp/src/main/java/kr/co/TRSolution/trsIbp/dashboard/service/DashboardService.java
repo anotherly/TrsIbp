@@ -12,4 +12,10 @@ public interface DashboardService {
     List<Map<String, Object>> selectPrimaryList(String workspace, UserVO loginUser);
 
     List<Map<String, Object>> selectSecondaryList(String workspace, UserVO loginUser);
+
+    List<Map<String, Object>> selectWorkPlanList(UserVO loginUser);
+
+    List<Map<String, Object>> selectWorkNoticeList(UserVO loginUser);
+
+    List<Map<String, Object>> selectDetailList(String workspace, String detailType, UserVO loginUser);
 }

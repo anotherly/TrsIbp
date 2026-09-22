@@ -74,10 +74,10 @@ public class MainController {
                     hasMenuCode(session, "PROJECT_CONTRACT_LIST"));
             request.setAttribute("canViewCostAmount",
                     hasMenuCode(session, "PROJECT_ACCOUNT_LIST"));
-            request.setAttribute("canViewScheduleWidget",
-                    hasMenuCode(session, "WORK_SCHEDULE_LIST")
-                    && hasMenuCode(session, "WORK_SCHEDULE_META")
-                    && hasMenuCode(session, "WORK_SCHEDULE_DASHBOARD"));
+            if ("work".equals(selectedWorkspace)) {
+                request.setAttribute("dashboardWorkPlanList", dashboardService.selectWorkPlanList(loginUser));
+                request.setAttribute("dashboardNoticeList", dashboardService.selectWorkNoticeList(loginUser));
+            }
         }
         logger.debug("▶▶▶▶▶▶▶.메인 대시보드 화면 이동 : {}", request.getRequestURI());
         return "/main/main";
@@ -96,6 +96,38 @@ public class MainController {
         }
         authorityService.saveDefaultWorkspace(loginUser, workspaceId);
         session.setAttribute("defaultWorkspaceId", workspaceId);
+        mav.addObject("result", "OK");
+        return mav;
+    }
+
+    @RequestMapping(value = "/main/dashboardDetail.ajax", method = RequestMethod.GET)
+    public ModelAndView dashboardDetail(@RequestParam("workspace") String workspace,
+            @RequestParam("detailType") String detailType, HttpSession session) {
+        ModelAndView mav = new ModelAndView("jsonView");
+        UserVO loginUser = (UserVO) session.getAttribute("login");
+        if (loginUser == null) {
+            mav.addObject("result", "NO_SESSION");
+            return mav;
+        }
+        String workspaceId = workspace == null ? "WORK" : workspace.trim().toUpperCase();
+        if (!authorityService.isWorkspaceAllowed(session, workspaceId)) {
+            mav.addObject("result", "DENIED");
+            mav.addObject("msg", "해당 업무공간을 조회할 권한이 없습니다.");
+            return mav;
+        }
+        if ("MANAGEMENT".equals(workspaceId) && "contractAmount".equals(detailType)
+                && !hasMenuCode(session, "PROJECT_CONTRACT_LIST")) {
+            mav.addObject("result", "DENIED");
+            mav.addObject("msg", "계약 조회권한이 없습니다.");
+            return mav;
+        }
+        if ("MANAGEMENT".equals(workspaceId) && "monthCost".equals(detailType)
+                && !hasMenuCode(session, "PROJECT_ACCOUNT_LIST")) {
+            mav.addObject("result", "DENIED");
+            mav.addObject("msg", "회계 조회권한이 없습니다.");
+            return mav;
+        }
+        mav.addObject("list", dashboardService.selectDetailList(workspaceId.toLowerCase(), detailType, loginUser));
         mav.addObject("result", "OK");
         return mav;
     }

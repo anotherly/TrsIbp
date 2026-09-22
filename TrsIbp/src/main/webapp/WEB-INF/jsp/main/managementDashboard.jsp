@@ -15,23 +15,43 @@
     </section>
 
     <section class="ds-dashboard-kpis">
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">재직 인원</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.employeeCount ? 0 : dashboardSummary.employeeCount}"/>명</div><div class="ds-kpi-sub">사용 중인 사용자 기준</div></article>
-        <article class="ds-dashboard-card"><div class="ds-kpi-label">진행 사업</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.activeProjectCount ? 0 : dashboardSummary.activeProjectCount}"/>개</div><div class="ds-kpi-sub">사업상태 `진행` 기준</div></article>
-        <article class="ds-dashboard-card ds-dashboard-money-card">
-            <div class="ds-kpi-label">진행 사업 계약금액</div>
-            <c:choose>
-                <c:when test="${canViewContractAmount}"><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.activeContractAmount ? 0 : dashboardSummary.activeContractAmount}"/>원</div><div class="ds-kpi-sub">진행 사업 계약금액 합계</div></c:when>
-                <c:otherwise><div class="ds-kpi-value is-locked">권한 없음</div><div class="ds-kpi-sub">계약 조회권한 필요</div></c:otherwise>
-            </c:choose>
-        </article>
-        <article class="ds-dashboard-card ds-dashboard-money-card">
-            <div class="ds-kpi-label">이번 달 발생비용</div>
-            <c:choose>
-                <c:when test="${canViewCostAmount}"><div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.monthCostAmount ? 0 : dashboardSummary.monthCostAmount}"/>원</div><div class="ds-kpi-sub">발생일자 기준 직접비 합계</div></c:when>
-                <c:otherwise><div class="ds-kpi-value is-locked">권한 없음</div><div class="ds-kpi-sub">회계 조회권한 필요</div></c:otherwise>
-            </c:choose>
-        </article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('management','employee',this,'재직 인원');"><div class="ds-kpi-label">재직 인원</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.employeeCount ? 0 : dashboardSummary.employeeCount}"/>명</div><div class="ds-kpi-sub">사용 중인 사용자 기준</div></article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('management','activeProject',this,'진행 사업');"><div class="ds-kpi-label">진행 사업</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.activeProjectCount ? 0 : dashboardSummary.activeProjectCount}"/>개</div><div class="ds-kpi-sub">사업상태 `진행` 기준</div></article>
+        <c:choose>
+            <c:when test="${canViewContractAmount}">
+                <article class="ds-dashboard-card ds-dashboard-money-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('management','contractAmount',this,'진행 사업 계약금액');">
+                    <div class="ds-kpi-label">진행 사업 계약금액</div>
+                    <div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.activeContractAmount ? 0 : dashboardSummary.activeContractAmount}"/>원</div>
+                    <div class="ds-kpi-sub">진행 사업 계약금액 합계</div>
+                </article>
+            </c:when>
+            <c:otherwise>
+                <article class="ds-dashboard-card ds-dashboard-money-card">
+                    <div class="ds-kpi-label">진행 사업 계약금액</div>
+                    <div class="ds-kpi-value is-locked">권한 없음</div>
+                    <div class="ds-kpi-sub">계약 조회권한 필요</div>
+                </article>
+            </c:otherwise>
+        </c:choose>
+        <c:choose>
+            <c:when test="${canViewCostAmount}">
+                <article class="ds-dashboard-card ds-dashboard-money-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('management','monthCost',this,'이번 달 발생비용');">
+                    <div class="ds-kpi-label">이번 달 발생비용</div>
+                    <div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.monthCostAmount ? 0 : dashboardSummary.monthCostAmount}"/>원</div>
+                    <div class="ds-kpi-sub">발생일자 기준 직접비 합계</div>
+                </article>
+            </c:when>
+            <c:otherwise>
+                <article class="ds-dashboard-card ds-dashboard-money-card">
+                    <div class="ds-kpi-label">이번 달 발생비용</div>
+                    <div class="ds-kpi-value is-locked">권한 없음</div>
+                    <div class="ds-kpi-sub">회계 조회권한 필요</div>
+                </article>
+            </c:otherwise>
+        </c:choose>
     </section>
+
+    <section id="dashboardSummaryDetail" class="ds-dashboard-card ds-dashboard-summary-detail hidden" aria-live="polite"></section>
 
     <section class="ds-dashboard-columns">
         <article class="ds-dashboard-card">

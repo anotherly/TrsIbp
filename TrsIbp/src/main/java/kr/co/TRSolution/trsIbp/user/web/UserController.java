@@ -365,7 +365,11 @@ public class UserController {
     @RequestMapping(value="/user/empDetail.do")
     public ModelAndView empDetailPage(HttpServletRequest request, @ModelAttribute("userVO") UserVO userVO) throws Exception {
         ModelAndView mav = new ModelAndView("/user/empDetail");
+        UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+        boolean selfEdit = "true".equalsIgnoreCase(request.getParameter("selfEdit"))
+                && loginUser != null && loginUser.getUserId().equals(userVO.getUserId());
         mav.addObject("userId", userVO.getUserId());
+        mav.addObject("selfEdit", selfEdit);
         mav.addObject("mode", "detail");
         return mav;
     }
@@ -383,7 +387,9 @@ public class UserController {
         mav.addObject("userId", userVO.getUserId());
         mav.addObject("updateToken", createEmpUpdateToken(request, userVO.getUserId()));
         UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
-        mav.addObject("selfEdit", loginUser != null && loginUser.getUserId().equals(userVO.getUserId()));
+        boolean selfEdit = "true".equalsIgnoreCase(request.getParameter("selfEdit"))
+                && loginUser != null && loginUser.getUserId().equals(userVO.getUserId());
+        mav.addObject("selfEdit", selfEdit);
         mav.addObject("mode", "update");
         return mav;
     }
@@ -568,7 +574,9 @@ public class UserController {
                         + ", loginUserId=" + reqLoginVo.getUserId()
                         + ", coId=" + userVO.getCoId());
                 userVO.setUserId(updateUserId);
-                if (reqLoginVo.getUserId().equals(updateUserId)) {
+                boolean selfEditRequest = "true".equalsIgnoreCase(request.getParameter("selfEdit"))
+                        && reqLoginVo.getUserId().equals(updateUserId);
+                if (selfEditRequest) {
                     UserVO existingSearch = new UserVO();
                     existingSearch.setCoId(reqLoginVo.getCoId());
                     existingSearch.setUserId(updateUserId);
@@ -578,6 +586,7 @@ public class UserController {
                         mav.addObject("msg", "수정할 사용자 정보를 찾을 수 없습니다.");
                         return mav;
                     }
+                    // 내 개인정보 화면에서는 소속/권한/사용여부를 직접 변경하지 못하게 유지한다.
                     userVO.setDeptId(existingUser.getDeptId());
                     userVO.setCoDrctYn(existingUser.getCoDrctYn());
                     userVO.setAuthrtId(existingUser.getAuthrtId());

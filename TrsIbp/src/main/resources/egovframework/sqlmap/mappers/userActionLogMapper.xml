@@ -1,5 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.TRSolution.trsIbp.audit.mapper.UserActionLogMapper">
-<insert id="insertUserActionLog" parameterType="kr.co.TRSolution.trsIbp.audit.vo.UserActionLogVO">INSERT INTO user_action_log(CO_ID,USER_ID,ACTION_SE_CD,MENU_NM,TARGET_ID,REQUEST_URI,CLIENT_IP_ADDR,ACTION_CN,REG_DT) VALUES(#{coId},#{userId},#{actionSeCd},#{menuNm},#{targetId},#{requestUri},#{clientIpAddr},#{actionCn},NOW())</insert>
+
+    <insert id="insertUserActionLog" parameterType="kr.co.TRSolution.trsIbp.audit.vo.UserActionLogVO">
+        INSERT INTO user_action_log
+            (CO_ID, USER_ID, ACTION_SE_CD, MENU_NM, TARGET_ID, REQUEST_URI, CLIENT_IP_ADDR, ACTION_CN, REG_DT)
+        VALUES
+            (#{coId}, #{userId}, #{actionSeCd}, #{menuNm}, #{targetId}, #{requestUri}, #{clientIpAddr}, #{actionCn}, NOW())
+    </insert>
+
+    <select id="selectExpenseSnapshot" parameterType="map" resultType="hashmap">
+        SELECT E.CLAIM_SN claimSn,
+               E.BIZ_ID bizId,
+               E.EXPNS_SE_CD expnsSeCd,
+               E.PMT_MTHD_CD pmtMthdCd,
+               E.CARD_LAST4 cardLast4,
+               DATE_FORMAT(E.USE_YMD, '%Y-%m-%d') useYmd,
+               E.MERCHANT_NM merchantNm,
+               E.EXPNS_NM expnsNm,
+               E.CLAIM_AMT claimAmt,
+               E.RMRK_CN rmrkCn
+          FROM expense_claim E
+         WHERE E.CO_ID = #{coId}
+           AND E.CLAIM_SN = #{claimSn}
+         LIMIT 1
+    </select>
+
+    <select id="selectWorklogSnapshot" parameterType="map" resultType="hashmap">
+        SELECT W.WORK_ITEM_SN workItemSn,
+               W.BIZ_ID bizId,
+               W.PRIORITY_NO priorityNo,
+               DATE_FORMAT(W.EXPT_END_YMD, '%Y-%m-%d') exptEndYmd,
+               W.WORK_SE_CD workSeCd,
+               W.WORK_CN workCn,
+               COALESCE(P.PRGRS_STTS_CD, W.PRGRS_STTS_CD) prgrsSttsCd,
+               COALESCE(P.PRGRS_RT, W.PRGRS_RT, 0) prgrsRt,
+               COALESCE(P.ISSUE_CN, W.ISSUE_CN) issueCn,
+               COALESCE(P.NEXT_PLAN_CN, W.NEXT_PLAN_CN) nextPlanCn
+          FROM daily_work_item W
+          LEFT JOIN daily_work_progress P
+            ON P.WORK_ITEM_SN = W.WORK_ITEM_SN
+           AND P.PRGRS_YMD = #{workYmd}
+           AND P.USE_YN = 'Y'
+         WHERE W.CO_ID = #{coId}
+           AND W.USER_ID = #{userId}
+           AND W.WORK_ITEM_SN = #{workItemSn}
+           AND W.USE_YN = 'Y'
+         LIMIT 1
+    </select>
+
+    <select id="selectAuthorityGrantedMenuSnList" parameterType="map" resultType="long">
+        SELECT R.MENU_SN
+          FROM co_authrt_menu_rel R
+         WHERE R.CO_ID = #{coId}
+           AND R.AUTHRT_ID = #{authrtId}
+           AND R.AUTHRT_GRNT_YN = 'Y'
+         ORDER BY R.MENU_SN
+    </select>
+
+    <select id="selectAuthorityMenuCatalog" resultType="hashmap">
+        SELECT M.MENU_SN menuSn,
+               CONCAT(CASE WHEN P.MENU_NM IS NULL OR P.MENU_NM = '' THEN '' ELSE CONCAT(P.MENU_NM, ' &gt; ') END,
+                      M.MENU_NM) menuLabel
+          FROM menu_info M
+          LEFT JOIN menu_info P ON P.MENU_SN = M.UP_MENU_SN
+         WHERE M.MENU_USE_YN = 'Y'
+           AND M.AUTHRT_CHK_YN = 'Y'
+         ORDER BY M.WORKSPC_ID, IFNULL(P.MENU_SORT_SEQ, M.MENU_SORT_SEQ), M.MENU_SORT_SEQ, M.MENU_SN
+    </select>
+
 </mapper>

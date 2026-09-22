@@ -61,6 +61,25 @@ public class DashboardServiceImpl implements DashboardService {
         return Collections.emptyList();
     }
 
+
+    @Override
+    public List<Map<String, Object>> selectWorkPlanList(UserVO loginUser) {
+        return dashboardMapper.selectWorkPlanList(createParam(loginUser));
+    }
+
+    @Override
+    public List<Map<String, Object>> selectWorkNoticeList(UserVO loginUser) {
+        return dashboardMapper.selectWorkNoticeList(createParam(loginUser));
+    }
+
+    @Override
+    public List<Map<String, Object>> selectDetailList(String workspace, String detailType, UserVO loginUser) {
+        Map<String, Object> param = createParam(loginUser);
+        param.put("workspace", workspace == null ? "work" : workspace.trim().toLowerCase());
+        param.put("detailType", detailType == null ? "" : detailType.trim());
+        return dashboardMapper.selectDashboardDetailList(param);
+    }
+
     private Map<String, Object> createParam(UserVO loginUser) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("userId", loginUser.getUserId());

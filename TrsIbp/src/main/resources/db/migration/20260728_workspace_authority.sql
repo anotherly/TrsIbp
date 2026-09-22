@@ -110,7 +110,7 @@ VALUES
   (1105, 'WORK_SCHEDULE_MDFCN', 'WORK', 1100, '수정', '/schedule/scheduleSave.ajax', 'MDFCN', NULL, '2', 25, 'Y', 'Y'),
   (1106, 'WORK_SCHEDULE_DEL', 'WORK', 1100, '삭제', '/schedule/scheduleDelete.ajax', 'DEL', NULL, '2', 26, 'Y', 'Y'),
   (1107, 'WORK_SCHEDULE_META', 'WORK', 1100, '일정 기준정보 조회', '/schedule/scheduleMeta.ajax', 'LIST', NULL, '2', 27, 'Y', 'Y'),
-  (1108, 'WORK_SCHEDULE_DASHBOARD', 'WORK', 1100, '대시보드 일정 조회', '/schedule/dashboardSchedule.ajax', 'LIST', NULL, '2', 28, 'Y', 'Y'),
+  (1108, 'WORK_SCHEDULE_DASHBOARD', 'WORK', 1100, '대시보드 일정 조회', '/schedule/dashboardSchedule.ajax', 'LIST', NULL, '2', 28, 'Y', 'N'),
   (1109, 'WORK_SCHEDULE_WORK_HOUR', 'WORK', 1100, '사용자 근무시간 조회', '/schedule/userWorkHourSchedule.ajax', 'LIST', NULL, '2', 29, 'Y', 'Y'),
 
   (2000, 'PROJECT_DASHBOARD', 'PROJECT', NULL, '프로젝트 대시보드', NULL, 'GROUP', 'fa-chart-line', '1', 10, 'Y', 'N'),

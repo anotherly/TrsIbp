@@ -21,9 +21,10 @@
     var workHourRequestSeq = 0;
     var WORK_HOUR_START = 9 * 60;
     var WORK_HOUR_END = 18 * 60;
-    var legendColorTypes = ['leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'etc'];
+    var legendColorTypes = ['leave', 'biztrip', 'outside', 'home', 'resident', 'meeting', 'resource', 'etc'];
     var calendarClickTimer = null;
     var dashboardMode = false;
+    var dashboardPendingFocusScheduleSn = null;
     var previousBgngValue = '';
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -185,6 +186,7 @@
             url: ctxPath + '/schedule/scheduleMeta.ajax',
             type: 'GET',
             dataType: 'json',
+            data: dashboardMode ? { dashboardYn: 'Y' } : {},
             success: function(res) {
                 scheduleCodes = res.codeList || [];
                 scheduleProjects = res.bizList || [];
@@ -914,6 +916,11 @@
                 + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + '</p>'
                 + '<p class="ds-schedule-participants">참여: ' + escapeHtml(window.decodeStoredText(row.targetUserNms || '-')) + '</p></div><div class="ds-schedule-card-actions">' + arrowButton + '</div></div>';
         }).join(''));
+        if (dashboardPendingFocusScheduleSn) {
+            var pendingSn = dashboardPendingFocusScheduleSn;
+            dashboardPendingFocusScheduleSn = null;
+            setTimeout(function() { window.showDashboardScheduleInlineDetail(pendingSn); }, 80);
+        }
     }
 
     window.showDashboardScheduleInlineDetail = function(schdlSn) {
@@ -936,6 +943,46 @@
         $('#dashboardScheduleInlineDetail').html(html).removeClass('is-empty');
         $('.ds-schedule-expand-btn').removeClass('is-active').attr('aria-expanded','false').find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
         $('.ds-schedule-expand-btn[data-expand-sn="' + schdlSn + '"]').addClass('is-active').attr('aria-expanded','true').find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        focusDashboardScheduleDetailViewport();
+    };
+
+    function focusDashboardScheduleDetailViewport() {
+        var $widget = $('#dashboardSmartScheduleWidget');
+        var $detail = $('#dashboardScheduleDetailCard');
+        if (!$widget.length || !$detail.length) return;
+        setTimeout(function() {
+            var widgetTop = $widget.offset().top;
+            var detailBottom = $detail.offset().top + $detail.outerHeight();
+            var headerGap = 72;
+            var viewport = window.innerHeight || document.documentElement.clientHeight || 800;
+            var combinedHeight = detailBottom - widgetTop;
+            var targetTop = combinedHeight <= (viewport - headerGap - 20)
+                ? widgetTop - headerGap
+                : detailBottom - viewport + 24;
+            window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+        }, 60);
+    }
+
+    window.focusDashboardSchedule = function(dateYmd, targetViewType, schdlSn) {
+        var parts = String(dateYmd || '').split('-');
+        var target = parts.length === 3
+            ? new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]))
+            : new Date();
+        if (isNaN(target.getTime())) target = new Date();
+        selectedDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+        currentDate = new Date(target.getFullYear(), target.getMonth(), 1);
+        viewType = targetViewType || 'my';
+        projectFilterValue = '';
+        dashboardPendingFocusScheduleSn = schdlSn ? String(schdlSn) : null;
+        $('#dashScheduleProjectFilter').val('');
+        $('.dash-schedule-tab').removeClass('is-active');
+        $('.dash-schedule-tab[data-view-type="' + viewType + '"]').addClass('is-active');
+        window.clearDashboardScheduleInlineDetail();
+        loadScheduleList(true);
+        var $widget = $('#dashboardSmartScheduleWidget');
+        if ($widget.length) {
+            setTimeout(function() { window.scrollTo({ top: Math.max(0, $widget.offset().top - 72), behavior: 'smooth' }); }, 40);
+        }
     };
 
     window.clearDashboardScheduleInlineDetail = function() {
