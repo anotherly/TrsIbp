@@ -16,7 +16,9 @@ public class HTMLTagFilterRequestWrapper extends HttpServletRequestWrapper {
 
     // textarea 원문은 저장 단계에서 HTML entity로 바꾸지 않고 출력 문맥에서 escape한다.
     private static final String[] plainTextParamNames = {
-        "authrtExpln", "rmrkCn", "schdlCn", "deptExpln", "memoCn"
+        "authrtExpln", "rmrkCn", "schdlCn", "deptExpln", "memoCn",
+        "workCn", "issueCn", "nextPlanCn", "noticeCn",
+        "resourceExpln", "attrText", "useCn"
     };
 
     private final HttpServletRequest originalRequest;

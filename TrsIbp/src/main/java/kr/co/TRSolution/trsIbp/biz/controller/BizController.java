@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kr.co.TRSolution.trsIbp.biz.service.BizService;
+import kr.co.TRSolution.trsIbp.authority.service.AuthorityService;
 import kr.co.TRSolution.trsIbp.biz.vo.BizVO;
 import kr.co.TRSolution.trsIbp.comm.filter.HTMLTagFilter;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
@@ -43,6 +44,9 @@ public class BizController {
 
     @Resource(name = "bizService")
     private BizService bizService;
+
+    @Resource(name = "authorityService")
+    private AuthorityService authorityService;
 
     /**
      * /biz 하위 .do 요청을 같은 경로의 JSP로 연결한다.
@@ -68,9 +72,8 @@ public class BizController {
 
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         bizVO.setCoId(reqLoginVo.getCoId());
-        if (!"ADMIN".equals(reqLoginVo.getAuthrtId())) {
-            bizVO.setScopeUserId(reqLoginVo.getUserId());
-        }
+        bizVO.setScopeUserId(reqLoginVo.getUserId());
+        bizVO.setCompanyScopeYn(authorityService.isCompanyDataScope(reqLoginVo) ? "Y" : "N");
 
         List<BizVO> list = bizService.selectBizList(bizVO);
         int totalCnt = bizService.selectBizListCnt(bizVO);
@@ -95,6 +98,8 @@ public class BizController {
 
         UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
         bizVO.setCoId(reqLoginVo.getCoId());
+        bizVO.setScopeUserId(reqLoginVo.getUserId());
+        bizVO.setCompanyScopeYn(authorityService.isCompanyDataScope(reqLoginVo) ? "Y" : "N");
 
         BizVO detail = bizService.selectBizDetail(bizVO);
         BizVO summary = bizService.selectBizProfitSummary(bizVO);
@@ -138,6 +143,11 @@ public class BizController {
             bizVO.setBizCd(createBizCd(bizVO, reqLoginVo.getCoCd()));
             cnt = bizService.insertBiz(bizVO);
         } else {
+            if (!canManageBiz(reqLoginVo, bizVO.getBizId())) {
+                mav.addObject("result", "DENIED");
+                mav.addObject("msg", "본인이 참여 중인 프로젝트만 수정할 수 있습니다.");
+                return mav;
+            }
             cnt = bizService.updateBiz(bizVO);
         }
 
@@ -160,6 +170,11 @@ public class BizController {
         bizVO.setRgtrId(reqLoginVo.getUserId());
         bizVO.setMdfrId(reqLoginVo.getUserId());
 
+        if (!canManageBiz(reqLoginVo, bizVO.getBizId())) {
+            mav.addObject("result", "DENIED");
+            mav.addObject("msg", "본인이 참여 중인 프로젝트만 삭제할 수 있습니다.");
+            return mav;
+        }
         int cnt = bizService.deleteBiz(bizVO);
 
         mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
@@ -642,6 +657,16 @@ public class BizController {
         }
         String normalized = coCd.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
         return normalized.isEmpty() ? "CO" : normalized;
+    }
+
+    /** 회사 전체 범위가 아니면 본인 참여 프로젝트만 수정/삭제한다. */
+    private boolean canManageBiz(UserVO loginUser, String bizId) throws Exception {
+        if (loginUser == null || bizId == null || bizId.trim().isEmpty()) return false;
+        if (authorityService.isCompanyDataScope(loginUser)) return true;
+        BizVO param = new BizVO();
+        param.setBizId(bizId); param.setCoId(loginUser.getCoId()); param.setScopeUserId(loginUser.getUserId()); param.setCompanyScopeYn("N");
+        BizVO detail = bizService.selectBizDetail(param);
+        return detail != null && "Y".equals(detail.getParticipatingYn());
     }
 
     /**

@@ -35,7 +35,7 @@ public interface UserMapper {
     public List<Map<String, Object>> selectCompanyList(UserVO userVO);
 
     /** 권한 목록 조회 */
-    public List<Map<String, Object>> selectAuthList();
+    public List<Map<String, Object>> selectAuthList(UserVO userVO);
     /**
      * 사용자 선택 모달에 표시할 로그인 사용자 회사의 부서 목록을 조회한다.
      * @param userVO coId, searchKeyword 등 조회조건을 담은 사용자 VO

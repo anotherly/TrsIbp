@@ -60,7 +60,7 @@
             ,U.MEMO_CN
             ,DATE_FORMAT(U.REG_DT, '%Y-%m-%d') AS REG_DT
         FROM USER_INFO U
-        LEFT JOIN AUTHRT_INFO    A  ON U.AUTHRT_ID    = A.AUTHRT_ID
+        LEFT JOIN co_authrt_info A ON A.CO_ID = U.CO_ID AND U.AUTHRT_ID = A.AUTHRT_ID
         LEFT JOIN CO_INFO C  ON U.CO_ID = C.CO_ID
         LEFT JOIN DEPT_INFO    D  ON U.DEPT_ID    = D.DEPT_ID
         LEFT JOIN DEPT_INFO    PD ON D.UP_DEPT_ID = PD.DEPT_ID
@@ -105,7 +105,7 @@
             ,A.AUTHRT_NM
             ,U.USE_YN
         FROM USER_INFO U
-        LEFT JOIN AUTHRT_INFO A ON U.AUTHRT_ID = A.AUTHRT_ID
+        LEFT JOIN co_authrt_info A ON A.CO_ID = U.CO_ID AND U.AUTHRT_ID = A.AUTHRT_ID
         LEFT JOIN CO_INFO C ON U.CO_ID = C.CO_ID
         WHERE U.USER_ID  = #{userId}
     </select>
@@ -185,13 +185,11 @@
     <!-- ============================================================ -->
     <!--  권한 목록 조회                                                -->
     <!-- ============================================================ -->
-    <select id="selectAuthList" resultType="java.util.LinkedHashMap">
-        SELECT
-             AUTHRT_ID
-            ,AUTHRT_NM
-            ,AUTHRT_EXPLN
-        FROM AUTHRT_INFO
-        ORDER BY SORT_SEQ ASC
+    <select id="selectAuthList" parameterType="userVO" resultType="java.util.LinkedHashMap">
+        SELECT AUTHRT_ID, AUTHRT_NM, AUTHRT_EXPLN, DATA_SCOPE_CD
+        FROM co_authrt_info
+        WHERE CO_ID = #{coId} AND USE_YN = 'Y'
+        ORDER BY SORT_SEQ ASC, AUTHRT_NM ASC
     </select>
 
     <!-- ============================================================ -->
@@ -322,7 +320,7 @@
             ,U.MEMO_CN
             ,DATE_FORMAT(U.REG_DT, '%Y-%m-%d') AS REG_DT
         FROM USER_INFO U
-        LEFT JOIN AUTHRT_INFO A ON U.AUTHRT_ID = A.AUTHRT_ID
+        LEFT JOIN co_authrt_info A ON A.CO_ID = U.CO_ID AND U.AUTHRT_ID = A.AUTHRT_ID
         LEFT JOIN CO_INFO C ON U.CO_ID = C.CO_ID
         LEFT JOIN DEPT_INFO D ON U.DEPT_ID = D.DEPT_ID
         LEFT JOIN DEPT_INFO PD ON D.UP_DEPT_ID = PD.DEPT_ID
@@ -365,7 +363,7 @@
             ,U.MEMO_CN
             ,DATE_FORMAT(U.REG_DT, '%Y-%m-%d') AS REG_DT
         FROM USER_INFO U
-        LEFT JOIN AUTHRT_INFO A ON U.AUTHRT_ID = A.AUTHRT_ID
+        LEFT JOIN co_authrt_info A ON A.CO_ID = U.CO_ID AND U.AUTHRT_ID = A.AUTHRT_ID
         LEFT JOIN CO_INFO C ON U.CO_ID = C.CO_ID
         LEFT JOIN DEPT_INFO D ON U.DEPT_ID = D.DEPT_ID
         LEFT JOIN DEPT_INFO PD ON D.UP_DEPT_ID = PD.DEPT_ID

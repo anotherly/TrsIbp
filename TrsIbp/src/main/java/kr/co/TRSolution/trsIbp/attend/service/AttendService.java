@@ -24,6 +24,8 @@ public interface AttendService {
     /** 로그인 사용자와 같은 부서의 현재 상태 */
     List<AttendVO> selectTeamStatusList(AttendVO attendVO);
 
+    List<AttendVO> selectOrgStatusList(AttendVO attendVO);
+
     /** 기본 근무장소구분코드 조회 */
     String selectDefaultPowkSeCd();
 

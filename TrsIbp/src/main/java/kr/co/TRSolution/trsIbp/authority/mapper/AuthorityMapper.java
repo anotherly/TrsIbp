@@ -7,42 +7,24 @@ import egovframework.rte.psl.dataaccess.mapper.Mapper;
 
 @Mapper("authorityMapper")
 public interface AuthorityMapper {
-
-    List<Map<String, Object>> selectAuthorityList();
-
-    List<Map<String, Object>> selectMenuAuthorityList(Map<String, Object> param);
-
-    List<String> selectGrantedMenuCodeList(String authrtId);
-
-    List<String> selectGrantedMenuUrlList(String authrtId);
-
-    List<String> selectAllowedWorkspaceList(String authrtId);
-
+    List<Map<String,Object>> selectAuthorityList(Map<String,Object> param);
+    List<Map<String,Object>> selectMenuAuthorityList(Map<String,Object> param);
+    List<String> selectGrantedMenuCodeList(Map<String,Object> param);
+    List<String> selectGrantedMenuUrlList(Map<String,Object> param);
+    List<String> selectAllowedWorkspaceList(Map<String,Object> param);
     String selectDefaultWorkspace(String userId);
-
-    int selectRegisteredMenuCount(Map<String, Object> param);
-
-    int selectGrantedMenuCount(Map<String, Object> param);
-
-    int selectAuthorityCount(String authrtId);
-
-    int selectAuthorityUserCount(String authrtId);
-
-    int selectBizAccessCount(Map<String, Object> param);
-
-    int selectScheduleAccessCount(Map<String, Object> param);
-
-    int insertAuthority(Map<String, Object> param);
-
-    int updateAuthority(Map<String, Object> param);
-
-    int deleteAuthorityMenu(String authrtId);
-
-    int deleteAuthority(String authrtId);
-
-    int insertAuthorityMenu(Map<String, Object> param);
-
+    int selectRegisteredMenuCount(Map<String,Object> param);
+    int selectGrantedMenuCount(Map<String,Object> param);
+    int selectAuthorityCount(Map<String,Object> param);
+    int selectAuthorityUserCount(Map<String,Object> param);
+    String selectDataScopeCd(Map<String,Object> param);
+    int selectBizAccessCount(Map<String,Object> param);
+    int selectScheduleAccessCount(Map<String,Object> param);
+    int insertAuthority(Map<String,Object> param);
+    int updateAuthority(Map<String,Object> param);
+    int deleteAuthorityMenu(Map<String,Object> param);
+    int deleteAuthority(Map<String,Object> param);
+    int insertAuthorityMenu(Map<String,Object> param);
     int clearDefaultWorkspace(String userId);
-
-    int upsertDefaultWorkspace(Map<String, Object> param);
+    int upsertDefaultWorkspace(Map<String,Object> param);
 }

@@ -43,6 +43,11 @@ public class AttendServiceImpl implements AttendService {
     }
 
     @Override
+    public List<AttendVO> selectOrgStatusList(AttendVO attendVO) {
+        return attendMapper.selectOrgStatusList(attendVO);
+    }
+
+    @Override
     public String selectDefaultPowkSeCd() {
         return attendMapper.selectDefaultPowkSeCd();
     }

@@ -96,6 +96,11 @@
 		<url-pattern>*.ajax</url-pattern>
 	</servlet-mapping>
 
+	<!-- 세션 유지시간: 12시간(720분) -->
+	<session-config>
+		<session-timeout>720</session-timeout>
+	</session-config>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

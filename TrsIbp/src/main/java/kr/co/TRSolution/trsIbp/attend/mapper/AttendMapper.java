@@ -25,6 +25,8 @@ public interface AttendMapper {
 
     List<AttendVO> selectTeamStatusList(AttendVO attendVO);
 
+    List<AttendVO> selectOrgStatusList(AttendVO attendVO);
+
     /**
      * 공통코드 기준 기본 근무장소구분코드를 조회한다.
      */

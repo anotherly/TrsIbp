@@ -32,11 +32,20 @@
         </main>
     </div>
 
+
+    <div id="dashboardNoticeModal" class="ds-modal hidden" style="z-index:1200;">
+        <div class="ds-modal-panel max-w-2xl">
+            <div class="ds-modal-head"><div><span id="dashboardNoticeBadge" class="text-xs"></span><h2 id="dashboardNoticeTitle" class="mt-1">공지사항</h2></div><button type="button" onclick="closeDashboardNotice(false)">×</button></div>
+            <div class="p-6"><div id="dashboardNoticeMeta" class="text-xs text-gray-500 mb-4"></div><div id="dashboardNoticeContent" class="whitespace-pre-wrap leading-7"></div></div>
+            <div class="p-4 border-t border-brand-border flex justify-between items-center"><label class="text-sm text-gray-400 flex items-center gap-2"><input type="checkbox" id="dashboardNoticeDontShow"> 다시 보지 않음</label><button type="button" class="ds-btn ds-btn-primary" onclick="closeDashboardNotice(true)">확인</button></div>
+        </div>
+    </div>
+
     <script>var ctxPath = '<%=request.getContextPath()%>';</script>
     <c:if test="${workspace eq 'work'}">
         <script src="<%=request.getContextPath()%>/js/dashboard.js"></script>
         <script src="<%=request.getContextPath()%>/js/comm/userSelectModal.js"></script>
-        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js?v=20260813.4"></script>
+        <script src="<%=request.getContextPath()%>/js/schedule/schedule.js?v=20260921.5"></script>
         <script>
             $(function() {
                 if (${canViewScheduleWidget ? 'true' : 'false'} && typeof initDashboardScheduleWidget === 'function') {
@@ -45,6 +54,36 @@
             });
         </script>
     </c:if>
+
+    <script>
+    var dashboardNoticeQueue = [], dashboardNoticeCurrent = null;
+    function escNotice(v){ return $('<div>').text(v == null ? '' : v).html(); }
+    function loadDashboardNoticePopup(){
+        $.getJSON(ctxPath + '/notice/popupList.ajax', function(r){
+            var list = (r && r.list) || [];
+            dashboardNoticeQueue = list.filter(function(n){ return localStorage.getItem('trs_notice_dismiss_' + n.noticeSn) !== 'Y'; });
+            showNextDashboardNotice();
+        });
+    }
+    function showNextDashboardNotice(){
+        dashboardNoticeCurrent = dashboardNoticeQueue.shift();
+        if(!dashboardNoticeCurrent){ $('#dashboardNoticeModal').addClass('hidden'); return; }
+        var n = dashboardNoticeCurrent;
+        $('#dashboardNoticeBadge').text(n.noticeScopeCd === 'SYSTEM' ? '시스템 공지' : '회사 공지');
+        $('#dashboardNoticeTitle').text(n.noticeTitle || '공지사항');
+        $('#dashboardNoticeMeta').text((n.rgtrNm || n.rgtrId || '') + (n.regDt ? ' · ' + n.regDt : ''));
+        $('#dashboardNoticeContent').text(window.decodeStoredText ? window.decodeStoredText(n.noticeCn || '') : (n.noticeCn || ''));
+        $('#dashboardNoticeDontShow').prop('checked', false);
+        $('#dashboardNoticeModal').removeClass('hidden');
+    }
+    function closeDashboardNotice(next){
+        if(dashboardNoticeCurrent && $('#dashboardNoticeDontShow').prop('checked')) localStorage.setItem('trs_notice_dismiss_' + dashboardNoticeCurrent.noticeSn, 'Y');
+        $('#dashboardNoticeModal').addClass('hidden');
+        if(next) showNextDashboardNotice();
+    }
+    $(function(){ loadDashboardNoticePopup(); });
+    </script>
+
     <c:if test="${param.authDenied eq 'Y'}">
         <script>$(function(){ if (typeof showToast === 'function') showToast('해당 화면을 사용할 권한이 없습니다.', 'error'); });</script>
     </c:if>

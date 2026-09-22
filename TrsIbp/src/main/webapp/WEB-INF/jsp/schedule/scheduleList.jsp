@@ -63,14 +63,14 @@
                 </div>
             </div>
         </section>
+        <jsp:include page="/WEB-INF/jsp/common/scheduleModal.jsp"/>
     </main>
 </div>
 
-<jsp:include page="/WEB-INF/jsp/common/scheduleModal.jsp"/>
 <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
 <script>var ctxPath='${pageContext.request.contextPath}';</script>
 <script src="${pageContext.request.contextPath}/js/comm/userSelectModal.js"></script>
-<script src="${pageContext.request.contextPath}/js/schedule/schedule.js?v=20260813.4"></script>
+<script src="${pageContext.request.contextPath}/js/schedule/schedule.js?v=20260921.5"></script>
 <script>$(function(){ initSchedulePage(); });</script>
 </body>
 </html>

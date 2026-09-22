@@ -98,6 +98,7 @@ public class BizVO extends BaseVO {
     private String cstNm;
     private BigDecimal ocrnCst;
     private String ocrnYmd;
+    private String receiptFileSns;
 
     /* biz_schdl */
     private Long bizSchdlSn;
@@ -272,6 +273,8 @@ public class BizVO extends BaseVO {
     public void setOcrnCst(BigDecimal ocrnCst) { this.ocrnCst = ocrnCst; }
     public String getOcrnYmd() { return ocrnYmd; }
     public void setOcrnYmd(String ocrnYmd) { this.ocrnYmd = ocrnYmd; }
+    public String getReceiptFileSns() { return receiptFileSns; }
+    public void setReceiptFileSns(String receiptFileSns) { this.receiptFileSns = receiptFileSns; }
 
     public Long getBizSchdlSn() { return bizSchdlSn; }
     public void setBizSchdlSn(Long bizSchdlSn) { this.bizSchdlSn = bizSchdlSn; }
@@ -327,4 +330,14 @@ public class BizVO extends BaseVO {
     public void setProfitAmt(BigDecimal profitAmt) { this.profitAmt = profitAmt; }
     public BigDecimal getProfitRate() { return profitRate; }
     public void setProfitRate(BigDecimal profitRate) { this.profitRate = profitRate; }
+
+    private String companyScopeYn;
+    private String participatingYn;
+    private String canManageYn;
+    public String getCompanyScopeYn() { return companyScopeYn; }
+    public void setCompanyScopeYn(String companyScopeYn) { this.companyScopeYn = companyScopeYn; }
+    public String getParticipatingYn() { return participatingYn; }
+    public void setParticipatingYn(String participatingYn) { this.participatingYn = participatingYn; }
+    public String getCanManageYn() { return canManageYn; }
+    public void setCanManageYn(String canManageYn) { this.canManageYn = canManageYn; }
 }

@@ -69,12 +69,6 @@
         LEFT JOIN biz_mnpw M ON M.BIZ_ID = B.BIZ_ID
         LEFT JOIN biz_schdl S ON S.BIZ_ID = B.BIZ_ID
         WHERE B.CO_ID = #{coId}
-          AND (#{allCompanyYn} = 'Y' OR EXISTS (
-                SELECT 1 FROM biz_mnpw PM
-                 WHERE PM.BIZ_ID = B.BIZ_ID
-                   AND PM.USER_ID = #{userId}
-                   AND PM.USE_YN = 'Y'
-          ))
     </select>
 
     <select id="selectProjectStatusList" parameterType="map" resultType="hashmap">
@@ -82,6 +76,7 @@
                B.BIZ_NM AS bizNm,
                B.BIZ_STTS_CD AS bizSttsCd,
                IFNULL(C.CD_NM, B.BIZ_STTS_CD) AS bizSttsNm,
+               CASE WHEN EXISTS (SELECT 1 FROM biz_mnpw PM WHERE PM.BIZ_ID=B.BIZ_ID AND PM.USER_ID=#{userId} AND PM.USE_YN='Y') THEN 'Y' ELSE 'N' END AS participatingYn,
                B.BIZ_BGNG_YMD AS bizBgngYmd,
                B.BIZ_END_YMD AS bizEndYmd,
                CASE
@@ -99,13 +94,7 @@
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'BIZ_STTS_CD'
                            AND C.CD = B.BIZ_STTS_CD AND C.USE_YN = 'Y'
         WHERE B.CO_ID = #{coId}
-          AND (#{allCompanyYn} = 'Y' OR EXISTS (
-                SELECT 1 FROM biz_mnpw PM
-                 WHERE PM.BIZ_ID = B.BIZ_ID
-                   AND PM.USER_ID = #{userId}
-                   AND PM.USE_YN = 'Y'
-          ))
-        ORDER BY FIELD(B.BIZ_STTS_CD, 'PRGRS', 'READY', 'HOLD', 'CMPTN', 'CANCEL'),
+        ORDER BY participatingYn DESC, FIELD(B.BIZ_STTS_CD, 'PRGRS', 'READY', 'HOLD', 'CMPTN', 'CANCEL'),
                  B.BIZ_END_YMD, B.BIZ_NM
         LIMIT 8
     </select>
@@ -124,12 +113,6 @@
         WHERE B.CO_ID = #{coId}
           AND S.USE_YN = 'Y'
           AND S.SCHDL_END_YMD &gt;= CURDATE()
-          AND (#{allCompanyYn} = 'Y' OR EXISTS (
-                SELECT 1 FROM biz_mnpw PM
-                 WHERE PM.BIZ_ID = B.BIZ_ID
-                   AND PM.USER_ID = #{userId}
-                   AND PM.USE_YN = 'Y'
-          ))
         ORDER BY S.SCHDL_END_YMD, S.BIZ_SCHDL_SN
         LIMIT 6
     </select>

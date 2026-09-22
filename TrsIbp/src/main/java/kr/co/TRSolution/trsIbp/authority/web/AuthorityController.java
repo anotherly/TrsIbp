@@ -33,9 +33,9 @@ public class AuthorityController {
             HttpServletRequest request) {
         requireAdmin(request);
         ModelAndView mav = new ModelAndView("jsonView");
-        mav.addObject("authorityList", authorityService.selectAuthorityList());
+        mav.addObject("authorityList", authorityService.selectAuthorityList(requireAdmin(request).getCoId()));
         mav.addObject("menuList", authrtId == null || authrtId.trim().isEmpty()
-                ? Collections.emptyList() : authorityService.selectMenuAuthorityList(authrtId));
+                ? Collections.emptyList() : authorityService.selectMenuAuthorityList(requireAdmin(request).getCoId(), authrtId));
         mav.addObject("result", "OK");
         return mav;
     }
@@ -48,7 +48,7 @@ public class AuthorityController {
         UserVO loginUser = requireAdmin(request);
         ModelAndView mav = new ModelAndView("jsonView");
         try {
-            authorityService.saveAuthorityMenu(authrtId, menuSnList, loginUser.getUserId());
+            authorityService.saveAuthorityMenu(loginUser.getCoId(), authrtId, menuSnList, loginUser.getUserId());
             mav.addObject("result", "OK");
         } catch (IllegalArgumentException ex) {
             mav.addObject("result", "FAIL");
@@ -63,11 +63,11 @@ public class AuthorityController {
             @RequestParam("authrtNm") String authrtNm,
             @RequestParam(value = "authrtExpln", required = false) String authrtExpln,
             HttpServletRequest request) {
-        requireAdmin(request);
+        UserVO loginUser = requireAdmin(request);
         return saveAuthorityResult(new AuthorityAction() {
             @Override
             public void execute() {
-                authorityService.insertAuthority(authrtId, authrtNm, authrtExpln);
+                authorityService.insertAuthority(loginUser.getCoId(), authrtId, authrtNm, authrtExpln);
             }
         });
     }
@@ -78,11 +78,11 @@ public class AuthorityController {
             @RequestParam("authrtNm") String authrtNm,
             @RequestParam(value = "authrtExpln", required = false) String authrtExpln,
             HttpServletRequest request) {
-        requireAdmin(request);
+        UserVO loginUser = requireAdmin(request);
         return saveAuthorityResult(new AuthorityAction() {
             @Override
             public void execute() {
-                authorityService.updateAuthority(authrtId, authrtNm, authrtExpln);
+                authorityService.updateAuthority(loginUser.getCoId(), authrtId, authrtNm, authrtExpln);
             }
         });
     }
@@ -91,11 +91,11 @@ public class AuthorityController {
     public ModelAndView authorityDelete(
             @RequestParam("authrtId") String authrtId,
             HttpServletRequest request) {
-        requireAdmin(request);
+        UserVO loginUser = requireAdmin(request);
         return saveAuthorityResult(new AuthorityAction() {
             @Override
             public void execute() {
-                authorityService.deleteAuthority(authrtId);
+                authorityService.deleteAuthority(loginUser.getCoId(), authrtId);
             }
         });
     }

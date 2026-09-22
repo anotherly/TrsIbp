@@ -77,6 +77,7 @@
         <result property="cstNm"            column="CST_NM"/>
         <result property="ocrnCst"          column="OCRN_CST"/>
         <result property="ocrnYmd"          column="OCRN_YMD"/>
+        <result property="receiptFileSns"   column="RECEIPT_FILE_SNS"/>
         <result property="bizSchdlSn"       column="BIZ_SCHDL_SN"/>
         <result property="schdlNm"          column="SCHDL_NM"/>
         <result property="schdlCn"          column="SCHDL_CN"/>
@@ -113,15 +114,6 @@
     <sql id="bizSearchWhere">
         WHERE 1 = 1
         <if test="coId != null and coId != ''">AND B.CO_ID = #{coId}</if>
-        <if test="scopeUserId != null and scopeUserId != ''">
-            AND EXISTS (
-                SELECT 1
-                FROM biz_mnpw SCOPE_M
-                WHERE SCOPE_M.BIZ_ID = B.BIZ_ID
-                  AND SCOPE_M.USER_ID = #{scopeUserId}
-                  AND SCOPE_M.USE_YN = 'Y'
-            )
-        </if>
         <if test="searchKeyword != null and searchKeyword != ''">
             AND (B.BIZ_NM LIKE CONCAT('%', #{searchKeyword}, '%')
               OR B.BIZ_CD LIKE CONCAT('%', #{searchKeyword}, '%')
@@ -150,6 +142,8 @@
             ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
             ,B.RMRK_CN, B.BIZ_STTS_CD
             ,DATE_FORMAT(B.REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+            ,CASE WHEN EXISTS (SELECT 1 FROM biz_mnpw PM WHERE PM.BIZ_ID=B.BIZ_ID AND PM.USER_ID=#{scopeUserId} AND PM.USE_YN='Y') THEN 'Y' ELSE 'N' END AS PARTICIPATING_YN
+            ,CASE WHEN #{companyScopeYn}='Y' OR EXISTS (SELECT 1 FROM biz_mnpw PM WHERE PM.BIZ_ID=B.BIZ_ID AND PM.USER_ID=#{scopeUserId} AND PM.USE_YN='Y') THEN 'Y' ELSE 'N' END AS CAN_MANAGE_YN
             <include refid="bizCodeNameColumns"/>
         FROM biz_info B
         <include refid="bizCodeJoins"/>
@@ -179,6 +173,8 @@
             ,DATE_FORMAT(B.DFRP_GRNTE_END_YMD, '%Y-%m-%d') AS DFRP_GRNTE_END_YMD
             ,B.RMRK_CN, B.BIZ_STTS_CD
             ,DATE_FORMAT(B.REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+            ,CASE WHEN EXISTS (SELECT 1 FROM biz_mnpw PM WHERE PM.BIZ_ID=B.BIZ_ID AND PM.USER_ID=#{scopeUserId} AND PM.USE_YN='Y') THEN 'Y' ELSE 'N' END AS PARTICIPATING_YN
+            ,CASE WHEN #{companyScopeYn}='Y' OR EXISTS (SELECT 1 FROM biz_mnpw PM WHERE PM.BIZ_ID=B.BIZ_ID AND PM.USER_ID=#{scopeUserId} AND PM.USE_YN='Y') THEN 'Y' ELSE 'N' END AS CAN_MANAGE_YN
             <include refid="bizCodeNameColumns"/>
         FROM biz_info B
         <include refid="bizCodeJoins"/>
@@ -490,13 +486,22 @@
     <select id="selectBizCstList" parameterType="bizVO" resultMap="bizResultMap">
         SELECT
              C.BIZ_CST_SN, C.BIZ_ID, C.CST_SE_CD, IFNULL(CST_CD.CD_NM, C.CST_SE_CD) AS CST_SE_NM
-            ,C.CST_NM, C.OCRN_CST, DATE_FORMAT(C.OCRN_YMD, '%Y-%m-%d') AS OCRN_YMD, C.RMRK_CN
+            ,C.CST_NM, C.OCRN_CST, DATE_FORMAT(C.OCRN_YMD, '%Y-%m-%d') AS OCRN_YMD, C.RMRK_CN, C.RGTR_ID, U.USER_NM
+            ,GROUP_CONCAT(DISTINCT F.ATCH_FILE_SN ORDER BY F.SORT_SEQ, F.ATCH_FILE_SN SEPARATOR ',') AS RECEIPT_FILE_SNS
         FROM biz_cst C
+        LEFT JOIN user_info U ON U.USER_ID = C.RGTR_ID
         INNER JOIN biz_info B ON B.BIZ_ID = C.BIZ_ID
         LEFT JOIN cmn_cd CST_CD ON CST_CD.CD_GROUP_ID = 'CST_SE_CD' AND CST_CD.CD = C.CST_SE_CD AND CST_CD.USE_YN = 'Y'
+        LEFT JOIN expense_claim E ON E.BIZ_CST_SN = C.BIZ_CST_SN AND E.CO_ID = B.CO_ID AND E.USE_YN = 'Y'
+        LEFT JOIN atch_file_info F ON F.CO_ID = B.CO_ID
+                                  AND F.REF_SE_CD = 'EXPENSE_CLAIM'
+                                  AND F.REF_ID = CAST(E.CLAIM_SN AS CHAR)
+                                  AND F.FILE_SE_CD = 'RECEIPT'
+                                  AND F.USE_YN = 'Y'
         WHERE C.USE_YN = 'Y'
           AND C.BIZ_ID = #{bizId}
           AND B.CO_ID = #{coId}
+        GROUP BY C.BIZ_CST_SN, C.BIZ_ID, C.CST_SE_CD, CST_CD.CD_NM, C.CST_NM, C.OCRN_CST, C.OCRN_YMD, C.RMRK_CN, C.RGTR_ID, U.USER_NM
         ORDER BY C.OCRN_YMD DESC, C.BIZ_CST_SN DESC
     </select>
 

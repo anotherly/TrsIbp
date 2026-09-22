@@ -1,0 +1,1 @@
+package kr.co.TRSolution.trsIbp.notice.service;import java.util.*;import kr.co.TRSolution.trsIbp.notice.vo.NoticeVO;public interface NoticeService{List<NoticeVO> selectNoticeList(NoticeVO v);List<NoticeVO> selectPopupList(NoticeVO v);NoticeVO selectNotice(NoticeVO v);int saveNotice(NoticeVO v);int deleteNotice(NoticeVO v);}

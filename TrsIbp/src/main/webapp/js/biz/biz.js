@@ -360,9 +360,9 @@ function renderBizList(list) {
 
         rows.push([
             '<span class="ds-code">' + escapeHtml(nvl(row.bizCd, '-')) + '</span>',
-            hasAuthorityCode('PROJECT_BIZ_DETAIL')
+            (hasAuthorityCode('PROJECT_BIZ_DETAIL')
                 ? '<a class="ds-link" href="' + ctxPath + '/biz/bizDetail.do?bizId=' + encodeURIComponent(row.bizId) + '">' + escapeHtml(row.bizNm) + '</a>'
-                : escapeHtml(row.bizNm),
+                : escapeHtml(row.bizNm)) + (row.participatingYn === 'Y' ? ' <span class="ds-participating-badge">참여중</span>' : ''),
             escapeHtml(nvl(row.bizAbrvNm, '-')),
             escapeHtml(nvl(row.bizKndNm, getCodeNm('BIZ_KND_CD', row.bizKndCd))),
             escapeHtml(nvl(row.bizSeNm, getCodeNm('BIZ_SE_CD', row.bizSeCd))),
@@ -371,8 +371,8 @@ function renderBizList(list) {
             escapeHtml(nvl(row.ctrtYmd, '-')),
             period,
             '<div class="ds-row-actions">'
-                + (hasAuthorityCode('PROJECT_BIZ_MDFCN_SCREEN') ? '<button type="button" class="ds-mini-btn" onclick="goBizUpdate(\'' + escapeJs(row.bizId) + '\');">수정</button>' : '')
-                + (hasAuthorityCode('PROJECT_BIZ_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizById(\'' + escapeJs(row.bizId) + '\');">삭제</button>' : '')
+                + (hasAuthorityCode('PROJECT_BIZ_MDFCN_SCREEN') && row.canManageYn === 'Y' ? '<button type="button" class="ds-mini-btn" onclick="goBizUpdate(\'' + escapeJs(row.bizId) + '\');">수정</button>' : '')
+                + (hasAuthorityCode('PROJECT_BIZ_DEL') && row.canManageYn === 'Y' ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizById(\'' + escapeJs(row.bizId) + '\');">삭제</button>' : '')
             + '</div>'
         ]);
     });
@@ -636,7 +636,7 @@ function renderEmptyManageArea(manageType) {
     if (manageType === 'contract') {
         $('#bizCustRelBody').html('<tr><td colspan="7" class="ds-empty">사업을 선택하십시오.</td></tr>');
     } else if (manageType === 'account') {
-        $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">사업을 선택하십시오.</td></tr>');
+        $('#bizCstBody').html('<tr><td colspan="7" class="ds-empty">사업을 선택하십시오.</td></tr>');
         $('#profitCtrtAmt,#profitDirectCst,#profitLaborCst,#profitAmt').text('0');
         $('#profitRate').text('0%');
     } else if (manageType === 'mnpw') {
@@ -1199,7 +1199,7 @@ function loadBizCstList() {
             renderBizCstList(res.list || []);
         },
         error: function() {
-            $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">비용 조회 중 오류가 발생했습니다.</td></tr>');
+            $('#bizCstBody').html('<tr><td colspan="7" class="ds-empty">비용 조회 중 오류가 발생했습니다.</td></tr>');
         }
     });
 }
@@ -1212,7 +1212,7 @@ function loadBizCstList() {
 function renderBizCstList(list) {
     var html = '';
     if (list.length === 0) {
-        $('#bizCstBody').html('<tr><td colspan="6" class="ds-empty">등록된 직접비가 없습니다.</td></tr>');
+        $('#bizCstBody').html('<tr><td colspan="7" class="ds-empty">등록된 직접비가 없습니다.</td></tr>');
         return;
     }
     $.each(list, function(index, row) {
@@ -1222,13 +1222,31 @@ function renderBizCstList(list) {
         html += '<td>' + escapeHtml(row.cstNm) + '</td>';
         html += '<td>' + formatAmt(row.ocrnCst) + '</td>';
         html += '<td>' + escapeHtml(nvl(row.ocrnYmd, '-')) + '</td>';
-        html += '<td><div class="ds-row-actions">'
-            + (hasAuthorityCode('PROJECT_ACCOUNT_MDFCN') ? '<button type="button" class="ds-mini-btn" onclick="bindCstFormFromEncoded(\'' + encodeRowData(row) + '\');">수정</button>' : '')
-            + (hasAuthorityCode('PROJECT_ACCOUNT_DEL') ? '<button type="button" class="ds-mini-btn ds-mini-btn-danger" onclick="deleteBizCst(\'' + escapeJs(row.bizCstSn) + '\');">삭제</button>' : '')
-            + '</div></td>';
+        html += '<td>' + escapeHtml(nvl(row.userNm, nvl(row.rgtrId, '-'))) + '</td>';
+        html += '<td>' + renderReceiptDownloadLinks(row.receiptFileSns) + '</td>';
         html += '</tr>';
     });
     $('#bizCstBody').html(html);
+}
+
+/**
+ * 비용청구에서 첨부된 카드전표/영수증 다운로드 링크를 렌더링한다.
+ * 직접 등록한 비용처럼 증빙이 없는 건은 '-'로 표시한다.
+ * @param {string} receiptFileSns 쉼표로 구분된 첨부파일 일련번호
+ * @returns {string} 증빙 다운로드 HTML
+ */
+function renderReceiptDownloadLinks(receiptFileSns) {
+    if (!receiptFileSns) {
+        return '<span class="ds-dashboard-muted">-</span>';
+    }
+    var fileSns = String(receiptFileSns).split(',').filter(function(sn) { return /^\d+$/.test(sn); });
+    if (fileSns.length === 0) {
+        return '<span class="ds-dashboard-muted">-</span>';
+    }
+    return '<div class="ds-row-actions">' + fileSns.map(function(sn, index) {
+        var label = fileSns.length === 1 ? '증빙 다운로드' : '증빙 ' + (index + 1);
+        return '<a class="ds-mini-btn" href="' + ctxPath + '/common/fileDownload.do?atchFileSn=' + sn + '"><i class="fa-solid fa-download"></i>&nbsp;' + label + '</a>';
+    }).join('') + '</div>';
 }
 
 /**

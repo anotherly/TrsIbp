@@ -378,32 +378,19 @@
      * @returns {void}
      */
     function renderDayList(list) {
-        if (list.length === 0) {
-            $('#scheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>');
-            return;
-        }
+        if (list.length === 0) { $('#scheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>'); return; }
         var html = '';
         list.forEach(function(row) {
             var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
-            var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) {
-                return userId === loginUserId;
-            });
-            var canModify = window.dsIsAdmin === true || isTargetUser
-                    || (loginUserId && String(row.rgtrId || '') === loginUserId);
-            var canOpenDetail = (window.dsIsAdmin === true || isTargetUser || canModify)
-                    && (hasAuthorityCode('WORK_SCHEDULE_DETAIL')
-                        || hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
-            var detailButton = canOpenDetail
-                    ? '<button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal('
-                        + row.schdlSn + ');">'
-                        + (canModify && hasAuthorityCode('WORK_SCHEDULE_MDFCN') ? '수정' : '상세') + '</button>'
-                    : '';
-            html += '<div class="ds-schedule-card ' + colorClass(row.colorType) + '">'
+            var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) { return userId === loginUserId; });
+            var canModify = window.dsIsAdmin === true || isTargetUser || (loginUserId && String(row.rgtrId || '') === loginUserId);
+            var canOpenDetail = (window.dsIsAdmin === true || isTargetUser || canModify) && (hasAuthorityCode('WORK_SCHEDULE_DETAIL') || hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
+            var openAttrs = canOpenDetail ? ' data-schdl-sn="' + row.schdlSn + '" onclick="openScheduleModal(' + row.schdlSn + ');" title="하단에서 일정 상세 보기"' : '';
+            html += '<div class="ds-schedule-card ' + colorClass(row.colorType) + (canOpenDetail ? ' is-clickable' : '') + '"' + openAttrs + '>'
                 + '<div class="ds-schedule-card-main"><div class="ds-schedule-card-title"><strong>[' + escapeHtml(row.schdlSeNm || row.schdlSeCd) + '] ' + escapeHtml(row.schdlNm) + '</strong></div>'
                 + renderProjectBadge(row)
                 + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + (row.placeNm ? ' · ' + escapeHtml(row.placeNm) : '') + '</p>'
-                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p>'
-                + '</div>' + detailButton + '</div>';
+                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p></div></div>';
         });
         $('#scheduleDayList').html(html);
     }
@@ -900,25 +887,62 @@
      * @param {Array} list 선택일자 일정 목록
      * @returns {void}
      */
+    var dashboardScheduleDayRows = [];
+    var dashboardExpandedScheduleSn = null;
+
+    function canModifyDashboardSchedule(row) {
+        var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
+        var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) {
+            return userId === loginUserId;
+        });
+        return (window.dsIsAdmin === true || isTargetUser || (loginUserId && String(row.rgtrId || '') === loginUserId))
+                && hasAuthorityCode('WORK_SCHEDULE_MDFCN');
+    }
+
     function renderDashboardDayList(list) {
-        if (list.length === 0) { $('#dashScheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>'); return; }
+        dashboardScheduleDayRows = list || [];
+        if ($('#dashboardScheduleInlineDetail').length) clearDashboardScheduleInlineDetail();
+        if (list.length === 0) {
+            $('#dashScheduleDayList').html('<div class="ds-empty">조회된 일정이 없습니다.</div>');
+            return;
+        }
         $('#dashScheduleDayList').html(list.map(function(row) {
-            var loginUserId = loginScheduleUser ? String(loginScheduleUser.userId || '') : '';
-            var isTargetUser = String(row.targetUserIds || '').split(',').some(function(userId) { return userId === loginUserId; });
-            var canModify = window.dsIsAdmin === true || isTargetUser || (loginUserId && String(row.rgtrId || '') === loginUserId);
-            var canOpenDetail = (window.dsIsAdmin === true || isTargetUser || canModify)
-                    && (hasAuthorityCode('WORK_SCHEDULE_DETAIL') || hasAuthorityCode('WORK_SCHEDULE_MDFCN'));
-            var detailButton = canOpenDetail
-                    ? '<button type="button" class="ds-btn ds-btn-outline" onclick="openScheduleModal(' + row.schdlSn + ');">'
-                        + (canModify && hasAuthorityCode('WORK_SCHEDULE_MDFCN') ? '수정' : '상세') + '</button>'
-                    : '';
+            var arrowButton = '<button type="button" class="ds-schedule-expand-btn" data-expand-sn="' + row.schdlSn + '" title="아래 상세내용 보기" aria-label="' + escapeHtml(row.schdlNm || '일정') + ' 상세 펼치기" onclick="event.stopPropagation();showDashboardScheduleInlineDetail(' + row.schdlSn + ');"><i class="fa-solid fa-chevron-down"></i></button>';
             return '<div class="ds-schedule-card ' + colorClass(row.colorType) + '"><div class="ds-schedule-card-main">'
-                + '<div class="ds-schedule-card-title"><strong>[' + escapeHtml(row.schdlSeNm || row.schdlSeCd) + '] ' + escapeHtml(row.schdlNm) + '</strong></div>'
+                + '<div class="ds-schedule-card-title"><strong>[' + escapeHtml(window.decodeStoredText(row.schdlSeNm || row.schdlSeCd)) + '] ' + escapeHtml(window.decodeStoredText(row.schdlNm)) + '</strong></div>'
                 + renderProjectBadge(row)
                 + '<p class="ds-schedule-period">' + escapeHtml(toDisplayTime(row.bgngDt, row.endDt, row.allDayYn)) + '</p>'
-                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(row.targetUserNms || '-') + '</p></div>' + detailButton + '</div>';
+                + '<p class="ds-schedule-participants">참여: ' + escapeHtml(window.decodeStoredText(row.targetUserNms || '-')) + '</p></div><div class="ds-schedule-card-actions">' + arrowButton + '</div></div>';
         }).join(''));
     }
+
+    window.showDashboardScheduleInlineDetail = function(schdlSn) {
+        if (String(dashboardExpandedScheduleSn || '') === String(schdlSn)) {
+            clearDashboardScheduleInlineDetail();
+            return;
+        }
+        var row = dashboardScheduleDayRows.filter(function(item) { return String(item.schdlSn) === String(schdlSn); })[0];
+        if (!row) return;
+        dashboardExpandedScheduleSn = schdlSn;
+        var editButton = canModifyDashboardSchedule(row)
+            ? '<button type="button" class="ds-btn ds-btn-primary ds-inline-detail-edit" onclick="openScheduleModal(' + row.schdlSn + ');"><i class="fa-solid fa-pen"></i> 수정</button>'
+            : '';
+        var html = '<div class="ds-inline-detail-head"><div><span>선택 일정 상세</span><strong>' + escapeHtml(window.decodeStoredText(row.schdlNm || '-')) + '</strong></div><div class="ds-inline-detail-actions">'
+            + editButton
+            + '<button type="button" class="ds-icon-btn" onclick="clearDashboardScheduleInlineDetail();" title="닫기"><i class="fa-solid fa-xmark"></i></button></div></div>'
+            + '<div class="ds-inline-detail-meta"><span><i class="fa-solid fa-location-dot"></i> 장소 <b>' + escapeHtml(window.decodeStoredText(row.placeNm || '-')) + '</b></span>'
+            + '<span><i class="fa-solid fa-user-pen"></i> 작성자 <b>' + escapeHtml(window.decodeStoredText(row.rgtrNm || row.rgtrId || '-')) + '</b></span></div>'
+            + '<div class="ds-inline-detail-content"><label>상세내용</label><p>' + escapeHtml(window.decodeStoredText(row.schdlCn || '등록된 상세내용이 없습니다.')).replace(/\r?\n/g, '<br>') + '</p></div>';
+        $('#dashboardScheduleInlineDetail').html(html).removeClass('is-empty');
+        $('.ds-schedule-expand-btn').removeClass('is-active').attr('aria-expanded','false').find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        $('.ds-schedule-expand-btn[data-expand-sn="' + schdlSn + '"]').addClass('is-active').attr('aria-expanded','true').find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    };
+
+    window.clearDashboardScheduleInlineDetail = function() {
+        dashboardExpandedScheduleSn = null;
+        $('#dashboardScheduleInlineDetail').addClass('is-empty').html('<div class="ds-empty"><i class="fa-regular fa-hand-pointer"></i><p>우측 일정의 화살표를 누르면 장소·작성자·상세내용을 확인할 수 있습니다.</p></div>');
+        $('.ds-schedule-expand-btn').removeClass('is-active').attr('aria-expanded','false').find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+    };
 
     /** 일정 변경 이력을 기본 접힘 상태로 렌더링한다. */
     function renderScheduleHistory(historyList) {

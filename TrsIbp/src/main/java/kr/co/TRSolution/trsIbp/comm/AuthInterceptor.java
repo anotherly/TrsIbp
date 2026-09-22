@@ -65,7 +65,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         }
         String menuTypeNm = resolveMenuType(requestUrl, request);
         try {
-            if (authorityService.isRequestGranted(loginUser.getAuthrtId(), requestUrl, menuTypeNm)) {
+            if (authorityService.isRequestGranted(loginUser, requestUrl, menuTypeNm)) {
                 return true;
             }
         } catch (DataAccessException ex) {
@@ -142,6 +142,16 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             identifier = "bizSchdlSn";
         } else if (requestUrl.endsWith("/schedule/scheduleSave.ajax")) {
             identifier = "schdlSn";
+        } else if (requestUrl.endsWith("/expense/expenseSave.ajax")) {
+            identifier = "claimSn";
+        } else if (requestUrl.endsWith("/worklog/dailySave.ajax")) {
+            identifier = "workItemSn";
+        } else if (requestUrl.endsWith("/notice/noticeSave.ajax")) {
+            identifier = "noticeSn";
+        } else if (requestUrl.endsWith("/resource/resourceSave.ajax")) {
+            identifier = "resourceSn";
+        } else if (requestUrl.endsWith("/resource/reservationSave.ajax")) {
+            identifier = "reservationSn";
         }
         String value = identifier == null ? null : request.getParameter(identifier);
         return value != null && !value.trim().isEmpty() && !"0".equals(value.trim())

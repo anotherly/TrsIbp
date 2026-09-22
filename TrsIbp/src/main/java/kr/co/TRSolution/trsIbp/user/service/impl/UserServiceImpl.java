@@ -74,8 +74,8 @@ public class UserServiceImpl implements UserService {
 
     /** 권한 목록 조회 */
     @Override
-    public List<Map<String, Object>> selectAuthList() {
-        return userMapper.selectAuthList();
+    public List<Map<String, Object>> selectAuthList(UserVO userVO) {
+        return userMapper.selectAuthList(userVO);
     }
     /**
      * 사용자 선택 모달에 표시할 로그인 사용자 회사의 부서 목록을 조회한다.

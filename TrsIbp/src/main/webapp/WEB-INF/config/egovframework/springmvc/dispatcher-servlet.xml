@@ -40,6 +40,7 @@
     -->
     <bean id="sessionCheckInterceptor" class="kr.co.TRSolution.trsIbp.comm.SessionCheckInterceptor"/>
     <bean id="authInterceptor" class="kr.co.TRSolution.trsIbp.comm.AuthInterceptor"/>
+    <bean id="userActionLogInterceptor" class="kr.co.TRSolution.trsIbp.comm.UserActionLogInterceptor"/>
 
     <mvc:interceptors>
         <!-- 로케일 변경 인터셉터 (eGov 표준) -->
@@ -79,6 +80,13 @@
             <mvc:exclude-mapping path="/company/registerCompany.ajax"/>
             <mvc:exclude-mapping path="/cmmn/**"/>
             <ref bean="authInterceptor"/>
+        </mvc:interceptor>
+
+        <!-- 일반사용자 C/U/D 작업 이력 (조회는 기록하지 않음) -->
+        <mvc:interceptor>
+            <mvc:mapping path="/**/*.ajax"/>
+            <mvc:exclude-mapping path="/login/**"/>
+            <ref bean="userActionLogInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 

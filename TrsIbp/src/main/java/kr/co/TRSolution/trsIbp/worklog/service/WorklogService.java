@@ -1,0 +1,1 @@
+package kr.co.TRSolution.trsIbp.worklog.service; import java.util.*; import kr.co.TRSolution.trsIbp.worklog.vo.WorklogVO; public interface WorklogService{List<WorklogVO> selectDailyList(WorklogVO vo);List<WorklogVO> selectWeeklyList(WorklogVO vo);List<Map<String,Object>> selectBizList(WorklogVO vo);int saveDaily(WorklogVO vo);int deleteDaily(WorklogVO vo);}

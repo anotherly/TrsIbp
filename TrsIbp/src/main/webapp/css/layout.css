@@ -1728,3 +1728,65 @@
 .ds-org-modal-panel .ds-modal-head { margin: 0; padding: 18px 22px; border-bottom: 1px solid var(--ds-border); }
 .ds-org-modal-panel .ds-modal-title { font-size: 19px; }
 .ds-org-modal-panel .ds-modal-close { width: 32px; height: 32px; font-size: 16px; }
+
+/* 2026-09-18 대시보드 일정 인라인 상세 */
+.ds-schedule-card{cursor:pointer}.ds-schedule-card-actions{display:flex;align-items:center;gap:.45rem}.ds-schedule-expand-btn{width:34px;height:34px;border:1px solid rgba(148,163,184,.22);border-radius:10px;background:rgba(15,23,42,.72);color:#94a3b8;transition:.18s}.ds-schedule-expand-btn:hover,.ds-schedule-expand-btn.is-active{color:#22d3ee;border-color:rgba(34,211,238,.55);background:rgba(8,145,178,.12)}
+.ds-inline-schedule-detail{min-height:150px}.ds-inline-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding-bottom:14px;border-bottom:1px solid rgba(148,163,184,.16)}.ds-inline-detail-head span{display:block;font-size:11px;color:#64748b;margin-bottom:4px}.ds-inline-detail-head strong{font-size:16px;color:#e2e8f0}.ds-inline-detail-meta{display:flex;gap:20px;flex-wrap:wrap;padding:14px 0;color:#94a3b8;font-size:12px}.ds-inline-detail-meta b{color:#cbd5e1;margin-left:4px}.ds-inline-detail-meta i{color:#22d3ee;margin-right:4px}.ds-inline-detail-content{padding:14px 16px;border-radius:12px;background:rgba(2,6,23,.46);border:1px solid rgba(148,163,184,.12)}.ds-inline-detail-content label{display:block;font-size:11px;color:#64748b;margin-bottom:8px}.ds-inline-detail-content p{white-space:normal;line-height:1.7;font-size:13px;color:#e2e8f0}.ds-inline-schedule-detail.is-empty{display:flex;align-items:center;justify-content:center}.ds-inline-schedule-detail .ds-empty i{font-size:22px;margin-bottom:8px;color:#475569}
+
+/* 2026-09-21 inline schedule editor / project participation */
+.ds-schedule-inline-editor{margin-top:18px;scroll-margin-top:18px}
+.ds-schedule-inline-panel{width:100%}
+.ds-schedule-inline-editor .ds-schedule-modal-body{max-height:none;overflow:visible;padding-right:0}
+.ds-schedule-inline-editor .ds-schedule-modal-actions{background:transparent}
+.ds-schedule-card.is-clickable{cursor:pointer}
+.ds-schedule-card.is-clickable:hover,.ds-schedule-card.is-selected-editor{border-color:rgba(34,211,238,.55);background:rgba(8,145,178,.08)}
+.ds-participating-badge{display:inline-flex;align-items:center;margin-left:6px;padding:2px 7px;border:1px solid rgba(34,211,238,.34);border-radius:999px;background:rgba(8,145,178,.14);color:#67e8f9;font-size:10px;font-weight:800;vertical-align:middle}
+.ds-dashboard-row.is-participating{border-color:rgba(34,211,238,.22);background:rgba(8,145,178,.045)}
+.ds-submenu .ds-menu-item{min-height:36px;padding:8px 10px;font-size:12px}
+
+
+/* 2026-09-21 UX 보정: 일정 상세 / 일일계획 / 프로필 / 자원관리 */
+.ds-user-card-link { color: inherit; text-decoration: none; cursor: pointer; transition: .18s ease; }
+.ds-user-card-link:hover { border-color: rgba(34,211,238,.38); background: rgba(8,145,178,.10); transform: translateY(-1px); }
+.ds-header-user-link { display:inline-flex; align-items:center; color:#94a3b8; font-size:12px; text-decoration:none; transition:.16s ease; }
+.ds-header-user-link strong { color:#e2e8f0; }
+.ds-header-user-link:hover, .ds-header-user-link:hover strong { color:#67e8f9; }
+.ds-schedule-card { cursor: default; }
+.ds-schedule-card-actions { display:flex; align-items:center; justify-content:flex-end; gap:.45rem; }
+.ds-schedule-expand-btn { cursor:pointer; }
+.ds-inline-detail-actions { display:flex; align-items:center; gap:8px; }
+.ds-inline-detail-edit { min-height:34px; padding:7px 12px; }
+.ds-inline-detail-content p { white-space: normal; overflow-wrap:anywhere; }
+
+.ds-worklog-item { position:relative; padding:20px; border:1px solid rgba(51,65,85,.82); border-radius:18px; background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(8,15,29,.98)); box-shadow:0 14px 32px rgba(2,6,23,.16); }
+.ds-worklog-item + .ds-worklog-item { margin-top:14px; }
+.ds-worklog-item-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid rgba(51,65,85,.58); }
+.ds-worklog-item-head>div { min-width:0; }
+.ds-worklog-item-head strong { display:block; max-width:860px; margin-top:4px; color:#e8eef8; font-size:14px; line-height:1.45; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ds-worklog-kicker { color:#6b7c94; font-size:10px; font-weight:800; letter-spacing:.05em; }
+.ds-worklog-priority-pill { flex:0 0 auto; padding:5px 9px; border:1px solid rgba(34,211,238,.28); border-radius:999px; background:rgba(8,145,178,.10); color:#67e8f9; font-size:10px; font-weight:800; }
+.ds-worklog-meta-grid { display:grid; grid-template-columns:minmax(180px,1.35fr) minmax(125px,.85fr) minmax(120px,.8fr) minmax(120px,.8fr) minmax(95px,.55fr) minmax(150px,.9fr); gap:12px; align-items:end; }
+.ds-worklog-content-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:14px; }
+.ds-worklog-main-content { grid-column:1 / -1; }
+.ds-worklog-content-grid .ds-textarea { min-height:94px; resize:vertical; line-height:1.6; }
+.ds-worklog-main-content .ds-textarea { min-height:112px; }
+.ds-worklog-actions { display:flex; justify-content:flex-end; align-items:center; gap:9px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(51,65,85,.52); }
+.ds-worklog-weekly-text { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.55; }
+@media (max-width:1200px){ .ds-worklog-meta-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
+@media (max-width:760px){ .ds-worklog-meta-grid,.ds-worklog-content-grid{grid-template-columns:1fr;} .ds-worklog-main-content{grid-column:auto;} .ds-worklog-item-head{flex-direction:column;} }
+
+.ds-resource-primary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px 18px; align-items:end; }
+.ds-resource-secondary-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr); gap:16px 18px; align-items:end; margin-top:16px; }
+.ds-resource-attr-panel { margin-top:20px; padding:16px; border:1px solid rgba(51,65,85,.72); border-radius:15px; background:rgba(2,6,23,.24); }
+.ds-resource-attr-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; }
+.ds-resource-attr-head strong { display:block; color:#e2e8f0; font-size:13px; font-weight:900; }
+.ds-resource-attr-head p { margin:3px 0 0; color:#64748b; font-size:10px; }
+.ds-resource-attr-table-wrap { overflow-x:auto; }
+.ds-resource-attr-table { width:100%; border-collapse:separate; border-spacing:0 8px; table-layout:fixed; }
+.ds-resource-attr-table th { padding:0 10px 3px; color:#7f8da3; font-size:10px; font-weight:800; text-align:left; }
+.ds-resource-attr-table th:nth-child(1){width:34%;}.ds-resource-attr-table th:nth-child(2){width:auto;}.ds-resource-attr-table th:nth-child(3){width:76px;text-align:center;}
+.ds-resource-attr-table td { padding:0 6px; vertical-align:middle; }
+.ds-resource-attr-table td:last-child { text-align:center; }
+.ds-btn-sm { min-height:34px; padding:7px 11px; font-size:11px; }
+@media (max-width:900px){ .ds-resource-primary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.ds-resource-secondary-grid{grid-template-columns:1fr;} }
+@media (max-width:600px){ .ds-resource-primary-grid{grid-template-columns:1fr;} }

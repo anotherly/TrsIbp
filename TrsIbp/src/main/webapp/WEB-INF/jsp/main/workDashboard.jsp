@@ -128,17 +128,13 @@
             </div>
         </div>
     </section>
+
+    <section class="bg-brand-card p-6 rounded-2xl border border-brand-border shadow-xl">
+        <div id="dashboardScheduleInlineDetail" class="ds-inline-schedule-detail is-empty">
+            <div class="ds-empty"><i class="fa-regular fa-hand-pointer"></i><p>우측 일정의 화살표를 누르면 장소·작성자·상세내용을 확인할 수 있습니다.</p></div>
+        </div>
+    </section>
     <jsp:include page="/WEB-INF/jsp/common/scheduleModal.jsp"/>
     <jsp:include page="/WEB-INF/jsp/common/userSelectModal.jsp"/>
     </c:if>
-
-    <section class="bg-brand-card p-6 rounded-2xl border border-brand-border shadow-xl">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-gray-200 text-base">오늘의 부서원 상태 공유</h3>
-            <span id="teamStatusSummary" class="text-xs bg-slate-900 border border-brand-border px-2 py-1 rounded text-gray-400">조회 중</span>
-        </div>
-        <div id="teamStatusList" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <div class="ds-empty">부서원 상태를 조회 중입니다.</div>
-        </div>
-    </section>
 </div>

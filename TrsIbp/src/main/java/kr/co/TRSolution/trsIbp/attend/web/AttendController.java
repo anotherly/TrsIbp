@@ -123,6 +123,25 @@ public class AttendController {
         return mav;
     }
 
+    @RequestMapping(value = "/attend/orgStatus.do", method = RequestMethod.GET)
+    public String orgStatusPage() { return "/attend/orgStatus"; }
+
+    @RequestMapping(value = "/attend/orgStatus.ajax", method = RequestMethod.GET)
+    @ResponseBody
+    public ModelAndView orgStatus(@ModelAttribute AttendVO attendVO, HttpServletRequest request) {
+        ModelAndView mav = new ModelAndView("jsonView");
+        try {
+            UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+            if (loginUser == null) { mav.addObject("result", "NO_SESSION"); return mav; }
+            attendVO.setCoId(loginUser.getCoId());
+            if (attendVO.getWorkYmd() == null || attendVO.getWorkYmd().trim().isEmpty()) attendVO.setWorkYmd(java.time.LocalDate.now().toString());
+            mav.addObject("list", attendService.selectOrgStatusList(attendVO));
+            mav.addObject("workYmd", attendVO.getWorkYmd());
+            mav.addObject("result", "OK");
+        } catch (Exception e) { logger.error("▶ orgStatus 오류", e); mav.addObject("result", "ERROR"); mav.addObject("msg", "조직원 근태 현황을 조회하지 못했습니다."); }
+        return mav;
+    }
+
     /**
      * 출근 처리
      * Request: powkNm (POWK_SE_CD 공통코드)

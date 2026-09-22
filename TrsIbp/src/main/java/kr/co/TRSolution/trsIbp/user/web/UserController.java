@@ -419,7 +419,7 @@ public class UserController {
         userVO.setCoId(reqLoginVo.getCoId());
         mav.addObject("coNm", reqLoginVo.getCoNm());
         mav.addObject("deptList", userService.selectDeptListByCoId(userVO));
-        mav.addObject("authList", userService.selectAuthList());
+        mav.addObject("authList", userService.selectAuthList(userVO));
         return mav;
     }
 
