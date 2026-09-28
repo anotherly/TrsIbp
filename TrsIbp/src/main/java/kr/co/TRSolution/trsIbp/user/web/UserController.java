@@ -538,6 +538,11 @@ public class UserController {
                 return mav;
             }
             if ("insert".equals(userVO.getSaveMode())) {
+                if ("ADMIN".equalsIgnoreCase(userVO.getAuthrtId())) {
+                    mav.addObject("result", "FAIL");
+                    mav.addObject("msg", "최고관리자 권한은 일반 사용자 관리에서 부여할 수 없습니다.");
+                    return mav;
+                }
                 if (userVO.getUserEnpswd() == null || "".equals(userVO.getUserEnpswd().trim())) {
                     logger.warn("사용자 등록 검증 실패: 초기 비밀번호 미입력, requestedUserId=" + userVO.getUserId()
                             + ", loginUserId=" + reqLoginVo.getUserId()
@@ -576,6 +581,11 @@ public class UserController {
                 userVO.setUserId(updateUserId);
                 boolean selfEditRequest = "true".equalsIgnoreCase(request.getParameter("selfEdit"))
                         && reqLoginVo.getUserId().equals(updateUserId);
+                if (!selfEditRequest && "ADMIN".equalsIgnoreCase(userVO.getAuthrtId())) {
+                    mav.addObject("result", "FAIL");
+                    mav.addObject("msg", "최고관리자 권한은 일반 사용자 관리에서 부여할 수 없습니다.");
+                    return mav;
+                }
                 if (selfEditRequest) {
                     UserVO existingSearch = new UserVO();
                     existingSearch.setCoId(reqLoginVo.getCoId());

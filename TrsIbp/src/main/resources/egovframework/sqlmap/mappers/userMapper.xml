@@ -5,7 +5,7 @@
 
 <!--
     사용자 SQL Mapper
-    테이블: USER_INFO, AUTHRT_INFO, CO_INFO, DEPT_INFO
+    테이블: USER_INFO, CO_AUTHRT_INFO, CO_INFO, DEPT_INFO
     DB: MySQL/MariaDB
     작성일: 2026-05-28
 -->
@@ -39,7 +39,7 @@
 
     <!-- ============================================================ -->
     <!--  사용자 목록/단건 조회                                          -->
-    <!--  USER_INFO + AUTHRT_INFO + CO_INFO + DEPT_INFO JOIN        -->
+    <!--  USER_INFO + CO_AUTHRT_INFO + CO_INFO + DEPT_INFO JOIN        -->
     <!-- ============================================================ -->
     <select id="selectUser" parameterType="userVO" resultMap="userResultMap">
         SELECT
@@ -189,6 +189,7 @@
         SELECT AUTHRT_ID, AUTHRT_NM, AUTHRT_EXPLN, DATA_SCOPE_CD
         FROM co_authrt_info
         WHERE CO_ID = #{coId} AND USE_YN = 'Y'
+          AND AUTHRT_ID &lt;&gt; 'ADMIN'
         ORDER BY SORT_SEQ ASC, AUTHRT_NM ASC
     </select>
 
@@ -325,6 +326,7 @@
         LEFT JOIN DEPT_INFO D ON U.DEPT_ID = D.DEPT_ID
         LEFT JOIN DEPT_INFO PD ON D.UP_DEPT_ID = PD.DEPT_ID
         WHERE U.CO_ID = #{coId}
+          AND U.AUTHRT_ID &lt;&gt; 'ADMIN'
           <choose>
               <when test="deptId == '__COMPANY_DIRECT__'">AND U.CO_DRCT_YN = 'Y'</when>
               <when test="deptId != null and deptId != ''">AND U.DEPT_ID = #{deptId}</when>

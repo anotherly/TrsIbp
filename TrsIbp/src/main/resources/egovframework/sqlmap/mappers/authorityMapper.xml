@@ -4,7 +4,7 @@
 <select id="selectAuthorityList" parameterType="map" resultType="hashmap">
  SELECT A.AUTHRT_ID authrtId,A.AUTHRT_NM authrtNm,A.AUTHRT_EXPLN authrtExpln,A.DATA_SCOPE_CD dataScopeCd,A.SORT_SEQ sortSeq,
         (SELECT COUNT(*) FROM user_info U WHERE U.CO_ID=A.CO_ID AND U.AUTHRT_ID=A.AUTHRT_ID AND U.USE_YN='Y') userCount
- FROM co_authrt_info A WHERE A.CO_ID=#{coId} AND A.USE_YN='Y' ORDER BY A.SORT_SEQ,A.AUTHRT_ID
+ FROM co_authrt_info A WHERE A.CO_ID=#{coId} AND A.USE_YN='Y' AND A.AUTHRT_ID &lt;&gt; 'ADMIN' ORDER BY A.SORT_SEQ,A.AUTHRT_ID
 </select>
 <select id="selectMenuAuthorityList" parameterType="map" resultType="hashmap">
  SELECT M.MENU_SN menuSn,M.MENU_CD menuCd,M.WORKSPC_ID workspcId,W.WORKSPC_NM workspcNm,M.UP_MENU_SN upMenuSn,M.MENU_NM menuNm,
@@ -30,6 +30,15 @@
 <select id="selectGrantedMenuCount" parameterType="map" resultType="int">SELECT COUNT(*) FROM co_authrt_menu_rel R JOIN menu_info M ON M.MENU_SN=R.MENU_SN WHERE R.CO_ID=#{coId} AND R.AUTHRT_ID=#{authrtId} AND R.AUTHRT_GRNT_YN='Y' AND M.MENU_URL_ADDR=#{requestUrl} AND M.MENU_TYPE_NM=#{menuTypeNm} AND M.MENU_USE_YN='Y'</select>
 <select id="selectAuthorityCount" parameterType="map" resultType="int">SELECT COUNT(*) FROM co_authrt_info WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId} AND USE_YN='Y'</select>
 <select id="selectAuthorityUserCount" parameterType="map" resultType="int">SELECT COUNT(*) FROM user_info WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId} AND USE_YN='Y'</select>
+<select id="selectCompanyCode" parameterType="string" resultType="string">
+ SELECT CO_CD FROM co_info WHERE CO_ID=#{value} AND USE_YN='Y' LIMIT 1
+</select>
+<select id="selectMaxCustomAuthoritySeq" parameterType="map" resultType="int">
+ SELECT COALESCE(MAX(CAST(SUBSTRING(A.AUTHRT_ID, LENGTH(#{authrtPrefix}) + 2) AS UNSIGNED)), 0)
+   FROM co_authrt_info A
+  WHERE A.CO_ID=#{coId}
+    AND A.AUTHRT_ID REGEXP CONCAT('^', #{authrtPrefix}, '_[0-9]+$')
+</select>
 <select id="selectDataScopeCd" parameterType="map" resultType="string">SELECT DATA_SCOPE_CD FROM co_authrt_info WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId} AND USE_YN='Y' LIMIT 1</select>
 <select id="selectBizAccessCount" parameterType="map" resultType="int">SELECT COUNT(*) FROM biz_info B WHERE B.BIZ_ID=#{bizId} AND B.CO_ID=#{coId} AND EXISTS(SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y')</select>
 <select id="selectScheduleAccessCount" parameterType="map" resultType="int">

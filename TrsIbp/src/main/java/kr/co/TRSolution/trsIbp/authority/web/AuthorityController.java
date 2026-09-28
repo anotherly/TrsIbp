@@ -59,17 +59,20 @@ public class AuthorityController {
 
     @RequestMapping(value = "/authority/authorityInsert.ajax", method = RequestMethod.POST)
     public ModelAndView authorityInsert(
-            @RequestParam("authrtId") String authrtId,
             @RequestParam("authrtNm") String authrtNm,
             @RequestParam(value = "authrtExpln", required = false) String authrtExpln,
             HttpServletRequest request) {
         UserVO loginUser = requireAdmin(request);
-        return saveAuthorityResult(new AuthorityAction() {
-            @Override
-            public void execute() {
-                authorityService.insertAuthority(loginUser.getCoId(), authrtId, authrtNm, authrtExpln);
-            }
-        });
+        ModelAndView mav = new ModelAndView("jsonView");
+        try {
+            String authrtId = authorityService.insertAuthority(loginUser.getCoId(), authrtNm, authrtExpln);
+            mav.addObject("result", "OK");
+            mav.addObject("authrtId", authrtId);
+        } catch (IllegalArgumentException ex) {
+            mav.addObject("result", "FAIL");
+            mav.addObject("msg", ex.getMessage());
+        }
+        return mav;
     }
 
     @RequestMapping(value = "/authority/authorityUpdate.ajax", method = RequestMethod.POST)

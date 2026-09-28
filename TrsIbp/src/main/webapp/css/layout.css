@@ -1819,3 +1819,36 @@
 .ds-dashboard-bottom-grid{margin-top:2px}.ds-dashboard-notice-list{display:grid}.ds-dashboard-notice-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:48px;padding:9px 2px;border-top:1px solid rgba(51,65,85,.52);text-decoration:none}.ds-dashboard-notice-row:first-child{border-top:0}.ds-dashboard-notice-row strong{min-width:0;color:#dce5f2;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-dashboard-notice-row small{color:#64748b;font-size:9px}.ds-dashboard-row-button{width:100%;border-left:0;border-right:0;border-bottom:0;background:transparent;text-align:left;cursor:pointer}.ds-dashboard-row-button:hover{background:rgba(8,145,178,.045)}
 .ds-dot-resource{background:#60a5fa}.ds-schedule-resource{border-left-color:#60a5fa}
 @media(max-width:1000px){.ds-summary-detail-list{grid-template-columns:1fr}.ds-gantt-row{grid-template-columns:1fr;gap:10px}.ds-gantt-status{text-align:left;display:flex;gap:10px;align-items:center}.ds-gantt-status span{margin-top:0}}
+
+
+/* =========================================================
+   Dashboard notice popup: long notices scroll only in body
+   so the "다시 보지 않음" footer always remains visible.
+   ========================================================= */
+.ds-dashboard-notice-modal {
+    width: min(720px, calc(100vw - 32px));
+    max-height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.ds-dashboard-notice-head,
+.ds-dashboard-notice-footer {
+    flex: 0 0 auto;
+}
+.ds-dashboard-notice-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.ds-dashboard-notice-scroll::-webkit-scrollbar { width: 8px; }
+.ds-dashboard-notice-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, .36);
+    border-radius: 999px;
+}
+@media (max-width: 768px) {
+    .ds-dashboard-notice-modal {
+        max-height: calc(100vh - 32px);
+    }
+}

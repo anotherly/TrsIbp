@@ -17,6 +17,8 @@ public interface AuthorityMapper {
     int selectGrantedMenuCount(Map<String,Object> param);
     int selectAuthorityCount(Map<String,Object> param);
     int selectAuthorityUserCount(Map<String,Object> param);
+    String selectCompanyCode(String coId);
+    Integer selectMaxCustomAuthoritySeq(Map<String,Object> param);
     String selectDataScopeCd(Map<String,Object> param);
     int selectBizAccessCount(Map<String,Object> param);
     int selectScheduleAccessCount(Map<String,Object> param);

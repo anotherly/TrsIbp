@@ -10,7 +10,7 @@ public interface AuthorityService {
     List<Map<String,Object>> selectAuthorityList(String coId);
     List<Map<String,Object>> selectMenuAuthorityList(String coId, String authrtId);
     void saveAuthorityMenu(String coId, String authrtId, List<Long> menuSnList, String loginUserId);
-    void insertAuthority(String coId, String authrtId, String authrtNm, String authrtExpln);
+    String insertAuthority(String coId, String authrtNm, String authrtExpln);
     void updateAuthority(String coId, String authrtId, String authrtNm, String authrtExpln);
     void deleteAuthority(String coId, String authrtId);
     boolean isRequestGranted(UserVO loginUser, String requestUrl, String menuTypeNm);

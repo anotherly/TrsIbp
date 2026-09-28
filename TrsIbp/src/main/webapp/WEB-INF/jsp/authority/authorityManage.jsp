@@ -67,10 +67,6 @@
             <form id="authorityForm" class="ds-authority-form">
                 <input type="hidden" id="authorityFormMode" value="insert">
                 <div class="ds-form-row">
-                    <label for="authorityId">권한ID <em>*</em></label>
-                    <input type="text" id="authorityId" maxlength="20" placeholder="예: PROJECT_PM">
-                </div>
-                <div class="ds-form-row">
                     <label for="authorityName">권한명 <em>*</em></label>
                     <input type="text" id="authorityName" maxlength="50" placeholder="예: 프로젝트 관리자">
                 </div>

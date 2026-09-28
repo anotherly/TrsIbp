@@ -22,8 +22,8 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
     @Transactional(rollbackFor=Exception.class)
     public void saveAuthorityMenu(String coId, String authrtId, List<Long> menuSnList, String loginUserId) {
+        requireMutableAuthority(authrtId);
         requireAuthority(coId, authrtId);
-        if ("ADMIN".equals(authrtId)) throw new IllegalArgumentException("최고관리자 권한은 전체 기능 사용으로 고정됩니다.");
         Map<String,Object> p=param(coId,authrtId); mapper.deleteAuthorityMenu(p);
         if(menuSnList==null) return;
         for(Long sn:new LinkedHashSet<Long>(menuSnList)) {
@@ -32,19 +32,29 @@ public class AuthorityServiceImpl implements AuthorityService {
             mapper.insertAuthorityMenu(p);
         }
     }
-    public void insertAuthority(String coId,String authrtId,String authrtNm,String authrtExpln) {
-        validate(authrtId,authrtNm); Map<String,Object> p=param(coId,authrtId);
-        if(mapper.selectAuthorityCount(p)>0) throw new IllegalArgumentException("현재 회사에서 이미 사용 중인 권한ID입니다.");
-        p.put("authrtNm",authrtNm.trim()); p.put("authrtExpln",trim(authrtExpln)); p.put("dataScopeCd","SELF"); mapper.insertAuthority(p);
+    @Transactional(rollbackFor=Exception.class)
+    public String insertAuthority(String coId,String authrtNm,String authrtExpln) {
+        validateName(authrtNm);
+        String authrtId = createCompanyAuthorityId(coId);
+        Map<String,Object> p=param(coId,authrtId);
+        p.put("authrtNm",authrtNm.trim());
+        p.put("authrtExpln",trim(authrtExpln));
+        p.put("dataScopeCd","SELF");
+        mapper.insertAuthority(p);
+        return authrtId;
     }
     public void updateAuthority(String coId,String authrtId,String authrtNm,String authrtExpln) {
-        requireAuthority(coId,authrtId); validate(authrtId,authrtNm); Map<String,Object> p=param(coId,authrtId);
+        requireMutableAuthority(authrtId);
+        requireAuthority(coId,authrtId);
+        validateName(authrtNm);
+        Map<String,Object> p=param(coId,authrtId);
         p.put("authrtNm",authrtNm.trim()); p.put("authrtExpln",trim(authrtExpln)); mapper.updateAuthority(p);
     }
     @Transactional(rollbackFor=Exception.class)
     public void deleteAuthority(String coId,String authrtId) {
+        requireMutableAuthority(authrtId);
         requireAuthority(coId,authrtId);
-        if(Arrays.asList("ADMIN","MANAGER","USER").contains(authrtId)) throw new IllegalArgumentException("기본 권한은 삭제할 수 없습니다.");
+        if(Arrays.asList("MANAGER","USER").contains(authrtId)) throw new IllegalArgumentException("기본 권한은 삭제할 수 없습니다.");
         Map<String,Object> p=param(coId,authrtId);
         if(mapper.selectAuthorityUserCount(p)>0) throw new IllegalArgumentException("사용 중인 권한은 삭제할 수 없습니다.");
         mapper.deleteAuthorityMenu(p); mapper.deleteAuthority(p);
@@ -84,7 +94,23 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
     @Transactional(rollbackFor=Exception.class) public void saveDefaultWorkspace(UserVO u,String id){if(u==null)throw new IllegalArgumentException("로그인 정보가 없습니다.");mapper.clearDefaultWorkspace(u.getUserId());Map<String,Object>p=new HashMap<String,Object>();p.put("userId",u.getUserId());p.put("workspaceId",id);mapper.upsertDefaultWorkspace(p);}
     private void requireAuthority(String co,String auth){if(mapper.selectAuthorityCount(param(co,auth))==0)throw new IllegalArgumentException("존재하지 않는 회사 권한입니다.");}
-    private void validate(String id,String nm){if(id==null||!id.matches("^[A-Z][A-Z0-9_]{1,19}$"))throw new IllegalArgumentException("권한ID는 영문 대문자로 시작하는 대문자·숫자·밑줄 2~20자로 입력해 주세요.");if(nm==null||nm.trim().isEmpty()||nm.trim().length()>50)throw new IllegalArgumentException("권한명은 1~50자로 입력해 주세요.");}
+    private void requireMutableAuthority(String authrtId){if("ADMIN".equalsIgnoreCase(trim(authrtId)))throw new IllegalArgumentException("최고관리자 권한은 일반 권한관리에서 변경할 수 없습니다.");}
+    private void validateName(String nm){if(nm==null||nm.trim().isEmpty()||nm.trim().length()>50)throw new IllegalArgumentException("권한명은 1~50자로 입력해 주세요.");}
+    private String createCompanyAuthorityId(String coId){
+        String companyCode=trim(mapper.selectCompanyCode(coId)).toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z0-9]","_");
+        if(companyCode.isEmpty()) companyCode=trim(coId).toUpperCase(Locale.ENGLISH).replaceAll("[^A-Z0-9]","_");
+        if(companyCode.isEmpty()) companyCode="CO";
+        if(companyCode.length()>12) companyCode=companyCode.substring(0,12);
+        Map<String,Object> p=param(coId,null); p.put("authrtPrefix",companyCode);
+        Integer maxSeq=mapper.selectMaxCustomAuthoritySeq(p);
+        int seq=(maxSeq==null?0:maxSeq.intValue())+1;
+        for(int i=0;i<1000;i++,seq++){
+            String candidate=companyCode+"_"+seq;
+            if(candidate.length()>20) throw new IllegalArgumentException("회사코드 기준 권한ID 생성 범위를 초과했습니다.");
+            if(mapper.selectAuthorityCount(param(coId,candidate))==0) return candidate;
+        }
+        throw new IllegalArgumentException("권한ID 자동 생성에 실패했습니다. 관리자에게 문의해 주세요.");
+    }
     private Map<String,Object> param(String co,String auth){Map<String,Object>p=new HashMap<String,Object>();p.put("coId",co);p.put("authrtId",auth);return p;}
     private String trim(String s){return s==null?"":s.trim();}
     private void applyLegacyFallback(String auth,Set<String>ws,Set<String>codes){ws.add("WORK");codes.add("WORK_DASHBOARD_SCREEN");codes.add("WORK_SCHEDULE_LIST_SCREEN");if("ADMIN".equals(auth)||"MANAGER".equals(auth)){ws.addAll(Arrays.asList("PROJECT","ORG","MANAGEMENT"));codes.addAll(Arrays.asList("PROJECT_DASHBOARD_SCREEN","PROJECT_BIZ_LIST_SCREEN","PROJECT_CONTRACT_SCREEN","PROJECT_ACCOUNT_SCREEN","PROJECT_MNPW_SCREEN","PROJECT_PROCESS_SCREEN","ORG_DASHBOARD_SCREEN","MANAGEMENT_DASHBOARD_SCREEN"));}if("ADMIN".equals(auth))codes.addAll(Arrays.asList("MANAGEMENT_ORG_SCREEN","MANAGEMENT_USER_SCREEN","MANAGEMENT_AUTHRT_SCREEN"));}

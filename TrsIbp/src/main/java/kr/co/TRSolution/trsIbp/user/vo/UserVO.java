@@ -4,7 +4,7 @@ import kr.co.TRSolution.trsIbp.dept.vo.DeptVO;
 
 /**
  * 사용자 VO (Value Object)
- * 테이블: USER_INFO, AUTHRT_INFO, CO_INFO, DEPT_INFO JOIN
+ * 테이블: USER_INFO, CO_AUTHRT_INFO, CO_INFO, DEPT_INFO JOIN
  *
  * @author DevSync
  * @since 2026-05-28
@@ -41,7 +41,7 @@ public class UserVO extends DeptVO {
     /** 직급/직책 (대표/본부장/팀장/팀원 등 자유입력) */
     private String jbpsNm;
 
-    /** 권한ID (AUTHRT_INFO.AUTHRT_ID FK) */
+    /** 권한ID (CO_AUTHRT_INFO.(CO_ID, AUTHRT_ID) 복합 FK) */
     private String authrtId;
 
     /** 연락처 */
@@ -69,7 +69,7 @@ public class UserVO extends DeptVO {
     /** 상위부서명 (DEPT_INFO.UP_DEPT_ID JOIN) */
     private String upDeptNm;
 
-    /** 권한명 (AUTHRT_INFO.AUTHRT_NM) */
+    /** 권한명 (CO_AUTHRT_INFO.AUTHRT_NM) */
     private String authrtNm;
 
     // ============================================================

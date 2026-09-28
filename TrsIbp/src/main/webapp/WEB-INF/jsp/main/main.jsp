@@ -34,10 +34,10 @@
 
 
     <div id="dashboardNoticeModal" class="ds-modal hidden" style="z-index:1200;">
-        <div class="ds-modal-panel max-w-2xl">
-            <div class="ds-modal-head"><div><span id="dashboardNoticeBadge" class="text-xs"></span><h2 id="dashboardNoticeTitle" class="mt-1">공지사항</h2></div><button type="button" onclick="closeDashboardNotice(false)">×</button></div>
-            <div class="p-6"><div id="dashboardNoticeMeta" class="text-xs text-gray-500 mb-4"></div><div id="dashboardNoticeContent" class="whitespace-pre-wrap leading-7"></div></div>
-            <div class="p-4 border-t border-brand-border flex justify-between items-center"><label class="text-sm text-gray-400 flex items-center gap-2"><input type="checkbox" id="dashboardNoticeDontShow"> 다시 보지 않음</label><button type="button" class="ds-btn ds-btn-primary" onclick="closeDashboardNotice(true)">확인</button></div>
+        <div class="ds-modal-panel max-w-2xl ds-dashboard-notice-modal">
+            <div class="ds-modal-head ds-dashboard-notice-head"><div><span id="dashboardNoticeBadge" class="text-xs"></span><h2 id="dashboardNoticeTitle" class="mt-1">공지사항</h2></div><button type="button" onclick="closeDashboardNotice(false)">×</button></div>
+            <div class="p-6 ds-dashboard-notice-scroll"><div id="dashboardNoticeMeta" class="text-xs text-gray-500 mb-4"></div><div id="dashboardNoticeContent" class="whitespace-pre-wrap leading-7"></div></div>
+            <div class="p-4 border-t border-brand-border flex justify-between items-center ds-dashboard-notice-footer"><label class="text-sm text-gray-400 flex items-center gap-2"><input type="checkbox" id="dashboardNoticeDontShow"> 다시 보지 않음</label><button type="button" class="ds-btn ds-btn-primary" onclick="closeDashboardNotice(true)">확인</button></div>
         </div>
     </div>
 

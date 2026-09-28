@@ -165,8 +165,6 @@
         }
         $('#authorityFormMode').val(mode);
         $('#authorityModalTitle').text(mode === 'insert' ? '신규 권한 추가' : '권한 수정');
-        $('#authorityId').val(mode === 'insert' ? '' : selected.authrtId)
-            .prop('readonly', mode === 'update');
         $('#authorityName').val(mode === 'insert' ? '' : selected.authrtNm);
         $('#authorityDescription').val(mode === 'insert' ? '' : window.decodeStoredText(selected.authrtExpln || ''));
         $('#authorityModal').removeClass('hidden');
@@ -180,17 +178,19 @@
         event.preventDefault();
         var mode = $('#authorityFormMode').val();
         var payload = {
-            authrtId: $.trim($('#authorityId').val()).toUpperCase(),
             authrtNm: $.trim($('#authorityName').val()),
             authrtExpln: $.trim($('#authorityDescription').val())
         };
+        if (mode === 'update') {
+            payload.authrtId = state.selectedAuthrtId;
+        }
         $.post(ctxPath + '/authority/authority' + (mode === 'insert' ? 'Insert' : 'Update') + '.ajax', payload)
             .done(function(result) {
                 if (result.result !== 'OK') {
                     showAuthorityToast(result.msg || '권한 정보를 저장하지 못했습니다.', 'error');
                     return;
                 }
-                state.selectedAuthrtId = payload.authrtId;
+                state.selectedAuthrtId = mode === 'insert' ? result.authrtId : state.selectedAuthrtId;
                 closeAuthorityModal();
                 loadAuthorityData(state.selectedAuthrtId);
                 showAuthorityToast('권한 정보를 저장했습니다.', 'success');

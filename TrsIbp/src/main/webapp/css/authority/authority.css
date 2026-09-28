@@ -333,3 +333,39 @@
         border-right: 0;
     }
 }
+
+/* 2026-09-23 역할·권한 등록/수정 모달: 현재 스크롤 위치와 무관하게 화면 정중앙 고정 */
+#authorityModal.ds-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(2, 6, 23, .72);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    box-sizing: border-box;
+}
+
+#authorityModal.ds-modal-backdrop.hidden {
+    display: none;
+}
+
+#authorityModal .ds-authority-modal {
+    margin: 0;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+    #authorityModal.ds-modal-backdrop {
+        padding: 16px;
+    }
+
+    #authorityModal .ds-authority-modal {
+        width: min(520px, calc(100vw - 32px));
+        max-height: calc(100vh - 32px);
+    }
+}
