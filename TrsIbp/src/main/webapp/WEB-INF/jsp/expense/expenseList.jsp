@@ -6,6 +6,13 @@
     <jsp:include page="/WEB-INF/jsp/common/head.jsp">
         <jsp:param name="dsTitle" value="DevSync - 비용 청구"/>
     </jsp:include>
+<style>
+.ds-file-picker {display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #23324a;border-radius:10px;background:#0a1324;min-height:58px;flex-wrap:wrap}
+.ds-file-picker-input {position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.ds-file-picker-button {cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px;margin:0}
+.ds-file-picker-input:focus-visible + .ds-file-picker-button {outline:2px solid #06b6d4;outline-offset:3px}
+.ds-file-picker-names {color:#94a3b8;font-size:12px;overflow-wrap:anywhere;flex:1}
+</style>
 </head>
 <body class="ds-body min-h-screen flex">
 <jsp:include page="/WEB-INF/jsp/common/sidebar.jsp"/>
@@ -18,7 +25,7 @@
         <div class="ds-page-head">
             <div>
                 <h1 class="ds-page-title">비용 청구</h1>
-                <p class="ds-page-desc">개인카드 등으로 지출한 프로젝트 비용을 등록하고 영수증·매출전표를 첨부합니다. 등록 즉시 프로젝트 손익에 반영됩니다.</p>
+                <p class="ds-page-desc">이곳에서 사업 비용을 등록·수정·삭제합니다. 입력한 비용은 회계관리 영업이익에 즉시 반영됩니다.</p>
             </div>
             <div class="ds-actions">
                 <button type="button" class="ds-btn ds-btn-primary" data-authority-code="WORK_EXPENSE_REG" onclick="openExpenseForm()">+ 비용 등록</button>
@@ -56,20 +63,25 @@
             <input type="hidden" name="claimSn" id="claimSn">
             <div class="ds-field ds-col-12"><label for="expBizId">프로젝트</label><select name="bizId" id="expBizId" class="ds-select" required></select></div>
             <div class="ds-field ds-col-3"><label for="expUseYmd">사용일</label><input type="date" name="useYmd" id="expUseYmd" class="ds-input" required></div>
-            <div class="ds-field ds-col-3"><label for="expSe">비용구분</label><select name="expnsSeCd" id="expSe" class="ds-select"><option value="LODGING">숙박</option><option value="SUPPLY">물품</option><option value="MEAL">식비</option><option value="TRANSPORT">교통</option><option value="FUEL">유류</option><option value="ETC">기타</option></select></div>
-            <div class="ds-field ds-col-3"><label for="expPay">결제수단</label><select name="pmtMthdCd" id="expPay" class="ds-select"><option value="PERSONAL_CARD">개인카드</option><option value="CORP_CARD">법인카드</option><option value="CASH">현금</option><option value="ETC">기타</option></select></div>
+            <div class="ds-field ds-col-3"><label for="expSe">비용구분</label><select name="expnsSeCd" id="expSe" class="ds-select"><option value="LODGING">숙박</option><option value="SUPPLY">물품</option><option value="MEAL">식비</option><option value="TRANSPORT">교통</option><option value="FUEL">유류</option><option value="ETC">기타</option><option value="TRVL">출장비(기존 자료)</option><option value="MEET">회의비(기존 자료)</option></select></div>
+            <div class="ds-field ds-col-3"><label for="expPay">결제수단</label><select name="pmtMthdCd" id="expPay" class="ds-select"><option value="PERSONAL_CARD">개인카드</option><option value="CORP_CARD">법인카드</option><option value="CASH">현금</option><option value="ETC">기타</option><option value="UNSPECIFIED">미입력(기존 자료)</option></select></div>
             <div id="expCardLast4Field" class="ds-field ds-col-3"><label for="expCardLast4">카드 뒷번호 4자리</label><input type="text" name="cardLast4" id="expCardLast4" class="ds-input" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" placeholder="예: 1234"></div>
             <div class="ds-field ds-col-4"><label for="expAmt">금액</label><input type="number" name="claimAmt" id="expAmt" min="1" class="ds-input" required></div>
             <div class="ds-field ds-col-4"><label for="expNm">비용명</label><input name="expnsNm" id="expNm" class="ds-input" required></div>
             <div class="ds-field ds-col-4"><label for="expMerchant">사용처</label><input name="merchantNm" id="expMerchant" class="ds-input"></div>
             <div class="ds-field ds-col-12"><label for="expRmrk">비고</label><textarea name="rmrkCn" id="expRmrk" class="ds-textarea" rows="3"></textarea></div>
-            <div class="ds-field ds-col-12"><label for="expFiles">영수증/매출전표</label><input type="file" name="files" id="expFiles" class="ds-input" multiple accept="image/*,.pdf"></div>
+            <div class="ds-field ds-col-12"><label for="expFiles">영수증/매출전표</label>
+                <div class="ds-file-picker">
+                    <input type="file" name="files" id="expFiles" class="ds-file-picker-input" multiple accept="image/*,.pdf">
+                    <label for="expFiles" class="ds-btn ds-btn-outline ds-file-picker-button"><i class="fa-solid fa-paperclip"></i> 파일 선택</label>
+                    <span id="expFileNames" class="ds-file-picker-names">선택된 파일 없음</span>
+                </div></div>
             <div id="expenseExistingFiles" class="ds-col-12"></div>
             <div class="ds-col-12 ds-form-actions"><button type="button" class="ds-btn ds-btn-outline" onclick="closeExpenseForm()">취소</button><button type="submit" class="ds-btn ds-btn-primary">저장</button></div>
         </form>
     </div>
 </div>
 <script>var ctxPath='${pageContext.request.contextPath}';</script>
-<script src="${pageContext.request.contextPath}/js/expense.js?v=20260921.5"></script>
+<script src="${pageContext.request.contextPath}/js/expense.js?v=20261008.3"></script>
 </body>
 </html>

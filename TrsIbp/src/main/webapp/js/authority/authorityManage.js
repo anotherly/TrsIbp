@@ -27,6 +27,11 @@
             $('.authority-menu-check, .authority-group-check').prop('checked', this.checked);
             updateSelectionCount();
         });
+        $('.authority-scope-check').on('change', function() {
+            // 체크박스 UI지만 프로젝트 범위는 배타적이다.
+            if (this.checked) $('.authority-scope-check').not(this).prop('checked', false);
+            else if (!$('.authority-scope-check:checked').length) $(this).prop('checked', true);
+        });
         $('#btnAuthoritySave').on('click', saveMenuAuthority);
         $('#btnAuthorityAdd').on('click', function() { openAuthorityModal('insert'); });
         $('#btnAuthorityEdit').on('click', function() { openAuthorityModal('update'); });
@@ -51,6 +56,7 @@
                 state.menuList = data.menuList || [];
                 renderAuthorityList();
                 renderMenuList();
+                renderDataScope();
             })
             .fail(function() {
                 showAuthorityToast('권한 정보를 조회하는 중 통신 오류가 발생했습니다.', 'error');
@@ -131,12 +137,26 @@
             + childHtml + '</div></section>';
     }
 
+    function renderDataScope() {
+        var selected = findSelectedAuthority();
+        var scope = selected && selected.dataScopeCd === 'COMPANY' ? 'COMPANY' : 'SELF';
+        $('.authority-scope-check').prop('checked', false);
+        $('.authority-scope-check[value="' + scope + '"]').prop('checked', true);
+        $('#authorityScopePanel').toggle(!!selected);
+    }
+
     function saveMenuAuthority() {
         if (!state.selectedAuthrtId) {
             showAuthorityToast('저장할 권한을 선택해 주세요.', 'error');
             return;
         }
-        var data = [{ name: 'authrtId', value: state.selectedAuthrtId }];
+        var scope = $('.authority-scope-check:checked').val();
+        if (scope !== 'COMPANY' && scope !== 'SELF') {
+            showAuthorityToast('프로젝트 조회 범위를 선택해 주세요.', 'error');
+            return;
+        }
+        var data = [{ name: 'authrtId', value: state.selectedAuthrtId },
+            { name: 'dataScopeCd', value: scope }];
         $('.authority-menu-check:checked').each(function() {
             data.push({ name: 'menuSn', value: this.value });
         });

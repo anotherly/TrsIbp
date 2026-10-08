@@ -2,6 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.TRSolution.trsIbp.dashboard.mapper.DashboardMapper">
 
+    <!-- 모든 프로젝트 대시보드 쿼리에 공통 적용할 접근 범위: 등록자 OR 활성 투입인력. -->
+    <sql id="projectAccessCondition">
+        <if test="companyScopeYn != &quot;Y&quot;">
+            AND (B.RGTR_ID = #{userId} OR EXISTS (
+                SELECT 1 FROM biz_mnpw AM
+                WHERE AM.BIZ_ID = B.BIZ_ID AND AM.USER_ID = #{userId} AND AM.USE_YN = 'Y'
+            ))
+        </if>
+    </sql>
+
     <select id="selectWorkSummary" parameterType="map" resultType="hashmap">
         SELECT
           (SELECT COUNT(DISTINCT S.SCHDL_SN)
@@ -11,15 +21,16 @@
               AND S.CO_ID = #{coId}
               AND S.USE_YN = 'Y'
               AND CURDATE() BETWEEN DATE(S.BGNG_DT) AND DATE(S.END_DT)) AS todayScheduleCount,
-          (SELECT COUNT(DISTINCT M.BIZ_ID)
-             FROM biz_mnpw M
-             JOIN biz_info B ON B.BIZ_ID = M.BIZ_ID
-            WHERE M.USER_ID = #{userId}
-              AND M.USE_YN = 'Y'
-              AND B.CO_ID = #{coId}
-              AND B.BIZ_STTS_CD = 'PRGRS'
-              AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD &lt;= CURDATE())
-              AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD &gt;= CURDATE())) AS myProjectCount,
+          <!-- 내 프로젝트는 본인이 등록했거나 사용 중인 투입인력으로 등록된 사업.
+               프로젝트 대시보드의 접근 가능 사업 기준과 일치시키며, 사업상태/투입기간으로 제외하지 않음. -->
+          (SELECT COUNT(*)
+             FROM biz_info B
+            WHERE B.CO_ID = #{coId}
+              AND (B.RGTR_ID = #{userId} OR EXISTS (
+                    SELECT 1 FROM biz_mnpw M
+                     WHERE M.BIZ_ID = B.BIZ_ID
+                       AND M.USER_ID = #{userId} AND M.USE_YN = 'Y'
+                  ))) AS myProjectCount,
           (SELECT COUNT(DISTINCT S.SCHDL_SN)
              FROM schdl_info S
              JOIN schdl_user_rel R ON R.SCHDL_SN = S.SCHDL_SN
@@ -65,7 +76,11 @@
     <select id="selectProjectSummary" parameterType="map" resultType="hashmap">
         SELECT COUNT(DISTINCT B.BIZ_ID) AS projectCount,
                COUNT(DISTINCT CASE WHEN B.BIZ_STTS_CD = 'PRGRS' THEN B.BIZ_ID END) AS activeProjectCount,
-               COUNT(DISTINCT CASE WHEN M.USE_YN = 'Y' THEN COALESCE(M.USER_ID, CONCAT('EXT:', M.INPUT_MNPW_NM)) END) AS inputMnpwCount,
+               COUNT(DISTINCT CASE WHEN M.USE_YN = 'Y'
+                                      AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD &lt;= CURDATE())
+                                      AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD &gt;= CURDATE())
+                                  THEN CONCAT(CASE WHEN M.USER_ID IS NOT NULL AND M.USER_ID &lt;&gt; '' THEN CONCAT('USER:',M.USER_ID,':') ELSE 'EXT:' END,
+                                              COALESCE(NULLIF(TRIM(M.INPUT_MNPW_NM),''),'이름없음')) END) AS inputMnpwCount,
                COUNT(DISTINCT CASE WHEN S.USE_YN = 'Y'
                                     AND S.SCHDL_END_YMD BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
                                    THEN S.BIZ_SCHDL_SN END) AS dueScheduleCount
@@ -73,6 +88,7 @@
         LEFT JOIN biz_mnpw M ON M.BIZ_ID = B.BIZ_ID
         LEFT JOIN biz_schdl S ON S.BIZ_ID = B.BIZ_ID
         WHERE B.CO_ID = #{coId}
+        <include refid="projectAccessCondition"/>
     </select>
 
     <select id="selectProjectStatusList" parameterType="map" resultType="hashmap">
@@ -98,6 +114,7 @@
         LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'BIZ_STTS_CD'
                            AND C.CD = B.BIZ_STTS_CD AND C.USE_YN = 'Y'
         WHERE B.CO_ID = #{coId}
+        <include refid="projectAccessCondition"/>
         ORDER BY participatingYn DESC, FIELD(B.BIZ_STTS_CD, 'PRGRS', 'READY', 'HOLD', 'CMPTN', 'CANCEL'),
                  B.BIZ_END_YMD, B.BIZ_NM
         LIMIT 8
@@ -117,6 +134,7 @@
         WHERE B.CO_ID = #{coId}
           AND S.USE_YN = 'Y'
           AND S.SCHDL_END_YMD &gt;= CURDATE()
+          <include refid="projectAccessCondition"/>
         ORDER BY S.SCHDL_END_YMD, S.BIZ_SCHDL_SN
         LIMIT 6
     </select>
@@ -346,21 +364,27 @@
             <when test="workspace == 'work' and detailType == 'myProject'">
                 SELECT B.BIZ_ID AS itemId,
                        B.BIZ_NM AS title,
-                       CONCAT(IFNULL(DATE_FORMAT(M.INPUT_BGNG_YMD, '%Y-%m-%d'), '-'), ' ~ ', IFNULL(DATE_FORMAT(M.INPUT_END_YMD, '%Y-%m-%d'), '-')) AS subTitle,
-                       CONCAT('투입률 ', IFNULL(M.INPUT_RT, 0), '%', CASE WHEN M.ROLE_NM IS NULL OR M.ROLE_NM = '' THEN '' ELSE CONCAT(' · ', M.ROLE_NM) END) AS meta,
+                       CASE
+                         WHEN B.RGTR_ID = #{userId} AND EXISTS (
+                            SELECT 1 FROM biz_mnpw M
+                             WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y')
+                           THEN '본인 등록 · 투입인력'
+                         WHEN B.RGTR_ID = #{userId} THEN '본인 등록 프로젝트'
+                         ELSE '투입인력 등록 프로젝트'
+                       END AS subTitle,
+                       IFNULL(B.BIZ_ABRV_NM, '내 프로젝트') AS meta,
                        IFNULL(C.CD_NM, B.BIZ_STTS_CD) AS badge,
                        'BIZ' AS actionType,
                        CONCAT('/biz/bizDetail.do?bizId=', B.BIZ_ID) AS href
-                FROM biz_mnpw M
-                JOIN biz_info B ON B.BIZ_ID = M.BIZ_ID AND B.CO_ID = #{coId}
+                FROM biz_info B
                 LEFT JOIN cmn_cd C ON C.CD_GROUP_ID = 'BIZ_STTS_CD' AND C.CD = B.BIZ_STTS_CD AND C.USE_YN = 'Y'
-                WHERE M.USER_ID = #{userId}
-                  AND M.USE_YN = 'Y'
-                  AND B.BIZ_STTS_CD = 'PRGRS'
-                  AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD &lt;= CURDATE())
-                  AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD &gt;= CURDATE())
-                ORDER BY B.BIZ_END_YMD, B.BIZ_NM
-                LIMIT 20
+                WHERE B.CO_ID = #{coId}
+                  AND (B.RGTR_ID = #{userId} OR EXISTS (
+                      SELECT 1 FROM biz_mnpw M
+                       WHERE M.BIZ_ID = B.BIZ_ID
+                         AND M.USER_ID = #{userId} AND M.USE_YN = 'Y'
+                  ))
+                ORDER BY B.BIZ_NM, B.BIZ_ID
             </when>
             <when test="workspace == 'work' and detailType == 'monthSchedule'">
                 SELECT S.SCHDL_SN AS itemId,
@@ -413,26 +437,33 @@
                 FROM biz_info B
                 LEFT JOIN cmn_cd C ON C.CD_GROUP_ID='BIZ_STTS_CD' AND C.CD=B.BIZ_STTS_CD AND C.USE_YN='Y'
                 WHERE B.CO_ID=#{coId}
+                <include refid="projectAccessCondition"/>
                 <if test="detailType == 'activeProject'">AND B.BIZ_STTS_CD='PRGRS'</if>
                 ORDER BY B.BIZ_END_YMD, B.BIZ_NM
                 LIMIT 30
             </when>
             <when test="workspace == 'project' and detailType == 'inputMnpw'">
-                SELECT COALESCE(U.USER_ID, CONCAT('EXT-',M.BIZ_MNPW_SN)) AS itemId,
-                       COALESCE(U.USER_NM, M.INPUT_MNPW_NM, '외부인력') AS title,
+                <!-- 원본은 한 사람/프로젝트당 1행. JS에서는 personKey 단위로 묶고,
+                     projectId 중복도 합쳐 사람별 프로젝트 목록으로 표시. -->
+                SELECT CONCAT(CASE WHEN M.USER_ID IS NOT NULL AND M.USER_ID &lt;&gt; '' THEN CONCAT('USER:',M.USER_ID,':') ELSE 'EXT:' END,
+                              COALESCE(NULLIF(TRIM(M.INPUT_MNPW_NM),''),'이름없음')) AS itemId,
+                       CONCAT(CASE WHEN M.USER_ID IS NOT NULL AND M.USER_ID &lt;&gt; '' THEN CONCAT('USER:',M.USER_ID,':') ELSE 'EXT:' END,
+                              COALESCE(NULLIF(TRIM(M.INPUT_MNPW_NM),''),'이름없음')) AS personKey,
+                       COALESCE(NULLIF(TRIM(M.INPUT_MNPW_NM),''), U.USER_NM, '외부인력') AS title,
+                       B.BIZ_ID AS projectId,
                        B.BIZ_NM AS subTitle,
-                       CONCAT('투입률 ',IFNULL(M.INPUT_RT,0),'% · ',IFNULL(M.ROLE_NM,'역할 미지정')) AS meta,
-                       CASE WHEN U.USER_ID=#{userId} THEN '본인' ELSE '투입중' END AS badge,
+                       CONCAT('투입률 ',IFNULL(M.INPUT_RT,0),'% · ',IFNULL(NULLIF(M.ROLE_NM,''),'역할 미지정')) AS meta,
+                       CASE WHEN M.USER_ID=#{userId} THEN '본인' ELSE '투입중' END AS badge,
                        'MNPW' AS actionType,
-                       '/biz/mnpwList.do' AS href
+                       CONCAT('/biz/mnpwList.do?bizId=',B.BIZ_ID) AS href
                 FROM biz_mnpw M
                 JOIN biz_info B ON B.BIZ_ID=M.BIZ_ID AND B.CO_ID=#{coId}
-                LEFT JOIN user_info U ON U.USER_ID=M.USER_ID
+                LEFT JOIN user_info U ON U.USER_ID=M.USER_ID AND U.CO_ID=B.CO_ID
                 WHERE M.USE_YN='Y'
+                  <include refid="projectAccessCondition"/>
                   AND (M.INPUT_BGNG_YMD IS NULL OR M.INPUT_BGNG_YMD&lt;=CURDATE())
                   AND (M.INPUT_END_YMD IS NULL OR M.INPUT_END_YMD&gt;=CURDATE())
-                ORDER BY B.BIZ_NM, title
-                LIMIT 30
+                ORDER BY title, personKey, B.BIZ_NM, M.BIZ_MNPW_SN
             </when>
             <when test="workspace == 'project' and detailType == 'dueSchedule'">
                 SELECT S.BIZ_SCHDL_SN AS itemId,
@@ -444,6 +475,7 @@
                        '/biz/schdlList.do' AS href
                 FROM biz_schdl S JOIN biz_info B ON B.BIZ_ID=S.BIZ_ID
                 WHERE B.CO_ID=#{coId} AND S.USE_YN='Y'
+                  <include refid="projectAccessCondition"/>
                   AND S.SCHDL_END_YMD BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
                 ORDER BY S.SCHDL_END_YMD, S.BIZ_SCHDL_SN
                 LIMIT 30

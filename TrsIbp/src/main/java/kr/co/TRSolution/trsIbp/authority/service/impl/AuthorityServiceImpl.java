@@ -21,10 +21,19 @@ public class AuthorityServiceImpl implements AuthorityService {
         return mapper.selectMenuAuthorityList(param(coId, authrtId));
     }
     @Transactional(rollbackFor=Exception.class)
-    public void saveAuthorityMenu(String coId, String authrtId, List<Long> menuSnList, String loginUserId) {
+    public void saveAuthorityMenu(String coId, String authrtId, List<Long> menuSnList, String dataScopeCd, String loginUserId) {
         requireMutableAuthority(authrtId);
         requireAuthority(coId, authrtId);
-        Map<String,Object> p=param(coId,authrtId); mapper.deleteAuthorityMenu(p);
+        // 조회 범위와 메뉴 권한은 한 트랜잭션으로 저장한다. 둘 중 하나라도 실패하면 롤백한다.
+        if (!"COMPANY".equals(dataScopeCd) && !"SELF".equals(dataScopeCd)) {
+            throw new IllegalArgumentException("프로젝트 조회 범위를 선택해 주세요.");
+        }
+        Map<String,Object> p=param(coId,authrtId);
+        p.put("dataScopeCd",dataScopeCd);
+        p.put("loginUserId",loginUserId);
+        // UPDATE가 동일 값일 때 0건으로 응답할 수 있으므로 대상 존재 여부는 위 requireAuthority에서 확인한다.
+        mapper.updateAuthorityDataScope(p);
+        mapper.deleteAuthorityMenu(p);
         if(menuSnList==null) return;
         for(Long sn:new LinkedHashSet<Long>(menuSnList)) {
             if(sn==null) continue;
@@ -81,12 +90,21 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
     @SuppressWarnings("unchecked") public boolean isWorkspaceAllowed(HttpSession s,String id){Object o=s.getAttribute("allowedWorkspaces");return o instanceof Set&&((Set<String>)o).contains(id);}
     public boolean isCompanyDataScope(UserVO u){
-        if(u==null) return false; if("SYS_ADMIN".equals(u.getAuthrtId())||"ADMIN".equals(u.getAuthrtId())||"MANAGER".equals(u.getAuthrtId())) return true;
-        try { String v=mapper.selectDataScopeCd(param(u.getCoId(),u.getAuthrtId())); return "COMPANY".equals(v); } catch(DataAccessException e){ return false; }
+        if (u==null) return false;
+        // SYS_ADMIN은 권한관리 화면에 노출하지 않는 시스템 역할이다. 그 외는 회사별 DB 설정만 사용한다.
+        if ("SYS_ADMIN".equals(u.getAuthrtId())) return true;
+        try { String v=mapper.selectDataScopeCd(param(u.getCoId(),u.getAuthrtId())); return "COMPANY".equals(v); }
+        catch (DataAccessException e) { return false; }
     }
     public boolean isBizAccessAllowed(UserVO u,String bizId){
-        if(bizId==null||bizId.trim().isEmpty()||u==null) return true; if(isCompanyDataScope(u)) return true;
-        Map<String,Object> p=param(u.getCoId(),u.getAuthrtId()); p.put("userId",u.getUserId()); p.put("bizId",bizId); return mapper.selectBizAccessCount(p)>0;
+        if (u==null) return false;
+        if (bizId==null || bizId.trim().isEmpty()) return true;
+        // COMPANY도 반드시 현재 회사의 사업인지 검사한다 (타 회사 사업 ID 접근 방지).
+        Map<String,Object> p=param(u.getCoId(),u.getAuthrtId());
+        p.put("userId",u.getUserId());
+        p.put("bizId",bizId);
+        p.put("companyScopeYn",isCompanyDataScope(u) ? "Y" : "N");
+        return mapper.selectBizAccessCount(p)>0;
     }
     public boolean isScheduleAccessAllowed(UserVO u,String sn,boolean write){
         if(sn==null||sn.trim().isEmpty()||u==null) return true; if("ADMIN".equals(u.getAuthrtId())||"SYS_ADMIN".equals(u.getAuthrtId())) return true;

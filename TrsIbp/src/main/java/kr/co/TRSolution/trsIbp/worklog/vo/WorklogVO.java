@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import kr.co.TRSolution.trsIbp.comm.BaseVO;
 
 public class WorklogVO extends BaseVO {
+ private String companyScopeYn; public String getCompanyScopeYn(){return companyScopeYn;} public void setCompanyScopeYn(String v){companyScopeYn=v;}
  private Long workItemSn; private String coId,userId,workYmd,taskBgngYmd,exptEndYmd,doneYmd,bizId,workSeCd,workCn,prgrsSttsCd,issueCn,nextPlanCn,useYn,rgtrId,mdfrId,bizNm,bizAbrvNm,userNm; private Long parentWorkItemSn; private Integer sortSeq,priorityNo; private BigDecimal prgrsRt;
  public Long getWorkItemSn(){return workItemSn;} public void setWorkItemSn(Long v){workItemSn=v;} public String getCoId(){return coId;} public void setCoId(String v){coId=v;} public String getUserId(){return userId;} public void setUserId(String v){userId=v;}
  public String getWorkYmd(){return workYmd;} public void setWorkYmd(String v){workYmd=v;} public String getTaskBgngYmd(){return taskBgngYmd;} public void setTaskBgngYmd(String v){taskBgngYmd=v;} public String getExptEndYmd(){return exptEndYmd;} public void setExptEndYmd(String v){exptEndYmd=v;} public String getDoneYmd(){return doneYmd;} public void setDoneYmd(String v){doneYmd=v;}

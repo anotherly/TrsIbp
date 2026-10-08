@@ -6,16 +6,16 @@
         <div>
             <p class="ds-dashboard-eyebrow">DevSync Workspace</p>
             <h1>프로젝트 관리 대시보드</h1>
-            <p>회사 전체 프로젝트를 표시하며, 본인이 투입된 프로젝트는 참여중으로 구분합니다.</p>
+            <p><c:choose><c:when test="${dashboardCompanyScopeYn}">회사 전체 프로젝트를 표시합니다.</c:when><c:otherwise>본인이 등록했거나 현재 투입된 프로젝트를 표시합니다.</c:otherwise></c:choose></p>
         </div>
         <div class="ds-dashboard-scope">
             <strong><i class="fa-solid fa-shield-halved"></i> 조회 범위</strong>
-            <span>회사 전체 프로젝트 표시 · 본인 투입 프로젝트는 ‘참여중’ 표시</span>
+            <span><c:choose><c:when test="${dashboardCompanyScopeYn}">회사 전체 프로젝트 조회</c:when><c:otherwise>본인 등록 또는 활성 투입 프로젝트 조회</c:otherwise></c:choose></span>
         </div>
     </section>
 
     <section class="ds-dashboard-kpis">
-        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('project','allProject',this,'전체 프로젝트');"><div class="ds-kpi-label">조회 프로젝트</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.projectCount ? 0 : dashboardSummary.projectCount}"/>개</div><div class="ds-kpi-sub">회사 전체 기준</div></article>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('project','allProject',this,'전체 프로젝트');"><div class="ds-kpi-label">조회 프로젝트</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.projectCount ? 0 : dashboardSummary.projectCount}"/>개</div><div class="ds-kpi-sub">${dashboardCompanyScopeYn ? '회사 전체 기준' : '본인 등록·활성 투입 기준'}</div></article>
         <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('project','activeProject',this,'진행 프로젝트');"><div class="ds-kpi-label">진행 프로젝트</div><div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${empty dashboardSummary.activeProjectCount ? 0 : dashboardSummary.activeProjectCount}"/>개</div><div class="ds-kpi-sub">사업상태 `진행` 기준</div></article>
         <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('project','inputMnpw',this,'현재 투입인력');"><div class="ds-kpi-label">등록 투입인력</div><div class="ds-kpi-value"><fmt:formatNumber value="${empty dashboardSummary.inputMnpwCount ? 0 : dashboardSummary.inputMnpwCount}"/>명</div><div class="ds-kpi-sub">내부 사용자와 외부인력 포함</div></article>
         <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('project','dueSchedule',this,'30일 내 종료 일정');"><div class="ds-kpi-label">30일 내 종료 일정</div><div class="ds-kpi-value is-amber"><fmt:formatNumber value="${empty dashboardSummary.dueScheduleCount ? 0 : dashboardSummary.dueScheduleCount}"/>건</div><div class="ds-kpi-sub">사업 일정 종료일 기준</div></article>

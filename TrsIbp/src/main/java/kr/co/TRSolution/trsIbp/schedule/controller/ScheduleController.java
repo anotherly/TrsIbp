@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import kr.co.TRSolution.trsIbp.authority.service.AuthorityService;
 import kr.co.TRSolution.trsIbp.biz.service.BizService;
 import kr.co.TRSolution.trsIbp.biz.vo.BizVO;
 import kr.co.TRSolution.trsIbp.schedule.service.ScheduleService;
@@ -32,6 +33,9 @@ public class ScheduleController {
 
     @Resource(name = "bizService")
     private BizService bizService;
+
+    @Resource(name = "authorityService")
+    private AuthorityService authorityService;
 
     /**
      * 종합 일정 캘린더 화면으로 이동한다.
@@ -55,8 +59,8 @@ public class ScheduleController {
         applyLoginUser(scheduleVO, request, false);
         mav.addObject("result", "OK");
         mav.addObject("codeList", scheduleService.selectScheduleCodeList(scheduleVO));
-        mav.addObject("bizList", selectScheduleProjectList(scheduleVO.getCoId()));
         UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+        mav.addObject("bizList", selectScheduleProjectList(loginUser));
         mav.addObject("loginUserId", loginUser.getUserId());
         mav.addObject("loginUserNm", loginUser.getUserNm());
         return mav;
@@ -158,6 +162,12 @@ public class ScheduleController {
             return mav;
         }
         validateMsg = validateAndNormalizeProject(scheduleVO);
+        if (validateMsg == null && scheduleVO.getBizId() != null) {
+            UserVO loginUser = (UserVO) request.getSession().getAttribute("login");
+            if (!authorityService.isBizAccessAllowed(loginUser, scheduleVO.getBizId())) {
+                validateMsg = "본인 등록 또는 활성 투입 프로젝트만 선택할 수 있습니다.";
+            }
+        }
         if (validateMsg != null) {
             mav.addObject("result", "FAIL");
             mav.addObject("message", validateMsg);
@@ -332,9 +342,11 @@ public class ScheduleController {
      * @return 사업ID, 사업코드, 사업명만 포함한 프로젝트 목록
      * @throws Exception 사업 목록 조회 중 예외 발생 시 전달
      */
-    private List<BizVO> selectScheduleProjectList(String coId) throws Exception {
+    private List<BizVO> selectScheduleProjectList(UserVO loginUser) throws Exception {
         BizVO searchVO = new BizVO();
-        searchVO.setCoId(coId);
+        searchVO.setCoId(loginUser.getCoId());
+        searchVO.setScopeUserId(loginUser.getUserId());
+        searchVO.setCompanyScopeYn(authorityService.isCompanyDataScope(loginUser) ? "Y" : "N");
         searchVO.setRecordCountPerPage(0);
         List<BizVO> projectList = new ArrayList<BizVO>();
         for (BizVO bizVO : bizService.selectBizList(searchVO)) {

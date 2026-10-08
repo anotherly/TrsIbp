@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import kr.co.TRSolution.trsIbp.authority.service.AuthorityService;
 import kr.co.TRSolution.trsIbp.dashboard.mapper.DashboardMapper;
 import kr.co.TRSolution.trsIbp.dashboard.service.DashboardService;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
@@ -18,6 +19,9 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Resource(name = "dashboardMapper")
     private DashboardMapper dashboardMapper;
+
+    @Resource(name = "authorityService")
+    private AuthorityService authorityService;
 
     @Override
     public Map<String, Object> selectSummary(String workspace, UserVO loginUser) {
@@ -83,6 +87,7 @@ public class DashboardServiceImpl implements DashboardService {
     private Map<String, Object> createParam(UserVO loginUser) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("userId", loginUser.getUserId());
+        param.put("companyScopeYn", authorityService.isCompanyDataScope(loginUser) ? "Y" : "N");
         param.put("coId", loginUser.getCoId());
         param.put("deptId", loginUser.getDeptId());
         param.put("allCompanyYn", "ADMIN".equals(loginUser.getAuthrtId()) ? "Y" : "N");

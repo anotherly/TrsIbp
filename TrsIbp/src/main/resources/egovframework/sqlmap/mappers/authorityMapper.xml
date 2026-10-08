@@ -40,10 +40,20 @@
     AND A.AUTHRT_ID REGEXP CONCAT('^', #{authrtPrefix}, '_[0-9]+$')
 </select>
 <select id="selectDataScopeCd" parameterType="map" resultType="string">SELECT DATA_SCOPE_CD FROM co_authrt_info WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId} AND USE_YN='Y' LIMIT 1</select>
-<select id="selectBizAccessCount" parameterType="map" resultType="int">SELECT COUNT(*) FROM biz_info B WHERE B.BIZ_ID=#{bizId} AND B.CO_ID=#{coId} AND EXISTS(SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y')</select>
+<select id="selectBizAccessCount" parameterType="map" resultType="int">
+ SELECT COUNT(*) FROM biz_info B WHERE B.BIZ_ID=#{bizId} AND B.CO_ID=#{coId}
+ AND (#{companyScopeYn}='Y' OR B.RGTR_ID=#{userId} OR EXISTS (
+     SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y'
+ ))
+</select>
 <select id="selectScheduleAccessCount" parameterType="map" resultType="int">
  SELECT COUNT(*) FROM schdl_info S WHERE S.SCHDL_SN=#{schdlSn} AND S.CO_ID=#{coId} AND S.USE_YN='Y' AND (S.RGTR_ID=#{userId} OR EXISTS(SELECT 1 FROM schdl_user_rel R WHERE R.SCHDL_SN=S.SCHDL_SN AND R.USER_ID=#{userId}))
 </select>
+<update id="updateAuthorityDataScope" parameterType="map">
+ UPDATE co_authrt_info
+ SET DATA_SCOPE_CD=#{dataScopeCd}, MDFCN_DT=NOW(), MDFR_ID=#{loginUserId}
+ WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId} AND USE_YN='Y' AND AUTHRT_ID &lt;&gt; 'ADMIN'
+</update>
 <insert id="insertAuthority" parameterType="map">INSERT INTO co_authrt_info(CO_ID,AUTHRT_ID,AUTHRT_NM,AUTHRT_EXPLN,DATA_SCOPE_CD,SORT_SEQ,USE_YN,REG_DT) VALUES(#{coId},#{authrtId},#{authrtNm},#{authrtExpln},#{dataScopeCd},99,'Y',NOW())</insert>
 <update id="updateAuthority" parameterType="map">UPDATE co_authrt_info SET AUTHRT_NM=#{authrtNm},AUTHRT_EXPLN=#{authrtExpln},MDFCN_DT=NOW() WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId}</update>
 <delete id="deleteAuthorityMenu" parameterType="map">DELETE FROM co_authrt_menu_rel WHERE CO_ID=#{coId} AND AUTHRT_ID=#{authrtId}</delete>

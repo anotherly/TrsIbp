@@ -1,15 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.TRSolution.trsIbp.expense.mapper.ExpenseMapper">
-<resultMap id="expenseMap" type="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO"><id property="claimSn" column="CLAIM_SN"/><result property="coId" column="CO_ID"/><result property="bizId" column="BIZ_ID"/><result property="bizCstSn" column="BIZ_CST_SN"/><result property="userId" column="USER_ID"/><result property="expnsSeCd" column="EXPNS_SE_CD"/><result property="pmtMthdCd" column="PMT_MTHD_CD"/><result property="cardLast4" column="CARD_LAST4"/><result property="useYmd" column="USE_YMD"/><result property="merchantNm" column="MERCHANT_NM"/><result property="expnsNm" column="EXPNS_NM"/><result property="claimAmt" column="CLAIM_AMT"/><result property="rmrkCn" column="RMRK_CN"/><result property="sttsCd" column="STTS_CD"/><result property="bizNm" column="BIZ_NM"/><result property="bizAbrvNm" column="BIZ_ABRV_NM"/><result property="userNm" column="USER_NM"/><result property="regDt" column="REG_DT"/></resultMap>
-<sql id="expenseScope">E.CO_ID=#{coId} AND E.USE_YN='Y' <if test="companyScopeYn != &quot;Y&quot;">AND E.USER_ID=#{userId}</if></sql>
-<select id="selectExpenseList" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultMap="expenseMap">SELECT E.*,B.BIZ_NM,B.BIZ_ABRV_NM,U.USER_NM,DATE_FORMAT(E.REG_DT,'%Y-%m-%d %H:%i') REG_DT FROM expense_claim E JOIN biz_info B ON B.BIZ_ID=E.BIZ_ID LEFT JOIN user_info U ON U.USER_ID=E.USER_ID WHERE <include refid="expenseScope"/> <if test="searchKeyword != null and searchKeyword != ''">AND (B.BIZ_NM LIKE CONCAT('%',#{searchKeyword},'%') OR E.EXPNS_NM LIKE CONCAT('%',#{searchKeyword},'%') OR E.MERCHANT_NM LIKE CONCAT('%',#{searchKeyword},'%'))</if> ORDER BY E.USE_YMD DESC,E.CLAIM_SN DESC</select>
-<select id="selectAvailableBizList" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultType="hashmap">SELECT B.BIZ_ID bizId,B.BIZ_NM bizNm,B.BIZ_ABRV_NM bizAbrvNm FROM biz_info B WHERE B.CO_ID=#{coId} <if test="companyScopeYn != &quot;Y&quot;">AND EXISTS(SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y')</if> ORDER BY B.BIZ_NM</select>
-<select id="selectExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultMap="expenseMap">SELECT E.*,B.BIZ_NM,B.BIZ_ABRV_NM,U.USER_NM,DATE_FORMAT(E.REG_DT,'%Y-%m-%d %H:%i') REG_DT FROM expense_claim E JOIN biz_info B ON B.BIZ_ID=E.BIZ_ID LEFT JOIN user_info U ON U.USER_ID=E.USER_ID WHERE E.CLAIM_SN=#{claimSn} AND <include refid="expenseScope"/></select>
-<insert id="insertBizCost" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" useGeneratedKeys="true" keyProperty="bizCstSn">INSERT INTO biz_cst(BIZ_ID,CST_SE_CD,CST_NM,OCRN_CST,OCRN_YMD,RMRK_CN,USE_YN,REG_DT,RGTR_ID) VALUES(#{bizId},#{expnsSeCd},#{expnsNm},#{claimAmt},#{useYmd},#{rmrkCn},'Y',NOW(),#{rgtrId})</insert>
-<insert id="insertExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" useGeneratedKeys="true" keyProperty="claimSn">INSERT INTO expense_claim(CO_ID,BIZ_ID,BIZ_CST_SN,USER_ID,EXPNS_SE_CD,PMT_MTHD_CD,CARD_LAST4,USE_YMD,MERCHANT_NM,EXPNS_NM,CLAIM_AMT,RMRK_CN,STTS_CD,USE_YN,REG_DT,RGTR_ID) VALUES(#{coId},#{bizId},#{bizCstSn},#{userId},#{expnsSeCd},IFNULL(NULLIF(#{pmtMthdCd},''),'PERSONAL_CARD'),NULLIF(#{cardLast4},''),#{useYmd},#{merchantNm},#{expnsNm},#{claimAmt},#{rmrkCn},'REFLECTED','Y',NOW(),#{rgtrId})</insert>
-<update id="updateBizCost" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">UPDATE biz_cst SET BIZ_ID=#{bizId},CST_SE_CD=#{expnsSeCd},CST_NM=#{expnsNm},OCRN_CST=#{claimAmt},OCRN_YMD=#{useYmd},RMRK_CN=#{rmrkCn},MDFCN_DT=NOW(),MDFR_ID=#{mdfrId} WHERE BIZ_CST_SN=#{bizCstSn}</update>
-<update id="updateExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">UPDATE expense_claim SET BIZ_ID=#{bizId},EXPNS_SE_CD=#{expnsSeCd},PMT_MTHD_CD=#{pmtMthdCd},CARD_LAST4=NULLIF(#{cardLast4},''),USE_YMD=#{useYmd},MERCHANT_NM=#{merchantNm},EXPNS_NM=#{expnsNm},CLAIM_AMT=#{claimAmt},RMRK_CN=#{rmrkCn},MDFCN_DT=NOW(),MDFR_ID=#{mdfrId} WHERE CLAIM_SN=#{claimSn} AND CO_ID=#{coId} <if test="companyScopeYn != &quot;Y&quot;">AND USER_ID=#{userId}</if></update>
-<update id="deleteBizCost" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">UPDATE biz_cst SET USE_YN='N',MDFCN_DT=NOW(),MDFR_ID=#{mdfrId} WHERE BIZ_CST_SN=#{bizCstSn}</update>
-<update id="deleteExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">UPDATE expense_claim SET USE_YN='N',MDFCN_DT=NOW(),MDFR_ID=#{mdfrId} WHERE CLAIM_SN=#{claimSn} AND CO_ID=#{coId} <if test="companyScopeYn != &quot;Y&quot;">AND USER_ID=#{userId}</if></update>
+  <resultMap id="expenseMap" type="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">
+    <id property="claimSn" column="CLAIM_SN"/>
+    <result property="coId" column="CO_ID"/>
+    <result property="bizId" column="BIZ_ID"/>
+    <result property="bizCstSn" column="BIZ_CST_SN"/>
+    <result property="userId" column="USER_ID"/>
+    <result property="expnsSeCd" column="EXPNS_SE_CD"/>
+    <result property="pmtMthdCd" column="PMT_MTHD_CD"/>
+    <result property="cardLast4" column="CARD_LAST4"/>
+    <result property="useYmd" column="USE_YMD"/>
+    <result property="merchantNm" column="MERCHANT_NM"/>
+    <result property="expnsNm" column="EXPNS_NM"/>
+    <result property="claimAmt" column="CLAIM_AMT"/>
+    <result property="rmrkCn" column="RMRK_CN"/>
+    <result property="bizNm" column="BIZ_NM"/>
+    <result property="bizAbrvNm" column="BIZ_ABRV_NM"/>
+    <result property="userNm" column="USER_NM"/>
+    <result property="regDt" column="REG_DT"/>
+  </resultMap>
+  <!-- claimSn is kept as a request/response alias for BIZ_CST_SN. There is one physical ledger only. -->
+  <sql id="baseExpenseColumns">
+    C.BIZ_CST_SN AS CLAIM_SN, C.BIZ_CST_SN, B.CO_ID, C.BIZ_ID,
+    COALESCE(C.EXPNS_USER_ID,C.RGTR_ID) AS USER_ID, C.CST_SE_CD AS EXPNS_SE_CD,
+    C.PMT_MTHD_CD, C.CARD_LAST4, DATE_FORMAT(C.OCRN_YMD,'%Y-%m-%d') AS USE_YMD,
+    C.MERCHANT_NM, C.CST_NM AS EXPNS_NM, C.OCRN_CST AS CLAIM_AMT, C.RMRK_CN,
+    B.BIZ_NM, B.BIZ_ABRV_NM, U.USER_NM, DATE_FORMAT(C.REG_DT,'%Y-%m-%d %H:%i') AS REG_DT
+  </sql>
+  <sql id="scope">
+    AND B.CO_ID=#{coId}
+    <if test="companyScopeYn != &quot;Y&quot;">
+      AND (B.RGTR_ID=#{userId} OR EXISTS (
+        SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID
+          AND M.USER_ID=#{userId} AND M.USE_YN='Y'))
+    </if>
+  </sql>
+  <select id="selectExpenseList" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultMap="expenseMap">
+    SELECT <include refid="baseExpenseColumns"/>
+    FROM biz_cst C JOIN biz_info B ON B.BIZ_ID=C.BIZ_ID
+    LEFT JOIN user_info U ON U.USER_ID=COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)
+    WHERE C.USE_YN='Y'
+      AND COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)=#{userId}
+    <include refid="scope"/>
+    <if test="searchKeyword != null and searchKeyword != ''">
+      AND (B.BIZ_NM LIKE CONCAT('%',#{searchKeyword},'%')
+        OR B.BIZ_ABRV_NM LIKE CONCAT('%',#{searchKeyword},'%')
+        OR C.CST_NM LIKE CONCAT('%',#{searchKeyword},'%')
+        OR C.MERCHANT_NM LIKE CONCAT('%',#{searchKeyword},'%'))
+    </if>
+    ORDER BY C.OCRN_YMD DESC,C.BIZ_CST_SN DESC
+  </select>
+  <select id="selectAvailableBizList" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultType="hashmap">
+    SELECT B.BIZ_ID bizId, B.BIZ_NM bizNm, B.BIZ_ABRV_NM bizAbrvNm
+    FROM biz_info B WHERE B.CO_ID=#{coId}
+    <if test="companyScopeYn != &quot;Y&quot;">
+      AND (B.RGTR_ID=#{userId} OR EXISTS(SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y'))
+    </if>
+    ORDER BY B.BIZ_CD,B.BIZ_NM
+  </select>
+  <select id="selectAvailableBizCount" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultType="int">
+    SELECT COUNT(*) FROM biz_info B WHERE B.BIZ_ID=#{bizId} AND B.CO_ID=#{coId}
+    <if test="companyScopeYn != &quot;Y&quot;">
+      AND (B.RGTR_ID=#{userId} OR EXISTS(SELECT 1 FROM biz_mnpw M WHERE M.BIZ_ID=B.BIZ_ID AND M.USER_ID=#{userId} AND M.USE_YN='Y'))
+    </if>
+  </select>
+  <select id="selectExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultMap="expenseMap">
+    SELECT <include refid="baseExpenseColumns"/>
+    FROM biz_cst C JOIN biz_info B ON B.BIZ_ID=C.BIZ_ID
+    LEFT JOIN user_info U ON U.USER_ID=COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)
+    WHERE C.BIZ_CST_SN=#{claimSn} AND C.USE_YN='Y'
+      AND COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)=#{userId}
+    <include refid="scope"/>
+  </select>
+  <!-- Accounting receipt download: same-company/project access, regardless of expense owner.
+       This select must not be used for the expense entry/edit/delete screen. -->
+  <select id="selectExpenseForAccounting" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" resultMap="expenseMap">
+    SELECT <include refid="baseExpenseColumns"/>
+    FROM biz_cst C JOIN biz_info B ON B.BIZ_ID=C.BIZ_ID
+    LEFT JOIN user_info U ON U.USER_ID=COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)
+    WHERE C.BIZ_CST_SN=#{claimSn} AND C.USE_YN='Y'
+    <include refid="scope"/>
+  </select>
+  <insert id="insertExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO" useGeneratedKeys="true" keyProperty="claimSn">
+    INSERT INTO biz_cst (BIZ_ID,CST_SE_CD,CST_NM,OCRN_CST,OCRN_YMD,RMRK_CN,
+      PMT_MTHD_CD,CARD_LAST4,MERCHANT_NM,EXPNS_USER_ID,USE_YN,REG_DT,RGTR_ID)
+    VALUES(#{bizId},#{expnsSeCd},#{expnsNm},#{claimAmt},#{useYmd},#{rmrkCn},
+      NULLIF(#{pmtMthdCd},''),NULLIF(#{cardLast4},''),NULLIF(#{merchantNm},''),#{userId},'Y',NOW(),#{rgtrId})
+  </insert>
+  <update id="updateExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">
+    UPDATE biz_cst C SET C.BIZ_ID=#{bizId},C.CST_SE_CD=#{expnsSeCd},
+      C.CST_NM=#{expnsNm},C.OCRN_CST=#{claimAmt},C.OCRN_YMD=#{useYmd},
+      C.RMRK_CN=#{rmrkCn},C.PMT_MTHD_CD=NULLIF(#{pmtMthdCd},''),
+      C.CARD_LAST4=NULLIF(#{cardLast4},''),C.MERCHANT_NM=NULLIF(#{merchantNm},''),
+      C.MDFCN_DT=NOW(),C.MDFR_ID=#{mdfrId}
+    WHERE C.BIZ_CST_SN=#{claimSn} AND C.USE_YN='Y'
+      AND COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)=#{userId}
+      AND EXISTS(SELECT 1 FROM biz_info B WHERE B.BIZ_ID=C.BIZ_ID AND B.CO_ID=#{coId})
+  </update>
+  <update id="deleteExpense" parameterType="kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO">
+    UPDATE biz_cst C SET C.USE_YN='N',C.MDFCN_DT=NOW(),C.MDFR_ID=#{mdfrId}
+    WHERE C.BIZ_CST_SN=#{claimSn} AND C.USE_YN='Y'
+      AND COALESCE(C.EXPNS_USER_ID,C.RGTR_ID)=#{userId}
+      AND EXISTS(SELECT 1 FROM biz_info B WHERE B.BIZ_ID=C.BIZ_ID AND B.CO_ID=#{coId})
+  </update>
 </mapper>

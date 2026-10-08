@@ -21,12 +21,21 @@ import org.springframework.web.servlet.ModelAndView;
 import kr.co.TRSolution.trsIbp.comm.file.service.CommonFileService;
 import kr.co.TRSolution.trsIbp.comm.file.vo.CommonFileVO;
 import kr.co.TRSolution.trsIbp.user.vo.UserVO;
+import kr.co.TRSolution.trsIbp.authority.service.AuthorityService;
+import kr.co.TRSolution.trsIbp.expense.service.ExpenseService;
+import kr.co.TRSolution.trsIbp.expense.vo.ExpenseVO;
 
 @Controller
 public class CommonFileController {
 
     @Resource(name = "commonFileService")
     private CommonFileService commonFileService;
+
+    @Resource(name = "expenseService")
+    private ExpenseService expenseService;
+
+    @Resource(name = "authorityService")
+    private AuthorityService authorityService;
 
     @RequestMapping(value = "/common/fileView.do", method = RequestMethod.GET)
     public void viewFile(@RequestParam("atchFileSn") Long atchFileSn,
@@ -97,6 +106,32 @@ public class CommonFileController {
         if (fileVO == null || !loginUser.getCoId().equals(fileVO.getCoId())) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
+        }
+        // Receipts are attached to the single biz_cst ledger; enforce project-level scope
+        // for direct file URL access as well as for the expense listing API.
+        if ("BIZ_COST".equals(fileVO.getRefSeCd()) && "RECEIPT".equals(fileVO.getFileSeCd())) {
+            ExpenseVO scopeCheck = new ExpenseVO();
+            try {
+                scopeCheck.setClaimSn(Long.valueOf(fileVO.getRefId()));
+            } catch (NumberFormatException ex) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            scopeCheck.setCoId(loginUser.getCoId());
+            scopeCheck.setUserId(loginUser.getUserId());
+            scopeCheck.setCompanyScopeYn(authorityService.isCompanyDataScope(loginUser) ? "Y" : "N");
+            // Expense claims are owner-only. Accounting receipts are also readable by
+            // users with the accounting list permission within their project data scope.
+            // Keep these checks separate: account viewers must never inherit expense
+            // modification privileges merely by being allowed to download a receipt.
+            boolean ownExpense = expenseService.selectExpense(scopeCheck) != null;
+            boolean accountingViewer = authorityService.isRequestGranted(
+                    loginUser, "/biz/cstList.ajax", "LIST");
+            if (!ownExpense && !(accountingViewer
+                    && expenseService.selectExpenseForAccounting(scopeCheck) != null)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
         }
         if ("DOCUMENT".equals(fileVO.getFileSeCd())
                 && !canManageUserFile(loginUser, fileVO.getRefId())) {

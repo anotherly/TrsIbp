@@ -10,20 +10,19 @@
     </insert>
 
     <select id="selectExpenseSnapshot" parameterType="map" resultType="hashmap">
-        SELECT E.CLAIM_SN claimSn,
-               E.BIZ_ID bizId,
-               E.EXPNS_SE_CD expnsSeCd,
-               E.PMT_MTHD_CD pmtMthdCd,
-               E.CARD_LAST4 cardLast4,
-               DATE_FORMAT(E.USE_YMD, '%Y-%m-%d') useYmd,
-               E.MERCHANT_NM merchantNm,
-               E.EXPNS_NM expnsNm,
-               E.CLAIM_AMT claimAmt,
-               E.RMRK_CN rmrkCn
-          FROM expense_claim E
-         WHERE E.CO_ID = #{coId}
-           AND E.CLAIM_SN = #{claimSn}
-         LIMIT 1
+        SELECT C.BIZ_CST_SN claimSn,
+               C.BIZ_ID bizId,
+               C.CST_SE_CD expnsSeCd,
+               C.PMT_MTHD_CD pmtMthdCd,
+               C.CARD_LAST4 cardLast4,
+               DATE_FORMAT(C.OCRN_YMD, '%Y-%m-%d') useYmd,
+               C.MERCHANT_NM merchantNm,
+               C.CST_NM expnsNm,
+               C.OCRN_CST claimAmt,
+               C.RMRK_CN rmrkCn
+        FROM biz_cst C JOIN biz_info B ON B.BIZ_ID=C.BIZ_ID
+        WHERE B.CO_ID=#{coId} AND C.BIZ_CST_SN=#{claimSn}
+        LIMIT 1
     </select>
 
     <select id="selectWorklogSnapshot" parameterType="map" resultType="hashmap">

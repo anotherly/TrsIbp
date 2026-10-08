@@ -50,7 +50,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
         if (isOwnUserRequest(requestUrl, request, loginUser)) {
             return true;
         }
-        if (requestUrl.startsWith("/biz/") && !"ADMIN".equals(loginUser.getAuthrtId())
+        if (requestUrl.startsWith("/biz/")
                 && !authorityService.isBizAccessAllowed(loginUser, request.getParameter("bizId"))) {
             logger.warn("사업 접근 범위 거부 userId=" + loginUser.getUserId()
                     + ", bizId=" + request.getParameter("bizId")
@@ -98,6 +98,10 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
     }
 
     private String resolveMenuType(String requestUrl, HttpServletRequest request) {
+        // 첨부파일 목록 조회도 DB의 LIST 기능 권한으로 검사해야 한다.
+        if ("/expense/expenseFiles.ajax".equals(requestUrl)) {
+            return "LIST";
+        }
         if (requestUrl.endsWith(".do")) {
             return "SCREEN";
         }

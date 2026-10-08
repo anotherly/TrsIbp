@@ -21,6 +21,7 @@ public interface AuthorityMapper {
     Integer selectMaxCustomAuthoritySeq(Map<String,Object> param);
     String selectDataScopeCd(Map<String,Object> param);
     int selectBizAccessCount(Map<String,Object> param);
+    int updateAuthorityDataScope(Map<String,Object> param);
     int selectScheduleAccessCount(Map<String,Object> param);
     int insertAuthority(Map<String,Object> param);
     int updateAuthority(Map<String,Object> param);

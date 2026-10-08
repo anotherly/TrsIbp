@@ -20,10 +20,10 @@
             <div class="ds-kpi-value"><fmt:formatNumber value="${dashboardSummary.todayScheduleCount}"/>건</div>
             <div class="ds-kpi-sub">클릭하면 오늘 · 내 일정으로 이동</div>
         </article>
-        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('work','myProject',this,'참여 중 프로젝트');">
-            <div class="ds-kpi-label">참여 중 프로젝트</div>
+        <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('work','myProject',this,'내 프로젝트 (등록·투입)');">
+            <div class="ds-kpi-label">내 프로젝트 (등록·투입)</div>
             <div class="ds-kpi-value is-cyan"><fmt:formatNumber value="${dashboardSummary.myProjectCount}"/>개</div>
-            <div class="ds-kpi-sub">클릭해서 참여 프로젝트 확인</div>
+            <div class="ds-kpi-sub">본인 등록·활성 투입 기준</div>
         </article>
         <article class="ds-dashboard-card ds-kpi-clickable" tabindex="0" role="button" onclick="openDashboardSummaryDetail('work','monthSchedule',this,'이번 달 내 일정');">
             <div class="ds-kpi-label">이번 달 일정</div>

@@ -145,7 +145,7 @@ public class BizController {
         } else {
             if (!canManageBiz(reqLoginVo, bizVO.getBizId())) {
                 mav.addObject("result", "DENIED");
-                mav.addObject("msg", "본인이 참여 중인 프로젝트만 수정할 수 있습니다.");
+                mav.addObject("msg", "본인이 등록하거나 현재 투입된 프로젝트만 수정할 수 있습니다.");
                 return mav;
             }
             cnt = bizService.updateBiz(bizVO);
@@ -172,7 +172,7 @@ public class BizController {
 
         if (!canManageBiz(reqLoginVo, bizVO.getBizId())) {
             mav.addObject("result", "DENIED");
-            mav.addObject("msg", "본인이 참여 중인 프로젝트만 삭제할 수 있습니다.");
+            mav.addObject("msg", "본인이 등록하거나 현재 투입된 프로젝트만 삭제할 수 있습니다.");
             return mav;
         }
         int cnt = bizService.deleteBiz(bizVO);
@@ -394,39 +394,20 @@ public class BizController {
         return mav;
     }
 
+    /** Cost entry is performed only by /expense/expenseSave.ajax. */
     @RequestMapping(value = "/biz/cstSave.ajax")
     public ModelAndView saveBizCst(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-
-        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
-        bizVO.setCoId(reqLoginVo.getCoId());
-        bizVO.setRgtrId(reqLoginVo.getUserId());
-        bizVO.setMdfrId(reqLoginVo.getUserId());
-
-        int cnt;
-        if (bizVO.getBizCstSn() == null || bizVO.getBizCstSn() == 0) {
-            cnt = bizService.insertBizCst(bizVO);
-        } else {
-            cnt = bizService.updateBizCst(bizVO);
-        }
-
-        mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
-
+        mav.addObject("result", "FAIL");
+        mav.addObject("msg", "비용 등록과 수정은 내 업무 > 비용 청구에서 진행해 주세요.");
         return mav;
     }
 
     @RequestMapping(value = "/biz/cstDelete.ajax")
     public ModelAndView deleteBizCst(@ModelAttribute("bizVO") BizVO bizVO, HttpServletRequest request) throws Exception {
         ModelAndView mav = new ModelAndView("jsonView");
-
-        UserVO reqLoginVo = (UserVO) request.getSession().getAttribute("login");
-        bizVO.setCoId(reqLoginVo.getCoId());
-        bizVO.setRgtrId(reqLoginVo.getUserId());
-        bizVO.setMdfrId(reqLoginVo.getUserId());
-
-        int cnt = bizService.deleteBizCst(bizVO);
-        mav.addObject("result", cnt > 0 ? "OK" : "FAIL");
-
+        mav.addObject("result", "FAIL");
+        mav.addObject("msg", "비용 삭제는 내 업무 > 비용 청구에서 진행해 주세요.");
         return mav;
     }
 
@@ -659,14 +640,10 @@ public class BizController {
         return normalized.isEmpty() ? "CO" : normalized;
     }
 
-    /** 회사 전체 범위가 아니면 본인 참여 프로젝트만 수정/삭제한다. */
+    /** 회사 전체 범위가 아니면 본인 등록 또는 활성 투입 프로젝트만 수정/삭제한다. */
     private boolean canManageBiz(UserVO loginUser, String bizId) throws Exception {
         if (loginUser == null || bizId == null || bizId.trim().isEmpty()) return false;
-        if (authorityService.isCompanyDataScope(loginUser)) return true;
-        BizVO param = new BizVO();
-        param.setBizId(bizId); param.setCoId(loginUser.getCoId()); param.setScopeUserId(loginUser.getUserId()); param.setCompanyScopeYn("N");
-        BizVO detail = bizService.selectBizDetail(param);
-        return detail != null && "Y".equals(detail.getParticipatingYn());
+        return authorityService.isBizAccessAllowed(loginUser, bizId);
     }
 
     /**

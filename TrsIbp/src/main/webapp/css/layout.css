@@ -233,7 +233,7 @@
     min-width: 0;
 }
 
-.ds-field label,
+.ds-field label:not(.ds-btn),
 .ds-label {
     display: block;
     margin-bottom: 7px;
@@ -1852,3 +1852,55 @@
         max-height: calc(100vh - 32px);
     }
 }
+
+/* 2026-10-08 - 버튼/레이블 버튼: 수직·수평 중앙 정렬 일관화.
+   단, 콘텐츠가 왼쪽 정렬되어야 하는 네비게이션/상세조회 행에는 적용하지 않음. */
+.ds-btn,
+.ds-field label.ds-btn,
+.ds-icon-btn,
+.ds-modal-close,
+.ds-mini-btn,
+.ds-tab-btn,
+.ds-tab,
+.ds-dashboard-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.25;
+}
+.ds-field label.ds-btn {
+    width: auto;
+    margin: 0;
+    color: #dbeafe;
+    font-size: 14px;
+    font-weight: 800;
+}
+.ds-btn > i,
+.ds-icon-btn > i,
+.ds-modal-close > i { flex: 0 0 auto; line-height: 1; }
+.ds-file-picker .ds-file-picker-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 38px;
+    padding: 0 12px;
+    margin: 0;
+    line-height: 1.25;
+}
+/* 투입인력 상세: 한 명당 하나의 카드 안에 담당 프로젝트들을 표시 */
+.ds-summary-person-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:16px; }
+.ds-summary-person-card { min-width:0; padding:15px; border:1px solid rgba(51,65,85,.7); border-radius:13px; background:rgba(2,6,23,.24); }
+.ds-summary-person-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; padding-bottom:11px; border-bottom:1px solid rgba(51,65,85,.52); }
+.ds-summary-person-head strong { color:#e5eefb; font-size:13px; font-weight:900; }
+.ds-summary-person-head small { color:#8c9bb0; font-size:11px; }
+.ds-summary-person-projects { display:grid; gap:5px; padding-top:8px; }
+.ds-summary-person-project { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 7px; border-radius:9px; min-width:0; color:#cbd5e1; text-decoration:none; }
+.ds-summary-person-project:hover, .ds-summary-person-project:focus-visible { background:rgba(8,145,178,.10); color:#fff; outline:1px solid rgba(34,211,238,.3); }
+.ds-summary-person-project-copy { display:block; min-width:0; }
+.ds-summary-person-project-copy strong { display:block; font-size:11px; font-weight:800; overflow-wrap:anywhere; }
+.ds-summary-person-project-copy small { display:block; font-size:10px; color:#8594a8; margin-top:4px; overflow-wrap:anywhere; }
+.ds-summary-person-project > i { color:#64748b; font-size:10px; flex:none; }
+@media (max-width:850px) { .ds-summary-person-grid { grid-template-columns:1fr; } }

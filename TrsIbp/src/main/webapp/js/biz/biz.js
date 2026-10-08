@@ -559,6 +559,16 @@ function initBizManagePage(manageType) {
     loadBizCodeOptions(function() {
         loadManageBizOptions(function() {
             var firstBizId = $('#manageBizId option:eq(1)').val();
+            // 투입인력 대시보드의 프로젝트 링크로 들어온 경우 해당 프로젝트를 우선 선택.
+            // 서버에서 조회된 선택목록에 있는 값만 허용해 다른 회사/미인가 사업은 적용하지 않음.
+            if (manageType === 'mnpw' && window.URLSearchParams) {
+                var requestedBizId = new URLSearchParams(window.location.search).get('bizId');
+                if (requestedBizId && $('#manageBizId option').filter(function() {
+                    return this.value === requestedBizId;
+                }).length) {
+                    firstBizId = requestedBizId;
+                }
+            }
             if (firstBizId) {
                 $('#manageBizId').val(firstBizId);
                 changeManagedBiz(manageType);
@@ -1271,64 +1281,9 @@ function bindCstFormFromEncoded(encodedRow) {
     bindCstFormFromRow(decodeRowData(encodedRow));
 }
 
-/**
- * 직접비를 등록 또는 수정한다.
- * @param 없음
- * @returns 없음
- */
-function saveBizCst() {
-    if (!$('#frmCstSeCd').val() || !$('#frmCstNm').val()) {
-        alert('비용구분과 비용명을 입력하십시오.');
-        return;
-    }
-    $.ajax({
-        url: ctxPath + '/biz/cstSave.ajax',
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            bizId: currentBizId,
-            bizCstSn: $('#frmBizCstSn').val(),
-            cstSeCd: $('#frmCstSeCd').val(),
-            cstNm: $('#frmCstNm').val(),
-            ocrnCst: unformatNumber($('#frmOcrnCst').val()),
-            ocrnYmd: $('#frmOcrnYmd').val()
-        },
-        success: function(res) {
-            if (res.result === 'OK') {
-                resetCstForm();
-                loadBizCstList();
-                loadBizProfitSummary();
-            } else {
-                alert('비용 저장에 실패했습니다.');
-            }
-        }
-    });
-}
-
-/**
- * 선택한 직접비를 삭제한다.
- * @param {string|number} bizCstSn 사업비용일련번호
- * @returns 없음
- */
-function deleteBizCst(bizCstSn) {
-    if (!confirm('선택한 비용을 삭제하시겠습니까?')) {
-        return;
-    }
-    $.ajax({
-        url: ctxPath + '/biz/cstDelete.ajax',
-        type: 'POST',
-        dataType: 'json',
-        data: { bizId: currentBizId, bizCstSn: bizCstSn },
-        success: function(res) {
-            if (res.result === 'OK') {
-                loadBizCstList();
-                loadBizProfitSummary();
-            } else {
-                alert('삭제에 실패했습니다.');
-            }
-        }
-    });
-}
+/** 비용의 등록·수정·삭제는 비용 청구 화면에서만 가능합니다. */
+function saveBizCst() { alert('비용 등록은 내 업무 > 비용 청구에서 진행해 주세요.'); }
+function deleteBizCst() { alert('비용 삭제는 내 업무 > 비용 청구에서 진행해 주세요.'); }
 
 /**
  * 투입인력 입력폼을 초기화한다.

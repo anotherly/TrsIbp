@@ -64,6 +64,7 @@ public class MainController {
         request.setAttribute("selectedWorkspace", selectedWorkspace);
         if (loginUser != null) {
             Map<String, Object> summary = dashboardService.selectSummary(selectedWorkspace, loginUser);
+            request.setAttribute("dashboardCompanyScopeYn", authorityService.isCompanyDataScope(loginUser));
             request.setAttribute("dashboardSummary", summary == null
                     ? Collections.<String, Object>emptyMap() : summary);
             request.setAttribute("dashboardPrimaryList",

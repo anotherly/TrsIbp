@@ -48,6 +48,49 @@
         }).join('') + '</div>';
     }
 
+    /* 프로젝트 대시보드의 투입인력은 행(사람 x 사업)이 아닌 사람 단위로 묶어서 노출한다.
+       같은 사람의 동일 프로젝트가 복수 투입정보로 저장돼 있어도 한 번만 표시한다. */
+    function renderGroupedManpower(list) {
+        if (!list || !list.length) {
+            return '<div class="ds-empty">현재 등록된 투입인력이 없습니다.</div>';
+        }
+        var groups = [];
+        var byPerson = Object.create(null);
+        list.forEach(function(item) {
+            var personKey = String(item.personKey || item.itemId || item.title || '');
+            var group = byPerson[personKey];
+            if (!group) {
+                group = { title: item.title || '외부인력', badge: item.badge || '', projects: [], byProject: Object.create(null) };
+                byPerson[personKey] = group;
+                groups.push(group);
+            }
+            if (item.badge === '본인') group.badge = '본인';
+            var projectKey = String(item.projectId || item.href || item.subTitle || '');
+            var project = group.byProject[projectKey];
+            if (!project) {
+                project = { title: item.subTitle || '-', href: item.href || '/biz/mnpwList.do', metaList: [] };
+                group.byProject[projectKey] = project;
+                group.projects.push(project);
+            }
+            var meta = String(item.meta || '');
+            if (meta && project.metaList.indexOf(meta) === -1) project.metaList.push(meta);
+        });
+        return '<div class="ds-summary-person-grid">' + groups.map(function(group) {
+            var projects = group.projects.map(function(project) {
+                var href = (window.ctxPath || '') + project.href;
+                return '<a class="ds-summary-person-project" href="' + esc(href) + '">'
+                    + '<span class="ds-summary-person-project-copy"><strong>' + esc(decode(project.title)) + '</strong>'
+                    + (project.metaList.length ? '<small>' + project.metaList.map(function(meta) { return esc(decode(meta)); }).join(' / ') + '</small>' : '')
+                    + '</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>';
+            }).join('');
+            return '<section class="ds-summary-person-card">'
+                + '<div class="ds-summary-person-head"><div><strong>' + esc(decode(group.title)) + '</strong>'
+                + '<small> · ' + group.projects.length + '개 프로젝트</small></div>'
+                + (group.badge === '본인' ? '<span class="ds-dashboard-badge">본인</span>' : '') + '</div>'
+                + '<div class="ds-summary-person-projects">' + projects + '</div></section>';
+        }).join('') + '</div>';
+    }
+
     window.openDashboardSummaryDetail = function(workspace, detailType, card, title) {
         var $panel = detailPanel();
         if (!$panel.length) return;
@@ -67,7 +110,10 @@
                     $panel.find('.ds-summary-detail-loading').replaceWith('<div class="ds-empty">' + esc((res && res.msg) || '상세 항목을 조회하지 못했습니다.') + '</div>');
                     return;
                 }
-                $panel.find('.ds-summary-detail-loading').replaceWith(renderDetailRows(res.list || []));
+                $panel.find('.ds-summary-detail-loading').replaceWith(
+                    workspace === 'project' && detailType === 'inputMnpw'
+                        ? renderGroupedManpower(res.list || [])
+                        : renderDetailRows(res.list || []));
             },
             error: function(xhr, status) {
                 if (status === 'abort') return;

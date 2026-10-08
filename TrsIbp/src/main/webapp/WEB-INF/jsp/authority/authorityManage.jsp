@@ -5,7 +5,7 @@
     <jsp:include page="/WEB-INF/jsp/common/head.jsp">
         <jsp:param name="dsTitle" value="DevSync - 역할·권한 관리"/>
     </jsp:include>
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/authority/authority.css">
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/authority/authority.css?v=20261008-scope">
 </head>
 <body class="ds-body min-h-screen flex">
     <jsp:include page="/WEB-INF/jsp/common/sidebar.jsp"/>
@@ -20,7 +20,7 @@
                     <h1><i class="fa-solid fa-shield-halved"></i> 역할·권한 관리</h1>
                     <p>역할별 업무공간과 목록·상세·등록·수정·삭제 기능을 설정합니다.</p>
                 </div>
-                <button type="button" id="btnAuthoritySave" class="ds-btn ds-btn-primary">
+                <button type="button" id="btnAuthoritySave" data-authority-code="MANAGEMENT_AUTHRT_SAVE" class="ds-btn ds-btn-primary">
                     <i class="fa-solid fa-floppy-disk"></i> 권한 저장
                 </button>
             </section>
@@ -30,12 +30,12 @@
                     <div class="ds-authority-section-head">
                         <strong>사용자 권한</strong>
                         <div>
-                            <button type="button" id="btnAuthorityEdit" class="ds-text-btn">수정</button>
-                            <button type="button" id="btnAuthorityDelete" class="ds-text-btn is-danger">삭제</button>
+                            <button type="button" id="btnAuthorityEdit" data-authority-code="MANAGEMENT_AUTHRT_MDFCN" class="ds-text-btn">수정</button>
+                            <button type="button" id="btnAuthorityDelete" data-authority-code="MANAGEMENT_AUTHRT_DEL" class="ds-text-btn is-danger">삭제</button>
                         </div>
                     </div>
                     <div id="authorityRoleList" class="ds-authority-role-list"></div>
-                    <button type="button" id="btnAuthorityAdd" class="ds-authority-add">
+                    <button type="button" id="btnAuthorityAdd" data-authority-code="MANAGEMENT_AUTHRT_REG" class="ds-authority-add">
                         <i class="fa-solid fa-plus"></i> 신규 권한 추가
                     </button>
                 </aside>
@@ -50,6 +50,22 @@
                             <input type="checkbox" id="checkAllAuthority"> 전체 선택
                         </label>
                     </div>
+                    <section class="ds-authority-scope" id="authorityScopePanel" aria-labelledby="authorityScopeTitle">
+                        <div class="ds-authority-scope-title">
+                            <strong id="authorityScopeTitle"><i class="fa-solid fa-database"></i> 프로젝트 조회 범위</strong>
+                            <span>선택한 권한에 적용 · 두 옵션 중 하나만 선택</span>
+                        </div>
+                        <div class="ds-authority-scope-options">
+                            <label class="ds-authority-scope-option">
+                                <input type="checkbox" class="authority-scope-check" value="COMPANY" id="scopeCompany">
+                                <span><b>전체 프로젝트</b><small>소속 회사의 전체 프로젝트 조회 및 해당 기능 권한 적용</small></span>
+                            </label>
+                            <label class="ds-authority-scope-option">
+                                <input type="checkbox" class="authority-scope-check" value="SELF" id="scopeSelf">
+                                <span><b>본인 등록·투입 프로젝트만</b><small>본인이 등록하거나 현재 활성 투입된 프로젝트로 제한</small></span>
+                            </label>
+                        </div>
+                    </section>
                     <div id="authorityMenuList" class="ds-authority-menu-list">
                         <div class="ds-empty">권한 목록을 불러오는 중입니다.</div>
                     </div>
@@ -85,6 +101,6 @@
     <script>
         var ctxPath = '<%=request.getContextPath()%>';
     </script>
-    <script src="<%=request.getContextPath()%>/js/authority/authorityManage.js"></script>
+    <script src="<%=request.getContextPath()%>/js/authority/authorityManage.js?v=20261008-scope"></script>
 </body>
 </html>
